@@ -1,0 +1,568 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "get_datetime",
+      "description": "Returns the current date and time in ISO 8601 format, optionally adjusted for a timezone offset.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "Timezone offset in hours (e.g. 1 for UTC+1). Defaults to UTC if not provided."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_timestamp",
+      "description": "Returns the current Unix timestamp (seconds since 1970-01-01 UTC).",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_microtimestamp",
+      "description": "Returns the current Unix timestamp with microsecond precision as a float.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_timezones",
+      "description": "Returns a list of all available timezones. Optionally filter by UTC offset.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "Filter timezones by this UTC offset (e.g. 1 for UTC+1)."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_swatch_internet_time",
+      "description": "Returns the current time in Swatch Internet Time (.beats, 0–999) and the current date. No time zones involved.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_random_number",
+      "description": "Returns a random integer within a given range. Defaults to 1–6 (like a die roll) if no range is specified.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "integer",
+            "description": "Lower bound of the range (inclusive)."
+          },
+          "to": {
+            "type": "integer",
+            "description": "Upper bound of the range (inclusive)."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_random_color",
+      "description": "Returns a random hex color code (e.g. #A3F2C1).",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_uuid",
+      "description": "Generates and returns a UUID v4.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_guid",
+      "description": "Generates and returns a GUID.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base64_encode",
+      "description": "Encodes a string into Base64 format.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text to encode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base64_decode",
+      "description": "Decodes a Base64-encoded string back to its original text.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The Base64-encoded string to decode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base58_encode",
+      "description": "Encodes a string into Base58 format.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text to encode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base58_decode",
+      "description": "Decodes a Base58-encoded string back to its original text.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The Base58-encoded string to decode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base32_encode",
+      "description": "Encodes a string into Base32 format.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text to encode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base32_decode",
+      "description": "Decodes a Base32-encoded string back to its original text.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The Base32-encoded string to decode."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "jwt_encode",
+      "description": "Encodes a JSON payload into a JWT using HS256. Requires a secret key.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "The JSON payload to encode into the JWT."
+          },
+          "secret": {
+            "type": "string",
+            "description": "The secret key used to sign the JWT."
+          }
+        },
+        "required": ["data", "secret"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "jwt_decode",
+      "description": "Decodes a JWT and returns its payload. Requires the secret key used to sign it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The JWT token string to decode."
+          },
+          "secret": {
+            "type": "string",
+            "description": "The secret key used to verify and decode the JWT."
+          }
+        },
+        "required": ["data", "secret"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qrcode_encode",
+      "description": "Generates a QR code from text or a URL. Returns a Base64-encoded PNG image.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text or URL to encode into a QR code."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qrcode_decode",
+      "description": "Decodes a QR code image and returns the embedded text. Accepts a Base64-encoded image.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Base64-encoded QR code image."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_md5",
+      "description": "Generates an MD5 hash of the provided input string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The string to hash."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_sha1",
+      "description": "Generates a SHA1 hash of the provided input string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The string to hash."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_sha256",
+      "description": "Generates a SHA256 hash of the provided input string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The string to hash."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_sha512",
+      "description": "Generates a SHA512 hash of the provided input string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The string to hash."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ping",
+      "description": "Sends a ping to verify the API is reachable. Returns 'pong'.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "health_check",
+      "description": "Returns the API health status and a high-precision timestamp.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_client_ip",
+      "description": "Returns the public IP address of the caller.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ip_lookup",
+      "description": "Performs a reverse IP lookup, returning country, city, coordinates, and timezone for a given IP address.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "The IP address to look up (e.g. '8.8.8.8')."
+          }
+        },
+        "required": ["ip"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "storage_set",
+      "description": "Stores JSON or text data temporarily and returns a UUID for later retrieval. Data expires after 24 hours.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "The data to store (JSON object or string)."
+          }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "storage_get",
+      "description": "Retrieves previously stored data using a UUID returned by storage_set. Data expires after 24 hours.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "The UUID returned when the data was stored."
+          }
+        },
+        "required": ["uuid"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "shorten_url",
+      "description": "Shortens a long URL. Returns a short redirect link. Expires after 24 hours.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The full URL to shorten."
+          }
+        },
+        "required": ["url"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_capture",
+      "description": "Captures and returns the full details of an incoming HTTP request. Useful for testing webhooks and debugging integrations. Data expires after 24 hours.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "description": "The request body to send (optional)."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_action",
+      "description": "Creates a human-in-the-loop action with a web form for human input. Returns a form URL and a result URL to poll for the response. Expires after 24 hours.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title shown on the action form."
+          },
+          "fields": {
+            "type": "array",
+            "description": "Form fields for the action. Each field has a type (radio, select, text, textarea, checkbox), name, label, and optional options array.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["radio", "select", "text", "textarea", "checkbox"]
+                },
+                "name": { "type": "string" },
+                "label": { "type": "string" },
+                "options": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "required": ["type", "name", "label"]
+            }
+          }
+        },
+        "required": ["title", "fields"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "generate_solana_wallet",
+      "description": "Generates a new Solana wallet with a private key, Base58-encoded private key, and public address. For development and testing only.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "generate_bitcoin_wallet",
+      "description": "Generates a new Bitcoin wallet with a private key (hex and WIF) and a Base58Check-encoded address. For development and testing only.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "generate_ethereum_wallet",
+      "description": "Generates a new Ethereum wallet with a private key and public address. For development and testing only.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  }
+]
