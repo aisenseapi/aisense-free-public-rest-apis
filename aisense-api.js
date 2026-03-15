@@ -213,17 +213,17 @@ export class AISenseAPI {
 
   /** Generate a new Solana wallet. FOR DEVELOPMENT ONLY. */
   generateSolanaWallet() {
-    return this.#get('/crypto/solana_wallet')
+    return this.#get('/crypto/solana/generate_new_wallet')
   }
 
   /** Generate a new Bitcoin wallet. FOR DEVELOPMENT ONLY. */
   generateBitcoinWallet() {
-    return this.#get('/crypto/bitcoin_wallet')
+    return this.#get('/crypto/bitcoin/generate_new_wallet')
   }
 
   /** Generate a new Ethereum wallet. FOR DEVELOPMENT ONLY. */
   generateEthereumWallet() {
-    return this.#get('/crypto/ethereum_wallet')
+    return this.#get('/crypto/ethereum/generate_new_wallet')
   }
 }
 
@@ -246,11 +246,11 @@ console.log(await api.getRandomNumber(1, 100))
 // Transform
 const encoded = await api.base64Encode('Hello, world!')
 console.log('Base64:', encoded)
-console.log('Decoded:', await api.base64Decode(encoded.encoded))
+console.log('Decoded:', await api.base64Decode(encoded.base64_encoded_data))
 
 const token = await api.jwtEncode({ user: 'alice' }, 'my-secret')
 console.log('JWT:', token)
-console.log('Decoded:', await api.jwtDecode(token.token, 'my-secret'))
+console.log('Decoded:', await api.jwtDecode(token.jwt, 'my-secret'))
 
 // Hash
 console.log(await api.hashSHA256('Hello'))

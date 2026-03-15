@@ -136,7 +136,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 **Example response:**
 ```json
 {
-  "uuid": "550e8400-e29b-41d4-a716-446655440000"
+  "storage_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -319,7 +319,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads.
 
 ### MD5
-**Endpoint:** `POST https://aisenseapi.com/services/v1/md5`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/md5_hash`
 
 **Request:**
 ```json
@@ -333,7 +333,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA1
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha1`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha1_hash`
 
 **Request:**
 ```json
@@ -347,7 +347,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA256
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha256`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha256_hash`
 
 **Request:**
 ```json
@@ -361,7 +361,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA512
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha512`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha512_hash`
 
 **Request:**
 ```json
@@ -444,7 +444,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ```
 Response:
 ```json
-{ "uuid": "550e8400-e29b-41d4-a716-446655440000" }
+{ "storage_id": "550e8400-e29b-41d4-a716-446655440000" }
 ```
 
 **Retrieve data:**
@@ -530,7 +530,7 @@ Response:
 ### Solana — Generate New Wallet
 **Description:** Generates a new Solana wallet including a private key, a Base58-encoded private key, and a public address.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/solana_wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/solana/generate_new_wallet`
 
 **Response:**
 ```json
@@ -546,12 +546,12 @@ Response:
 ### Bitcoin — Generate New Wallet
 **Description:** Generates a Bitcoin wallet with a private key (hexadecimal and WIF format) and a Base58Check-encoded Bitcoin address. Adheres to Bitcoin's secp256k1 standards.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin_wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin/generate_new_wallet`
 
 **Response:**
 ```json
 {
-  "private_key_hex": "...",
+  "private_key": "...",
   "private_key_wif": "...",
   "address": "..."
 }
@@ -562,7 +562,7 @@ Response:
 ### Ethereum — Generate New Wallet
 **Description:** Generates a new Ethereum wallet including a private key and a public address.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum_wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum/generate_new_wallet`
 
 **Response:**
 ```json
@@ -609,9 +609,9 @@ Response:
 | Web | `/api/web/url_shortener` | POST | URL shortener (24h TTL) |
 | Web | `/api/web/webhook_capture` | POST | Webhook request capture (24h TTL) |
 | Web | `/api/web/webhook_action` | POST | Human-in-the-loop action form (24h TTL) |
-| Crypto | `/api/crypto/solana_wallet` | GET | New Solana wallet |
-| Crypto | `/api/crypto/bitcoin_wallet` | GET | New Bitcoin wallet |
-| Crypto | `/api/crypto/ethereum_wallet` | GET | New Ethereum wallet |
+| Crypto | `/api/crypto/solana/generate_new_wallet` | GET | New Solana wallet |
+| Crypto | `/api/crypto/bitcoin/generate_new_wallet` | GET | New Bitcoin wallet |
+| Crypto | `/api/crypto/ethereum/generate_new_wallet` | GET | New Ethereum wallet |
 
 ---
 

@@ -3,7 +3,7 @@
 > **Base URL:** `https://aisenseapi.com/services/v1`  
 > **Authentication:** None  
 > **Cost:** Free  
-> **Format:** JSON (all responses)
+> **Format:** JSON (all responses unless noted)
 
 ---
 
@@ -21,16 +21,23 @@
 
 ## Time
 
-### `GET /time/datetime[/{offset}]`
-Returns the current date and time in ISO 8601 format. Optional timezone offset (e.g. `1` for UTC+1). Defaults to UTC.
+### `GET /datetime[/{offset}]`
+Returns the current date and time in ISO 8601 format. Optional 4-digit timezone offset (`+0200`, `-0530`, `0100`).
+
+```
+GET https://aisenseapi.com/services/v1/datetime
+GET https://aisenseapi.com/services/v1/datetime/+0200
+GET https://aisenseapi.com/services/v1/datetime/-0530
+GET https://aisenseapi.com/services/v1/datetime/0100
+```
 
 ```json
-{ "datetime": "2025-03-15T14:22:00+01:00" }
+{ "datetime": "2025-01-27T14:53:22+00:00" }
 ```
 
 ---
 
-### `GET /time/timestamp`
+### `GET /timestamp`
 Returns the current Unix timestamp (seconds since 1970-01-01 UTC).
 
 ```json
@@ -39,7 +46,7 @@ Returns the current Unix timestamp (seconds since 1970-01-01 UTC).
 
 ---
 
-### `GET /time/microtimestamp`
+### `GET /microtimestamp`
 Returns the current Unix timestamp with microsecond precision.
 
 ```json
@@ -48,8 +55,8 @@ Returns the current Unix timestamp with microsecond precision.
 
 ---
 
-### `GET /time/timezones[/{offset}]`
-Returns all available timezones. Filter by offset if provided.
+### `GET /timezones[/{offset}]`
+Returns all available timezones. Optionally filter by UTC offset.
 
 ```json
 { "timezones": ["Europe/Oslo", "Europe/Berlin", "Europe/Paris"] }
@@ -57,27 +64,34 @@ Returns all available timezones. Filter by offset if provided.
 
 ---
 
-### `GET /time/swatchinternettime`
-Returns current time in Swatch Internet Time (.beats). 1000 .beats per day, each = 86.4 seconds. Based on BMT — no time zones.
+### `GET /swatchinternettime`
+Returns current time in Swatch Internet Time (.beats) and today's date. Based on BMT (GMT-1). No time zones.
 
 ```json
-{ "beats": 623, "date": "2025-03-15" }
+{ "beat": "@582", "date": "2025-01-27" }
 ```
 
 ---
 
 ## Random
 
-### `GET /random/number[/{from}/{to}]`
-Returns a random integer in the given range. Defaults to 1–6. Swaps values if `to` < `from`.
+### `GET /random_number[/{from}/{to}]`
+Returns a random integer in the given range. Defaults to 1–6. Auto-swaps if `to` < `from`. Single value sets `from=1`.
+
+```
+GET https://aisenseapi.com/services/v1/random_number
+GET https://aisenseapi.com/services/v1/random_number/10/20
+GET https://aisenseapi.com/services/v1/random_number/-57/-3
+GET https://aisenseapi.com/services/v1/random_number/30
+```
 
 ```json
-{ "number": 4 }
+{ "random_number": 4, "range": { "from": 1, "to": 6 } }
 ```
 
 ---
 
-### `GET /random/color`
+### `GET /random_color`
 Returns a random hex color code.
 
 ```json
@@ -86,257 +100,256 @@ Returns a random hex color code.
 
 ---
 
-### `GET /random/uuid`
+### `GET /uuid`
 Returns a UUID v4.
 
 ```json
-{ "uuid": "550e8400-e29b-41d4-a716-446655440000" }
+{ "uuid": "809edbbe-1626-4c16-b4a1-73847546e22b" }
 ```
 
 ---
 
-### `GET /random/guid`
+### `GET /guid`
 Returns a GUID.
 
 ```json
-{ "guid": "550e8400-e29b-41d4-a716-446655440000" }
+{ "guid": "809edbbe-1626-4c16-b4a1-73847546e22b" }
 ```
 
 ---
 
 ## Transform
 
-All transform endpoints accept input as:
-- JSON body: `{ "data": "..." }`
-- Plain text: `Content-Type: text/plain`
-- File upload: multipart form data
-
----
-
-### `POST /transform/base64_encode`
-Encodes text to Base64.
+### `POST /base64_encode`
+Encodes text to Base64. Input: JSON with `data` field.
 
 ```json
 // Request
-{ "data": "Hello, world!" }
+{ "data": "Hello world" }
 
 // Response
-{ "encoded": "SGVsbG8sIHdvcmxkIQ==" }
+{ "base64_encoded_data": "SGVsbG8gd29ybGQ=" }
 ```
 
 ---
 
-### `POST /transform/base64_decode`
-Decodes Base64 back to original text.
+### `POST /base64_decode`
+Decodes Base64. Input: JSON with `data` field or plain text (`Content-Type: text/plain`).
+If decoded result is JSON, returns it directly. If binary/non-JSON, stores it and returns a storage URL.
+Set `Accept: application/octet-stream` to stream raw binary.
 
 ```json
 // Request
-{ "data": "SGVsbG8sIHdvcmxkIQ==" }
+{ "data": "SGVsbG8gd29ybGQ=" }
 
-// Response
-{ "decoded": "Hello, world!" }
+// Response — JSON data
+{ "type": "json", "decoded_data": { "key": "value" } }
+
+// Response — binary data
+{
+  "type": "binary",
+  "decoded_data_storage_url": "https://aisenseapi.com/services/v1/storage/123e4567-e89b-12d3-a456-426614174000",
+  "expire_timestamp": 1738457158
+}
 ```
 
 ---
 
-### `POST /transform/base58_encode`
-Encodes text to Base58.
+### `POST /base58_encode`
+Encodes text to Base58. Input: JSON with `data` field.
 
 ```json
+// Request
 { "data": "Hello" }
+// Response
+{ "base58_encoded_data": "9Ajdvzr" }
 ```
 
 ---
 
-### `POST /transform/base58_decode`
-Decodes a Base58-encoded string.
+### `POST /base58_decode`
+Decodes Base58. Input: JSON with `data` field or plain text.
 
 ```json
+// Request
 { "data": "9Ajdvzr" }
+// Response
+{ "decoded_data": "Hello" }
 ```
 
 ---
 
-### `POST /transform/base32_encode`
-Encodes text to Base32.
+### `POST /base32_encode`
+Encodes text to Base32. Input: JSON with `data` field.
 
 ```json
+// Request
 { "data": "Hello" }
+// Response
+{ "base32_encoded_data": "JBSWY3DP" }
 ```
 
 ---
 
-### `POST /transform/base32_decode`
-Decodes a Base32-encoded string. Response format can be JSON (default) or raw binary via `Accept` header.
+### `POST /base32_decode`
+Decodes Base32. Input: JSON with `data` field or plain text. Set `Accept: application/octet-stream` for binary output.
 
 ```json
+// Request
 { "data": "JBSWY3DP" }
+// Response
+{ "decoded_data": "Hello" }
 ```
 
 ---
 
-### `POST /transform/jwt_encode`
-Encodes a JSON payload into a JWT using HS256. Requires a `secret`.
+### `POST /jwt_encode`
+Encodes a JSON payload into a JWT using HS256. Accepts JSON, plain text (`Content-Type: text/plain` + `X-Secret` header), or file upload (`jwt_data` field, `multipart/form-data`).
 
 ```json
 // Request
-{ "data": { "user": "alice", "role": "admin" }, "secret": "my-secret" }
+{ "data": "{\"user\":\"john\",\"iat\":1627123456}", "secret": "your_secret_key" }
 
 // Response
-{ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+{ "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiam9obiIsImlhdCI6MTYyNzEyMzQ1Nn0..." }
 ```
 
 ---
 
-### `POST /transform/jwt_decode`
-Decodes a JWT and returns its payload. Requires the same `secret` used to sign it.
+### `POST /jwt_decode`
+Decodes a JWT and returns its payload. Accepts JSON, plain text (`Content-Type: text/plain` + `X-Secret` header), or file upload (`jwt_data` field, `multipart/form-data`).
 
 ```json
 // Request
-{ "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "secret": "my-secret" }
-```
-
----
-
-### `POST /transform/qrcode_encode`
-Generates a QR code from text. Returns a Base64-encoded PNG. Supports URLs, plain text, Wi-Fi credentials, contact info, etc.
-
-```json
-// Request
-{ "data": "https://example.com" }
+{ "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "secret": "your_secret_key" }
 
 // Response
-{ "qrcode": "iVBORw0KGgoAAAANSUhEUgAA..." }
+{ "decoded_payload": { "sub": "1234567890", "name": "John Doe", "iat": 1516239022 } }
 ```
 
 ---
 
-### `POST /transform/qrcode_decode`
-Decodes a QR code image and returns its text content. Accepts file upload or Base64-encoded image.
+### `POST /qrcode_encode`
+Generates a QR code from text. Input: JSON with `payload` field. Returns Base64-encoded PNG.
+Supports URLs, plain text, vCards, Wi-Fi credentials, calendar events, and more.
 
 ```json
 // Request
-{ "data": "iVBORw0KGgoAAAANSUhEUgAA..." }
+{ "payload": "https://aisenseapi.com/" }
 
 // Response
-{ "decoded": "https://example.com" }
+{ "qrcode_image": "iVBORw0KGgoAAAANSUhEUg...", "image_type": "png" }
+```
+
+---
+
+### `POST /qrcode_decode`
+Decodes a QR code image. Accepts file upload (`qrcode_image` field, `multipart/form-data`) or Base64 JSON (`payload` field).
+
+```json
+// Request
+{ "payload": "iVBORw0KGgoAAAANSUhEUg..." }
+
+// Response
+{ "qrcode_content": "https://aisenseapi.com/" }
 ```
 
 ---
 
 ## Hash
 
-All hash endpoints accept JSON (`{ "data": "..." }`), plain text, or file uploads.
+All hash endpoints accept JSON (`{ "data": "..." }`), plain text (`Content-Type: text/plain`), or file uploads.
 
----
-
-### `POST /hash/md5`
+### `POST /md5`
 ```json
-// Request
-{ "data": "Hello" }
-// Response
-{ "hash": "8b1a9953c4611296a827abf8c47804d7" }
+{ "data": "Hello" } → { "hash": "8b1a9953c4611296a827abf8c47804d7" }
 ```
 
----
-
-### `POST /hash/sha1`
+### `POST /sha1`
 ```json
-{ "hash": "f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0" }
+{ "data": "Hello" } → { "hash": "f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0" }
 ```
 
----
-
-### `POST /hash/sha256`
+### `POST /sha256`
 ```json
-{ "hash": "185f8db32921bd46d35cc5e1aeea7bab5be96848c1dc7916..." }
+{ "data": "Hello" } → { "hash": "185f8db32921bd46d35cc5e1aeea7bab5be96848c1dc7..." }
 ```
 
----
-
-### `POST /hash/sha512`
+### `POST /sha512`
 ```json
-{ "hash": "3615f80c9d293ed7402687f94b22d58e529b8cc7916f8bca..." }
+{ "data": "Hello" } → { "hash": "3615f80c9d293ed7402687f94b22d58e529b8cc7916f8..." }
 ```
 
 ---
 
 ## Web
 
-### `GET /web/ping`
-Connectivity check. Returns `pong`.
-
+### `GET /ping`
 ```json
 { "response": "pong" }
 ```
 
 ---
 
-### `GET /web/health`
-Health check with microsecond-precision timestamp.
-
+### `GET /health`
 ```json
 { "status": "ok", "timestamp": 1741953720.483921 }
 ```
 
 ---
 
-### `GET /web/ip`
-Returns the public IP address of the requesting client.
-
+### `GET /client_ip`
 ```json
 { "ip": "203.0.113.42" }
 ```
 
 ---
 
-### `GET /web/ip_reverse_lookup/{ip}`
-Reverse IP lookup. Returns country, city, coordinates, and timezone.
-
+### `GET /ip_reverse_lookup/{ip}`
+```
+GET https://aisenseapi.com/services/v1/ip_reverse_lookup/151.101.65.195
+```
 ```json
 {
-  "ip": "8.8.8.8",
+  "ip": "151.101.65.195",
   "country": "United States",
-  "city": "Mountain View",
-  "latitude": 37.386,
-  "longitude": -122.0838,
+  "city": "San Francisco",
+  "location": { "lat": "37.764200", "lng": "-122.399300" },
+  "place": null,
   "timezone": "America/Los_Angeles"
 }
 ```
 
 ---
 
-### `POST /web/storage` — Store data
-Stores JSON, text, or file data. Returns a UUID. **Expires after 24 hours.**
+### Storage
+
+**Store:** `POST /storage` — JSON, plain text, or file. Returns `storage_id` + `expire_timestamp`. **24h TTL.**
 
 ```json
 // Request
-{ "data": { "anything": "you want" } }
+{ "key1": "value1" }
 
 // Response
-{ "uuid": "550e8400-e29b-41d4-a716-446655440000" }
+{ "storage_id": "123e4567-e89b-12d3-a456-426614174000", "expire_timestamp": 1738457158 }
 ```
 
-### `GET /web/storage/{uuid}` — Retrieve data
-Retrieves previously stored data by UUID.
+**Retrieve:** `GET /storage/{storage_id}` — returns stored JSON, text, or binary.
 
 ---
 
-### `POST /web/url_shortener`
-Shortens a URL. **Expires after 24 hours.**
+### `GET /url_shortener/{url}`
+Shortens a URL. **24h TTL.**
 
-```json
-// Request
-{ "url": "https://example.com/some/very/long/path" }
-
-// Response
-{ "short_url": "https://www.aisense.no/s/abc123" }
+```
+GET https://aisenseapi.com/services/v1/url_shortener/https://developer.mozilla.org/
 ```
 
 ---
 
-### `POST /web/webhook_capture`
-Captures the full incoming HTTP request (method, headers, query params, body, IP). Useful for testing webhooks and debugging integrations. **Expires after 24 hours.**
+### Webhook Capture
+
+**Create session:** `POST /webhook_capture`
 
 ```json
 {
@@ -348,17 +361,56 @@ Captures the full incoming HTTP request (method, headers, query params, body, IP
 }
 ```
 
+**Send webhook:** Any HTTP method → `update_url`
+
+**Read result:** `GET /webhook_capture/{capture_id}`
+
+```json
+{
+  "ok": true,
+  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "captured_at_datetime": "2026-03-06T14:20:00Z",
+  "request": {
+    "method": "POST",
+    "headers": { "content-type": "application/json" },
+    "client_ip": "203.0.113.10",
+    "body": {
+      "json": { "event": "payment.created", "amount": 499 },
+      "text": null, "base64": null, "raw_length": 38
+    }
+  }
+}
+```
+
 ---
 
-### `POST /web/webhook_action`
-Creates a human-in-the-loop action with a web form. Returns a form URL for human input and a result URL to poll. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`. **Expires after 24 hours.**
+### Webhook Action
+
+**Create session:** `POST /webhook_action`
 
 ```json
 // Request
 {
-  "title": "Approve deployment?",
+  "title": "Approval required",
+  "description": "Please review and approve this request.",
   "fields": [
-    { "type": "radio", "name": "approval", "label": "Do you approve?", "options": ["Yes", "No"] }
+    {
+      "type": "radio",
+      "name": "decision",
+      "label": "Select decision",
+      "required": true,
+      "options": [
+        { "value": "approve", "label": "Approve" },
+        { "value": "reject", "label": "Reject" }
+      ]
+    },
+    {
+      "type": "textarea",
+      "name": "comment",
+      "label": "Comment",
+      "placeholder": "Optional comment",
+      "max_length": 500
+    }
   ]
 }
 
@@ -373,48 +425,42 @@ Creates a human-in-the-loop action with a web form. Returns a form URL for human
 }
 ```
 
+**Open form:** `GET /webhook_action/{action_id}/form`
+
+**Get result:** `GET /webhook_action/{action_id}`
+
+```json
+// After submission
+{
+  "ok": true,
+  "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
+  "status": "answered",
+  "answered_at_datetime": "2026-03-06T15:13:20Z",
+  "response": { "decision": "approve", "comment": "Looks good" }
+}
+```
+
+**Supported field types:** `radio`, `select`, `text`, `textarea`, `checkbox`
+
 ---
 
 ## Crypto
 
-> ⚠️ For **development and testing only**. Never use programmatically generated wallets with real funds unless you fully control key storage and security.
+> ⚠️ For **development and testing only**. Never use with real funds.
 
----
-
-### `GET /crypto/solana_wallet`
-Generates a new Solana wallet.
-
+### `GET /solana/generate_new_wallet`
 ```json
-{
-  "private_key": "...",
-  "private_key_base58": "...",
-  "public_address": "..."
-}
+{ "private_key": "...", "private_key_base58": "...", "public_address": "..." }
 ```
 
----
-
-### `GET /crypto/bitcoin_wallet`
-Generates a new Bitcoin wallet (secp256k1).
-
+### `GET /bitcoin/generate_new_wallet`
 ```json
-{
-  "private_key_hex": "...",
-  "private_key_wif": "...",
-  "address": "..."
-}
+{ "private_key": "...", "private_key_wif": "...", "address": "..." }
 ```
 
----
-
-### `GET /crypto/ethereum_wallet`
-Generates a new Ethereum wallet.
-
+### `GET /ethereum/generate_new_wallet`
 ```json
-{
-  "private_key": "0x...",
-  "public_address": "0x..."
-}
+{ "private_key": "0x...", "public_address": "0x..." }
 ```
 
 ---
@@ -422,23 +468,29 @@ Generates a new Ethereum wallet.
 ## Common Conventions
 
 ### Input formats (POST endpoints)
-| Format | Content-Type | Body |
-|--------|-------------|------|
-| JSON | `application/json` | `{ "data": "..." }` |
-| Plain text | `text/plain` | raw string |
-| File | `multipart/form-data` | file upload |
+| Format | Content-Type | Notes |
+|--------|-------------|-------|
+| JSON | `application/json` | Most common — see each endpoint for field names |
+| Plain text | `text/plain` | Pass secret via `X-Secret` header for JWT endpoints |
+| File upload | `multipart/form-data` | Field names vary by endpoint |
 
-### Error responses
-```json
-{ "error": "Invalid input: data field is required" }
-```
+### Response field names (key reference)
+| Endpoint | Response key |
+|----------|-------------|
+| `/base64_encode` | `base64_encoded_data` |
+| `/base64_decode` | `decoded_data` or `decoded_data_storage_url` |
+| `/base58_encode` | `base58_encoded_data` |
+| `/base32_encode` | `base32_encoded_data` |
+| `/jwt_encode` | `jwt` |
+| `/jwt_decode` | `decoded_payload` |
+| `/qrcode_encode` | `qrcode_image` + `image_type` |
+| `/qrcode_decode` | `qrcode_content` |
+| `/random_number` | `random_number` + `range` |
+| `/swatchinternettime` | `beat` + `date` |
+| `/storage` (store) | `storage_id` + `expire_timestamp` |
 
-### TTL / expiry
-These endpoints store temporary data that **auto-deletes after 24 hours**:
-- `/web/storage`
-- `/web/url_shortener`
-- `/web/webhook_capture`
-- `/web/webhook_action`
+### TTL — auto-deletes after 24 hours
+`/storage` · `/url_shortener` · `/webhook_capture` · `/webhook_action`
 
 ### Rate limits
-Not publicly documented. These are free community APIs — use responsibly.
+Not publicly documented. Free community APIs — use responsibly.

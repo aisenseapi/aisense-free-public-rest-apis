@@ -187,15 +187,15 @@ class AISenseAPI:
 
     def generate_solana_wallet(self) -> dict:
         """Generate a new Solana wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/solana_wallet")
+        return self._get("/crypto/solana/generate_new_wallet")
 
     def generate_bitcoin_wallet(self) -> dict:
         """Generate a new Bitcoin wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/bitcoin_wallet")
+        return self._get("/crypto/bitcoin/generate_new_wallet")
 
     def generate_ethereum_wallet(self) -> dict:
         """Generate a new Ethereum wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/ethereum_wallet")
+        return self._get("/crypto/ethereum/generate_new_wallet")
 
 
 # ── Example usage ─────────────────────────────────────────────────────────────
@@ -215,11 +215,11 @@ if __name__ == "__main__":
     print("\n=== Transform ===")
     encoded = api.base64_encode("Hello, world!")
     print("Base64 encoded:", encoded)
-    print("Base64 decoded:", api.base64_decode(encoded["encoded"]))
+    print("Base64 decoded:", api.base64_decode(encoded["base64_encoded_data"]))
 
     token = api.jwt_encode({"user": "alice"}, secret="my-secret")
     print("JWT:", token)
-    print("JWT decoded:", api.jwt_decode(token["token"], secret="my-secret"))
+    print("JWT decoded:", api.jwt_decode(token["jwt"], secret="my-secret"))
 
     print("\n=== Hash ===")
     print(api.hash_sha256("Hello"))

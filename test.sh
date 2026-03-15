@@ -72,7 +72,7 @@ check "Base32 Encode"   POST "$BASE/transform/base32_encode"  '{"data":"Hello"}'
 check "Base32 Decode"   POST "$BASE/transform/base32_decode"  '{"data":"JBSWY3DP"}'
 check "JWT Encode"      POST "$BASE/transform/jwt_encode"     '{"data":{"user":"test"},"secret":"mysecret"}'
 check "JWT Decode"      POST "$BASE/transform/jwt_decode"     '{"data":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidGVzdCJ9.4oHDP2OHjcBwO-OiCg8ILaGC8DUjOmMJN5mQ8xR1yUo","secret":"mysecret"}'
-check "QR Code Encode"  POST "$BASE/transform/qrcode_encode"  '{"data":"https://example.com"}'
+check "QR Code Encode"  POST "$BASE/transform/qrcode_encode"  '{"payload":"https://example.com"}'
 echo ""
 
 # ── HASH ─────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ echo -ne "  Testing Storage (store)... "
 store_response=$(curl -s -X POST "$BASE/web/storage" \
   -H "Content-Type: application/json" \
   -d '{"data":{"test":"skill-test"}}')
-store_uuid=$(echo "$store_response" | grep -o '"uuid":"[^"]*"' | cut -d'"' -f4)
+store_uuid=$(echo "$store_response" | grep -o '"storage_id":"[^"]*"' | cut -d'"' -f4)
 if [ -n "$store_uuid" ]; then
   echo -e "${GREEN}✓${NC} got UUID: $store_uuid"
   PASS=$((PASS + 1))
@@ -128,9 +128,9 @@ echo ""
 
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
-check "Solana Wallet"   GET "$BASE/crypto/solana_wallet"
-check "Bitcoin Wallet"  GET "$BASE/crypto/bitcoin_wallet"
-check "Ethereum Wallet" GET "$BASE/crypto/ethereum_wallet"
+check "Solana Wallet"   GET "$BASE/crypto/solana/generate_new_wallet"
+check "Bitcoin Wallet"  GET "$BASE/crypto/bitcoin/generate_new_wallet"
+check "Ethereum Wallet" GET "$BASE/crypto/ethereum/generate_new_wallet"
 echo ""
 
 # ── SUMMARY ──────────────────────────────────────────────────

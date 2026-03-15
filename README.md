@@ -43,7 +43,7 @@ curl https://aisenseapi.com/services/v1/uuid
 
 curl https://aisenseapi.com/services/v1/datetime
 
-curl -X POST https://aisenseapi.com/services/v1/sha256 \
+curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
   -H "Content-Type: application/json" \
   -d '{"data": "Hello"}'
 
