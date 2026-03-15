@@ -103,7 +103,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Random Number
 **Description:** Generates a random integer within a specified range using optional `from` and `to` parameters. Defaults to 1–6 if no parameters are given. Automatically swaps values if `to` < `from`.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/number[/{from}/{to}]`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/random_number[/{from}/{to}]`
 
 **Example response:**
 ```json
@@ -117,7 +117,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Random Color
 **Description:** Generates a random hex color code between `#000000` and `#FFFFFF`.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/color`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/random_color`
 
 **Example response:**
 ```json
@@ -406,7 +406,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### Client IP
 **Description:** Returns the public IP address of the client making the request. Useful for access control, analytics, or request tracking. No parameters required.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ip`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/client_ip
 
 **Response:**
 ```json
@@ -418,7 +418,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### IP Reverse Lookup
 **Description:** Performs a reverse IP lookup. Returns country, city, latitude, longitude, and time zone for a given IP address. Useful for location-based services, analytics, or security checks.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ip_lookup/{ip}`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ip_reverse_lookup/{ip}`
 
 **Response:**
 ```json
@@ -455,7 +455,7 @@ Response:
 ### URL Shortener
 **Description:** Generates a shortened URL for any full-length link. Returns a short redirect URL. **Links expire automatically after 24 hours.**
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/url_shorten`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/url_shortener`
 
 **Request:**
 ```json
@@ -510,9 +510,12 @@ Response:
 **Response:**
 ```json
 {
-  "action_id": "abc123",
-  "form_url": "https://aisenseapi.com/services/v1/webhook_action/abc123/form",
-  "result_url": "https://aisenseapi.com/services/v1/webhook_action/abc123"
+  "ok": true,
+  "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
+  "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1/form",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
+  "expire_timestamp": 1772893200,
+  "expire_datetime": "2026-03-07T14:20:00Z"
 }
 ```
 
@@ -601,9 +604,9 @@ Response:
 | Web | `/api/web/ping` | GET | Ping / connectivity check |
 | Web | `/api/web/health` | GET | Health check + timestamp |
 | Web | `/api/web/ip` | GET | Client public IP |
-| Web | `/api/web/ip_lookup/{ip}` | GET | IP geolocation lookup |
+| Web | `/api/web/ip_reverse_lookup/{ip}` | GET | IP geolocation lookup |
 | Web | `/api/web/storage` | POST/GET | Temp JSON/text storage (24h TTL) |
-| Web | `/api/web/url_shorten` | POST | URL shortener (24h TTL) |
+| Web | `/api/web/url_shortener` | POST | URL shortener (24h TTL) |
 | Web | `/api/web/webhook_capture` | POST | Webhook request capture (24h TTL) |
 | Web | `/api/web/webhook_action` | POST | Human-in-the-loop action form (24h TTL) |
 | Crypto | `/api/crypto/solana_wallet` | GET | New Solana wallet |

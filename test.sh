@@ -88,7 +88,7 @@ echo -e "${YELLOW}🌐  Web${NC}"
 check "Ping"       GET "$BASE/web/ping"
 check "Health"     GET "$BASE/web/health"
 check "Client IP"  GET "$BASE/web/ip"
-check "IP Lookup"  GET "$BASE/web/ip_lookup/8.8.8.8"
+check "IP Lookup"  GET "$BASE/web/ip_reverse_lookup/8.8.8.8"
 
 # Storage: store then retrieve
 echo -ne "  Testing Storage (store)... "
@@ -107,7 +107,7 @@ fi
 
 # URL Shortener
 echo -ne "  Testing URL Shortener... "
-short_response=$(curl -s -X POST "$BASE/web/url_shorten" \
+short_response=$(curl -s -X POST "$BASE/web/url_shortener" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com"}')
 short_url=$(echo "$short_response" | grep -o '"short_url":"[^"]*"' | cut -d'"' -f4)

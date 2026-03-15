@@ -174,7 +174,7 @@ export class AISenseAPI {
 
   /** Reverse IP lookup: country, city, coordinates, timezone. */
   ipLookup(ip) {
-    return this.#get(`/web/ip_lookup/${ip}`)
+    return this.#get(`/web/ip_reverse_lookup/${ip}`)
   }
 
   /** Store data temporarily (24h TTL). Returns a UUID. */
@@ -189,7 +189,7 @@ export class AISenseAPI {
 
   /** Shorten a URL (24h TTL). */
   shortenURL(url) {
-    return this.#post('/web/url_shorten', { url })
+    return this.#post('/web/url_shortener', { url })
   }
 
   /** Capture and return the full incoming HTTP request (24h TTL). */

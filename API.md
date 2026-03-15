@@ -290,7 +290,7 @@ Returns the public IP address of the requesting client.
 
 ---
 
-### `GET /web/ip_lookup/{ip}`
+### `GET /web/ip_reverse_lookup/{ip}`
 Reverse IP lookup. Returns country, city, coordinates, and timezone.
 
 ```json
@@ -322,7 +322,7 @@ Retrieves previously stored data by UUID.
 
 ---
 
-### `POST /web/url_shorten`
+### `POST /web/url_shortener`
 Shortens a URL. **Expires after 24 hours.**
 
 ```json
@@ -340,11 +340,11 @@ Captures the full incoming HTTP request (method, headers, query params, body, IP
 
 ```json
 {
-  "method": "POST",
-  "headers": { "content-type": "application/json" },
-  "query": {},
-  "ip": "203.0.113.42",
-  "body": { "event": "user.created" }
+  "ok": true,
+  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "update_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91/update",
+  "read_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "expire_timestamp": 1772893200
 }
 ```
 
@@ -364,9 +364,12 @@ Creates a human-in-the-loop action with a web form. Returns a form URL for human
 
 // Response
 {
-  "action_id": "abc123",
-  "form_url": "https://aisenseapi.com/services/v1/webhook_action/abc123/form",
-  "result_url": "https://aisenseapi.com/services/v1/webhook_action/abc123"
+  "ok": true,
+  "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
+  "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1/form",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
+  "expire_timestamp": 1772893200,
+  "expire_datetime": "2026-03-07T14:20:00Z"
 }
 ```
 
@@ -433,7 +436,7 @@ Generates a new Ethereum wallet.
 ### TTL / expiry
 These endpoints store temporary data that **auto-deletes after 24 hours**:
 - `/web/storage`
-- `/web/url_shorten`
+- `/web/url_shortener`
 - `/web/webhook_capture`
 - `/web/webhook_action`
 

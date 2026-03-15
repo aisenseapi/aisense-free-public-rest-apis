@@ -153,7 +153,7 @@ class AISenseAPI:
 
     def ip_lookup(self, ip: str) -> dict:
         """Reverse IP lookup: country, city, coordinates, timezone."""
-        return self._get(f"/web/ip_lookup/{ip}")
+        return self._get(f"/web/ip_reverse_lookup/{ip}")
 
     def storage_set(self, data: Any) -> dict:
         """Store data temporarily (24h TTL). Returns a UUID."""
@@ -165,7 +165,7 @@ class AISenseAPI:
 
     def shorten_url(self, url: str) -> dict:
         """Shorten a URL (24h TTL)."""
-        return self._post("/web/url_shorten", {"url": url})
+        return self._post("/web/url_shortener", {"url": url})
 
     def webhook_capture(self, body: Optional[dict] = None) -> dict:
         """Capture and return the full incoming HTTP request (24h TTL)."""
