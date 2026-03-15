@@ -4,7 +4,7 @@
 # Usage: chmod +x test.sh && ./test.sh
 # ============================================================
 
-BASE="https://www.aisense.no/api"
+BASE="https://aisenseapi.com/services/v1"
 PASS=0
 FAIL=0
 

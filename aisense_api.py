@@ -17,7 +17,7 @@ import urllib.request
 import urllib.error
 from typing import Any, Optional
 
-BASE_URL = "https://www.aisense.no/api"
+BASE_URL = "https://aisenseapi.com/services/v1"
 
 
 class AISenseAPI:

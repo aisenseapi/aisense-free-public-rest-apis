@@ -30,7 +30,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Datetime
 **Description:** Returns the current date and time in ISO 8601 format, adjusted for an optional timezone offset. If no valid timezone offset is provided, defaults to UTC.
 
-**Endpoint:** `GET https://www.aisense.no/api/time/datetime[/{offset}]`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/datetime[/{offset}]`
 
 **Example response:**
 ```json
@@ -44,7 +44,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Timestamp
 **Description:** Returns the current Unix timestamp — the number of seconds since January 1, 1970 (UTC).
 
-**Endpoint:** `GET https://www.aisense.no/api/time/timestamp`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/timestamp`
 
 **Example response:**
 ```json
@@ -58,7 +58,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Microtimestamp
 **Description:** Returns the current Unix timestamp with microsecond precision as a floating-point value. Ideal for high-resolution time measurements.
 
-**Endpoint:** `GET https://www.aisense.no/api/time/microtimestamp`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/microtimestamp`
 
 **Example response:**
 ```json
@@ -72,7 +72,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Timezones
 **Description:** Returns a list of all available timezones. Optionally filter by timezone offset.
 
-**Endpoint:** `GET https://www.aisense.no/api/time/timezones[/{offset}]`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/timezones[/{offset}]`
 
 **Example response:**
 ```json
@@ -86,7 +86,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Swatch Internet Time
 **Description:** Returns the current time in Swatch Internet Time (.beats) and the current date in YYYY-MM-DD format. The day is divided into 1000 .beats (each = 86.4 seconds). Based on BMT (Biel Meantime) — no time zones involved.
 
-**Endpoint:** `GET https://www.aisense.no/api/time/swatchinternettime`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/swatchinternettime`
 
 **Example response:**
 ```json
@@ -103,7 +103,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Random Number
 **Description:** Generates a random integer within a specified range using optional `from` and `to` parameters. Defaults to 1–6 if no parameters are given. Automatically swaps values if `to` < `from`.
 
-**Endpoint:** `GET https://www.aisense.no/api/random/number[/{from}/{to}]`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/number[/{from}/{to}]`
 
 **Example response:**
 ```json
@@ -117,7 +117,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Random Color
 **Description:** Generates a random hex color code between `#000000` and `#FFFFFF`.
 
-**Endpoint:** `GET https://www.aisense.no/api/random/color`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/color`
 
 **Example response:**
 ```json
@@ -131,7 +131,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### UUID
 **Description:** Generates a universally unique identifier (UUID v4).
 
-**Endpoint:** `GET https://www.aisense.no/api/random/uuid`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/uuid`
 
 **Example response:**
 ```json
@@ -145,7 +145,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### GUID
 **Description:** Generates a globally unique identifier (GUID).
 
-**Endpoint:** `GET https://www.aisense.no/api/random/guid`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/guid`
 
 **Example response:**
 ```json
@@ -161,7 +161,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base64 Encode
 **Description:** Encodes text into Base64 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base64/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base64/encode`
 
 **Request:**
 ```json
@@ -182,7 +182,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base64 Decode
 **Description:** Decodes a Base64-encoded string back to its original format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base64/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base64/decode`
 
 **Request:**
 ```json
@@ -203,7 +203,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base58 Encode
 **Description:** Encodes text into Base58 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base58/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base58/encode`
 
 **Request:**
 ```json
@@ -217,28 +217,28 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base58 Decode
 **Description:** Decodes a Base58-encoded string. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base58/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base58/decode`
 
 ---
 
 ### Base32 Encode
 **Description:** Encodes text into Base32 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base32/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base32/encode`
 
 ---
 
 ### Base32 Decode
 **Description:** Decodes a Base32-encoded string. Accepts JSON with a `data` field or plain text. Response can be JSON (default) or raw binary based on the `Accept` header.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/base32/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base32/decode`
 
 ---
 
 ### JWT Encode
 **Description:** Encodes a JSON payload into a JWT using the HS256 algorithm. Accepts JSON, plain text (`Content-Type: text/plain`), or file upload. A secret key is required to sign the token.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/jwt/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt/encode`
 
 **Request:**
 ```json
@@ -260,7 +260,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### JWT Decode
 **Description:** Decodes a JWT and returns its payload. Accepts JSON with a `data` field, plain text, or file upload. A secret key must be provided.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/jwt/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt/decode`
 
 **Request:**
 ```json
@@ -275,7 +275,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### QR Code Encode
 **Description:** Generates a QR code from text input. Returns the QR code as a Base64-encoded PNG. Can encode URLs, plain text, contact info, Wi-Fi credentials, event details, etc.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/qrcode/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode/encode`
 
 **Request:**
 ```json
@@ -296,7 +296,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### QR Code Decode
 **Description:** Decodes a QR code image and returns the embedded content. Accepts a file upload or a Base64-encoded image in JSON format.
 
-**Endpoint:** `POST https://www.aisense.no/api/transform/qrcode/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode/decode`
 
 **Request (Base64):**
 ```json
@@ -319,7 +319,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads.
 
 ### MD5
-**Endpoint:** `POST https://www.aisense.no/api/hash/md5`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/md5`
 
 **Request:**
 ```json
@@ -333,7 +333,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA1
-**Endpoint:** `POST https://www.aisense.no/api/hash/sha1`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha1`
 
 **Request:**
 ```json
@@ -347,7 +347,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA256
-**Endpoint:** `POST https://www.aisense.no/api/hash/sha256`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha256`
 
 **Request:**
 ```json
@@ -361,7 +361,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ---
 
 ### SHA512
-**Endpoint:** `POST https://www.aisense.no/api/hash/sha512`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/sha512`
 
 **Request:**
 ```json
@@ -379,7 +379,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### Ping
 **Description:** Returns a `pong` response. Used to verify connectivity or confirm the API is reachable.
 
-**Endpoint:** `GET https://www.aisense.no/api/web/ping`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ping`
 
 **Response:**
 ```json
@@ -391,7 +391,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### Health
 **Description:** Returns a health check status and a high-precision ISO 8601 timestamp (microsecond float). Useful for monitoring server uptime and response times.
 
-**Endpoint:** `GET https://www.aisense.no/api/web/health`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/health`
 
 **Response:**
 ```json
@@ -406,7 +406,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### Client IP
 **Description:** Returns the public IP address of the client making the request. Useful for access control, analytics, or request tracking. No parameters required.
 
-**Endpoint:** `GET https://www.aisense.no/api/web/ip`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ip`
 
 **Response:**
 ```json
@@ -418,7 +418,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### IP Reverse Lookup
 **Description:** Performs a reverse IP lookup. Returns country, city, latitude, longitude, and time zone for a given IP address. Useful for location-based services, analytics, or security checks.
 
-**Endpoint:** `GET https://www.aisense.no/api/web/ip/lookup/{ip}`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ip/lookup/{ip}`
 
 **Response:**
 ```json
@@ -438,7 +438,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 **Description:** Temporary key-value storage for JSON, text, or file data. Store new data and receive a UUID, or retrieve previously stored data using a UUID. **All data is automatically deleted after 24 hours.**
 
 **Store data:**
-`POST https://www.aisense.no/api/web/storage`
+`POST https://aisenseapi.com/services/v1/storage`
 ```json
 { "data": { "key": "value" } }
 ```
@@ -448,14 +448,14 @@ Response:
 ```
 
 **Retrieve data:**
-`GET https://www.aisense.no/api/web/storage/{uuid}`
+`GET https://aisenseapi.com/services/v1/storage/{uuid}`
 
 ---
 
 ### URL Shortener
 **Description:** Generates a shortened URL for any full-length link. Returns a short redirect URL. **Links expire automatically after 24 hours.**
 
-**Endpoint:** `POST https://www.aisense.no/api/web/url/shorten`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/url/shorten`
 
 **Request:**
 ```json
@@ -472,7 +472,7 @@ Response:
 ### Webhook Capture
 **Description:** Captures and returns the full HTTP request received by the server. Records method, headers, query parameters, client IP, and body. JSON bodies are automatically parsed. **Data expires after 24 hours.** Primarily used to test webhooks and debug integrations.
 
-**Endpoint:** `POST https://www.aisense.no/api/web/webhook/capture`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook/capture`
 
 **Response:**
 ```json
@@ -490,7 +490,7 @@ Response:
 ### Webhook Action
 **Description:** Creates an interactive action requiring human input before an automated process continues. Generates a unique action ID, a form URL for user submission, and a result URL to poll for the response. Form fields can include radio buttons, select menus, text inputs, textareas, and checkboxes. Status changes to `answered` once submitted. **All stored actions expire after 24 hours.**
 
-**Endpoint:** `POST https://www.aisense.no/api/web/webhook/action`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook/action`
 
 **Request:**
 ```json
@@ -512,7 +512,7 @@ Response:
 {
   "action_id": "abc123",
   "form_url": "https://www.aisense.no/action/abc123",
-  "result_url": "https://www.aisense.no/api/web/webhook/action/abc123"
+  "result_url": "https://aisenseapi.com/services/v1/webhook/action/abc123"
 }
 ```
 
@@ -527,7 +527,7 @@ Response:
 ### Solana — Generate New Wallet
 **Description:** Generates a new Solana wallet including a private key, a Base58-encoded private key, and a public address.
 
-**Endpoint:** `GET https://www.aisense.no/api/crypto/solana/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/solana/wallet`
 
 **Response:**
 ```json
@@ -543,7 +543,7 @@ Response:
 ### Bitcoin — Generate New Wallet
 **Description:** Generates a Bitcoin wallet with a private key (hexadecimal and WIF format) and a Base58Check-encoded Bitcoin address. Adheres to Bitcoin's secp256k1 standards.
 
-**Endpoint:** `GET https://www.aisense.no/api/crypto/bitcoin/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin/wallet`
 
 **Response:**
 ```json
@@ -559,7 +559,7 @@ Response:
 ### Ethereum — Generate New Wallet
 **Description:** Generates a new Ethereum wallet including a private key and a public address.
 
-**Endpoint:** `GET https://www.aisense.no/api/crypto/ethereum/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum/wallet`
 
 **Response:**
 ```json

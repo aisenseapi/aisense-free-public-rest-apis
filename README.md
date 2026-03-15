@@ -39,15 +39,15 @@ Provided by [AI SENSE AS](https://www.aisense.no) (Oslo, Norway).
 
 ### curl
 ```bash
-curl https://www.aisense.no/api/random/uuid
+curl https://aisenseapi.com/services/v1/uuid
 
-curl https://www.aisense.no/api/time/datetime
+curl https://aisenseapi.com/services/v1/datetime
 
-curl -X POST https://www.aisense.no/api/hash/sha256 \
+curl -X POST https://aisenseapi.com/services/v1/sha256 \
   -H "Content-Type: application/json" \
   -d '{"data": "Hello"}'
 
-curl -X POST https://www.aisense.no/api/transform/base64/encode \
+curl -X POST https://aisenseapi.com/services/v1/base64/encode \
   -H "Content-Type: application/json" \
   -d '{"data": "Hello, world!"}'
 ```

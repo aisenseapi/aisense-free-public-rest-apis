@@ -1,6 +1,6 @@
 # Free Public REST APIs — AI SENSE AS
 
-> **Base URL:** `https://www.aisense.no/api`  
+> **Base URL:** `https://aisenseapi.com/services/v1`  
 > **Authentication:** None  
 > **Cost:** Free  
 > **Format:** JSON (all responses)
@@ -366,7 +366,7 @@ Creates a human-in-the-loop action with a web form. Returns a form URL for human
 {
   "action_id": "abc123",
   "form_url": "https://www.aisense.no/action/abc123",
-  "result_url": "https://www.aisense.no/api/web/webhook/action/abc123"
+  "result_url": "https://aisenseapi.com/services/v1/webhook/action/abc123"
 }
 ```
 

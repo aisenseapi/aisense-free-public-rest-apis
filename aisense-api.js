@@ -15,7 +15,7 @@
  *   Replace fetch with node-fetch or undici.
  */
 
-const BASE_URL = 'https://www.aisense.no/api'
+const BASE_URL = 'https://aisenseapi.com/services/v1'
 
 export class AISenseAPI {
   constructor(baseUrl = BASE_URL) {
