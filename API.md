@@ -113,7 +113,7 @@ All transform endpoints accept input as:
 
 ---
 
-### `POST /transform/base64/encode`
+### `POST /transform/base64_encode`
 Encodes text to Base64.
 
 ```json
@@ -126,7 +126,7 @@ Encodes text to Base64.
 
 ---
 
-### `POST /transform/base64/decode`
+### `POST /transform/base64_decode`
 Decodes Base64 back to original text.
 
 ```json
@@ -139,7 +139,7 @@ Decodes Base64 back to original text.
 
 ---
 
-### `POST /transform/base58/encode`
+### `POST /transform/base58_encode`
 Encodes text to Base58.
 
 ```json
@@ -148,7 +148,7 @@ Encodes text to Base58.
 
 ---
 
-### `POST /transform/base58/decode`
+### `POST /transform/base58_decode`
 Decodes a Base58-encoded string.
 
 ```json
@@ -157,7 +157,7 @@ Decodes a Base58-encoded string.
 
 ---
 
-### `POST /transform/base32/encode`
+### `POST /transform/base32_encode`
 Encodes text to Base32.
 
 ```json
@@ -166,7 +166,7 @@ Encodes text to Base32.
 
 ---
 
-### `POST /transform/base32/decode`
+### `POST /transform/base32_decode`
 Decodes a Base32-encoded string. Response format can be JSON (default) or raw binary via `Accept` header.
 
 ```json
@@ -175,7 +175,7 @@ Decodes a Base32-encoded string. Response format can be JSON (default) or raw bi
 
 ---
 
-### `POST /transform/jwt/encode`
+### `POST /transform/jwt_encode`
 Encodes a JSON payload into a JWT using HS256. Requires a `secret`.
 
 ```json
@@ -188,7 +188,7 @@ Encodes a JSON payload into a JWT using HS256. Requires a `secret`.
 
 ---
 
-### `POST /transform/jwt/decode`
+### `POST /transform/jwt_decode`
 Decodes a JWT and returns its payload. Requires the same `secret` used to sign it.
 
 ```json
@@ -198,7 +198,7 @@ Decodes a JWT and returns its payload. Requires the same `secret` used to sign i
 
 ---
 
-### `POST /transform/qrcode/encode`
+### `POST /transform/qrcode_encode`
 Generates a QR code from text. Returns a Base64-encoded PNG. Supports URLs, plain text, Wi-Fi credentials, contact info, etc.
 
 ```json
@@ -211,7 +211,7 @@ Generates a QR code from text. Returns a Base64-encoded PNG. Supports URLs, plai
 
 ---
 
-### `POST /transform/qrcode/decode`
+### `POST /transform/qrcode_decode`
 Decodes a QR code image and returns its text content. Accepts file upload or Base64-encoded image.
 
 ```json
@@ -290,7 +290,7 @@ Returns the public IP address of the requesting client.
 
 ---
 
-### `GET /web/ip/lookup/{ip}`
+### `GET /web/ip_lookup/{ip}`
 Reverse IP lookup. Returns country, city, coordinates, and timezone.
 
 ```json
@@ -322,7 +322,7 @@ Retrieves previously stored data by UUID.
 
 ---
 
-### `POST /web/url/shorten`
+### `POST /web/url_shorten`
 Shortens a URL. **Expires after 24 hours.**
 
 ```json
@@ -335,7 +335,7 @@ Shortens a URL. **Expires after 24 hours.**
 
 ---
 
-### `POST /web/webhook/capture`
+### `POST /web/webhook_capture`
 Captures the full incoming HTTP request (method, headers, query params, body, IP). Useful for testing webhooks and debugging integrations. **Expires after 24 hours.**
 
 ```json
@@ -350,7 +350,7 @@ Captures the full incoming HTTP request (method, headers, query params, body, IP
 
 ---
 
-### `POST /web/webhook/action`
+### `POST /web/webhook_action`
 Creates a human-in-the-loop action with a web form. Returns a form URL for human input and a result URL to poll. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`. **Expires after 24 hours.**
 
 ```json
@@ -365,8 +365,8 @@ Creates a human-in-the-loop action with a web form. Returns a form URL for human
 // Response
 {
   "action_id": "abc123",
-  "form_url": "https://www.aisense.no/action/abc123",
-  "result_url": "https://aisenseapi.com/services/v1/webhook/action/abc123"
+  "form_url": "https://aisenseapi.com/services/v1/webhook_action/abc123/form",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_action/abc123"
 }
 ```
 
@@ -378,7 +378,7 @@ Creates a human-in-the-loop action with a web form. Returns a form URL for human
 
 ---
 
-### `GET /crypto/solana/wallet`
+### `GET /crypto/solana_wallet`
 Generates a new Solana wallet.
 
 ```json
@@ -391,7 +391,7 @@ Generates a new Solana wallet.
 
 ---
 
-### `GET /crypto/bitcoin/wallet`
+### `GET /crypto/bitcoin_wallet`
 Generates a new Bitcoin wallet (secp256k1).
 
 ```json
@@ -404,7 +404,7 @@ Generates a new Bitcoin wallet (secp256k1).
 
 ---
 
-### `GET /crypto/ethereum/wallet`
+### `GET /crypto/ethereum_wallet`
 Generates a new Ethereum wallet.
 
 ```json
@@ -433,9 +433,9 @@ Generates a new Ethereum wallet.
 ### TTL / expiry
 These endpoints store temporary data that **auto-deletes after 24 hours**:
 - `/web/storage`
-- `/web/url/shorten`
-- `/web/webhook/capture`
-- `/web/webhook/action`
+- `/web/url_shorten`
+- `/web/webhook_capture`
+- `/web/webhook_action`
 
 ### Rate limits
 Not publicly documented. These are free community APIs — use responsibly.

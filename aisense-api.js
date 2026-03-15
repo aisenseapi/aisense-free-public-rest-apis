@@ -94,47 +94,47 @@ export class AISenseAPI {
   // ── Transform ─────────────────────────────────────────────────────────────
 
   base64Encode(data) {
-    return this.#post('/transform/base64/encode', { data })
+    return this.#post('/transform/base64_encode', { data })
   }
 
   base64Decode(data) {
-    return this.#post('/transform/base64/decode', { data })
+    return this.#post('/transform/base64_decode', { data })
   }
 
   base58Encode(data) {
-    return this.#post('/transform/base58/encode', { data })
+    return this.#post('/transform/base58_encode', { data })
   }
 
   base58Decode(data) {
-    return this.#post('/transform/base58/decode', { data })
+    return this.#post('/transform/base58_decode', { data })
   }
 
   base32Encode(data) {
-    return this.#post('/transform/base32/encode', { data })
+    return this.#post('/transform/base32_encode', { data })
   }
 
   base32Decode(data) {
-    return this.#post('/transform/base32/decode', { data })
+    return this.#post('/transform/base32_decode', { data })
   }
 
   /** Encode a JSON payload into a JWT (HS256). */
   jwtEncode(payload, secret) {
-    return this.#post('/transform/jwt/encode', { data: payload, secret })
+    return this.#post('/transform/jwt_encode', { data: payload, secret })
   }
 
   /** Decode a JWT and return its payload. */
   jwtDecode(token, secret) {
-    return this.#post('/transform/jwt/decode', { data: token, secret })
+    return this.#post('/transform/jwt_decode', { data: token, secret })
   }
 
   /** Generate a QR code from text. Returns Base64-encoded PNG. */
   qrcodeEncode(data) {
-    return this.#post('/transform/qrcode/encode', { data })
+    return this.#post('/transform/qrcode_encode', { data })
   }
 
   /** Decode a Base64-encoded QR code image. */
   qrcodeDecode(imageBase64) {
-    return this.#post('/transform/qrcode/decode', { data: imageBase64 })
+    return this.#post('/transform/qrcode_decode', { data: imageBase64 })
   }
 
   // ── Hash ──────────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ export class AISenseAPI {
 
   /** Reverse IP lookup: country, city, coordinates, timezone. */
   ipLookup(ip) {
-    return this.#get(`/web/ip/lookup/${ip}`)
+    return this.#get(`/web/ip_lookup/${ip}`)
   }
 
   /** Store data temporarily (24h TTL). Returns a UUID. */
@@ -189,12 +189,12 @@ export class AISenseAPI {
 
   /** Shorten a URL (24h TTL). */
   shortenURL(url) {
-    return this.#post('/web/url/shorten', { url })
+    return this.#post('/web/url_shorten', { url })
   }
 
   /** Capture and return the full incoming HTTP request (24h TTL). */
   webhookCapture(body = {}) {
-    return this.#post('/web/webhook/capture', body)
+    return this.#post('/web/webhook_capture', body)
   }
 
   /**
@@ -206,24 +206,24 @@ export class AISenseAPI {
    * @returns {{ action_id, form_url, result_url }}
    */
   webhookAction(title, fields) {
-    return this.#post('/web/webhook/action', { title, fields })
+    return this.#post('/web/webhook_action', { title, fields })
   }
 
   // ── Crypto ────────────────────────────────────────────────────────────────
 
   /** Generate a new Solana wallet. FOR DEVELOPMENT ONLY. */
   generateSolanaWallet() {
-    return this.#get('/crypto/solana/wallet')
+    return this.#get('/crypto/solana_wallet')
   }
 
   /** Generate a new Bitcoin wallet. FOR DEVELOPMENT ONLY. */
   generateBitcoinWallet() {
-    return this.#get('/crypto/bitcoin/wallet')
+    return this.#get('/crypto/bitcoin_wallet')
   }
 
   /** Generate a new Ethereum wallet. FOR DEVELOPMENT ONLY. */
   generateEthereumWallet() {
-    return this.#get('/crypto/ethereum/wallet')
+    return this.#get('/crypto/ethereum_wallet')
   }
 }
 

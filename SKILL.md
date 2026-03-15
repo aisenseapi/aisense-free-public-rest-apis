@@ -161,7 +161,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base64 Encode
 **Description:** Encodes text into Base64 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base64/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base64_encode`
 
 **Request:**
 ```json
@@ -182,7 +182,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base64 Decode
 **Description:** Decodes a Base64-encoded string back to its original format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base64/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base64_decode`
 
 **Request:**
 ```json
@@ -203,7 +203,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base58 Encode
 **Description:** Encodes text into Base58 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base58/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base58_encode`
 
 **Request:**
 ```json
@@ -217,28 +217,28 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### Base58 Decode
 **Description:** Decodes a Base58-encoded string. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base58/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base58_decode`
 
 ---
 
 ### Base32 Encode
 **Description:** Encodes text into Base32 format. Input must be JSON with a `data` field.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base32/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base32_encode`
 
 ---
 
 ### Base32 Decode
 **Description:** Decodes a Base32-encoded string. Accepts JSON with a `data` field or plain text. Response can be JSON (default) or raw binary based on the `Accept` header.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base32/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/base32_decode`
 
 ---
 
 ### JWT Encode
 **Description:** Encodes a JSON payload into a JWT using the HS256 algorithm. Accepts JSON, plain text (`Content-Type: text/plain`), or file upload. A secret key is required to sign the token.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt_encode`
 
 **Request:**
 ```json
@@ -260,7 +260,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### JWT Decode
 **Description:** Decodes a JWT and returns its payload. Accepts JSON with a `data` field, plain text, or file upload. A secret key must be provided.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt_decode`
 
 **Request:**
 ```json
@@ -275,7 +275,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### QR Code Encode
 **Description:** Generates a QR code from text input. Returns the QR code as a Base64-encoded PNG. Can encode URLs, plain text, contact info, Wi-Fi credentials, event details, etc.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode/encode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode_encode`
 
 **Request:**
 ```json
@@ -296,7 +296,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 ### QR Code Decode
 **Description:** Decodes a QR code image and returns the embedded content. Accepts a file upload or a Base64-encoded image in JSON format.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode/decode`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode_decode`
 
 **Request (Base64):**
 ```json
@@ -418,7 +418,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ### IP Reverse Lookup
 **Description:** Performs a reverse IP lookup. Returns country, city, latitude, longitude, and time zone for a given IP address. Useful for location-based services, analytics, or security checks.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ip/lookup/{ip}`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ip_lookup/{ip}`
 
 **Response:**
 ```json
@@ -455,7 +455,7 @@ Response:
 ### URL Shortener
 **Description:** Generates a shortened URL for any full-length link. Returns a short redirect URL. **Links expire automatically after 24 hours.**
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/url/shorten`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/url_shorten`
 
 **Request:**
 ```json
@@ -472,7 +472,7 @@ Response:
 ### Webhook Capture
 **Description:** Captures and returns the full HTTP request received by the server. Records method, headers, query parameters, client IP, and body. JSON bodies are automatically parsed. **Data expires after 24 hours.** Primarily used to test webhooks and debug integrations.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook/capture`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook_capture`
 
 **Response:**
 ```json
@@ -490,7 +490,7 @@ Response:
 ### Webhook Action
 **Description:** Creates an interactive action requiring human input before an automated process continues. Generates a unique action ID, a form URL for user submission, and a result URL to poll for the response. Form fields can include radio buttons, select menus, text inputs, textareas, and checkboxes. Status changes to `answered` once submitted. **All stored actions expire after 24 hours.**
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook/action`
+**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook_action`
 
 **Request:**
 ```json
@@ -511,8 +511,8 @@ Response:
 ```json
 {
   "action_id": "abc123",
-  "form_url": "https://www.aisense.no/action/abc123",
-  "result_url": "https://aisenseapi.com/services/v1/webhook/action/abc123"
+  "form_url": "https://aisenseapi.com/services/v1/webhook_action/abc123/form",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_action/abc123"
 }
 ```
 
@@ -527,7 +527,7 @@ Response:
 ### Solana — Generate New Wallet
 **Description:** Generates a new Solana wallet including a private key, a Base58-encoded private key, and a public address.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/solana/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/solana_wallet`
 
 **Response:**
 ```json
@@ -543,7 +543,7 @@ Response:
 ### Bitcoin — Generate New Wallet
 **Description:** Generates a Bitcoin wallet with a private key (hexadecimal and WIF format) and a Base58Check-encoded Bitcoin address. Adheres to Bitcoin's secp256k1 standards.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin_wallet`
 
 **Response:**
 ```json
@@ -559,7 +559,7 @@ Response:
 ### Ethereum — Generate New Wallet
 **Description:** Generates a new Ethereum wallet including a private key and a public address.
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum/wallet`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum_wallet`
 
 **Response:**
 ```json
@@ -584,16 +584,16 @@ Response:
 | Random | `/api/random/color` | GET | Random hex color |
 | Random | `/api/random/uuid` | GET | UUID v4 |
 | Random | `/api/random/guid` | GET | GUID |
-| Transform | `/api/transform/base64/encode` | POST | Base64 encode |
-| Transform | `/api/transform/base64/decode` | POST | Base64 decode |
-| Transform | `/api/transform/base58/encode` | POST | Base58 encode |
-| Transform | `/api/transform/base58/decode` | POST | Base58 decode |
-| Transform | `/api/transform/base32/encode` | POST | Base32 encode |
-| Transform | `/api/transform/base32/decode` | POST | Base32 decode |
-| Transform | `/api/transform/jwt/encode` | POST | JWT encode (HS256) |
-| Transform | `/api/transform/jwt/decode` | POST | JWT decode |
-| Transform | `/api/transform/qrcode/encode` | POST | QR code → Base64 PNG |
-| Transform | `/api/transform/qrcode/decode` | POST | QR code image → text |
+| Transform | `/api/transform/base64_encode` | POST | Base64 encode |
+| Transform | `/api/transform/base64_decode` | POST | Base64 decode |
+| Transform | `/api/transform/base58_encode` | POST | Base58 encode |
+| Transform | `/api/transform/base58_decode` | POST | Base58 decode |
+| Transform | `/api/transform/base32_encode` | POST | Base32 encode |
+| Transform | `/api/transform/base32_decode` | POST | Base32 decode |
+| Transform | `/api/transform/jwt_encode` | POST | JWT encode (HS256) |
+| Transform | `/api/transform/jwt_decode` | POST | JWT decode |
+| Transform | `/api/transform/qrcode_encode` | POST | QR code → Base64 PNG |
+| Transform | `/api/transform/qrcode_decode` | POST | QR code image → text |
 | Hash | `/api/hash/md5` | POST | MD5 hash |
 | Hash | `/api/hash/sha1` | POST | SHA1 hash |
 | Hash | `/api/hash/sha256` | POST | SHA256 hash |
@@ -601,14 +601,14 @@ Response:
 | Web | `/api/web/ping` | GET | Ping / connectivity check |
 | Web | `/api/web/health` | GET | Health check + timestamp |
 | Web | `/api/web/ip` | GET | Client public IP |
-| Web | `/api/web/ip/lookup/{ip}` | GET | IP geolocation lookup |
+| Web | `/api/web/ip_lookup/{ip}` | GET | IP geolocation lookup |
 | Web | `/api/web/storage` | POST/GET | Temp JSON/text storage (24h TTL) |
-| Web | `/api/web/url/shorten` | POST | URL shortener (24h TTL) |
-| Web | `/api/web/webhook/capture` | POST | Webhook request capture (24h TTL) |
-| Web | `/api/web/webhook/action` | POST | Human-in-the-loop action form (24h TTL) |
-| Crypto | `/api/crypto/solana/wallet` | GET | New Solana wallet |
-| Crypto | `/api/crypto/bitcoin/wallet` | GET | New Bitcoin wallet |
-| Crypto | `/api/crypto/ethereum/wallet` | GET | New Ethereum wallet |
+| Web | `/api/web/url_shorten` | POST | URL shortener (24h TTL) |
+| Web | `/api/web/webhook_capture` | POST | Webhook request capture (24h TTL) |
+| Web | `/api/web/webhook_action` | POST | Human-in-the-loop action form (24h TTL) |
+| Crypto | `/api/crypto/solana_wallet` | GET | New Solana wallet |
+| Crypto | `/api/crypto/bitcoin_wallet` | GET | New Bitcoin wallet |
+| Crypto | `/api/crypto/ethereum_wallet` | GET | New Ethereum wallet |
 
 ---
 

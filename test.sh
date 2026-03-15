@@ -64,15 +64,15 @@ echo ""
 
 # ── TRANSFORM ────────────────────────────────────────────────
 echo -e "${YELLOW}🔄  Transform${NC}"
-check "Base64 Encode"   POST "$BASE/transform/base64/encode"  '{"data":"Hello, world!"}'
-check "Base64 Decode"   POST "$BASE/transform/base64/decode"  '{"data":"SGVsbG8sIHdvcmxkIQ=="}'
-check "Base58 Encode"   POST "$BASE/transform/base58/encode"  '{"data":"Hello"}'
-check "Base58 Decode"   POST "$BASE/transform/base58/decode"  '{"data":"9Ajdvzr"}'
-check "Base32 Encode"   POST "$BASE/transform/base32/encode"  '{"data":"Hello"}'
-check "Base32 Decode"   POST "$BASE/transform/base32/decode"  '{"data":"JBSWY3DP"}'
-check "JWT Encode"      POST "$BASE/transform/jwt/encode"     '{"data":{"user":"test"},"secret":"mysecret"}'
-check "JWT Decode"      POST "$BASE/transform/jwt/decode"     '{"data":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidGVzdCJ9.4oHDP2OHjcBwO-OiCg8ILaGC8DUjOmMJN5mQ8xR1yUo","secret":"mysecret"}'
-check "QR Code Encode"  POST "$BASE/transform/qrcode/encode"  '{"data":"https://example.com"}'
+check "Base64 Encode"   POST "$BASE/transform/base64_encode"  '{"data":"Hello, world!"}'
+check "Base64 Decode"   POST "$BASE/transform/base64_decode"  '{"data":"SGVsbG8sIHdvcmxkIQ=="}'
+check "Base58 Encode"   POST "$BASE/transform/base58_encode"  '{"data":"Hello"}'
+check "Base58 Decode"   POST "$BASE/transform/base58_decode"  '{"data":"9Ajdvzr"}'
+check "Base32 Encode"   POST "$BASE/transform/base32_encode"  '{"data":"Hello"}'
+check "Base32 Decode"   POST "$BASE/transform/base32_decode"  '{"data":"JBSWY3DP"}'
+check "JWT Encode"      POST "$BASE/transform/jwt_encode"     '{"data":{"user":"test"},"secret":"mysecret"}'
+check "JWT Decode"      POST "$BASE/transform/jwt_decode"     '{"data":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidGVzdCJ9.4oHDP2OHjcBwO-OiCg8ILaGC8DUjOmMJN5mQ8xR1yUo","secret":"mysecret"}'
+check "QR Code Encode"  POST "$BASE/transform/qrcode_encode"  '{"data":"https://example.com"}'
 echo ""
 
 # ── HASH ─────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ echo -e "${YELLOW}🌐  Web${NC}"
 check "Ping"       GET "$BASE/web/ping"
 check "Health"     GET "$BASE/web/health"
 check "Client IP"  GET "$BASE/web/ip"
-check "IP Lookup"  GET "$BASE/web/ip/lookup/8.8.8.8"
+check "IP Lookup"  GET "$BASE/web/ip_lookup/8.8.8.8"
 
 # Storage: store then retrieve
 echo -ne "  Testing Storage (store)... "
@@ -107,7 +107,7 @@ fi
 
 # URL Shortener
 echo -ne "  Testing URL Shortener... "
-short_response=$(curl -s -X POST "$BASE/web/url/shorten" \
+short_response=$(curl -s -X POST "$BASE/web/url_shorten" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com"}')
 short_url=$(echo "$short_response" | grep -o '"short_url":"[^"]*"' | cut -d'"' -f4)
@@ -119,18 +119,18 @@ else
   FAIL=$((FAIL + 1))
 fi
 
-check "Webhook Capture" POST "$BASE/web/webhook/capture" '{"event":"test"}'
+check "Webhook Capture" POST "$BASE/web/webhook_capture" '{"event":"test"}'
 
 # Webhook Action
-check "Webhook Action" POST "$BASE/web/webhook/action" \
+check "Webhook Action" POST "$BASE/web/webhook_action" \
   '{"title":"Test action","fields":[{"type":"radio","name":"choice","label":"Pick one","options":["Yes","No"]}]}'
 echo ""
 
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
-check "Solana Wallet"   GET "$BASE/crypto/solana/wallet"
-check "Bitcoin Wallet"  GET "$BASE/crypto/bitcoin/wallet"
-check "Ethereum Wallet" GET "$BASE/crypto/ethereum/wallet"
+check "Solana Wallet"   GET "$BASE/crypto/solana_wallet"
+check "Bitcoin Wallet"  GET "$BASE/crypto/bitcoin_wallet"
+check "Ethereum Wallet" GET "$BASE/crypto/ethereum_wallet"
 echo ""
 
 # ── SUMMARY ──────────────────────────────────────────────────

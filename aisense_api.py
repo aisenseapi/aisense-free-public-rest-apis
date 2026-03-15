@@ -90,38 +90,38 @@ class AISenseAPI:
     # ── Transform ─────────────────────────────────────────────────────────────
 
     def base64_encode(self, data: str) -> dict:
-        return self._post("/transform/base64/encode", {"data": data})
+        return self._post("/transform/base64_encode", {"data": data})
 
     def base64_decode(self, data: str) -> dict:
-        return self._post("/transform/base64/decode", {"data": data})
+        return self._post("/transform/base64_decode", {"data": data})
 
     def base58_encode(self, data: str) -> dict:
-        return self._post("/transform/base58/encode", {"data": data})
+        return self._post("/transform/base58_encode", {"data": data})
 
     def base58_decode(self, data: str) -> dict:
-        return self._post("/transform/base58/decode", {"data": data})
+        return self._post("/transform/base58_decode", {"data": data})
 
     def base32_encode(self, data: str) -> dict:
-        return self._post("/transform/base32/encode", {"data": data})
+        return self._post("/transform/base32_encode", {"data": data})
 
     def base32_decode(self, data: str) -> dict:
-        return self._post("/transform/base32/decode", {"data": data})
+        return self._post("/transform/base32_decode", {"data": data})
 
     def jwt_encode(self, payload: dict, secret: str) -> dict:
         """Encode a JSON payload into a JWT (HS256)."""
-        return self._post("/transform/jwt/encode", {"data": payload, "secret": secret})
+        return self._post("/transform/jwt_encode", {"data": payload, "secret": secret})
 
     def jwt_decode(self, token: str, secret: str) -> dict:
         """Decode a JWT and return its payload."""
-        return self._post("/transform/jwt/decode", {"data": token, "secret": secret})
+        return self._post("/transform/jwt_decode", {"data": token, "secret": secret})
 
     def qrcode_encode(self, data: str) -> dict:
         """Generate a QR code from text. Returns Base64-encoded PNG."""
-        return self._post("/transform/qrcode/encode", {"data": data})
+        return self._post("/transform/qrcode_encode", {"data": data})
 
     def qrcode_decode(self, image_base64: str) -> dict:
         """Decode a Base64-encoded QR code image."""
-        return self._post("/transform/qrcode/decode", {"data": image_base64})
+        return self._post("/transform/qrcode_decode", {"data": image_base64})
 
     # ── Hash ──────────────────────────────────────────────────────────────────
 
@@ -153,7 +153,7 @@ class AISenseAPI:
 
     def ip_lookup(self, ip: str) -> dict:
         """Reverse IP lookup: country, city, coordinates, timezone."""
-        return self._get(f"/web/ip/lookup/{ip}")
+        return self._get(f"/web/ip_lookup/{ip}")
 
     def storage_set(self, data: Any) -> dict:
         """Store data temporarily (24h TTL). Returns a UUID."""
@@ -165,11 +165,11 @@ class AISenseAPI:
 
     def shorten_url(self, url: str) -> dict:
         """Shorten a URL (24h TTL)."""
-        return self._post("/web/url/shorten", {"url": url})
+        return self._post("/web/url_shorten", {"url": url})
 
     def webhook_capture(self, body: Optional[dict] = None) -> dict:
         """Capture and return the full incoming HTTP request (24h TTL)."""
-        return self._post("/web/webhook/capture", body or {})
+        return self._post("/web/webhook_capture", body or {})
 
     def webhook_action(self, title: str, fields: list) -> dict:
         """
@@ -181,21 +181,21 @@ class AISenseAPI:
         ]
         Returns: { action_id, form_url, result_url }
         """
-        return self._post("/web/webhook/action", {"title": title, "fields": fields})
+        return self._post("/web/webhook_action", {"title": title, "fields": fields})
 
     # ── Crypto ────────────────────────────────────────────────────────────────
 
     def generate_solana_wallet(self) -> dict:
         """Generate a new Solana wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/solana/wallet")
+        return self._get("/crypto/solana_wallet")
 
     def generate_bitcoin_wallet(self) -> dict:
         """Generate a new Bitcoin wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/bitcoin/wallet")
+        return self._get("/crypto/bitcoin_wallet")
 
     def generate_ethereum_wallet(self) -> dict:
         """Generate a new Ethereum wallet. FOR DEVELOPMENT ONLY."""
-        return self._get("/crypto/ethereum/wallet")
+        return self._get("/crypto/ethereum_wallet")
 
 
 # ── Example usage ─────────────────────────────────────────────────────────────

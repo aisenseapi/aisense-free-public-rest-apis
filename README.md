@@ -47,7 +47,7 @@ curl -X POST https://aisenseapi.com/services/v1/sha256 \
   -H "Content-Type: application/json" \
   -d '{"data": "Hello"}'
 
-curl -X POST https://aisenseapi.com/services/v1/base64/encode \
+curl -X POST https://aisenseapi.com/services/v1/base64_encode \
   -H "Content-Type: application/json" \
   -d '{"data": "Hello, world!"}'
 ```
