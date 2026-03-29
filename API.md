@@ -260,24 +260,29 @@ Decodes a QR code image. Accepts file upload (`qrcode_image` field, `multipart/f
 
 All hash endpoints accept JSON (`{ "data": "..." }`), plain text (`Content-Type: text/plain`), or file uploads.
 
-### `POST /md5`
+### `POST /md5_hash`
 ```json
 { "data": "Hello" } → { "hash": "8b1a9953c4611296a827abf8c47804d7" }
 ```
 
-### `POST /sha1`
+### `POST /sha1_hash`
 ```json
 { "data": "Hello" } → { "hash": "f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0" }
 ```
 
-### `POST /sha256`
+### `POST /sha256_hash`
 ```json
-{ "data": "Hello" } → { "hash": "185f8db32921bd46d35cc5e1aeea7bab5be96848c1dc7..." }
+{ "data": "Hello" } → { "hash": "185f8db32921bd46d35cc5e1aeea7bab5be96848c1dc7916f8f7562284c0fced" }
 ```
 
-### `POST /sha512`
+### `POST /sha512_hash`
 ```json
-{ "data": "Hello" } → { "hash": "3615f80c9d293ed7402687f94b22d58e529b8cc7916f8..." }
+{ "data": "Hello" } → { "hash": "3615f80c9d293ed7402687f94b22d58e529b8cc7916f8bac11d6d974597c1f48..." }
+```
+
+### `POST /crc32_checksum`
+```json
+{ "data": "Hello" } → { "checksum": "f7d18982" }
 ```
 
 ---
@@ -305,18 +310,63 @@ All hash endpoints accept JSON (`{ "data": "..." }`), plain text (`Content-Type:
 
 ---
 
+### `GET /user_agent`
+Returns the User-Agent string of the caller.
+
+```
+GET https://aisenseapi.com/services/v1/user_agent
+```
+
+```json
+{ "user_agent": "curl/8.5.0" }
+```
+
+---
+
 ### `GET /ip_reverse_lookup/{ip}`
+Performs a reverse IP lookup, returning country, city, coordinates, place, and timezone.
+
 ```
 GET https://aisenseapi.com/services/v1/ip_reverse_lookup/151.101.65.195
 ```
+
 ```json
 {
   "ip": "151.101.65.195",
   "country": "United States",
   "city": "San Francisco",
-  "location": { "lat": "37.764200", "lng": "-122.399300" },
+  "location": {
+    "lat": "37.764200",
+    "lng": "-122.399300"
+  },
   "place": null,
   "timezone": "America/Los_Angeles"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ip` | string | The IP address that was looked up |
+| `country` | string | Country associated with the IP |
+| `city` | string | City name, or `null` if unavailable |
+| `location.lat` | string | Approximate latitude |
+| `location.lng` | string | Approximate longitude |
+| `place` | string | More specific place name, or `null` |
+| `timezone` | string | Local timezone identifier (e.g. `"America/Los_Angeles"`), or `null` |
+
+---
+
+### `GET /domain_ip_lookup/{domain}`
+Resolves a domain name to its IP address.
+
+```
+GET https://aisenseapi.com/services/v1/domain_ip_lookup/example.com
+```
+
+```json
+{
+  "domain": "example.com",
+  "ip": "93.184.216.34"
 }
 ```
 
@@ -488,6 +538,10 @@ GET https://aisenseapi.com/services/v1/url_shortener/https://developer.mozilla.o
 | `/random_number` | `random_number` + `range` |
 | `/swatchinternettime` | `beat` + `date` |
 | `/storage` (store) | `storage_id` + `expire_timestamp` |
+| `/md5_hash`, `/sha1_hash`, `/sha256_hash`, `/sha512_hash` | `hash` |
+| `/crc32_checksum` | `checksum` |
+| `/user_agent` | `user_agent` |
+| `/webhook_capture` (create) | `capture_id` + `update_url` + `read_url` + `expire_timestamp` |
 
 ### TTL — auto-deletes after 24 hours
 `/storage` · `/url_shortener` · `/webhook_capture` · `/webhook_action`

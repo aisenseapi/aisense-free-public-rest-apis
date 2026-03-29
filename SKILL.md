@@ -136,7 +136,7 @@ All endpoints return JSON unless otherwise noted. No API keys are needed.
 **Example response:**
 ```json
 {
-  "storage_id": "550e8400-e29b-41d4-a716-446655440000"
+  "uuid": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -426,8 +426,11 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
   "ip": "203.0.113.42",
   "country": "Norway",
   "city": "Oslo",
-  "latitude": 59.9139,
-  "longitude": 10.7522,
+  "location": {
+    "lat": "59.913900",
+    "lng": "10.752200"
+  },
+  "place": null,
   "timezone": "Europe/Oslo"
 }
 ```
@@ -444,7 +447,7 @@ All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file
 ```
 Response:
 ```json
-{ "storage_id": "550e8400-e29b-41d4-a716-446655440000" }
+{ "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
 ```
 
 **Retrieve data:**
@@ -455,33 +458,51 @@ Response:
 ### URL Shortener
 **Description:** Generates a shortened URL for any full-length link. Returns a short redirect URL. **Links expire automatically after 24 hours.**
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/url_shortener`
+**Endpoint:** `GET https://aisenseapi.com/services/v1/url_shortener/{url}`
 
-**Request:**
-```json
-{ "url": "https://example.com/some/very/long/path?with=params" }
+**Example:**
 ```
-
-**Response:**
-```json
-{ "short_url": "https://www.aisense.no/s/abc123" }
+GET https://aisenseapi.com/services/v1/url_shortener/https://example.com/some/very/long/path
 ```
 
 ---
 
 ### Webhook Capture
-**Description:** Captures and returns the full HTTP request received by the server. Records method, headers, query parameters, client IP, and body. JSON bodies are automatically parsed. **Data expires after 24 hours.** Primarily used to test webhooks and debug integrations.
+**Description:** Creates a capture session and returns a unique `update_url` to receive any inbound HTTP request, and a `read_url` to retrieve the captured data. Records method, headers, query parameters, client IP, and body. JSON bodies are automatically parsed. **Data expires after 24 hours.** Primarily used to test webhooks and debug integrations.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook_capture`
+**Create session:** `POST https://aisenseapi.com/services/v1/webhook_capture`
 
 **Response:**
 ```json
 {
-  "method": "POST",
-  "headers": { "Content-Type": "application/json" },
-  "query": {},
-  "ip": "203.0.113.42",
-  "body": { "event": "user.created" }
+  "ok": true,
+  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "update_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91/update",
+  "read_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "expire_timestamp": 1772893200
+}
+```
+
+**Send webhook:** Any HTTP method → `update_url`
+
+**Read result:** `GET {read_url}` (i.e. `GET /webhook_capture/{capture_id}`)
+
+```json
+{
+  "ok": true,
+  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "captured_at_datetime": "2026-03-06T14:20:00Z",
+  "request": {
+    "method": "POST",
+    "headers": { "content-type": "application/json" },
+    "client_ip": "203.0.113.10",
+    "body": {
+      "json": { "event": "payment.created", "amount": 499 },
+      "text": null,
+      "base64": null,
+      "raw_length": 38
+    }
+  }
 }
 ```
 
@@ -578,40 +599,43 @@ Response:
 
 | Category | Endpoint | Method | Description |
 |----------|----------|--------|-------------|
-| Time | `/api/time/datetime` | GET | Current datetime (ISO 8601) |
-| Time | `/api/time/timestamp` | GET | Unix timestamp |
-| Time | `/api/time/microtimestamp` | GET | Microsecond Unix timestamp |
-| Time | `/api/time/timezones` | GET | List of timezones |
-| Time | `/api/time/swatchinternettime` | GET | Swatch .beats time |
-| Random | `/api/random/number` | GET | Random integer in range |
-| Random | `/api/random/color` | GET | Random hex color |
-| Random | `/api/random/uuid` | GET | UUID v4 |
-| Random | `/api/random/guid` | GET | GUID |
-| Transform | `/api/transform/base64_encode` | POST | Base64 encode |
-| Transform | `/api/transform/base64_decode` | POST | Base64 decode |
-| Transform | `/api/transform/base58_encode` | POST | Base58 encode |
-| Transform | `/api/transform/base58_decode` | POST | Base58 decode |
-| Transform | `/api/transform/base32_encode` | POST | Base32 encode |
-| Transform | `/api/transform/base32_decode` | POST | Base32 decode |
-| Transform | `/api/transform/jwt_encode` | POST | JWT encode (HS256) |
-| Transform | `/api/transform/jwt_decode` | POST | JWT decode |
-| Transform | `/api/transform/qrcode_encode` | POST | QR code → Base64 PNG |
-| Transform | `/api/transform/qrcode_decode` | POST | QR code image → text |
-| Hash | `/api/hash/md5` | POST | MD5 hash |
-| Hash | `/api/hash/sha1` | POST | SHA1 hash |
-| Hash | `/api/hash/sha256` | POST | SHA256 hash |
-| Hash | `/api/hash/sha512` | POST | SHA512 hash |
-| Web | `/api/web/ping` | GET | Ping / connectivity check |
-| Web | `/api/web/health` | GET | Health check + timestamp |
-| Web | `/api/web/ip` | GET | Client public IP |
-| Web | `/api/web/ip_reverse_lookup/{ip}` | GET | IP geolocation lookup |
-| Web | `/api/web/storage` | POST/GET | Temp JSON/text storage (24h TTL) |
-| Web | `/api/web/url_shortener` | POST | URL shortener (24h TTL) |
-| Web | `/api/web/webhook_capture` | POST | Webhook request capture (24h TTL) |
-| Web | `/api/web/webhook_action` | POST | Human-in-the-loop action form (24h TTL) |
-| Crypto | `/api/crypto/solana/generate_new_wallet` | GET | New Solana wallet |
-| Crypto | `/api/crypto/bitcoin/generate_new_wallet` | GET | New Bitcoin wallet |
-| Crypto | `/api/crypto/ethereum/generate_new_wallet` | GET | New Ethereum wallet |
+| Time | `/datetime[/{offset}]` | GET | Current datetime (ISO 8601) |
+| Time | `/timestamp` | GET | Unix timestamp |
+| Time | `/microtimestamp` | GET | Microsecond Unix timestamp |
+| Time | `/timezones[/{offset}]` | GET | List of timezones |
+| Time | `/swatchinternettime` | GET | Swatch .beats time |
+| Random | `/random_number[/{from}/{to}]` | GET | Random integer in range |
+| Random | `/random_color` | GET | Random hex color |
+| Random | `/uuid` | GET | UUID v4 |
+| Random | `/guid` | GET | GUID |
+| Transform | `/base64_encode` | POST | Base64 encode |
+| Transform | `/base64_decode` | POST | Base64 decode |
+| Transform | `/base58_encode` | POST | Base58 encode |
+| Transform | `/base58_decode` | POST | Base58 decode |
+| Transform | `/base32_encode` | POST | Base32 encode |
+| Transform | `/base32_decode` | POST | Base32 decode |
+| Transform | `/jwt_encode` | POST | JWT encode (HS256) |
+| Transform | `/jwt_decode` | POST | JWT decode |
+| Transform | `/qrcode_encode` | POST | QR code → Base64 PNG |
+| Transform | `/qrcode_decode` | POST | QR code image → text |
+| Hash | `/md5_hash` | POST | MD5 hash |
+| Hash | `/sha1_hash` | POST | SHA1 hash |
+| Hash | `/sha256_hash` | POST | SHA256 hash |
+| Hash | `/sha512_hash` | POST | SHA512 hash |
+| Hash | `/crc32_checksum` | POST | CRC32 checksum |
+| Web | `/ping` | GET | Ping / connectivity check |
+| Web | `/health` | GET | Health check + timestamp |
+| Web | `/client_ip` | GET | Client public IP |
+| Web | `/user_agent` | GET | Client User-Agent string |
+| Web | `/ip_reverse_lookup/{ip}` | GET | IP geolocation lookup |
+| Web | `/domain_ip_lookup/{domain}` | GET | Domain → IP lookup |
+| Web | `/storage` | POST/GET | Temp JSON/text storage (24h TTL) |
+| Web | `/url_shortener/{url}` | GET | URL shortener (24h TTL) |
+| Web | `/webhook_capture` | POST/GET | Webhook request capture (24h TTL) |
+| Web | `/webhook_action` | POST/GET | Human-in-the-loop action form (24h TTL) |
+| Crypto | `/solana/generate_new_wallet` | GET | New Solana wallet |
+| Crypto | `/bitcoin/generate_new_wallet` | GET | New Bitcoin wallet |
+| Crypto | `/ethereum/generate_new_wallet` | GET | New Ethereum wallet |
 
 ---
 

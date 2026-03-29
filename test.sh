@@ -77,10 +77,11 @@ echo ""
 
 # ── HASH ─────────────────────────────────────────────────────
 echo -e "${YELLOW}🔐  Hash${NC}"
-check "MD5"    POST "$BASE/md5_hash"    '{"data":"Hello"}'
-check "SHA1"   POST "$BASE/sha1_hash"   '{"data":"Hello"}'
-check "SHA256" POST "$BASE/sha256_hash" '{"data":"Hello"}'
-check "SHA512" POST "$BASE/sha512_hash" '{"data":"Hello"}'
+check "MD5"    POST "$BASE/md5_hash"       '{"data":"Hello"}'
+check "SHA1"   POST "$BASE/sha1_hash"      '{"data":"Hello"}'
+check "SHA256" POST "$BASE/sha256_hash"    '{"data":"Hello"}'
+check "SHA512" POST "$BASE/sha512_hash"    '{"data":"Hello"}'
+check "CRC32"  POST "$BASE/crc32_checksum" '{"data":"Hello"}'
 echo ""
 
 # ── WEB ──────────────────────────────────────────────────────
@@ -88,6 +89,7 @@ echo -e "${YELLOW}🌐  Web${NC}"
 check "Ping"       GET "$BASE/ping"
 check "Health"     GET "$BASE/health"
 check "Client IP"  GET "$BASE/client_ip"
+check "User Agent" GET "$BASE/user_agent"
 check "IP Lookup"  GET "$BASE/ip_reverse_lookup/8.8.8.8"
 
 # Storage: store then retrieve
@@ -95,7 +97,7 @@ echo -ne "  Testing Storage (store)... "
 store_response=$(curl -s -X POST "$BASE/storage" \
   -H "Content-Type: application/json" \
   -d '{"data":{"test":"skill-test"}}')
-store_uuid=$(echo "$store_response" | grep -o '"uuid":"[^"]*"' | cut -d'"' -f4)
+store_uuid=$(echo "$store_response" | grep -o '"storage_id":"[^"]*"' | cut -d'"' -f4)
 if [ -n "$store_uuid" ]; then
   echo -e "${GREEN}✓${NC} got UUID: $store_uuid"
   PASS=$((PASS + 1))

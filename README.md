@@ -84,12 +84,32 @@ All stored actions expire after 24 hours.
 Create a capture session, get a unique URL, point any external service at it (Stripe, GitHub, Shopify), and read back the full captured request — method, headers, query parameters, IP, and parsed body. No ngrok, no local tunnel, no server setup.
 
 ```bash
-# Create a capture session
+# 1. Create a capture session
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
+# {
+#   "ok": true,
+#   "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+#   "update_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-.../update",
+#   "read_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-...",
+#   "expire_timestamp": 1772893200
+# }
 
-# Point your webhook sender at the returned capture_url, then read back what was sent:
+# 2. Point your webhook sender at update_url (any HTTP method)
+curl -X POST {update_url} -H "Content-Type: application/json" -d '{"event":"payment.created"}'
+
+# 3. Read back the captured request from read_url
 curl https://aisenseapi.com/services/v1/webhook_capture/{capture_id}
-# Returns method, headers, query params, IP, and auto-parsed JSON body
+# {
+#   "ok": true,
+#   "capture_id": "6f8c9e52-...",
+#   "captured_at_datetime": "2026-03-06T14:20:00Z",
+#   "request": {
+#     "method": "POST",
+#     "headers": { "content-type": "application/json" },
+#     "client_ip": "203.0.113.10",
+#     "body": { "json": { "event": "payment.created" }, "text": null, "base64": null, "raw_length": 28 }
+#   }
+# }
 ```
 
 Data expires after 24 hours.
@@ -105,7 +125,7 @@ Post any JSON, text, or file. Get back a UUID. Retrieve it from anywhere — ano
 curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" \
   -d '{"data": {"result": 42, "status": "complete"}}'
-# { "uuid": "550e8400-e29b-41d4-a716-446655440000" }
+# { "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
 
 # Retrieve it later, from anywhere
 curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-446655440000
@@ -135,8 +155,8 @@ curl https://aisenseapi.com/services/v1/ip_reverse_lookup/8.8.8.8
 #   "ip": "8.8.8.8",
 #   "country": "United States",
 #   "city": "Mountain View",
-#   "latitude": 37.386,
-#   "longitude": -122.0838,
+#   "location": { "lat": "37.386000", "lng": "-122.083800" },
+#   "place": null,
 #   "timezone": "America/Los_Angeles"
 # }
 ```
@@ -145,6 +165,7 @@ Also available: resolve a domain name to its IP address.
 
 ```bash
 curl https://aisenseapi.com/services/v1/domain_ip_lookup/example.com
+# { "domain": "example.com", "ip": "93.184.216.34" }
 ```
 
 ---
