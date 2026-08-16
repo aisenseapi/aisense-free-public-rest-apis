@@ -5,6 +5,7 @@ in a browser and it renders.
 
 | File | URL |
 |------|-----|
+| `index.html` | `/` |
 | `free-public-apis.html` | `/free-public-apis` |
 | `custom-apis.html` | `/custom-apis` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
