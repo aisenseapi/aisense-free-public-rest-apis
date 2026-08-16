@@ -9,11 +9,15 @@ in a browser and it renders.
 | `free-public-apis.html` | `/free-public-apis` |
 | `custom-apis.html` | `/custom-apis` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
+| `ai-sense-posts.html` | `/ai-sense-posts` |
+| `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `privacy.html` | `/privacy` — **needs legal review, see below** |
 | `terms.html` | `/terms` — **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
+| `robots.txt` | crawler directives and sitemap location |
+| `sitemap.xml` | canonical URLs for search engines |
 
 ## Deploying
 
@@ -102,9 +106,8 @@ wrong. Install the rotation before publishing, or change the numbers.
 Both pages describe the service. When the service changes, they have to change
 with it, or they become promises nobody is keeping.
 
-**`/ai-sense-posts` is linked but not built.** It is in the site navigation. If
-`web/` becomes the whole site rather than sitting alongside WordPress, that link
-will 404.
+**Posts are static.** Add each new article as a standalone HTML file, link it
+from `ai-sense-posts.html`, and add its canonical URL to `sitemap.xml`.
 
 ## Style
 
