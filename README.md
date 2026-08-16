@@ -23,6 +23,7 @@ in a browser and it renders.
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
+| `login.html` | `/login` - static shadow page, excluded from search indexing |
 | `privacy.html` | `/privacy` - **needs legal review, see below** |
 | `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Client Login - AI SENSE</title>
+<meta name="description" content="Client login for AI SENSE custom APIs and private documentation.">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="canonical" href="https://aisense.no/login">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Client Login - AI SENSE">
+<meta property="og:description" content="Client access for custom APIs and private documentation.">
+<meta property="og:url" content="https://aisense.no/login">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+</head>
+
+<body class="login-page">
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<!--
+  Static shadow page for the public repository.
+  Keep authentication endpoints, client IDs, tokens and validation logic out
+  of this file. Connect the live form in private server-side code.
+-->
+<main id="main-content" class="login-main">
+  <section class="login-shell" aria-labelledby="login-title">
+    <div class="login-intro">
+      <p class="eyebrow">AI SENSE client portal</p>
+      <h1 id="login-title">Sign in to your account</h1>
+      <p class="lede">Client access for custom API documentation, service details and account information.</p>
+      <ul class="login-benefits">
+        <li>Private API documentation</li>
+        <li>Integration and support details</li>
+      </ul>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-header">
+        <p class="eyebrow">Client login</p>
+        <h2>Welcome back</h2>
+        <p>Use the email address connected to your AI SENSE account.</p>
+      </div>
+
+      <form class="login-form" aria-describedby="login-status">
+        <div class="form-field">
+          <label for="login-email">Email address</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" placeholder="name@company.com" disabled>
+        </div>
+
+        <div class="form-field">
+          <div class="field-label-row">
+            <label for="login-password">Password</label>
+            <span>Forgot password?</span>
+          </div>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Password" disabled>
+        </div>
+
+        <button class="button button-primary login-button" type="button" disabled>Sign in</button>
+      </form>
+
+      <div id="login-status" class="login-status" role="status">
+        <strong>Client access is being prepared.</strong>
+        <p>Existing clients can contact <a href="mailto:support@aisense.no">support@aisense.no</a> for access.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="login-help" aria-labelledby="login-help-title">
+    <div>
+      <p class="eyebrow">Need client access?</p>
+      <h2 id="login-help-title">Talk to AI SENSE</h2>
+      <p>Tell us which custom API or integration you use. We will help you find the right documentation.</p>
+    </div>
+    <a class="button button-secondary" href="/contact-us">Contact us</a>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>
