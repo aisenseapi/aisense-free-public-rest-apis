@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Time APIs - Datetime, Unix Timestamp and Timezones</title>
+<meta name="description" content="Get an ISO 8601 datetime, Unix timestamp, microtimestamp, timezone list or Swatch Internet Time through free REST endpoints. No API key.">
+<link rel="canonical" href="https://aisense.no/time-apis">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Datetime, Timestamp and Timezone APIs"><meta property="og:description" content="Current time, Unix timestamps, timezone data and UTC offsets as JSON. No API key."><meta property="og:url" content="https://aisense.no/time-apis"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Datetime, Timestamp and Timezone APIs","description":"Get current datetime, Unix timestamps and timezone data through free REST endpoints.","url":"https://aisense.no/time-apis","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Time APIs","item":"https://aisense.no/time-apis"}]}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Time APIs</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Time utilities - UTC offsets and zones</p><h1 id="page-title">Time APIs</h1><p class="lede">Get the current ISO 8601 datetime, Unix timestamp, microsecond timestamp or a list of IANA timezones. All endpoints use simple GET requests.</p><ul class="badges"><li>No API key</li><li>Five endpoints</li><li>Offset filtering</li><li>JSON response</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Current time and zones</p><p class="sig"><span class="method">GET</span><span class="path">/datetime /timestamp</span></p><p class="sig"><span class="method">GET</span><span class="path">/microtimestamp /timezones</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="datetime"><h2>Datetime with an optional UTC offset</h2><p>Without an offset, <code>/datetime</code> returns the current datetime in UTC. Add a four-digit offset to request another UTC offset.</p><pre><code>curl https://aisenseapi.com/services/v1/datetime/+0200
+
+{ "datetime": "2026-08-16T11:44:35+02:00" }</code></pre><div class="api-note"><p>Use four digits with an optional sign. Valid examples are <code>+0200</code>, <code>-0530</code> and <code>0100</code>. An hour-only value such as <code>1</code> does not match the route.</p></div></section>
+<section id="timestamps"><h2>Unix timestamp and microtimestamp</h2><div class="endpoint-topic-grid"><article class="endpoint-topic-card"><h3>Timestamp</h3><p class="sig"><span class="method">GET</span><span class="path">/timestamp</span></p><pre><code>{ "timestamp": 1786873261 }</code></pre><p>Whole seconds since the Unix epoch.</p></article><article class="endpoint-topic-card"><h3>Microtimestamp</h3><p class="sig"><span class="method">GET</span><span class="path">/microtimestamp</span></p><pre><code>{ "microtimestamp": 1786873474.745043 }</code></pre><p>Unix time with fractional seconds.</p></article></div></section>
+<section id="timezones"><h2>Timezone list and offset filter</h2><p><code>/timezones</code> returns IANA timezone names and their current offsets. Add a four-digit offset to filter the list.</p><pre><code>curl https://aisenseapi.com/services/v1/timezones/+0200
+
+{
+  "timezones": [
+    { "timezone": "Africa/Blantyre", "offset": "+0200" },
+    { "timezone": "Europe/Oslo", "offset": "+0200" }
+  ]
+}</code></pre><p>The <code>timezones</code> value is an array of objects. It is not an array of strings. Offsets can change with daylight-saving rules, so read the returned value instead of storing a permanent assumption.</p></section>
+<section id="swatch"><h2>Swatch Internet Time</h2><p>This endpoint divides the day into 1000 beats based on Biel Mean Time.</p><pre><code>curl https://aisenseapi.com/services/v1/swatchinternettime
+
+{ "beat": "@444", "date": "2026-08-16" }</code></pre><p><code>beat</code> is a string that begins with <code>@</code>.</p></section>
+<section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Workflow timestamps</h3><p>Add a shared server-side timestamp to an automation result.</p></article><article><h3>Timezone selection</h3><p>Build a list of zones that currently share a given UTC offset.</p></article><article><h3>Scheduling input</h3><p>Convert a user-selected offset into an ISO 8601 value.</p></article><article><h3>Testing</h3><p>Fetch a current value when test code needs time from an external source.</p></article></div></section>
+<section id="limits"><h2>Response and error handling</h2><p>The response key matches the endpoint name. Most invalid requests in the wider service return an <code>error</code> object with HTTP 200, so clients should inspect the body. The service-wide limit is 5000 requests per IP per 24 hours.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/ip-reverse-lookup-api">IP Reverse Lookup API<span>Get an approximate IANA timezone for an IP</span></a><a href="/random-generator-apis">Random Generator APIs<span>Create IDs and test values</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#datetime">Datetime</a></li><li><a href="#timestamps">Timestamps</a></li><li><a href="#timezones">Timezones</a></li><li><a href="#swatch">Internet Time</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#limits">Errors</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>
