@@ -1,0 +1,4 @@
+# Authored on Windows, run on Linux and macOS. Without this, a global
+# core.autocrlf decides line endings per machine, and test.sh reaches a Linux
+# CI runner with CRLF — where the shebang line ends in \r and bash refuses it.
+* text=auto eol=lf
