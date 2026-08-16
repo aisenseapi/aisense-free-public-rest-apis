@@ -1,11 +1,21 @@
-# Free Public REST APIs — AI SENSE AS
+# Free Public REST APIs - AI SENSE AS
 
-No API key · No sign-up · No cost
+No API key | No sign-up | No cost
 
 Provided by **[AI SENSE AS](https://aisenseapi.com)** (Oslo, Norway).
-Full endpoint reference: [`API.md`](API.md) · Repo: [github.com/aisenseapi/aisense-free-public-rest-apis](https://github.com/aisenseapi/aisense-free-public-rest-apis)
+Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisense-free-public-rest-apis](https://github.com/aisenseapi/aisense-free-public-rest-apis)
 
 **Base URL:** `https://aisenseapi.com/services/v1/`
+
+## Free public MCP server
+
+AI agents can connect directly to nine curated tools at:
+
+`https://aisenseapi.com/mcp`
+
+The MCP server covers human approval, webhook capture, temporary storage, URL
+shortening, time and UUIDs. It needs no account or API key. See [`MCP.md`](MCP.md)
+for the tool list and client examples.
 
 ---
 
@@ -17,8 +27,8 @@ JavaScript, or an LLM tool definition and it just works.
 
 The collection covers two tiers of usefulness:
 
-- **Workflow endpoints** — the ones that solve real problems in pipelines and agent systems
-- **Standard utilities** — hashing, encoding, UUIDs, time, crypto — the building blocks
+- **Workflow endpoints** - the ones that solve real problems in pipelines and agent systems
+- **Standard utilities** - hashing, encoding, UUIDs, time, crypto - the building blocks
 
 ---
 
@@ -29,13 +39,13 @@ Every response shape in this repo was verified against production.
 
 **The response key is named after the endpoint.** `/md5_hash` returns
 `md5_hash`, `/random_color` returns `random_color`, `/ping` returns `ping`.
-There is no generic `data` or `result` wrapper. Do not guess the key —
+There is no generic `data` or `result` wrapper. Do not guess the key -
 [`API.md`](API.md) lists every one.
 
 **Most failures arrive as HTTP 200.** A bad request usually returns
 `{"error": "..."}` with a 200 status. Branch on the presence of an `error` key,
 not on the status code. A path that matches no route also returns 200, with a
-body that is not parseable JSON at all — if your client throws a parse error,
+body that is not parseable JSON at all - if your client throws a parse error,
 check the URL first.
 
 **There is a rate limit: 5000 requests per IP per 24 hours.** Exceeding it
@@ -46,7 +56,7 @@ returns HTTP 429 with a different envelope from everything else:
 
 ## The high-value endpoints
 
-### 🔁 Webhook Action — human-in-the-loop for agents
+### Webhook Action - human-in-the-loop for agents
 
 The standout endpoint for AI and automation work. When an automated pipeline
 needs a human decision before continuing, this handles the whole pattern with
@@ -95,7 +105,7 @@ Poll for the answer:
 
 ```bash
 curl https://aisenseapi.com/services/v1/webhook_action/{action_id}
-# "status": "pending" → "answered", with the submission under "response"
+# "status": "pending" -> "answered", with the submission under "response"
 ```
 
 Field types: `radio`, `select`, `text`, `textarea`, `checkbox`. `options`
@@ -104,16 +114,16 @@ accepts plain strings or `{"value": ..., "label": ...}` objects. Expires after
 
 ---
 
-### 📡 Webhook Capture — inspect any inbound HTTP request
+### Webhook Capture - inspect any inbound HTTP request
 
 Create a capture session, get a unique URL, point any external service at it
-(Stripe, GitHub, Shopify), and read back the full request — method, headers,
+(Stripe, GitHub, Shopify), and read back the full request - method, headers,
 query parameters, IP, and parsed body. No ngrok, no local tunnel, no server.
 
 ```bash
 # 1. Create a session
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
-# → { "ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ... }
+# -> { "ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ... }
 
 # 2. Point your webhook sender at update_url, with any HTTP method
 curl -X POST {update_url} -H "Content-Type: application/json" -d '{"event":"payment.created"}'
@@ -142,9 +152,9 @@ Expires after 24 hours.
 
 ---
 
-### 🗄️ Storage — ephemeral key-value store for pipelines
+### Storage - ephemeral key-value store for pipelines
 
-Post any JSON, text, or file. Get back a UUID. Retrieve it from anywhere —
+Post any JSON, text, or file. Get back a UUID. Retrieve it from anywhere -
 another machine, a different agent call, a downstream pipeline step.
 
 **The body is stored verbatim.** Whatever you send is exactly what comes back;
@@ -154,28 +164,28 @@ no wrapper is added or removed.
 curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" \
   -d '{"result": 42, "status": "complete"}'
-# → { "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
+# -> { "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
 
 curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-446655440000
-# → {"result": 42, "status": "complete"}
+# -> {"result": 42, "status": "complete"}
 ```
 
 Expires after 24 hours.
 
 ---
 
-### 🔗 URL Shortener
+### URL Shortener
 
 ```bash
 curl "https://aisenseapi.com/services/v1/url_shortener/https://example.com/very/long/path"
-# → { "short_url": "https://307.fi/KtNshX2B", "expire_timestamp": 1786959715 }
+# -> { "short_url": "https://307.fi/KtNshX2B", "expire_timestamp": 1786959715 }
 ```
 
 Expires after 24 hours.
 
 ---
 
-### 🌍 IP Reverse Lookup
+### IP Reverse Lookup
 
 ```bash
 curl https://aisenseapi.com/services/v1/ip_reverse_lookup/8.8.8.8
@@ -198,14 +208,14 @@ its IP.
 
 ```bash
 curl https://aisenseapi.com/services/v1/domain_ip_lookup/example.com
-# → { "domain": "example.com", "ip": "104.20.23.154" }
+# -> { "domain": "example.com", "ip": "104.20.23.154" }
 ```
 
 ---
 
 ## Standard utilities
 
-### 🔐 Hashing — MD5, SHA1, SHA256, SHA512, CRC32
+### Hashing - MD5, SHA1, SHA256, SHA512, CRC32
 
 Accepts JSON, plain text (`Content-Type: text/plain`), or a file upload.
 **Each returns a key named after the algorithm, not `hash`.**
@@ -213,57 +223,57 @@ Accepts JSON, plain text (`Content-Type: text/plain`), or a file upload.
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
   -H "Content-Type: application/json" -d '{"data": "Hello"}'
-# → { "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
+# -> { "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
 ```
 
-`md5_hash` · `sha1_hash` · `sha256_hash` · `sha512_hash` · `crc32_checksum`
+`md5_hash` | `sha1_hash` | `sha256_hash` | `sha512_hash` | `crc32_checksum`
 
 `crc32_checksum` returns an integer, not a hex string.
 
 ---
 
-### 🔄 Encoding — Base64, Base58, Base32, JWT, QR Code
+### Encoding - Base64, Base58, Base32, JWT, QR Code
 
 ```bash
 # Encode
 curl -X POST https://aisenseapi.com/services/v1/base64_encode \
   -H "Content-Type: application/json" -d '{"data": "Hello world"}'
-# → { "base64_encoded_data": "SGVsbG8gd29ybGQ=" }
+# -> { "base64_encoded_data": "SGVsbG8gd29ybGQ=" }
 
-# Decode — returns the raw bytes, not JSON
+# Decode - returns the raw bytes, not JSON
 curl -X POST https://aisenseapi.com/services/v1/base64_decode \
   -H "Content-Type: application/json" -d '{"data": "SGVsbG8gd29ybGQ="}'
-# → Hello world
+# -> Hello world
 
 # ...unless you ask for JSON
 curl -X POST https://aisenseapi.com/services/v1/base64_decode \
   -H "Content-Type: application/json" -H "Accept: application/json" \
   -d '{"data": "eyJrZXkiOiJ2YWx1ZSJ9"}'
-# → { "type": "json", "decoded_data": { "key": "value" } }
+# -> { "type": "json", "decoded_data": { "key": "value" } }
 ```
 
 The three decoders (`base64_decode`, `base58_decode`, `base32_decode`) answer
 with `application/octet-stream` unless you send `Accept: application/json`.
 This is the one place the API is not JSON.
 
-**JWT — `data` must be a string.** Passing an object returns
+**JWT - `data` must be a string.** Passing an object returns
 `{"error": "Invalid data provided. Expected a string."}`.
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/jwt_encode \
   -H "Content-Type: application/json" \
   -d '{"data": "{\"user\":\"alice\"}", "secret": "my-secret-key"}'
-# → { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
+# -> { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
 ```
 
 `jwt_decode` returns `decoded_payload`.
 
-**QR — the request field is `payload`, not `data`.**
+**QR - the request field is `payload`, not `data`.**
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/qrcode_encode \
   -H "Content-Type: application/json" -d '{"payload": "https://example.com"}'
-# → { "qrcode_image": "iVBORw0KGgoAAAANSUhEUgAA...", "image_type": "png" }
+# -> { "qrcode_image": "iVBORw0KGgoAAAANSUhEUgAA...", "image_type": "png" }
 ```
 
 `qrcode_decode` takes the same `payload` field (or a file upload) and returns
@@ -271,16 +281,16 @@ curl -X POST https://aisenseapi.com/services/v1/qrcode_encode \
 
 ---
 
-### 🎲 Random — UUID, GUID, number, color, password
+### Random - UUID, GUID, number, color, password
 
 ```bash
 curl https://aisenseapi.com/services/v1/uuid            # { "uuid": "..." }
 curl https://aisenseapi.com/services/v1/guid            # { "guid": "..." }
 curl https://aisenseapi.com/services/v1/random_color    # { "random_color": "#9b6bbf" }
 curl https://aisenseapi.com/services/v1/random_number/1/100
-# → { "random_number": 73, "range": { "from": 1, "to": 100 } }
+# -> { "random_number": 73, "range": { "from": 1, "to": 100 } }
 curl https://aisenseapi.com/services/v1/password/16
-# → { "password": "jFehS]AKGx9wl[jp", "password_length": 16 }
+# -> { "password": "jFehS]AKGx9wl[jp", "password_length": 16 }
 ```
 
 A single argument to `random_number` is the upper bound, with the lower bound
@@ -288,7 +298,7 @@ fixed at 1.
 
 ---
 
-### ⏱ Time — Datetime, Timestamp, Timezones
+### Time - Datetime, Timestamp, Timezones
 
 ```bash
 curl https://aisenseapi.com/services/v1/datetime            # UTC
@@ -299,7 +309,7 @@ curl https://aisenseapi.com/services/v1/timezones
 curl https://aisenseapi.com/services/v1/swatchinternettime
 ```
 
-The offset must be **four digits** with an optional sign — `+0200`, `-0530`,
+The offset must be **four digits** with an optional sign - `+0200`, `-0530`,
 `0100`. An hour-only value like `1` is not a valid route.
 
 `/timezones` returns objects, not strings:
@@ -307,7 +317,7 @@ The offset must be **four digits** with an optional sign — `+0200`, `-0530`,
 
 ---
 
-### 🌐 Web utilities — Ping, Health, Client IP, User Agent
+### Web utilities - Ping, Health, Client IP, User Agent
 
 ```bash
 curl https://aisenseapi.com/services/v1/ping        # { "ping": "pong" }
@@ -318,7 +328,7 @@ curl https://aisenseapi.com/services/v1/user_agent  # { "user_agent": "curl/8.5.
 
 ---
 
-### 🪙 Crypto — Wallet generation and balance lookup
+### Crypto - Wallet generation and balance lookup
 
 ```bash
 curl https://aisenseapi.com/services/v1/solana/generate_new_wallet
@@ -331,12 +341,12 @@ curl https://aisenseapi.com/services/v1/ethereum/balance/{address}
 ```
 
 All three generators return `public_address` (Bitcoin also returns
-`private_key_wif`). Ethereum balances come back as **strings** —
+`private_key_wif`). Ethereum balances come back as **strings** -
 `{"wallet": "0x...", "balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061"}`
-— because Wei routinely exceeds `2^53`, the largest integer a JSON number
+- because Wei routinely exceeds `2^53`, the largest integer a JSON number
 survives in a JavaScript client.
 
-> ⚠️ Wallet generation is for development and testing only. A key produced by a
+> Wallet generation is for development and testing only. A key produced by a
 > public HTTP endpoint has crossed a network you do not control. Never fund one.
 
 ---
@@ -348,7 +358,7 @@ survives in a JavaScript client.
 curl https://aisenseapi.com/services/v1/uuid
 ```
 
-**Python** — zero dependencies, standard library only.
+**Python** - zero dependencies, standard library only.
 ```python
 from aisense_api import AISenseAPI
 api = AISenseAPI()
@@ -358,7 +368,7 @@ print(api.hash_sha256("Hello")["sha256_hash"])
 print(api.ip_reverse_lookup("8.8.8.8")["country"])
 ```
 
-**JavaScript** — Node 18+ or any modern browser, native fetch.
+**JavaScript** - Node 18+ or any modern browser, native fetch.
 ```javascript
 import { AISenseAPI } from './aisense-api.js'
 const api = new AISenseAPI()
@@ -372,7 +382,7 @@ Both clients return the parsed response, and every method's docstring names the
 exact response key. They also raise a clear error when a path does not exist,
 rather than letting the debug echo surface as a JSON parse failure.
 
-**LLM function calling (OpenAI, Gemini, Mistral, …)**
+**LLM function calling (OpenAI, Gemini, Mistral, ...)**
 ```python
 import json
 from openai import OpenAI
@@ -388,7 +398,7 @@ response = client.chat.completions.create(
 )
 ```
 
-**Claude** — [`SKILL.md`](SKILL.md) is included. Add it to Claude's context and
+**Claude** - [`SKILL.md`](SKILL.md) is included. Add it to Claude's context and
 it will use these APIs as tools automatically.
 
 ---
@@ -397,12 +407,15 @@ it will use these APIs as tools automatically.
 
 | File | Purpose |
 |------|---------|
-| [`API.md`](API.md) | Full endpoint reference — the verified source of truth |
+| [`API.md`](API.md) | Full endpoint reference - the verified source of truth |
+| [`MCP.md`](MCP.md) | Remote MCP server, tool list and client examples |
+| [`server.json`](server.json) | Metadata for the official MCP Registry |
 | [`aisense_api.py`](aisense_api.py) | Python client (standard library only) |
 | [`aisense-api.js`](aisense-api.js) | JavaScript ESM client |
 | [`openai-tools.json`](openai-tools.json) | Tool definitions for any LLM with function calling |
 | [`SKILL.md`](SKILL.md) | Claude skill file |
 | [`test.sh`](test.sh) | Asserts on response bodies; exits `1` on failure (CI-friendly) |
+| [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
 
 `test.sh` checks response contents, not status codes. Since this API answers 200
 for most failures, a status-code-only suite would pass against a completely
@@ -469,7 +482,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 
 ---
 
-**AI SENSE AS** · [aisenseapi.com](https://aisenseapi.com)
+**AI SENSE AS** | [aisenseapi.com](https://aisenseapi.com)
 Postboks 1202 Vika, 0110 Oslo, Norway
 
 MIT License

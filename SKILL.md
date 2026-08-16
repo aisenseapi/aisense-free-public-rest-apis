@@ -1,10 +1,10 @@
 ---
 name: free-public-rest-apis
 description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
-license: Public documentation — no authentication required for any endpoint
+license: Public documentation - no authentication required for any endpoint
 ---
 
-# Free Public REST APIs — AI SENSE AS
+# Free Public REST APIs - AI SENSE AS
 
 **Base URL:** `https://aisenseapi.com/services/v1`
 No authentication. No sign-up. Hosted by AI SENSE AS, Oslo.
@@ -20,14 +20,14 @@ Four service-wide behaviours will bite you if you assume the usual conventions.
 **1. The response key is named after the endpoint.** There is no generic `data`
 or `result` wrapper. `/md5_hash` returns `md5_hash`. `/ping` returns `ping`.
 `/random_color` returns `random_color`. `/health` returns `microtimestamp`, not
-`timestamp`. Never guess — the table at the bottom lists every key.
+`timestamp`. Never guess - the table at the bottom lists every key.
 
 **2. Most failures come back as HTTP 200** with `{"error": "..."}`. Branch on the
 presence of an `error` key, not on the status code. A few endpoints do return
 4xx, so handle both.
 
 **3. Unknown paths do not 404.** A path matching no route returns HTTP 200 and a
-body like `["203.0.113.9",1786873281]["\/services\/v1\/typo","1","typo"]` —
+body like `["203.0.113.9",1786873281]["\/services\/v1\/typo","1","typo"]` -
 two concatenated JSON arrays, which is not parseable JSON. If a client throws a
 JSON parse error, check the URL before anything else.
 
@@ -68,7 +68,7 @@ unknown-path response.
 | `GET /guid` | `{"guid": "..."}` |
 | `GET /password[/{length}]` | `{"password": "jFehS]AKGx9wl[jp", "password_length": 16}` |
 
-No arguments to `/random_number` gives 1–6. A **single** argument is the upper
+No arguments to `/random_number` gives 1-6. A **single** argument is the upper
 bound, with the lower bound fixed at 1. Passwords default to 12 characters and
 include punctuation.
 
@@ -106,11 +106,11 @@ An invalid Base58 character returns HTTP 400 with
 ```json
 // POST /jwt_encode
 { "data": "{\"user\":\"alice\"}", "secret": "my-secret-key" }
-→ { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
+-> { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
 
 // POST /jwt_decode
 { "data": "eyJ0eXAi...", "secret": "my-secret-key" }
-→ { "decoded_payload": { "user": "alice" } }
+-> { "decoded_payload": { "user": "alice" } }
 ```
 
 **`data` must be a string.** Passing a JSON object returns
@@ -124,11 +124,11 @@ HS256 only.
 ```json
 // POST /qrcode_encode
 { "payload": "https://example.com" }
-→ { "qrcode_image": "iVBORw0KGgo...", "image_type": "png" }
+-> { "qrcode_image": "iVBORw0KGgo...", "image_type": "png" }
 
 // POST /qrcode_decode
 { "payload": "iVBORw0KGgo..." }
-→ { "qrcode_content": "https://example.com" }
+-> { "qrcode_content": "https://example.com" }
 ```
 
 `qrcode_decode` also accepts a file upload in a `qrcode_image` field.
@@ -138,7 +138,7 @@ HS256 only.
 ## Hash
 
 All POST. Accept JSON, plain text, or file upload. **Each returns a key named
-after the algorithm — never `hash`.**
+after the algorithm - never `hash`.**
 
 | Endpoint | Response key | Value for `"Hello"` |
 |----------|--------------|---------------------|
@@ -180,25 +180,25 @@ after the algorithm — never `hash`.**
 `city` and `place` are frequently `null`, and coordinates fall back to the
 country centroid when the city is unknown. Latitude and longitude are strings.
 
-### Storage — 24h TTL
+### Storage - 24h TTL
 
-`POST /storage` → `{"storage_id": "...", "expire_timestamp": ...}`
-`GET /storage/{storage_id}` → the stored bytes
+`POST /storage` -> `{"storage_id": "...", "expire_timestamp": ...}`
+`GET /storage/{storage_id}` -> the stored bytes
 
 The body is stored **verbatim**. Post `{"data": {...}}` and you retrieve
-`{"data": {...}}` — no wrapper is added or removed. The response key is
+`{"data": {...}}` - no wrapper is added or removed. The response key is
 `storage_id`, not `uuid`. An unknown or expired id returns
 `{"error": "Storage id unknown"}`.
 
-### URL shortener — 24h TTL
+### URL shortener - 24h TTL
 
-`GET /url_shortener/{url}` → `{"short_url": "https://307.fi/KtNshX2B", "expire_timestamp": ...}`
+`GET /url_shortener/{url}` -> `{"short_url": "https://307.fi/KtNshX2B", "expire_timestamp": ...}`
 
 The target URL goes inline in the path. This is a GET, not a POST.
 
-### Webhook capture — 24h TTL
+### Webhook capture - 24h TTL
 
-`POST /webhook_capture` → `{"ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ...}`
+`POST /webhook_capture` -> `{"ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ...}`
 
 Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
 
@@ -218,7 +218,7 @@ Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
 }
 ```
 
-### Webhook action — human-in-the-loop, 24h TTL
+### Webhook action - human-in-the-loop, 24h TTL
 
 The most useful endpoint here for agent work: it pauses an automated pipeline
 for a human decision with no backend of your own.
@@ -240,7 +240,7 @@ for a human decision with no backend of your own.
   ]
 }
 
-→ {
+-> {
   "ok": true,
   "action_id": "9e0e6d3b-...",
   "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../form",
@@ -271,14 +271,14 @@ Send `form_url` to a human. Poll `GET /webhook_action/{action_id}`:
 types: `radio`, `select`, `text`, `textarea`, `checkbox`. `options` accepts
 plain strings or `{"value": ..., "label": ...}` objects.
 
-`GET /webhook_action/{action_id}/form` returns `text/html` — the only
+`GET /webhook_action/{action_id}/form` returns `text/html` - the only
 non-JSON-by-default endpoint besides the decoders.
 
 ---
 
 ## Crypto
 
-> ⚠️ Wallet generation is for **development and testing only**. A private key
+> Wallet generation is for **development and testing only**. A private key
 > produced by a public HTTP endpoint has crossed a network neither you nor the
 > user controls. Never suggest funding one.
 
@@ -360,11 +360,11 @@ return numbers; their smallest units stay inside the safe range.
 |--------|-------------|-------|
 | JSON | `application/json` | Field is `data` for most, `payload` for QR |
 | Plain text | `text/plain` | JWT endpoints take the secret via an `X-Secret` header |
-| File upload | `multipart/form-data` | Field names vary — `jwt_data`, `qrcode_image`, `file` |
+| File upload | `multipart/form-data` | Field names vary - `jwt_data`, `qrcode_image`, `file` |
 
 ## Auto-expiry
 
-`/storage` · `/url_shortener` · `/webhook_capture` · `/webhook_action` — all
+`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` - all
 deleted after 24 hours.
 
 ## CORS
@@ -374,5 +374,5 @@ directly from browser JavaScript.
 
 ---
 
-**AI SENSE AS** · Postboks 1202 Vika, 0110 Oslo, Norway
+**AI SENSE AS** | Postboks 1202 Vika, 0110 Oslo, Norway
 [aisenseapi.com](https://aisenseapi.com)

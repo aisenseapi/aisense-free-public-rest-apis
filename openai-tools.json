@@ -36,7 +36,7 @@
     "type": "function",
     "function": {
       "name": "get_timezones",
-      "description": "All available timezones. Returns {\"timezones\": [{\"timezone\": \"Europe/Oslo\", \"offset\": \"+0200\"}, ...]} — a list of OBJECTS, not strings. GET /timezones[/{offset}]",
+      "description": "All available timezones. Returns {\"timezones\": [{\"timezone\": \"Europe/Oslo\", \"offset\": \"+0200\"}, ...]} - a list of OBJECTS, not strings. GET /timezones[/{offset}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -126,7 +126,7 @@
     "type": "function",
     "function": {
       "name": "base64_decode",
-      "description": "Decode Base64. Returns the raw decoded bytes as application/octet-stream, NOT JSON — unless the request sends Accept: application/json, in which case it returns {\"type\": \"json\"|\"binary\", \"decoded_data\": ...}. POST /base64_decode",
+      "description": "Decode Base64. Returns the raw decoded bytes as application/octet-stream, NOT JSON - unless the request sends Accept: application/json, in which case it returns {\"type\": \"json\"|\"binary\", \"decoded_data\": ...}. POST /base64_decode",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "Base64 string to decode." } },
@@ -186,7 +186,7 @@
     "type": "function",
     "function": {
       "name": "jwt_encode",
-      "description": "Encode a payload into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. IMPORTANT: data must be a JSON string, not an object — passing an object returns {\"error\": \"Invalid data provided. Expected a string.\"}. Serialise the payload first. POST /jwt_encode",
+      "description": "Encode a payload into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. IMPORTANT: data must be a JSON string, not an object - passing an object returns {\"error\": \"Invalid data provided. Expected a string.\"}. Serialise the payload first. POST /jwt_encode",
       "parameters": {
         "type": "object",
         "properties": {
@@ -247,7 +247,7 @@
     "type": "function",
     "function": {
       "name": "hash_md5",
-      "description": "MD5 hash. Returns {\"md5_hash\": \"8b1a9953c4611296a827abf8c47804d7\"} — the key is md5_hash, not hash. POST /md5_hash",
+      "description": "MD5 hash. Returns {\"md5_hash\": \"8b1a9953c4611296a827abf8c47804d7\"} - the key is md5_hash, not hash. POST /md5_hash",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "String to hash." } },
@@ -259,7 +259,7 @@
     "type": "function",
     "function": {
       "name": "hash_sha1",
-      "description": "SHA1 hash. Returns {\"sha1_hash\": \"...\"} — the key is sha1_hash, not hash. POST /sha1_hash",
+      "description": "SHA1 hash. Returns {\"sha1_hash\": \"...\"} - the key is sha1_hash, not hash. POST /sha1_hash",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "String to hash." } },
@@ -271,7 +271,7 @@
     "type": "function",
     "function": {
       "name": "hash_sha256",
-      "description": "SHA256 hash. Returns {\"sha256_hash\": \"...\"} — the key is sha256_hash, not hash. POST /sha256_hash",
+      "description": "SHA256 hash. Returns {\"sha256_hash\": \"...\"} - the key is sha256_hash, not hash. POST /sha256_hash",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "String to hash." } },
@@ -283,7 +283,7 @@
     "type": "function",
     "function": {
       "name": "hash_sha512",
-      "description": "SHA512 hash. Returns {\"sha512_hash\": \"...\"} — the key is sha512_hash, not hash. POST /sha512_hash",
+      "description": "SHA512 hash. Returns {\"sha512_hash\": \"...\"} - the key is sha512_hash, not hash. POST /sha512_hash",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "String to hash." } },
@@ -295,7 +295,7 @@
     "type": "function",
     "function": {
       "name": "crc32_checksum",
-      "description": "CRC32 checksum. Returns {\"crc32_checksum\": 4157704578} — an integer, not a hex string. POST /crc32_checksum",
+      "description": "CRC32 checksum. Returns {\"crc32_checksum\": 4157704578} - an integer, not a hex string. POST /crc32_checksum",
       "parameters": {
         "type": "object",
         "properties": { "data": { "type": "string", "description": "String to checksum." } },
@@ -307,7 +307,7 @@
     "type": "function",
     "function": {
       "name": "ping",
-      "description": "Connectivity check. Returns {\"ping\": \"pong\"} — the key is ping, not response. GET /ping",
+      "description": "Connectivity check. Returns {\"ping\": \"pong\"} - the key is ping, not response. GET /ping",
       "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
@@ -315,7 +315,7 @@
     "type": "function",
     "function": {
       "name": "health_check",
-      "description": "Health check. Returns {\"status\": \"ok\", \"microtimestamp\": 1786873258.589068} — the second key is microtimestamp, not timestamp. GET /health",
+      "description": "Health check. Returns {\"status\": \"ok\", \"microtimestamp\": 1786873258.589068} - the second key is microtimestamp, not timestamp. GET /health",
       "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
@@ -363,7 +363,7 @@
     "type": "function",
     "function": {
       "name": "storage_set",
-      "description": "Store data for 24 hours. Returns {\"storage_id\": \"...\", \"expire_timestamp\": ...} — the key is storage_id, not uuid. The request body is stored verbatim, so whatever is sent is exactly what storage_get returns. POST /storage",
+      "description": "Store data for 24 hours. Returns {\"storage_id\": \"...\", \"expire_timestamp\": ...} - the key is storage_id, not uuid. The request body is stored verbatim, so whatever is sent is exactly what storage_get returns. POST /storage",
       "parameters": {
         "type": "object",
         "properties": { "data": { "description": "Value to store. Sent as the request body verbatim." } },
@@ -473,7 +473,7 @@
     "type": "function",
     "function": {
       "name": "generate_solana_wallet",
-      "description": "Generate a Solana wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY — a key produced by a public HTTP endpoint has crossed a network you do not control. Never fund it. GET /solana/generate_new_wallet",
+      "description": "Generate a Solana wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY - a key produced by a public HTTP endpoint has crossed a network you do not control. Never fund it. GET /solana/generate_new_wallet",
       "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
