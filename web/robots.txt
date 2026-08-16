@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /logs/
+
+Sitemap: https://aisense.no/sitemap.xml
