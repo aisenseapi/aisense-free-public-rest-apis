@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  REVIEW BEFORE PUBLISHING.
+
+  This describes the service accurately — the rate limit, the expiry, the
+  absence of any guarantee — because those were read out of the source on
+  2026-08-16. What it is not is a reviewed contract.
+
+  Points that need a lawyer rather than an engineer:
+
+    - The liability limitation. Norwegian law constrains how far a supplier
+      can disclaim, particularly toward consumers, and no assessment has been
+      made of whether the wording below survives that.
+    - The wallet generation disclaimer. The endpoints hand out private keys
+      over HTTP. The text says do not fund them; whether saying so is
+      sufficient is not an engineering question.
+    - Whether a free service with no account still forms a contract capable of
+      carrying these terms at all.
+
+  Keep it in step with the service. Every number here corresponds to something
+  in the code, and if one changes without the other this page becomes a
+  promise nobody is keeping.
+  ═══════════════════════════════════════════════════════════════════════════
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Terms of Service - AISENSE - FREE PUBLIC API SERVICES</title>
+<meta name="description" content="Terms for the free public REST APIs from AI SENSE AS: no account required, 5000 requests per IP per 24 hours, 24-hour data expiry, provided as-is with no warranty or service level.">
+<link rel="canonical" href="https://aisense.no/terms">
+<meta name="robots" content="index,follow">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Terms of Service — AI SENSE">
+<meta property="og:description" content="Terms for the free public REST APIs: limits, expiry, acceptable use and the absence of any warranty.">
+<meta property="og:url" content="https://aisense.no/terms">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebPage", "url": "https://aisense.no/terms", "name": "Terms of Service", "inLanguage": "en" },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://aisense.no/terms" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h1>Terms of Service</h1>
+  <p class="lede">For the free public REST APIs at <code>aisenseapi.com/services/v1</code>. Custom API work is covered by its own written agreement, not by this page.</p>
+  <p><small>Last updated 16 August 2026.</small></p>
+</div>
+
+<h2 id="what">What you are getting</h2>
+<p>A set of utility endpoints, provided by <strong>AI SENSE AS</strong> (Postboks 1202 Vika, 0110 Oslo, Norway, org.nr NO 922 601 151 MVA), free of charge and without registration. Using them means accepting what is on this page. If you do not, do not call them.</p>
+<p>They are published under the MIT licence together with client libraries and tests at <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a>. That licence covers the code we publish, not the operation of this service.</p>
+
+<h2 id="limits">Limits</h2>
+<p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the window rolls. The limit is a technical control, not a quota you have bought; we may change it.</p>
+<p><strong>Data expires after 24 hours</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code> and <code>/webhook_action</code>. This is not configurable and cannot be extended.</p>
+
+<h2 id="not-a-backup">This is not storage you can rely on</h2>
+<div class="warning">
+  <p>The temporary endpoints exist for moving data between steps of a process, not for keeping it. <strong>Keep your own copy of anything you cannot afford to lose.</strong> Data may become unavailable before the 24 hours elapse — a restart, a fault or maintenance will do it — and we will not be able to recover it for you.</p>
+</div>
+
+<h2 id="no-warranty">No warranty and no service level</h2>
+<p>The service is provided as-is and as-available. We do not promise it will be up, that it will be correct, that it will be fast, or that it will continue to exist. There is no uptime commitment, no support obligation and no notice period. We may change, limit or withdraw any endpoint at any time, including permanently and without warning.</p>
+<p>To the extent Norwegian law allows, AI SENSE AS is not liable for any loss arising from use of these APIs or from their unavailability — including lost data, lost profit, lost business or any indirect or consequential loss. Nothing here limits liability that cannot lawfully be limited.</p>
+<p>If your system would suffer materially from these endpoints being unavailable, do not build on them. Run your own copy: the source is public.</p>
+
+<h2 id="crypto">Wallet generation</h2>
+<div class="warning">
+  <p><strong>The wallet endpoints are for development and testing only.</strong> They generate a private key on our server and send it to you over the internet. A key produced that way has crossed infrastructure that neither you nor we fully control, and it has existed in memory on a shared public service.</p>
+  <p>Never place funds in a wallet generated by these endpoints. If you do so anyway, any loss is yours. Balance lookups are informational and may be wrong, stale or unavailable — they depend on third-party blockchain services that we do not operate.</p>
+</div>
+
+<h2 id="acceptable-use">Acceptable use</h2>
+<p>Do not use these APIs to break the law, to attack or disrupt this service or anyone else's, to circumvent the rate limit by rotating addresses, or to store or transmit unlawful material. Do not use the storage or webhook endpoints to hold personal data belonging to other people beyond what your own lawful purpose requires — you are the one responsible for that data, not us.</p>
+<p>Do not present this service as your own to your users in a way that leaves them relying on it without knowing.</p>
+<p>We may block an address or withdraw access where use is unlawful, abusive or threatens availability for others, and we may do so without notice.</p>
+
+<h2 id="your-content">Content you send</h2>
+<p>Whatever you post to the storage or webhook endpoints stays yours. We claim no rights in it. We store it for the stated period so that we can hand it back to you, and we do nothing else with it. See the <a href="/privacy">Privacy</a> page for what is recorded and for how long.</p>
+<p>Data stored through these endpoints is addressed by a random identifier that only you receive. Anyone holding that identifier can retrieve the data, so treat it as a secret. We do not authenticate retrieval beyond it.</p>
+
+<h2 id="third-parties">Third parties</h2>
+<p>Some endpoints ask another service in order to answer you — blockchain data providers for balance lookups, and a redirect provider for shortened links. Those services have their own terms and their own availability, and we make no promises on their behalf. The full list is on the <a href="/privacy">Privacy</a> page.</p>
+
+<h2 id="changes">Changes</h2>
+<p>These terms may change. The date at the top is the last revision. Continuing to call the APIs after a change means accepting it, since there is no account through which we could notify you.</p>
+
+<h2 id="law">Governing law</h2>
+<p>Norwegian law applies. Disputes belong to the Norwegian courts, with Oslo tingrett as the agreed venue at first instance. This does not remove any right a consumer has to bring proceedings where they live.</p>
+
+<h2 id="contact">Contact</h2>
+<p><a href="mailto:support@aisense.no">support@aisense.no</a>, or the <a href="/contact-us">Contact Us</a> page.</p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright &copy; 2025 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>

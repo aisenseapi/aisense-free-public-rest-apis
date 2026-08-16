@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  REVIEW BEFORE PUBLISHING.
+
+  Every factual claim below was read out of the service source on 2026-08-16
+  and is accurate as of that date — see code/php/DATA-INVENTORY.md in the
+  private repository for the file and line behind each one. That makes this an
+  honest description of the system, which is more than most privacy policies
+  manage, but it does not make it a reviewed legal document.
+
+  Three things in particular need a decision from someone qualified, not from
+  whoever reads this next:
+
+    - The lawful basis stated for logging IP addresses. "Legitimate interest"
+      is asserted below; nobody has assessed it.
+    - The retention periods. They describe tools/logrotate-aisense.conf, which
+      commits to 14 days. If that config is not installed, the statement is
+      false and the real answer is "until the host reboots".
+    - Whether a data processing agreement is needed with the four third
+      parties named under "Where data goes".
+
+  If the system changes, this page has to change with it. It is a description,
+  not a template.
+  ═══════════════════════════════════════════════════════════════════════════
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Privacy - AISENSE - FREE PUBLIC API SERVICES</title>
+<meta name="description" content="How AI SENSE AS handles data in its free public REST APIs: what is logged, how long it is kept, where it goes, and how to contact us. No accounts, no tracking, no advertising.">
+<link rel="canonical" href="https://aisense.no/privacy">
+<meta name="robots" content="index,follow">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Privacy — AI SENSE">
+<meta property="og:description" content="What the free public REST APIs log, how long it is kept, and where it goes.">
+<meta property="og:url" content="https://aisense.no/privacy">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebPage", "url": "https://aisense.no/privacy", "name": "Privacy", "inLanguage": "en" },
+    {
+      "@type": "Organization",
+      "name": "AI SENSE AS",
+      "url": "https://aisense.no",
+      "email": "support@aisense.no",
+      "vatID": "NO 922 601 151 MVA",
+      "address": {
+        "@type": "PostalAddress",
+        "postOfficeBoxNumber": "Postboks 1202 Vika",
+        "postalCode": "0110",
+        "addressLocality": "Oslo",
+        "addressCountry": "NO"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Privacy", "item": "https://aisense.no/privacy" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h1>Privacy</h1>
+  <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
+  <p><small>Last updated 16 August 2026.</small></p>
+</div>
+
+<h2 id="controller">Who is responsible</h2>
+<p><strong>AI SENSE AS</strong>, Postboks 1202 Vika, 0110 Oslo, Norway. Org.nr NO 922 601 151 MVA. Contact <a href="mailto:support@aisense.no">support@aisense.no</a> for anything on this page.</p>
+
+<h2 id="short">The short version</h2>
+<p>There are no accounts, no API keys and no sign-up, so we hold no name, email address or payment detail for anyone using the free APIs. We set no cookies and run no analytics, advertising or tracking scripts. What we do record is the technical detail of each request, because a public service has to be able to see its own traffic.</p>
+
+<h2 id="what">What we record</h2>
+
+<h3>Every request</h3>
+<p>One line in a server log: the time, your IP address, the HTTP method, the full path you requested, the protocol, the content type and your browser or client's User-Agent string.</p>
+<div class="warning">
+  <p><strong>The path includes anything you put in it.</strong> Several endpoints take their input in the URL rather than in a request body — <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
+</div>
+
+<h3>Rate limiting</h3>
+<p>We count requests per IP address to enforce the published limit of 5000 per 24 hours. The counter is stored against the address.</p>
+
+<h3>What you send to the storage endpoints</h3>
+<p>Four endpoints exist to hold data briefly, and they hold exactly what you give them:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Endpoint</th><th scope="col">What is stored</th></tr></thead>
+<tbody>
+<tr><td><code>/storage</code></td><td>Your request body, byte for byte, unchanged</td></tr>
+<tr><td><code>/url_shortener</code></td><td>The address you asked us to shorten</td></tr>
+<tr><td><code>/webhook_capture</code></td><td>The complete inbound request, <strong>including all headers</strong> and the sender's IP</td></tr>
+<tr><td><code>/webhook_action</code></td><td>The form you defined and the answer someone submitted to it</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Webhook Capture deserves particular attention.</strong> It records every header a caller sends, and services that post to webhooks routinely include authorisation tokens and signatures in those headers. If you point a third-party service at a capture URL, its credentials will sit in our storage for 24 hours. That is the endpoint working as intended, but you should know it before you use it.</p>
+
+<h2 id="not">What we do not do</h2>
+<p>No cookies from the API. No analytics, no advertising, no fingerprinting, no profiling, no automated decision-making. We do not sell or rent anything to anyone. We do not attempt to identify who you are, and without accounts we generally cannot.</p>
+<p>IP geolocation via <code>/ip_reverse_lookup</code> runs against database files on our own server. The address you look up is not sent anywhere.</p>
+
+<h2 id="retention">How long we keep it</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Data</th><th scope="col">Kept for</th></tr></thead>
+<tbody>
+<tr><td>Storage, URL shortener, webhook capture, webhook action</td><td>24 hours, then it expires</td></tr>
+<tr><td>Rate limit counters</td><td>Rolling 24 hours</td></tr>
+<tr><td>Server access logs</td><td>14 days</td></tr>
+<tr><td>Machine-access audit log</td><td>12 weeks</td></tr>
+</tbody>
+</table>
+</div>
+<p>The 24-hour expiry means the data becomes unreachable — no request will return it. Purging of the underlying storage happens on the same schedule as the log rotation above.</p>
+
+<h2 id="where">Where data goes</h2>
+<p>Four endpoints have to ask someone else a question in order to answer yours. Only the value you supplied is passed on:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">If you call</th><th scope="col">We ask</th><th scope="col">And send</th></tr></thead>
+<tbody>
+<tr><td><code>/bitcoin/balance/{address}</code></td><td>blockchain.info</td><td>The wallet address</td></tr>
+<tr><td><code>/solana/balance/{address}</code></td><td>api.mainnet-beta.solana.com</td><td>The wallet address</td></tr>
+<tr><td><code>/ethereum/balance/{address}</code></td><td>ethereum-rpc.publicnode.com</td><td>The wallet address</td></tr>
+<tr><td><code>/url_shortener/{url}</code></td><td>307.fi</td><td>The address being shortened</td></tr>
+</tbody>
+</table>
+</div>
+<p>These are the only third parties involved. Nothing else leaves our servers.</p>
+
+<h2 id="cors">Calls from other websites</h2>
+<p>Our API responses permit cross-origin requests from any website, which is what makes the endpoints usable directly from browser JavaScript. A consequence worth stating plainly: if a site you visit calls our API from your browser, your IP address reaches us and is logged, even though you never visited us. We have no way to know which site that was, and we do not receive a referrer for it.</p>
+
+<h2 id="rights">Your rights</h2>
+<p>Under the GDPR you may request access to personal data we hold about you, its correction or erasure, a restriction on how we use it, or a copy of it — and you may object to our use of it. Write to <a href="mailto:support@aisense.no">support@aisense.no</a>.</p>
+<p>One practical limit, stated because it is true rather than to avoid the obligation: log entries and rate-limit counters are stored by IP address and nothing else. If you ask us to find your records, an IP address is all we can search on, and shared or dynamic addresses mean we may not be able to distinguish your requests from someone else's. Data you stored through <code>/storage</code> is different — quote the <code>storage_id</code> and we can act on it precisely, though it will have expired within 24 hours anyway.</p>
+<p>You may complain to the Norwegian Data Protection Authority, Datatilsynet, at <a href="https://www.datatilsynet.no">datatilsynet.no</a>.</p>
+
+<h2 id="basis">Why we are allowed to do this</h2>
+<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately — anything you post to the storage or webhook endpoints — you are asking us to hold it, and we hold it only for as long as stated.</p>
+
+<h2 id="security">Security</h2>
+<p>All traffic is served over HTTPS. The service holds no credentials belonging to you, because it issues none. Data stored through the temporary endpoints is addressed by a random UUID that only you receive — treat that identifier as a secret, since anyone holding it can retrieve what you stored.</p>
+
+<h2 id="changes">Changes</h2>
+<p>When the service changes, this page changes with it. The date at the top is the last time it was checked against what the code actually does.</p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright &copy; 2025 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>
