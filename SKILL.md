@@ -1,671 +1,378 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisense.no). Triggers include: requests for current time/datetime, random numbers, random colors, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, ping/health checks, client IP lookup, IP geolocation/reverse lookup, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms, or crypto wallet generation (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation — no authentication required for any endpoint
 ---
 
 # Free Public REST APIs — AI SENSE AS
 
-## Overview
+**Base URL:** `https://aisenseapi.com/services/v1`
+No authentication. No sign-up. Hosted by AI SENSE AS, Oslo.
 
-All APIs listed here are **free**, **public**, and require **no authentication**. They are hosted by AI SENSE AS (Oslo, Norway). Base URL patterns follow each endpoint description below.
-
-All endpoints return JSON unless otherwise noted. No API keys are needed.
+Every shape below was verified against production.
 
 ---
 
-## Categories
+## Read this before calling anything
 
-- [Time](#time)
-- [Random](#random)
-- [Transform](#transform)
-- [Hash](#hash)
-- [Web](#web)
-- [Crypto](#crypto)
+Four service-wide behaviours will bite you if you assume the usual conventions.
+
+**1. The response key is named after the endpoint.** There is no generic `data`
+or `result` wrapper. `/md5_hash` returns `md5_hash`. `/ping` returns `ping`.
+`/random_color` returns `random_color`. `/health` returns `microtimestamp`, not
+`timestamp`. Never guess — the table at the bottom lists every key.
+
+**2. Most failures come back as HTTP 200** with `{"error": "..."}`. Branch on the
+presence of an `error` key, not on the status code. A few endpoints do return
+4xx, so handle both.
+
+**3. Unknown paths do not 404.** A path matching no route returns HTTP 200 and a
+body like `["203.0.113.9",1786873281]["\/services\/v1\/typo","1","typo"]` —
+two concatenated JSON arrays, which is not parseable JSON. If a client throws a
+JSON parse error, check the URL before anything else.
+
+**4. Not everything is JSON.** `base64_decode`, `base58_decode` and
+`base32_decode` return `application/octet-stream` unless you send
+`Accept: application/json`.
+
+**Rate limit:** 5000 requests per IP per 24 hours, then HTTP 429 with
+`{"status": {"code": 429, "message": "..."}}`.
 
 ---
 
 ## Time
 
-### Datetime
-**Description:** Returns the current date and time in ISO 8601 format, adjusted for an optional timezone offset. If no valid timezone offset is provided, defaults to UTC.
+| Endpoint | Returns |
+|----------|---------|
+| `GET /datetime[/{offset}]` | `{"datetime": "2026-08-16T11:44:35+02:00"}` |
+| `GET /timestamp` | `{"timestamp": 1786873261}` |
+| `GET /microtimestamp` | `{"microtimestamp": 1786873474.745043}` |
+| `GET /timezones[/{offset}]` | `{"timezones": [{"timezone": "Europe/Oslo", "offset": "+0200"}, ...]}` |
+| `GET /swatchinternettime` | `{"beat": "@444", "date": "2026-08-16"}` |
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/datetime[/{offset}]`
+`offset` must be **four digits** with an optional sign: `+0200`, `-0530`, `0100`.
+An hour-only value like `1` is not a valid route and falls through to the
+unknown-path response.
 
-**Example response:**
-```json
-{
-  "datetime": "2025-03-15T14:22:00+01:00"
-}
-```
-
----
-
-### Timestamp
-**Description:** Returns the current Unix timestamp — the number of seconds since January 1, 1970 (UTC).
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/timestamp`
-
-**Example response:**
-```json
-{
-  "timestamp": 1741953720
-}
-```
-
----
-
-### Microtimestamp
-**Description:** Returns the current Unix timestamp with microsecond precision as a floating-point value. Ideal for high-resolution time measurements.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/microtimestamp`
-
-**Example response:**
-```json
-{
-  "microtimestamp": 1741953720.483921
-}
-```
-
----
-
-### Timezones
-**Description:** Returns a list of all available timezones. Optionally filter by timezone offset.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/timezones[/{offset}]`
-
-**Example response:**
-```json
-{
-  "timezones": ["Europe/Oslo", "Europe/Berlin", "Europe/Paris"]
-}
-```
-
----
-
-### Swatch Internet Time
-**Description:** Returns the current time in Swatch Internet Time (.beats) and the current date in YYYY-MM-DD format. The day is divided into 1000 .beats (each = 86.4 seconds). Based on BMT (Biel Meantime) — no time zones involved.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/swatchinternettime`
-
-**Example response:**
-```json
-{
-  "beats": 623,
-  "date": "2025-03-15"
-}
-```
+`/timezones` returns objects, not strings. `beat` is a string with a leading `@`.
 
 ---
 
 ## Random
 
-### Random Number
-**Description:** Generates a random integer within a specified range using optional `from` and `to` parameters. Defaults to 1–6 if no parameters are given. Automatically swaps values if `to` < `from`.
+| Endpoint | Returns |
+|----------|---------|
+| `GET /random_number[/{from}[/{to}]]` | `{"random_number": 73, "range": {"from": 1, "to": 100}}` |
+| `GET /random_color` | `{"random_color": "#9b6bbf"}` |
+| `GET /uuid` | `{"uuid": "429151ee-82a1-4438-b2f1-b6b9c9e4a41f"}` |
+| `GET /guid` | `{"guid": "..."}` |
+| `GET /password[/{length}]` | `{"password": "jFehS]AKGx9wl[jp", "password_length": 16}` |
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/random_number[/{from}/{to}]`
-
-**Example response:**
-```json
-{
-  "number": 4
-}
-```
-
----
-
-### Random Color
-**Description:** Generates a random hex color code between `#000000` and `#FFFFFF`.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/random_color`
-
-**Example response:**
-```json
-{
-  "color": "#A3F2C1"
-}
-```
-
----
-
-### UUID
-**Description:** Generates a universally unique identifier (UUID v4).
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/uuid`
-
-**Example response:**
-```json
-{
-  "uuid": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
----
-
-### GUID
-**Description:** Generates a globally unique identifier (GUID).
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/guid`
-
-**Example response:**
-```json
-{
-  "guid": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
+No arguments to `/random_number` gives 1–6. A **single** argument is the upper
+bound, with the lower bound fixed at 1. Passwords default to 12 characters and
+include punctuation.
 
 ---
 
 ## Transform
 
-### Base64 Encode
-**Description:** Encodes text into Base64 format. Input must be JSON with a `data` field.
+All POST. Accept JSON, plain text (`Content-Type: text/plain`), or file upload.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base64_encode`
+### Encoding
 
-**Request:**
+| Endpoint | Request | Returns |
+|----------|---------|---------|
+| `POST /base64_encode` | `{"data": "Hello world"}` | `{"base64_encoded_data": "SGVsbG8gd29ybGQ="}` |
+| `POST /base58_encode` | `{"data": "Hello"}` | `{"base58_encoded_data": "9Ajdvzr"}` |
+| `POST /base32_encode` | `{"data": "Hello"}` | `{"base32_encoded_data": "JBSWY3DP"}` |
+
+### Decoding
+
+`base64_decode`, `base58_decode` and `base32_decode` all take `{"data": "..."}`
+and return **the raw decoded bytes** as `application/octet-stream`.
+
+Send `Accept: application/json` to get a typed envelope instead:
+
 ```json
-{
-  "data": "Hello, world!"
-}
+{ "type": "json",   "decoded_data": { "key": "value" } }
+{ "type": "binary", "encoding": "base64", "decoded_data": "iVBORw0KGgo..." }
 ```
 
-**Response:**
+An invalid Base58 character returns HTTP 400 with
+`{"error": "Invalid Base58 input."}`.
+
+### JWT
+
 ```json
-{
-  "encoded": "SGVsbG8sIHdvcmxkIQ=="
-}
+// POST /jwt_encode
+{ "data": "{\"user\":\"alice\"}", "secret": "my-secret-key" }
+→ { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
+
+// POST /jwt_decode
+{ "data": "eyJ0eXAi...", "secret": "my-secret-key" }
+→ { "decoded_payload": { "user": "alice" } }
 ```
 
----
+**`data` must be a string.** Passing a JSON object returns
+`{"error": "Invalid data provided. Expected a string."}`. Serialise first.
+HS256 only.
 
-### Base64 Decode
-**Description:** Decodes a Base64-encoded string back to its original format. Input must be JSON with a `data` field.
+### QR codes
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base64_decode`
+**The request field is `payload`, not `data`.**
 
-**Request:**
 ```json
-{
-  "data": "SGVsbG8sIHdvcmxkIQ=="
-}
+// POST /qrcode_encode
+{ "payload": "https://example.com" }
+→ { "qrcode_image": "iVBORw0KGgo...", "image_type": "png" }
+
+// POST /qrcode_decode
+{ "payload": "iVBORw0KGgo..." }
+→ { "qrcode_content": "https://example.com" }
 ```
 
-**Response:**
-```json
-{
-  "decoded": "Hello, world!"
-}
-```
-
----
-
-### Base58 Encode
-**Description:** Encodes text into Base58 format. Input must be JSON with a `data` field.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base58_encode`
-
-**Request:**
-```json
-{
-  "data": "Hello"
-}
-```
-
----
-
-### Base58 Decode
-**Description:** Decodes a Base58-encoded string. Input must be JSON with a `data` field.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base58_decode`
-
----
-
-### Base32 Encode
-**Description:** Encodes text into Base32 format. Input must be JSON with a `data` field.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base32_encode`
-
----
-
-### Base32 Decode
-**Description:** Decodes a Base32-encoded string. Accepts JSON with a `data` field or plain text. Response can be JSON (default) or raw binary based on the `Accept` header.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/base32_decode`
-
----
-
-### JWT Encode
-**Description:** Encodes a JSON payload into a JWT using the HS256 algorithm. Accepts JSON, plain text (`Content-Type: text/plain`), or file upload. A secret key is required to sign the token.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt_encode`
-
-**Request:**
-```json
-{
-  "data": { "user": "alice", "role": "admin" },
-  "secret": "my-secret-key"
-}
-```
-
-**Response:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
----
-
-### JWT Decode
-**Description:** Decodes a JWT and returns its payload. Accepts JSON with a `data` field, plain text, or file upload. A secret key must be provided.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/jwt_decode`
-
-**Request:**
-```json
-{
-  "data": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "secret": "my-secret-key"
-}
-```
-
----
-
-### QR Code Encode
-**Description:** Generates a QR code from text input. Returns the QR code as a Base64-encoded PNG. Can encode URLs, plain text, contact info, Wi-Fi credentials, event details, etc.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode_encode`
-
-**Request:**
-```json
-{
-  "data": "https://example.com"
-}
-```
-
-**Response:**
-```json
-{
-  "qrcode": "iVBORw0KGgoAAAANSUhEUgAA..."
-}
-```
-
----
-
-### QR Code Decode
-**Description:** Decodes a QR code image and returns the embedded content. Accepts a file upload or a Base64-encoded image in JSON format.
-
-**Endpoint:** `POST https://aisenseapi.com/services/v1/qrcode_decode`
-
-**Request (Base64):**
-```json
-{
-  "data": "iVBORw0KGgoAAAANSUhEUgAA..."
-}
-```
-
-**Response:**
-```json
-{
-  "decoded": "https://example.com"
-}
-```
+`qrcode_decode` also accepts a file upload in a `qrcode_image` field.
 
 ---
 
 ## Hash
 
-All hash endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads.
+All POST. Accept JSON, plain text, or file upload. **Each returns a key named
+after the algorithm — never `hash`.**
 
-### MD5
-**Endpoint:** `POST https://aisenseapi.com/services/v1/md5_hash`
+| Endpoint | Response key | Value for `"Hello"` |
+|----------|--------------|---------------------|
+| `POST /md5_hash` | `md5_hash` | `8b1a9953c4611296a827abf8c47804d7` |
+| `POST /sha1_hash` | `sha1_hash` | `f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0` |
+| `POST /sha256_hash` | `sha256_hash` | `185f8db32271fe25f561a6fc938b2e26...` |
+| `POST /sha512_hash` | `sha512_hash` | `3615f80c9d293ed7402687f94b22d58e...` |
+| `POST /crc32_checksum` | `crc32_checksum` | `4157704578` |
 
-**Request:**
-```json
-{ "data": "Hello" }
-```
-**Response:**
-```json
-{ "hash": "8b1a9953c4611296a827abf8c47804d7" }
-```
-
----
-
-### SHA1
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha1_hash`
-
-**Request:**
-```json
-{ "data": "Hello" }
-```
-**Response:**
-```json
-{ "hash": "f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0" }
-```
-
----
-
-### SHA256
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha256_hash`
-
-**Request:**
-```json
-{ "data": "Hello" }
-```
-**Response:**
-```json
-{ "hash": "185f8db32921bd46d35cc5e1aeea7bab5be96848c1dc7..." }
-```
-
----
-
-### SHA512
-**Endpoint:** `POST https://aisenseapi.com/services/v1/sha512_hash`
-
-**Request:**
-```json
-{ "data": "Hello" }
-```
-**Response:**
-```json
-{ "hash": "3615f80c9d293ed7402687f94b22d58e529b8cc7916f8..." }
-```
+`crc32_checksum` is an **integer**, not a hex string.
 
 ---
 
 ## Web
 
-### Ping
-**Description:** Returns a `pong` response. Used to verify connectivity or confirm the API is reachable.
+| Endpoint | Returns |
+|----------|---------|
+| `GET /ping` | `{"ping": "pong"}` |
+| `GET /health` | `{"status": "ok", "microtimestamp": 1786873258.589068}` |
+| `GET /client_ip` | `{"ip": "203.0.113.42"}` |
+| `GET /user_agent` | `{"user_agent": "curl/8.5.0"}` |
+| `GET /domain_ip_lookup/{domain}` | `{"domain": "example.com", "ip": "104.20.23.154"}` |
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ping`
+### IP reverse lookup
 
-**Response:**
-```json
-{ "response": "pong" }
-```
+`GET /ip_reverse_lookup/{ip}`
 
----
-
-### Health
-**Description:** Returns a health check status and a high-precision ISO 8601 timestamp (microsecond float). Useful for monitoring server uptime and response times.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/health`
-
-**Response:**
 ```json
 {
-  "status": "ok",
-  "timestamp": 1741953720.483921
-}
-```
-
----
-
-### Client IP
-**Description:** Returns the public IP address of the client making the request. Useful for access control, analytics, or request tracking. No parameters required.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/client_ip
-
-**Response:**
-```json
-{ "ip": "203.0.113.42" }
-```
-
----
-
-### IP Reverse Lookup
-**Description:** Performs a reverse IP lookup. Returns country, city, latitude, longitude, and time zone for a given IP address. Useful for location-based services, analytics, or security checks.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ip_reverse_lookup/{ip}`
-
-**Response:**
-```json
-{
-  "ip": "203.0.113.42",
-  "country": "Norway",
-  "city": "Oslo",
-  "location": {
-    "lat": "59.913900",
-    "lng": "10.752200"
-  },
+  "ip": "8.8.8.8",
+  "country": "United States",
+  "city": null,
+  "location": { "lat": "37.751000", "lng": "-97.822000" },
   "place": null,
-  "timezone": "Europe/Oslo"
+  "timezone": "America/Chicago"
 }
 ```
 
----
+`city` and `place` are frequently `null`, and coordinates fall back to the
+country centroid when the city is unknown. Latitude and longitude are strings.
 
-### Storage
-**Description:** Temporary key-value storage for JSON, text, or file data. Store new data and receive a UUID, or retrieve previously stored data using a UUID. **All data is automatically deleted after 24 hours.**
+### Storage — 24h TTL
 
-**Store data:**
-`POST https://aisenseapi.com/services/v1/storage`
-```json
-{ "data": { "key": "value" } }
-```
-Response:
-```json
-{ "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
-```
+`POST /storage` → `{"storage_id": "...", "expire_timestamp": ...}`
+`GET /storage/{storage_id}` → the stored bytes
 
-**Retrieve data:**
-`GET https://aisenseapi.com/services/v1/storage/{uuid}`
+The body is stored **verbatim**. Post `{"data": {...}}` and you retrieve
+`{"data": {...}}` — no wrapper is added or removed. The response key is
+`storage_id`, not `uuid`. An unknown or expired id returns
+`{"error": "Storage id unknown"}`.
 
----
+### URL shortener — 24h TTL
 
-### URL Shortener
-**Description:** Generates a shortened URL for any full-length link. Returns a short redirect URL. **Links expire automatically after 24 hours.**
+`GET /url_shortener/{url}` → `{"short_url": "https://307.fi/KtNshX2B", "expire_timestamp": ...}`
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/url_shortener/{url}`
+The target URL goes inline in the path. This is a GET, not a POST.
 
-**Example:**
-```
-GET https://aisenseapi.com/services/v1/url_shortener/https://example.com/some/very/long/path
-```
+### Webhook capture — 24h TTL
 
----
+`POST /webhook_capture` → `{"ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ...}`
 
-### Webhook Capture
-**Description:** Creates a capture session and returns a unique `update_url` to receive any inbound HTTP request, and a `read_url` to retrieve the captured data. Records method, headers, query parameters, client IP, and body. JSON bodies are automatically parsed. **Data expires after 24 hours.** Primarily used to test webhooks and debug integrations.
-
-**Create session:** `POST https://aisenseapi.com/services/v1/webhook_capture`
-
-**Response:**
-```json
-{
-  "ok": true,
-  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
-  "update_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91/update",
-  "read_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
-  "expire_timestamp": 1772893200
-}
-```
-
-**Send webhook:** Any HTTP method → `update_url`
-
-**Read result:** `GET {read_url}` (i.e. `GET /webhook_capture/{capture_id}`)
+Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
 
 ```json
 {
   "ok": true,
-  "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
-  "captured_at_datetime": "2026-03-06T14:20:00Z",
+  "capture_id": "6f8c9e52-...",
+  "captured_at_timestamp": 1786873316,
+  "captured_at_datetime": "2026-08-16T09:41:56Z",
   "request": {
     "method": "POST",
+    "uri": "/services/v1/webhook_capture/6f8c9e52-.../update",
     "headers": { "content-type": "application/json" },
     "client_ip": "203.0.113.10",
-    "body": {
-      "json": { "event": "payment.created", "amount": 499 },
-      "text": null,
-      "base64": null,
-      "raw_length": 38
-    }
+    "body": { "json": {...}, "text": null, "base64": null, "raw_length": 28 }
   }
 }
 ```
 
----
+### Webhook action — human-in-the-loop, 24h TTL
 
-### Webhook Action
-**Description:** Creates an interactive action requiring human input before an automated process continues. Generates a unique action ID, a form URL for user submission, and a result URL to poll for the response. Form fields can include radio buttons, select menus, text inputs, textareas, and checkboxes. Status changes to `answered` once submitted. **All stored actions expire after 24 hours.**
+The most useful endpoint here for agent work: it pauses an automated pipeline
+for a human decision with no backend of your own.
 
-**Endpoint:** `POST https://aisenseapi.com/services/v1/webhook_action`
-
-**Request:**
 ```json
+// POST /webhook_action
 {
   "title": "Approve deployment?",
+  "description": "Optional explanatory text.",
   "fields": [
     {
-      "type": "radio",
-      "name": "approval",
-      "label": "Do you approve?",
-      "options": ["Yes", "No"]
-    }
+      "type": "radio", "name": "decision", "label": "Decision", "required": true,
+      "options": [
+        { "value": "approve", "label": "Approve" },
+        { "value": "reject",  "label": "Reject" }
+      ]
+    },
+    { "type": "textarea", "name": "comment", "label": "Notes", "max_length": 500 }
   ]
+}
+
+→ {
+  "ok": true,
+  "action_id": "9e0e6d3b-...",
+  "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../form",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-...",
+  "expire_timestamp": 1786959912,
+  "expire_datetime": "2026-08-17T09:45:12Z"
 }
 ```
 
-**Response:**
+Send `form_url` to a human. Poll `GET /webhook_action/{action_id}`:
+
 ```json
 {
   "ok": true,
-  "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
-  "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1/form",
-  "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
-  "expire_timestamp": 1772893200,
-  "expire_datetime": "2026-03-07T14:20:00Z"
+  "action_id": "9e0e6d3b-...",
+  "status": "pending",
+  "created_at_timestamp": 1786873535,
+  "created_at_datetime": "2026-08-16T09:45:35Z",
+  "expire_timestamp": 1786959935,
+  "expire_datetime": "2026-08-17T09:45:35Z",
+  "answered_at_timestamp": null,
+  "answered_at_datetime": null,
+  "response": null
 }
 ```
+
+`status` becomes `answered` and `response` fills with the submission. Field
+types: `radio`, `select`, `text`, `textarea`, `checkbox`. `options` accepts
+plain strings or `{"value": ..., "label": ...}` objects.
+
+`GET /webhook_action/{action_id}/form` returns `text/html` — the only
+non-JSON-by-default endpoint besides the decoders.
 
 ---
 
 ## Crypto
 
-> ⚠️ **Warning:** These endpoints generate wallets for **development and testing purposes**. Never use programmatically generated wallets with real funds unless you fully control key storage and security.
+> ⚠️ Wallet generation is for **development and testing only**. A private key
+> produced by a public HTTP endpoint has crossed a network neither you nor the
+> user controls. Never suggest funding one.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /solana/generate_new_wallet` | `{"private_key", "public_address"}` |
+| `GET /bitcoin/generate_new_wallet` | `{"private_key", "private_key_wif", "public_address"}` |
+| `GET /ethereum/generate_new_wallet` | `{"private_key", "public_address"}` |
+| `GET /solana/balance/{address}` | `{"wallet", "balance_sol", "balance_lamports"}` |
+| `GET /bitcoin/balance/{address}` | `{"wallet", "final_balance_btc", "final_balance_sats"}` |
+| `GET /ethereum/balance/{address}` | `{"wallet", "balance_eth", "balance_wei"}` |
+
+Bitcoin returns `public_address`, not `address`. Solana has no
+`private_key_base58` field.
+
+Ethereum returns both balances as **strings**:
+`{"balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061"}`.
+Wei routinely exceeds `2^53`, the largest integer a JSON number survives in a
+JavaScript client, so a number here would be silently wrong. Bitcoin and Solana
+return numbers; their smallest units stay inside the safe range.
 
 ---
 
-### Solana — Generate New Wallet
-**Description:** Generates a new Solana wallet including a private key, a Base58-encoded private key, and a public address.
+## Complete response key reference
 
-**Endpoint:** `GET https://aisenseapi.com/services/v1/solana/generate_new_wallet`
-
-**Response:**
-```json
-{
-  "private_key": "...",
-  "private_key_base58": "...",
-  "public_address": "..."
-}
-```
-
----
-
-### Bitcoin — Generate New Wallet
-**Description:** Generates a Bitcoin wallet with a private key (hexadecimal and WIF format) and a Base58Check-encoded Bitcoin address. Adheres to Bitcoin's secp256k1 standards.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/bitcoin/generate_new_wallet`
-
-**Response:**
-```json
-{
-  "private_key": "...",
-  "private_key_wif": "...",
-  "address": "..."
-}
-```
-
----
-
-### Ethereum — Generate New Wallet
-**Description:** Generates a new Ethereum wallet including a private key and a public address.
-
-**Endpoint:** `GET https://aisenseapi.com/services/v1/ethereum/generate_new_wallet`
-
-**Response:**
-```json
-{
-  "private_key": "0x...",
-  "public_address": "0x..."
-}
-```
-
----
-
-## Quick Reference Table
-
-| Category | Endpoint | Method | Description |
-|----------|----------|--------|-------------|
-| Time | `/datetime[/{offset}]` | GET | Current datetime (ISO 8601) |
-| Time | `/timestamp` | GET | Unix timestamp |
-| Time | `/microtimestamp` | GET | Microsecond Unix timestamp |
-| Time | `/timezones[/{offset}]` | GET | List of timezones |
-| Time | `/swatchinternettime` | GET | Swatch .beats time |
-| Random | `/random_number[/{from}/{to}]` | GET | Random integer in range |
-| Random | `/random_color` | GET | Random hex color |
-| Random | `/uuid` | GET | UUID v4 |
-| Random | `/guid` | GET | GUID |
-| Transform | `/base64_encode` | POST | Base64 encode |
-| Transform | `/base64_decode` | POST | Base64 decode |
-| Transform | `/base58_encode` | POST | Base58 encode |
-| Transform | `/base58_decode` | POST | Base58 decode |
-| Transform | `/base32_encode` | POST | Base32 encode |
-| Transform | `/base32_decode` | POST | Base32 decode |
-| Transform | `/jwt_encode` | POST | JWT encode (HS256) |
-| Transform | `/jwt_decode` | POST | JWT decode |
-| Transform | `/qrcode_encode` | POST | QR code → Base64 PNG |
-| Transform | `/qrcode_decode` | POST | QR code image → text |
-| Hash | `/md5_hash` | POST | MD5 hash |
-| Hash | `/sha1_hash` | POST | SHA1 hash |
-| Hash | `/sha256_hash` | POST | SHA256 hash |
-| Hash | `/sha512_hash` | POST | SHA512 hash |
-| Hash | `/crc32_checksum` | POST | CRC32 checksum |
-| Web | `/ping` | GET | Ping / connectivity check |
-| Web | `/health` | GET | Health check + timestamp |
-| Web | `/client_ip` | GET | Client public IP |
-| Web | `/user_agent` | GET | Client User-Agent string |
-| Web | `/ip_reverse_lookup/{ip}` | GET | IP geolocation lookup |
-| Web | `/domain_ip_lookup/{domain}` | GET | Domain → IP lookup |
-| Web | `/storage` | POST/GET | Temp JSON/text storage (24h TTL) |
-| Web | `/url_shortener/{url}` | GET | URL shortener (24h TTL) |
-| Web | `/webhook_capture` | POST/GET | Webhook request capture (24h TTL) |
-| Web | `/webhook_action` | POST/GET | Human-in-the-loop action form (24h TTL) |
-| Crypto | `/solana/generate_new_wallet` | GET | New Solana wallet |
-| Crypto | `/bitcoin/generate_new_wallet` | GET | New Bitcoin wallet |
-| Crypto | `/ethereum/generate_new_wallet` | GET | New Ethereum wallet |
+| Endpoint | Method | Response key(s) |
+|----------|--------|-----------------|
+| `/datetime[/{offset}]` | GET | `datetime` |
+| `/timestamp` | GET | `timestamp` |
+| `/microtimestamp` | GET | `microtimestamp` |
+| `/timezones[/{offset}]` | GET | `timezones` (array of objects) |
+| `/swatchinternettime` | GET | `beat`, `date` |
+| `/random_number[/{from}[/{to}]]` | GET | `random_number`, `range` |
+| `/random_color` | GET | `random_color` |
+| `/uuid` | GET | `uuid` |
+| `/guid` | GET | `guid` |
+| `/password[/{length}]` | GET | `password`, `password_length` |
+| `/base64_encode` | POST | `base64_encoded_data` |
+| `/base58_encode` | POST | `base58_encoded_data` |
+| `/base32_encode` | POST | `base32_encoded_data` |
+| `/base64_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/base58_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/base32_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/jwt_encode` | POST | `jwt` |
+| `/jwt_decode` | POST | `decoded_payload` |
+| `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
+| `/qrcode_decode` | POST | `qrcode_content` |
+| `/md5_hash` | POST | `md5_hash` |
+| `/sha1_hash` | POST | `sha1_hash` |
+| `/sha256_hash` | POST | `sha256_hash` |
+| `/sha512_hash` | POST | `sha512_hash` |
+| `/crc32_checksum` | POST | `crc32_checksum` (integer) |
+| `/ping` | GET | `ping` |
+| `/health` | GET | `status`, `microtimestamp` |
+| `/client_ip` | GET | `ip` |
+| `/user_agent` | GET | `user_agent` |
+| `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
+| `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
+| `/storage` | POST | `storage_id`, `expire_timestamp` |
+| `/storage/{id}` | GET | the stored body, verbatim |
+| `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
+| `/webhook_capture` | POST | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
+| `/webhook_capture/{id}` | GET | `ok`, `capture_id`, `captured_at_*`, `request` |
+| `/webhook_action` | POST | `ok`, `action_id`, `form_url`, `result_url`, `expire_*` |
+| `/webhook_action/{id}` | GET | `ok`, `action_id`, `status`, `response`, timestamps |
+| `/webhook_action/{id}/form` | GET | `text/html` |
+| `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
+| `/bitcoin/generate_new_wallet` | GET | `private_key`, `private_key_wif`, `public_address` |
+| `/ethereum/generate_new_wallet` | GET | `private_key`, `public_address` |
+| `/solana/balance/{address}` | GET | `wallet`, `balance_sol`, `balance_lamports` |
+| `/bitcoin/balance/{address}` | GET | `wallet`, `final_balance_btc`, `final_balance_sats` |
+| `/ethereum/balance/{address}` | GET | `wallet`, `balance_eth`, `balance_wei` (strings) |
 
 ---
 
-## Common Patterns
+## Input formats for POST endpoints
 
-### POST endpoints — accepted input formats
-Most POST endpoints accept input in three ways:
-1. **JSON body** with a `data` field: `{ "data": "your input" }`
-2. **Plain text** with header `Content-Type: text/plain`
-3. **File upload** (multipart form data)
+| Format | Content-Type | Notes |
+|--------|-------------|-------|
+| JSON | `application/json` | Field is `data` for most, `payload` for QR |
+| Plain text | `text/plain` | JWT endpoints take the secret via an `X-Secret` header |
+| File upload | `multipart/form-data` | Field names vary — `jwt_data`, `qrcode_image`, `file` |
 
-### Error handling
-If input is invalid or missing, endpoints return an appropriate error message in JSON format:
-```json
-{ "error": "Invalid input: data field is required" }
-```
+## Auto-expiry
 
-### 24-hour TTL endpoints
-The following endpoints store data that **automatically expires after 24 hours**:
-- Storage
-- URL Shortener
-- Webhook Capture
-- Webhook Action
+`/storage` · `/url_shortener` · `/webhook_capture` · `/webhook_action` — all
+deleted after 24 hours.
+
+## CORS
+
+`Access-Control-Allow-Origin: *` on every response, so these are callable
+directly from browser JavaScript.
 
 ---
 
-## Provider Information
-
-**AI SENSE AS**
-Postboks 1202 Vika
-0110 Oslo, Norway
-
-Website: [aisense.no](https://www.aisense.no)
+**AI SENSE AS** · Postboks 1202 Vika, 0110 Oslo, Norway
+[aisenseapi.com](https://aisenseapi.com)

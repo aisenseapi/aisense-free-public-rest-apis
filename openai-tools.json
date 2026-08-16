@@ -3,13 +3,13 @@
     "type": "function",
     "function": {
       "name": "get_datetime",
-      "description": "Returns the current date and time in ISO 8601 format, optionally adjusted for a timezone offset.",
+      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. GET /datetime[/{offset}]",
       "parameters": {
         "type": "object",
         "properties": {
           "offset": {
-            "type": "integer",
-            "description": "Timezone offset in hours (e.g. 1 for UTC+1). Defaults to UTC if not provided."
+            "type": "string",
+            "description": "Four-digit UTC offset with optional sign, e.g. \"+0200\", \"-0530\" or \"0100\". Hour-only values like \"1\" are NOT valid. Omit for UTC."
           }
         },
         "required": []
@@ -20,37 +20,29 @@
     "type": "function",
     "function": {
       "name": "get_timestamp",
-      "description": "Returns the current Unix timestamp (seconds since 1970-01-01 UTC).",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Current Unix timestamp in seconds. Returns {\"timestamp\": 1786873261}. GET /timestamp",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_microtimestamp",
-      "description": "Returns the current Unix timestamp with microsecond precision as a float.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Unix timestamp with microsecond precision. Returns {\"microtimestamp\": 1786873474.745043}. GET /microtimestamp",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_timezones",
-      "description": "Returns a list of all available timezones. Optionally filter by UTC offset.",
+      "description": "All available timezones. Returns {\"timezones\": [{\"timezone\": \"Europe/Oslo\", \"offset\": \"+0200\"}, ...]} — a list of OBJECTS, not strings. GET /timezones[/{offset}]",
       "parameters": {
         "type": "object",
         "properties": {
           "offset": {
-            "type": "integer",
-            "description": "Filter timezones by this UTC offset (e.g. 1 for UTC+1)."
+            "type": "string",
+            "description": "Four-digit UTC offset to filter by, e.g. \"+0200\"."
           }
         },
         "required": []
@@ -61,30 +53,20 @@
     "type": "function",
     "function": {
       "name": "get_swatch_internet_time",
-      "description": "Returns the current time in Swatch Internet Time (.beats, 0–999) and the current date. No time zones involved.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Swatch Internet Time. Returns {\"beat\": \"@444\", \"date\": \"2026-08-16\"}. Note beat is a string with a leading @, not a number. GET /swatchinternettime",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_random_number",
-      "description": "Returns a random integer within a given range. Defaults to 1–6 (like a die roll) if no range is specified.",
+      "description": "Random integer, inclusive. Returns {\"random_number\": 73, \"range\": {\"from\": 1, \"to\": 100}}. No arguments gives 1-6. Passing only \"to\" fixes the lower bound at 1. GET /random_number[/{from}[/{to}]]",
       "parameters": {
         "type": "object",
         "properties": {
-          "from": {
-            "type": "integer",
-            "description": "Lower bound of the range (inclusive)."
-          },
-          "to": {
-            "type": "integer",
-            "description": "Upper bound of the range (inclusive)."
-          }
+          "from": { "type": "integer", "description": "Lower bound, inclusive." },
+          "to": { "type": "integer", "description": "Upper bound, inclusive." }
         },
         "required": []
       }
@@ -94,34 +76,36 @@
     "type": "function",
     "function": {
       "name": "get_random_color",
-      "description": "Returns a random hex color code (e.g. #A3F2C1).",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Random hex colour. Returns {\"random_color\": \"#9b6bbf\"}. GET /random_color",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_uuid",
-      "description": "Generates and returns a UUID v4.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Generate a UUID v4. Returns {\"uuid\": \"429151ee-82a1-4438-b2f1-b6b9c9e4a41f\"}. GET /uuid",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_guid",
-      "description": "Generates and returns a GUID.",
+      "description": "Generate a GUID. Returns {\"guid\": \"...\"}. GET /guid",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_password",
+      "description": "Random password including punctuation, 12 characters by default. Returns {\"password\": \"jFehS]AKGx9wl[jp\", \"password_length\": 16}. GET /password[/{length}]",
       "parameters": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "length": { "type": "integer", "description": "Password length. Defaults to 12." }
+        },
         "required": []
       }
     }
@@ -130,15 +114,10 @@
     "type": "function",
     "function": {
       "name": "base64_encode",
-      "description": "Encodes a string into Base64 format.",
+      "description": "Encode text to Base64. Returns {\"base64_encoded_data\": \"SGVsbG8gd29ybGQ=\"}. POST /base64_encode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The text to encode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Text to encode." } },
         "required": ["data"]
       }
     }
@@ -147,15 +126,10 @@
     "type": "function",
     "function": {
       "name": "base64_decode",
-      "description": "Decodes a Base64-encoded string back to its original text.",
+      "description": "Decode Base64. Returns the raw decoded bytes as application/octet-stream, NOT JSON — unless the request sends Accept: application/json, in which case it returns {\"type\": \"json\"|\"binary\", \"decoded_data\": ...}. POST /base64_decode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The Base64-encoded string to decode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Base64 string to decode." } },
         "required": ["data"]
       }
     }
@@ -164,15 +138,10 @@
     "type": "function",
     "function": {
       "name": "base58_encode",
-      "description": "Encodes a string into Base58 format.",
+      "description": "Encode text to Base58. Returns {\"base58_encoded_data\": \"9Ajdvzr\"}. POST /base58_encode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The text to encode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Text to encode." } },
         "required": ["data"]
       }
     }
@@ -181,15 +150,10 @@
     "type": "function",
     "function": {
       "name": "base58_decode",
-      "description": "Decodes a Base58-encoded string back to its original text.",
+      "description": "Decode Base58. Returns raw bytes, or a typed envelope with Accept: application/json. An invalid character returns HTTP 400 with {\"error\": \"Invalid Base58 input.\"}. POST /base58_decode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The Base58-encoded string to decode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Base58 string to decode." } },
         "required": ["data"]
       }
     }
@@ -198,15 +162,10 @@
     "type": "function",
     "function": {
       "name": "base32_encode",
-      "description": "Encodes a string into Base32 format.",
+      "description": "Encode text to Base32. Returns {\"base32_encoded_data\": \"JBSWY3DP\"}. POST /base32_encode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The text to encode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Text to encode." } },
         "required": ["data"]
       }
     }
@@ -215,15 +174,10 @@
     "type": "function",
     "function": {
       "name": "base32_decode",
-      "description": "Decodes a Base32-encoded string back to its original text.",
+      "description": "Decode Base32. Returns raw bytes, or a typed envelope with Accept: application/json. POST /base32_decode",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The Base32-encoded string to decode."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "Base32 string to decode." } },
         "required": ["data"]
       }
     }
@@ -232,18 +186,15 @@
     "type": "function",
     "function": {
       "name": "jwt_encode",
-      "description": "Encodes a JSON payload into a JWT using HS256. Requires a secret key.",
+      "description": "Encode a payload into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. IMPORTANT: data must be a JSON string, not an object — passing an object returns {\"error\": \"Invalid data provided. Expected a string.\"}. Serialise the payload first. POST /jwt_encode",
       "parameters": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "object",
-            "description": "The JSON payload to encode into the JWT."
-          },
-          "secret": {
             "type": "string",
-            "description": "The secret key used to sign the JWT."
-          }
+            "description": "The payload as a JSON STRING, e.g. \"{\\\"user\\\":\\\"alice\\\"}\". Not an object."
+          },
+          "secret": { "type": "string", "description": "Secret key used to sign the token." }
         },
         "required": ["data", "secret"]
       }
@@ -253,18 +204,12 @@
     "type": "function",
     "function": {
       "name": "jwt_decode",
-      "description": "Decodes a JWT and returns its payload. Requires the secret key used to sign it.",
+      "description": "Decode a JWT. Returns {\"decoded_payload\": {...}}. POST /jwt_decode",
       "parameters": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "string",
-            "description": "The JWT token string to decode."
-          },
-          "secret": {
-            "type": "string",
-            "description": "The secret key used to verify and decode the JWT."
-          }
+          "data": { "type": "string", "description": "The JWT token string." },
+          "secret": { "type": "string", "description": "Secret key used to sign it." }
         },
         "required": ["data", "secret"]
       }
@@ -274,16 +219,13 @@
     "type": "function",
     "function": {
       "name": "qrcode_encode",
-      "description": "Generates a QR code from text or a URL. Returns a Base64-encoded PNG image.",
+      "description": "Generate a QR code. Returns {\"qrcode_image\": \"iVBORw0KGgo...\", \"image_type\": \"png\"}. The request field is \"payload\", not \"data\". POST /qrcode_encode",
       "parameters": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "string",
-            "description": "The text or URL to encode into a QR code."
-          }
+          "payload": { "type": "string", "description": "Text or URL to encode. Field name is payload, not data." }
         },
-        "required": ["data"]
+        "required": ["payload"]
       }
     }
   },
@@ -291,16 +233,13 @@
     "type": "function",
     "function": {
       "name": "qrcode_decode",
-      "description": "Decodes a QR code image and returns the embedded text. Accepts a Base64-encoded image.",
+      "description": "Decode a QR code image. Returns {\"qrcode_content\": \"https://example.com\"}. The request field is \"payload\", not \"data\". POST /qrcode_decode",
       "parameters": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "string",
-            "description": "Base64-encoded QR code image."
-          }
+          "payload": { "type": "string", "description": "Base64-encoded QR image. Field name is payload, not data." }
         },
-        "required": ["data"]
+        "required": ["payload"]
       }
     }
   },
@@ -308,15 +247,10 @@
     "type": "function",
     "function": {
       "name": "hash_md5",
-      "description": "Generates an MD5 hash of the provided input string.",
+      "description": "MD5 hash. Returns {\"md5_hash\": \"8b1a9953c4611296a827abf8c47804d7\"} — the key is md5_hash, not hash. POST /md5_hash",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The string to hash."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
         "required": ["data"]
       }
     }
@@ -325,15 +259,10 @@
     "type": "function",
     "function": {
       "name": "hash_sha1",
-      "description": "Generates a SHA1 hash of the provided input string.",
+      "description": "SHA1 hash. Returns {\"sha1_hash\": \"...\"} — the key is sha1_hash, not hash. POST /sha1_hash",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The string to hash."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
         "required": ["data"]
       }
     }
@@ -342,15 +271,10 @@
     "type": "function",
     "function": {
       "name": "hash_sha256",
-      "description": "Generates a SHA256 hash of the provided input string.",
+      "description": "SHA256 hash. Returns {\"sha256_hash\": \"...\"} — the key is sha256_hash, not hash. POST /sha256_hash",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The string to hash."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
         "required": ["data"]
       }
     }
@@ -359,15 +283,22 @@
     "type": "function",
     "function": {
       "name": "hash_sha512",
-      "description": "Generates a SHA512 hash of the provided input string.",
+      "description": "SHA512 hash. Returns {\"sha512_hash\": \"...\"} — the key is sha512_hash, not hash. POST /sha512_hash",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The string to hash."
-          }
-        },
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "crc32_checksum",
+      "description": "CRC32 checksum. Returns {\"crc32_checksum\": 4157704578} — an integer, not a hex string. POST /crc32_checksum",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to checksum." } },
         "required": ["data"]
       }
     }
@@ -376,51 +307,42 @@
     "type": "function",
     "function": {
       "name": "ping",
-      "description": "Sends a ping to verify the API is reachable. Returns 'pong'.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Connectivity check. Returns {\"ping\": \"pong\"} — the key is ping, not response. GET /ping",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "health_check",
-      "description": "Returns the API health status and a high-precision timestamp.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Health check. Returns {\"status\": \"ok\", \"microtimestamp\": 1786873258.589068} — the second key is microtimestamp, not timestamp. GET /health",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "get_client_ip",
-      "description": "Returns the public IP address of the caller.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Public IP address of the caller. Returns {\"ip\": \"203.0.113.42\"}. GET /client_ip",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
-      "name": "ip_lookup",
-      "description": "Performs a reverse IP lookup, returning country, city, coordinates, and timezone for a given IP address.",
+      "name": "get_user_agent",
+      "description": "The User-Agent string the API saw. Returns {\"user_agent\": \"curl/8.5.0\"}. GET /user_agent",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ip_reverse_lookup",
+      "description": "Geolocate an IP. Returns {\"ip\", \"country\", \"city\", \"location\": {\"lat\", \"lng\"}, \"place\", \"timezone\"}. city and place are frequently null, and coordinates fall back to the country centroid. GET /ip_reverse_lookup/{ip}",
       "parameters": {
         "type": "object",
-        "properties": {
-          "ip": {
-            "type": "string",
-            "description": "The IP address to look up (e.g. '8.8.8.8')."
-          }
-        },
+        "properties": { "ip": { "type": "string", "description": "IP address, e.g. \"8.8.8.8\"." } },
         "required": ["ip"]
       }
     }
@@ -428,15 +350,23 @@
   {
     "type": "function",
     "function": {
-      "name": "storage_set",
-      "description": "Stores JSON or text data temporarily and returns a UUID for later retrieval. Data expires after 24 hours.",
+      "name": "domain_ip_lookup",
+      "description": "Resolve a domain to an IP. Returns {\"domain\": \"example.com\", \"ip\": \"104.20.23.154\"}. GET /domain_ip_lookup/{domain}",
       "parameters": {
         "type": "object",
-        "properties": {
-          "data": {
-            "description": "The data to store (JSON object or string)."
-          }
-        },
+        "properties": { "domain": { "type": "string", "description": "Domain name, e.g. \"example.com\"." } },
+        "required": ["domain"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "storage_set",
+      "description": "Store data for 24 hours. Returns {\"storage_id\": \"...\", \"expire_timestamp\": ...} — the key is storage_id, not uuid. The request body is stored verbatim, so whatever is sent is exactly what storage_get returns. POST /storage",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "description": "Value to store. Sent as the request body verbatim." } },
         "required": ["data"]
       }
     }
@@ -445,16 +375,11 @@
     "type": "function",
     "function": {
       "name": "storage_get",
-      "description": "Retrieves previously stored data using a UUID returned by storage_set. Data expires after 24 hours.",
+      "description": "Retrieve stored data, returned verbatim. An unknown or expired id returns {\"error\": \"Storage id unknown\"}. GET /storage/{storage_id}",
       "parameters": {
         "type": "object",
-        "properties": {
-          "uuid": {
-            "type": "string",
-            "description": "The UUID returned when the data was stored."
-          }
-        },
-        "required": ["uuid"]
+        "properties": { "storage_id": { "type": "string", "description": "The storage_id returned by storage_set." } },
+        "required": ["storage_id"]
       }
     }
   },
@@ -462,15 +387,10 @@
     "type": "function",
     "function": {
       "name": "shorten_url",
-      "description": "Shortens a long URL. Returns a short redirect link. Expires after 24 hours.",
+      "description": "Shorten a URL for 24 hours. Returns {\"short_url\": \"https://307.fi/KtNshX2B\", \"expire_timestamp\": ...}. This is a GET with the target URL inline in the path, not a POST. GET /url_shortener/{url}",
       "parameters": {
         "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "The full URL to shorten."
-          }
-        },
+        "properties": { "url": { "type": "string", "description": "Full URL to shorten." } },
         "required": ["url"]
       }
     }
@@ -478,47 +398,55 @@
   {
     "type": "function",
     "function": {
-      "name": "webhook_capture",
-      "description": "Captures and returns the full details of an incoming HTTP request. Useful for testing webhooks and debugging integrations. Data expires after 24 hours.",
+      "name": "webhook_capture_create",
+      "description": "Open a webhook capture session. Returns {\"ok\", \"capture_id\", \"update_url\", \"read_url\", \"expire_timestamp\"}. Point any HTTP client at update_url, then read it back with webhook_capture_read. POST /webhook_capture",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_capture_read",
+      "description": "Read a captured request. Returns {\"ok\", \"capture_id\", \"captured_at_timestamp\", \"captured_at_datetime\", \"request\": {method, uri, headers, client_ip, body}}. GET /webhook_capture/{capture_id}",
       "parameters": {
         "type": "object",
-        "properties": {
-          "body": {
-            "type": "object",
-            "description": "The request body to send (optional)."
-          }
-        },
-        "required": []
+        "properties": { "capture_id": { "type": "string", "description": "The capture_id from webhook_capture_create." } },
+        "required": ["capture_id"]
       }
     }
   },
   {
     "type": "function",
     "function": {
-      "name": "webhook_action",
-      "description": "Creates a human-in-the-loop action with a web form for human input. Returns a form URL and a result URL to poll for the response. Expires after 24 hours.",
+      "name": "webhook_action_create",
+      "description": "Create a human-in-the-loop form. Returns {\"ok\", \"action_id\", \"form_url\", \"result_url\", \"expire_timestamp\", \"expire_datetime\"}. Send form_url to a human, then poll webhook_action_result. POST /webhook_action",
       "parameters": {
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "description": "The title shown on the action form."
-          },
+          "title": { "type": "string", "description": "Title shown on the form." },
+          "description": { "type": "string", "description": "Optional explanatory text." },
           "fields": {
             "type": "array",
-            "description": "Form fields for the action. Each field has a type (radio, select, text, textarea, checkbox), name, label, and optional options array.",
+            "description": "Form fields.",
             "items": {
               "type": "object",
               "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": ["radio", "select", "text", "textarea", "checkbox"]
-                },
+                "type": { "type": "string", "enum": ["radio", "select", "text", "textarea", "checkbox"] },
                 "name": { "type": "string" },
                 "label": { "type": "string" },
+                "required": { "type": "boolean" },
+                "placeholder": { "type": "string" },
+                "max_length": { "type": "integer" },
                 "options": {
                   "type": "array",
-                  "items": { "type": "string" }
+                  "description": "For radio and select. Accepts plain strings or {value, label} objects.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": { "type": "string" },
+                      "label": { "type": "string" }
+                    }
+                  }
                 }
               },
               "required": ["type", "name", "label"]
@@ -532,36 +460,72 @@
   {
     "type": "function",
     "function": {
-      "name": "generate_solana_wallet",
-      "description": "Generates a new Solana wallet with a private key, Base58-encoded private key, and public address. For development and testing only.",
+      "name": "webhook_action_result",
+      "description": "Poll for the answer to an action. Returns {\"ok\", \"action_id\", \"status\": \"pending\"|\"answered\", \"created_at_timestamp\", \"created_at_datetime\", \"expire_timestamp\", \"expire_datetime\", \"answered_at_timestamp\", \"answered_at_datetime\", \"response\"}. GET /webhook_action/{action_id}",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": { "action_id": { "type": "string", "description": "The action_id from webhook_action_create." } },
+        "required": ["action_id"]
       }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "generate_solana_wallet",
+      "description": "Generate a Solana wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY — a key produced by a public HTTP endpoint has crossed a network you do not control. Never fund it. GET /solana/generate_new_wallet",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "generate_bitcoin_wallet",
-      "description": "Generates a new Bitcoin wallet with a private key (hex and WIF) and a Base58Check-encoded address. For development and testing only.",
-      "parameters": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
+      "description": "Generate a Bitcoin wallet. Returns {\"private_key\", \"private_key_wif\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY. Never fund it. GET /bitcoin/generate_new_wallet",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "generate_ethereum_wallet",
-      "description": "Generates a new Ethereum wallet with a private key and public address. For development and testing only.",
+      "description": "Generate an Ethereum wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY. Never fund it. GET /ethereum/generate_new_wallet",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "solana_balance",
+      "description": "Solana balance. Returns {\"wallet\", \"balance_sol\", \"balance_lamports\"}. GET /solana/balance/{address}",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": { "address": { "type": "string", "description": "Solana address." } },
+        "required": ["address"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "bitcoin_balance",
+      "description": "Bitcoin balance. Returns {\"wallet\", \"final_balance_btc\", \"final_balance_sats\"}. GET /bitcoin/balance/{address}",
+      "parameters": {
+        "type": "object",
+        "properties": { "address": { "type": "string", "description": "Bitcoin address." } },
+        "required": ["address"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ethereum_balance",
+      "description": "Ethereum balance. Returns {\"wallet\", \"balance_eth\", \"balance_wei\"} where both balances are STRINGS, because Wei routinely exceeds 2^53 and would lose precision as a JSON number. GET /ethereum/balance/{address}",
+      "parameters": {
+        "type": "object",
+        "properties": { "address": { "type": "string", "description": "Ethereum address, 0x-prefixed." } },
+        "required": ["address"]
       }
     }
   }

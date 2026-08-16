@@ -1,148 +1,332 @@
 #!/usr/bin/env bash
 # ============================================================
-# test.sh — Verify all AI SENSE AS free public REST API endpoints
+# test.sh — verify the AI SENSE AS free public REST API
+#
+# This suite asserts on response bodies, not status codes.
+#
+# That is not a stylistic preference. This API answers HTTP 200 for most
+# failures, returns 200 with a debug echo for paths that do not exist, and
+# has in the past returned 200 with a PHP warning prepended to the JSON.
+# A status-code-only suite reports every one of those as a pass, which is
+# exactly what the previous version of this file did.
+#
 # Usage: chmod +x test.sh && ./test.sh
+# Exits 1 if anything fails. Safe for CI.
 # ============================================================
 
-BASE="https://aisenseapi.com/services/v1"
+BASE="${AISENSE_BASE:-https://aisenseapi.com/services/v1}"
 PASS=0
 FAIL=0
+XFAIL=0
+FIXED=0
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BLUE='\033[0;36m'
+NC='\033[0m'
 
-check() {
-  local label="$1"
-  local method="$2"
-  local url="$3"
-  local data="$4"
-  local content_type="${5:-application/json}"
+ok()      { echo -e "${GREEN}✓${NC} $1"; PASS=$((PASS + 1)); }
+bad()     { echo -e "${RED}✗${NC} $1"; [ -n "$2" ] && echo -e "    ${RED}$2${NC}"; FAIL=$((FAIL + 1)); }
+expected(){ echo -e "${BLUE}~${NC} $1 ${BLUE}(known bug, not counted)${NC}"; XFAIL=$((XFAIL + 1)); }
+fixed()   { echo -e "${GREEN}★${NC} $1 ${GREEN}— known bug is FIXED, promote it in test.sh${NC}"; FIXED=$((FIXED + 1)); }
 
+# ── Core request helper ──────────────────────────────────────
+# Sets $BODY and $STATUS. Never inspects them itself.
+request() {
+  local method="$1" url="$2" data="$3" ctype="${4:-application/json}" accept="$5"
+  local args=(-s -m 30 -w '\n%{http_code}')
+  [ -n "$accept" ] && args+=(-H "Accept: $accept")
   if [ "$method" = "GET" ]; then
-    status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+    RAW=$(curl "${args[@]}" "$url")
   else
-    status=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$url" \
-      -H "Content-Type: $content_type" \
-      -d "$data")
+    RAW=$(curl "${args[@]}" -X POST "$url" -H "Content-Type: $ctype" -d "$data")
   fi
+  STATUS="${RAW##*$'\n'}"
+  BODY="${RAW%$'\n'*}"
+}
 
-  if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
-    echo -e "${GREEN}✓${NC} $label (HTTP $status)"
-    PASS=$((PASS + 1))
+# ── Assertions every response must survive ───────────────────
+# Returns non-zero and prints the reason if the body is structurally wrong,
+# regardless of what the individual test was looking for.
+body_is_sane() {
+  local label="$1"
+  if [ -z "$BODY" ]; then
+    REASON="empty body"; return 1
+  fi
+  # Unknown paths answer 200 with ["<ip>",<ts>]["/services/v1/x","1","x"]
+  case "$BODY" in
+    '["'*']["'*) REASON="endpoint does not exist — got the debug echo, check the path"; return 1 ;;
+  esac
+  # A PHP notice ahead of the JSON makes the body unparseable for every client
+  case "$BODY" in
+    *"Warning:"*|*"Fatal error:"*|*"Notice:"*|*"Deprecated:"*)
+      REASON="PHP diagnostic leaked into the body: $(echo "$BODY" | head -c 120)"; return 1 ;;
+  esac
+  # Absolute server paths must never reach a client
+  case "$BODY" in
+    */var/www/*) REASON="server filesystem path leaked into the body"; return 1 ;;
+  esac
+  return 0
+}
+
+# ── Test forms ───────────────────────────────────────────────
+
+# Body must contain "<key>": and must not be an error
+has_key() {
+  local label="$1" method="$2" url="$3" key="$4" data="$5" ctype="$6" accept="$7"
+  request "$method" "$url" "$data" "$ctype" "$accept"
+  if ! body_is_sane "$label"; then bad "$label" "$REASON"; return; fi
+  case "$BODY" in
+    *'"error"'*) bad "$label" "error: $(echo "$BODY" | head -c 140)"; return ;;
+  esac
+  case "$BODY" in
+    *"\"$key\""*) ok "$label  → $key" ;;
+    *) bad "$label" "no \"$key\" in: $(echo "$BODY" | head -c 140)" ;;
+  esac
+}
+
+# Body must contain an exact expected fragment — catches silently wrong output
+has_value() {
+  local label="$1" method="$2" url="$3" want="$4" data="$5" ctype="$6" accept="$7"
+  request "$method" "$url" "$data" "$ctype" "$accept"
+  if ! body_is_sane "$label"; then bad "$label" "$REASON"; return; fi
+  case "$BODY" in
+    *"$want"*) ok "$label  = $want" ;;
+    *) bad "$label" "expected [$want], got: $(echo "$BODY" | head -c 140)" ;;
+  esac
+}
+
+# For endpoints with an open upstream bug. Reports, does not fail the build,
+# and shouts if the bug ever goes away so the entry can be promoted.
+known_bug() {
+  local label="$1" method="$2" url="$3" want="$4" data="$5"
+  request "$method" "$url" "$data"
+  if body_is_sane "$label" && [ "${BODY#*$want}" != "$BODY" ]; then
+    fixed "$label"
   else
-    echo -e "${RED}✗${NC} $label (HTTP $status)"
-    FAIL=$((FAIL + 1))
+    expected "$label"
   fi
 }
 
 echo ""
 echo "============================================================"
-echo " AI SENSE AS — Free Public REST API Endpoint Tests"
+echo " AI SENSE AS — Free Public REST API"
+echo " $BASE"
 echo "============================================================"
 echo ""
 
 # ── TIME ─────────────────────────────────────────────────────
 echo -e "${YELLOW}⏱  Time${NC}"
-check "Datetime"               GET "$BASE/datetime"
-check "Datetime (with offset)" GET "$BASE/datetime/1"
-check "Timestamp"              GET "$BASE/timestamp"
-check "Microtimestamp"         GET "$BASE/microtimestamp"
-check "Timezones"              GET "$BASE/timezones"
-check "Swatch Internet Time"   GET "$BASE/swatchinternettime"
+has_key   "Datetime"                GET "$BASE/datetime"            "datetime"
+has_value "Datetime (offset +0200)" GET "$BASE/datetime/+0200"      "+02:00"
+has_value "Datetime (offset -0530)" GET "$BASE/datetime/-0530"      "-05:30"
+has_key   "Timestamp"               GET "$BASE/timestamp"           "timestamp"
+has_key   "Microtimestamp"          GET "$BASE/microtimestamp"      "microtimestamp"
+has_key   "Timezones"               GET "$BASE/timezones"           "timezones"
+has_value "Timezones (objects)"     GET "$BASE/timezones"           '{"timezone":'
+has_value "Timezones (filtered)"    GET "$BASE/timezones/+0200"     '"offset":"+0200"'
+has_key   "Swatch Internet Time"    GET "$BASE/swatchinternettime"  "beat"
+
+# An hour-only offset is not a valid route. If this ever starts working the
+# documentation is wrong, so assert the current contract explicitly.
+request GET "$BASE/datetime/1"
+case "$BODY" in
+  '["'*']["'*) ok "Datetime (offset '1') correctly unrouted" ;;
+  *) bad "Datetime (offset '1')" "now routes — API.md says only 4-digit offsets work" ;;
+esac
 echo ""
 
 # ── RANDOM ───────────────────────────────────────────────────
 echo -e "${YELLOW}🎲  Random${NC}"
-check "Random Number (default)"  GET "$BASE/random_number"
-check "Random Number (1–100)"    GET "$BASE/random_number/1/100"
-check "Random Color"             GET "$BASE/random_color"
-check "UUID"                     GET "$BASE/uuid"
-check "GUID"                     GET "$BASE/guid"
+has_key   "Random Number"           GET "$BASE/random_number"       "random_number"
+has_value "Random Number (range)"   GET "$BASE/random_number/1/100" '"range":{"from":1,"to":100}'
+has_value "Random Number (single)"  GET "$BASE/random_number/30"    '"to":30'
+has_key   "Random Color"            GET "$BASE/random_color"        "random_color"
+
+# Shape, not just presence. dechex() without padding returned "#111d1" for any
+# value below 0x100000 — a key with a plausible-looking but invalid value, which
+# is precisely the failure a has_key check waves through.
+#
+# This one has to be sampled, and sampling is probabilistic: the bad branch is
+# hit on 1/16 of draws, so N samples miss a live bug with probability
+# (15/16)^N. At 48 that is about 4.5%; at 20 it would be 27%, which is too
+# likely to wave a regression through. Raise COLOR_SAMPLES if that is still not
+# tight enough for your CI.
+COLOR_SAMPLES=48
+COLOR_BAD=0
+for _ in $(seq 1 "$COLOR_SAMPLES"); do
+  request GET "$BASE/random_color"
+  C=$(echo "$BODY" | grep -o '"random_color":"#[0-9a-fA-F]*"' | grep -o '#[0-9a-fA-F]*')
+  case "$C" in
+    '#'??????) : ;;
+    *) COLOR_BAD=$((COLOR_BAD + 1)); LAST_BAD="$C" ;;
+  esac
+done
+if [ "$COLOR_BAD" -eq 0 ]; then
+  ok "Random Color (6 hex digits, $COLOR_SAMPLES samples)"
+else
+  bad "Random Color (6 hex digits)" "$COLOR_BAD of $COLOR_SAMPLES malformed, e.g. [$LAST_BAD] — dechex() is not zero-padding"
+fi
+has_key   "UUID"                    GET "$BASE/uuid"                "uuid"
+has_key   "GUID"                    GET "$BASE/guid"                "guid"
+has_key   "Password"                GET "$BASE/password"            "password"
+has_value "Password (length 16)"    GET "$BASE/password/16"         '"password_length":16'
 echo ""
 
 # ── TRANSFORM ────────────────────────────────────────────────
 echo -e "${YELLOW}🔄  Transform${NC}"
-check "Base64 Encode"   POST "$BASE/base64_encode"  '{"data":"Hello, world!"}'
-check "Base64 Decode"   POST "$BASE/base64_decode"  '{"data":"SGVsbG8sIHdvcmxkIQ=="}'
-check "Base58 Encode"   POST "$BASE/base58_encode"  '{"data":"Hello"}'
-check "Base58 Decode"   POST "$BASE/base58_decode"  '{"data":"9Ajdvzr"}'
-check "Base32 Encode"   POST "$BASE/base32_encode"  '{"data":"Hello"}'
-check "Base32 Decode"   POST "$BASE/base32_decode"  '{"data":"JBSWY3DP"}'
-check "JWT Encode"      POST "$BASE/jwt_encode"     '{"data":{"user":"test"},"secret":"mysecret"}'
-check "JWT Decode"      POST "$BASE/jwt_decode"     '{"data":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidGVzdCJ9.4oHDP2OHjcBwO-OiCg8ILaGC8DUjOmMJN5mQ8xR1yUo","secret":"mysecret"}'
-check "QR Code Encode"  POST "$BASE/qrcode_encode"  '{"data":"https://example.com"}'
+has_value "Base64 Encode" POST "$BASE/base64_encode" '"base64_encoded_data":"SGVsbG8gd29ybGQ="' '{"data":"Hello world"}'
+has_value "Base64 Decode" POST "$BASE/base64_decode" 'Hello world'                              '{"data":"SGVsbG8gd29ybGQ="}'
+has_value "Base64 Decode (Accept json)" POST "$BASE/base64_decode" '"type":"json"' '{"data":"eyJrZXkiOiJ2YWx1ZSJ9"}' "application/json" "application/json"
+has_value "Base58 Encode" POST "$BASE/base58_encode" '"base58_encoded_data":"9Ajdvzr"'          '{"data":"Hello"}'
+has_value "Base58 Decode" POST "$BASE/base58_decode" 'Hello'                                    '{"data":"9Ajdvzr"}'
+has_value "Base32 Encode" POST "$BASE/base32_encode" '"base32_encoded_data":"JBSWY3DP"'         '{"data":"Hello"}'
+has_value "Base32 Decode" POST "$BASE/base32_decode" 'Hello'                                    '{"data":"JBSWY3DP"}'
+
+# jwt_encode requires data to be a STRING. Assert the rejection too, because a
+# client passing an object is the single most common mistake against this API.
+has_key   "JWT Encode"          POST "$BASE/jwt_encode" "jwt"             '{"data":"{\"user\":\"alice\"}","secret":"s3cret"}'
+has_value "JWT Encode (rejects object)" POST "$BASE/jwt_encode" "Expected a string" '{"data":{"user":"alice"},"secret":"s3cret"}'
+has_value "JWT Decode"          POST "$BASE/jwt_decode" '"decoded_payload"' '{"data":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.JkljdqTAf6ecEkEDPjNjlzj-sddlArcJogtn-ajE29E","secret":"s3cret"}'
+
+has_key   "QR Encode"           POST "$BASE/qrcode_encode" "qrcode_image" '{"payload":"https://aisenseapi.com/"}'
+has_value "QR Encode (image_type)" POST "$BASE/qrcode_encode" '"image_type":"png"' '{"payload":"test"}'
+has_value "QR Encode (rejects data field)" POST "$BASE/qrcode_encode" "No payload" '{"data":"test"}'
+echo ""
+
+# ── QR ROUND TRIP ────────────────────────────────────────────
+# Encoding can succeed and still produce an unscannable image. Only a decode
+# proves the Reed-Solomon output is intact.
+echo -e "${YELLOW}🔁  QR round trip${NC}"
+request POST "$BASE/qrcode_encode" '{"payload":"https://aisenseapi.com/"}'
+if body_is_sane "QR round trip"; then
+  IMG=$(echo "$BODY" | grep -o '"qrcode_image":"[^"]*"' | sed 's/"qrcode_image":"//; s/"$//' | tr -d '\\')
+  if [ -n "$IMG" ]; then
+    printf '{"payload":"%s"}' "$IMG" > /tmp/aisense-qr-rt.json
+    request POST "$BASE/qrcode_decode" "@/tmp/aisense-qr-rt.json"
+    RT=$(curl -s -m 30 -X POST "$BASE/qrcode_decode" -H 'Content-Type: application/json' -d @/tmp/aisense-qr-rt.json | tr -d '\\')
+    case "$RT" in
+      *"https://aisenseapi.com/"*) ok "QR round trip  encode → decode preserves content" ;;
+      *) bad "QR round trip" "decoded to: $(echo "$RT" | head -c 140)" ;;
+    esac
+    rm -f /tmp/aisense-qr-rt.json
+  else
+    bad "QR round trip" "no qrcode_image in encode response"
+  fi
+else
+  bad "QR round trip" "$REASON"
+fi
 echo ""
 
 # ── HASH ─────────────────────────────────────────────────────
+# Exact digests. A hash endpoint that returns the right key with the wrong
+# value is worse than one that is plainly down.
 echo -e "${YELLOW}🔐  Hash${NC}"
-check "MD5"    POST "$BASE/md5_hash"       '{"data":"Hello"}'
-check "SHA1"   POST "$BASE/sha1_hash"      '{"data":"Hello"}'
-check "SHA256" POST "$BASE/sha256_hash"    '{"data":"Hello"}'
-check "SHA512" POST "$BASE/sha512_hash"    '{"data":"Hello"}'
-check "CRC32"  POST "$BASE/crc32_checksum" '{"data":"Hello"}'
+has_value "MD5"    POST "$BASE/md5_hash"       '"md5_hash":"8b1a9953c4611296a827abf8c47804d7"' '{"data":"Hello"}'
+has_value "SHA1"   POST "$BASE/sha1_hash"      '"sha1_hash":"f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0"' '{"data":"Hello"}'
+has_value "SHA256" POST "$BASE/sha256_hash"    '"sha256_hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"' '{"data":"Hello"}'
+has_key   "SHA512" POST "$BASE/sha512_hash"    "sha512_hash" '{"data":"Hello"}'
+has_value "CRC32"  POST "$BASE/crc32_checksum" '"crc32_checksum":4157704578' '{"data":"Hello"}'
+has_value "SHA256 (text/plain)" POST "$BASE/sha256_hash" '"sha256_hash":"185f8db3' 'Hello' 'text/plain'
 echo ""
 
 # ── WEB ──────────────────────────────────────────────────────
 echo -e "${YELLOW}🌐  Web${NC}"
-check "Ping"       GET "$BASE/ping"
-check "Health"     GET "$BASE/health"
-check "Client IP"  GET "$BASE/client_ip"
-check "User Agent" GET "$BASE/user_agent"
-check "IP Lookup"  GET "$BASE/ip_reverse_lookup/8.8.8.8"
+has_value "Ping"       GET "$BASE/ping"          '"ping":"pong"'
+has_value "Health"     GET "$BASE/health"        '"status":"ok"'
+has_key   "Health (microtimestamp)" GET "$BASE/health" "microtimestamp"
+has_key   "Client IP"  GET "$BASE/client_ip"     "ip"
+has_key   "User Agent" GET "$BASE/user_agent"    "user_agent"
+has_value "IP Lookup"  GET "$BASE/ip_reverse_lookup/8.8.8.8" '"country":"United States"'
+has_key   "Domain Lookup" GET "$BASE/domain_ip_lookup/example.com" "ip"
+echo ""
 
-# Storage: store then retrieve
-echo -ne "  Testing Storage (store)... "
-store_response=$(curl -s -X POST "$BASE/storage" \
-  -H "Content-Type: application/json" \
-  -d '{"data":{"test":"skill-test"}}')
-store_uuid=$(echo "$store_response" | grep -o '"storage_id":"[^"]*"' | cut -d'"' -f4)
-if [ -n "$store_uuid" ]; then
-  echo -e "${GREEN}✓${NC} got UUID: $store_uuid"
-  PASS=$((PASS + 1))
-  check "Storage (retrieve)" GET "$BASE/storage/$store_uuid"
+# ── STORAGE ROUND TRIP ───────────────────────────────────────
+echo -e "${YELLOW}🗄  Storage round trip${NC}"
+MARKER="test-$(date +%s)-$$"
+request POST "$BASE/storage" "{\"marker\":\"$MARKER\"}"
+SID=$(echo "$BODY" | grep -o '"storage_id":"[^"]*"' | cut -d'"' -f4)
+if [ -n "$SID" ]; then
+  ok "Storage (store)  → $SID"
+  # The body is stored verbatim, so the marker must come back unwrapped.
+  has_value "Storage (retrieve)" GET "$BASE/storage/$SID" "\"marker\":\"$MARKER\""
+  has_value "Storage (unknown id)" GET "$BASE/storage/00000000-0000-4000-8000-000000000000" "Storage id unknown"
 else
-  echo -e "${RED}✗${NC} no UUID returned"
-  FAIL=$((FAIL + 1))
+  bad "Storage (store)" "no storage_id in: $(echo "$BODY" | head -c 140)"
 fi
+echo ""
 
-# URL Shortener
-check "URL Shortener" GET "$BASE/url_shortener/https://example.com"
+# ── URL SHORTENER ────────────────────────────────────────────
+echo -e "${YELLOW}🔗  URL shortener${NC}"
+has_key "URL Shortener" GET "$BASE/url_shortener/https://example.com/some/long/path" "short_url"
+echo ""
 
-# Webhook Capture: init → update → read
-echo -ne "  Testing Webhook Capture (init)... "
-capture_response=$(curl -s -X POST "$BASE/webhook_capture")
-capture_id=$(echo "$capture_response" | grep -o '"capture_id":"[^"]*"' | cut -d'"' -f4)
-if [ -n "$capture_id" ]; then
-  echo -e "${GREEN}✓${NC} got capture_id: $capture_id"
-  PASS=$((PASS + 1))
-  check "Webhook Capture (update)" POST "$BASE/webhook_capture/$capture_id/update" '{"event":"test"}'
-  check "Webhook Capture (read)"   GET  "$BASE/webhook_capture/$capture_id"
+# ── WEBHOOK CAPTURE ROUND TRIP ───────────────────────────────
+echo -e "${YELLOW}📡  Webhook capture round trip${NC}"
+request POST "$BASE/webhook_capture" '{}'
+CID=$(echo "$BODY" | grep -o '"capture_id":"[^"]*"' | cut -d'"' -f4)
+if [ -n "$CID" ]; then
+  ok "Webhook Capture (create)  → $CID"
+  curl -s -m 30 -o /dev/null -X POST "$BASE/webhook_capture/$CID/update" \
+    -H 'Content-Type: application/json' -d "{\"marker\":\"$MARKER\"}"
+  # The captured body must actually contain what we sent.
+  has_value "Webhook Capture (read back)" GET "$BASE/webhook_capture/$CID" "$MARKER"
 else
-  echo -e "${RED}✗${NC} no capture_id returned"
-  FAIL=$((FAIL + 1))
+  bad "Webhook Capture (create)" "no capture_id in: $(echo "$BODY" | head -c 140)"
 fi
+echo ""
 
-# Webhook Action: init only (human touch required to complete)
-check "Webhook Action (init)" POST "$BASE/webhook_action" \
-  '{"title":"Test action","fields":[{"type":"radio","name":"choice","label":"Pick one","options":["Yes","No"]}]}'
+# ── WEBHOOK ACTION ───────────────────────────────────────────
+echo -e "${YELLOW}📝  Webhook action${NC}"
+request POST "$BASE/webhook_action" \
+  '{"title":"Smoke test","fields":[{"type":"radio","name":"c","label":"Pick","options":[{"value":"y","label":"Yes"}]}]}'
+AID=$(echo "$BODY" | grep -o '"action_id":"[^"]*"' | cut -d'"' -f4)
+if [ -n "$AID" ]; then
+  ok "Webhook Action (create)  → $AID"
+  has_value "Webhook Action (pending)" GET "$BASE/webhook_action/$AID" '"status":"pending"'
+  # The form is HTML, not JSON — the only endpoint here that is.
+  FORM_TYPE=$(curl -s -m 30 -o /dev/null -w '%{content_type}' "$BASE/webhook_action/$AID/form")
+  case "$FORM_TYPE" in
+    text/html*) ok "Webhook Action (form is HTML)" ;;
+    *) bad "Webhook Action (form)" "content-type was $FORM_TYPE" ;;
+  esac
+else
+  bad "Webhook Action (create)" "no action_id in: $(echo "$BODY" | head -c 140)"
+fi
 echo ""
 
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
-check "Solana Wallet"   GET "$BASE/solana/generate_new_wallet"
-check "Bitcoin Wallet"  GET "$BASE/bitcoin/generate_new_wallet"
-check "Ethereum Wallet" GET "$BASE/ethereum/generate_new_wallet"
+has_key   "Solana Wallet"   GET "$BASE/solana/generate_new_wallet"   "public_address"
+has_key   "Bitcoin Wallet"  GET "$BASE/bitcoin/generate_new_wallet"  "private_key_wif"
+has_value "Bitcoin Wallet (public_address, not address)" GET "$BASE/bitcoin/generate_new_wallet" '"public_address"'
+has_key   "Ethereum Wallet" GET "$BASE/ethereum/generate_new_wallet" "public_address"
+has_key   "Bitcoin Balance"  GET "$BASE/bitcoin/balance/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"  "final_balance_btc"
+has_key   "Solana Balance"   GET "$BASE/solana/balance/So11111111111111111111111111111111111111112" "balance_sol"
+has_key   "Ethereum Balance" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" "balance_wei"
+# Wei must be a string — a JSON number loses precision above 2^53 in JS clients.
+has_value "Ethereum Balance (wei is a string)" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" '"balance_wei":"'
+echo ""
+
+# ── SERVICE-WIDE CONTRACTS ───────────────────────────────────
+echo -e "${YELLOW}📋  Service-wide contracts${NC}"
+# Document the unknown-path behaviour rather than pretending it is a 404.
+request GET "$BASE/this_endpoint_does_not_exist"
+case "$BODY" in
+  '["'*']["'*) expected "Unknown path returns 200 + debug echo instead of 404" ;;
+  *) fixed "Unknown path no longer returns the debug echo" ;;
+esac
 echo ""
 
 # ── SUMMARY ──────────────────────────────────────────────────
 TOTAL=$((PASS + FAIL))
 echo "============================================================"
-echo -e " Results: ${GREEN}$PASS passed${NC} / ${RED}$FAIL failed${NC} / $TOTAL total"
+echo -e " ${GREEN}$PASS passed${NC} / ${RED}$FAIL failed${NC} / $TOTAL asserted"
+[ "$XFAIL" -gt 0 ] && echo -e " ${BLUE}$XFAIL known bug(s)${NC} reported, not counted as failures"
+[ "$FIXED" -gt 0 ] && echo -e " ${GREEN}$FIXED known bug(s) now FIXED${NC} — promote them to real assertions"
 echo "============================================================"
 echo ""
 
-if [ "$FAIL" -gt 0 ]; then
-  exit 1
-fi
+[ "$FAIL" -gt 0 ] && exit 1
+exit 0
