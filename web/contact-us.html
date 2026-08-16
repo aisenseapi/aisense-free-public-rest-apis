@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Contact Us - AISENSE - FREE PUBLIC API SERVICES</title>
+<meta name="description" content="Contact AI SENSE AS in Oslo, Norway for questions about our free public REST APIs, custom API development, or the AI data feed service. Email support@aisense.no.">
+<link rel="canonical" href="https://aisense.no/contact-us">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Contact Us — AI SENSE">
+<meta property="og:description" content="Questions, tips and registrations: support@aisense.no. AI SENSE AS, Oslo, Norway.">
+<meta property="og:url" content="https://aisense.no/contact-us">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ContactPage",
+      "url": "https://aisense.no/contact-us",
+      "name": "Contact AI SENSE",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Organization",
+      "name": "AI SENSE AS",
+      "url": "https://aisense.no",
+      "email": "support@aisense.no",
+      "vatID": "NO 922 601 151 MVA",
+      "address": {
+        "@type": "PostalAddress",
+        "postOfficeBoxNumber": "Postboks 1202 Vika",
+        "postalCode": "0110",
+        "addressLocality": "Oslo",
+        "addressCountry": "NO"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "support@aisense.no",
+        "availableLanguage": ["en", "no"]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Contact Us", "item": "https://aisense.no/contact-us" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us" aria-current="page">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h1>Contact Us</h1>
+  <p class="lede">Questions, tips and registrations — get in touch and we will come back to you.</p>
+</div>
+
+<h2 id="email">Email</h2>
+<p style="font-size:22px"><a href="mailto:support@aisense.no">support@aisense.no</a></p>
+
+<!--
+  The WordPress original carried a Contact Form 7 form here. These pages are
+  static files with no backend, so a form would render, submit, and silently
+  discard the message — worse than no form at all.
+
+  If you want the form back, it needs something to post to. Three options, in
+  increasing order of effort:
+
+    1. Keep /contact-us on WordPress and deploy only the documentation pages
+       here. Simplest, and nothing changes for the visitor.
+    2. Post to your own /services/v1/webhook_capture — create a session, point
+       the form at its update_url, and read submissions back. Note the 24-hour
+       expiry, so something has to poll it.
+    3. Any hosted form endpoint, or a small handler alongside the API.
+
+  Until then this page shows the address plainly, which is what the original
+  told people to use anyway.
+-->
+
+<h2 id="address">Postal address</h2>
+<address style="font-style:normal;line-height:1.8">
+  <strong>AI SENSE AS</strong><br>
+  Postboks 1202 Vika<br>
+  0110 Oslo<br>
+  Norway
+</address>
+
+<p>Org.nr: NO 922 601 151 MVA</p>
+
+<h2 id="what-we-can-help-with">What we can help with</h2>
+
+<h3>Free public REST APIs</h3>
+<p>The <a href="/free-public-apis">free endpoints</a> need no account and no key, so most questions are answered by the documentation. If something returns an unexpected shape, tell us the endpoint and what you sent — the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">open source repository</a> also takes issues.</p>
+
+<h3>Custom APIs</h3>
+<p>Tell us what you need to connect and what the data has to do once it arrives. See <a href="/custom-apis">Custom APIs</a> for the categories we already work in.</p>
+
+<h3>AI data feed</h3>
+<p>Publishing your content so AI systems can read it: see <a href="/make-your-data-available-for-ai">Make your data available for AI</a>.</p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright &copy; 2025 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>
