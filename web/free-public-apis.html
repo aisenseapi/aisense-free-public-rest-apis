@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free public REST APIs - AISENSE - FREE PUBLIC API SERVICES</title>
+<meta name="description" content="Free public REST APIs with no API key and no sign-up: datetime, timestamp, UUID, random numbers and passwords, Base64/Base58/Base32, JWT, QR codes, MD5/SHA hashing, IP geolocation, temporary storage, URL shortening, webhook capture and human-in-the-loop webhook actions, plus Solana, Bitcoin and Ethereum wallets. Verified request and response formats for every endpoint.">
+<link rel="canonical" href="https://aisense.no/free-public-apis">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free public REST APIs — AI SENSE">
+<meta property="og:description" content="No API key, no sign-up. Time, random, encoding, hashing, web utilities, webhooks and crypto endpoints — with the exact response format for each one.">
+<meta property="og:url" content="https://aisense.no/free-public-apis">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Free public REST APIs",
+      "description": "Reference documentation for the free public REST APIs provided by AI SENSE AS. No authentication required.",
+      "url": "https://aisense.no/free-public-apis",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      }
+    },
+    {
+      "@type": "WebAPI",
+      "name": "AI SENSE Free Public REST APIs",
+      "description": "Utility REST endpoints for time, randomness, encoding, hashing, web lookups, webhooks and crypto wallets. No authentication.",
+      "documentation": "https://aisense.no/free-public-apis",
+      "termsOfService": "https://aisense.no/terms",
+      "provider": { "@type": "Organization", "name": "AI SENSE AS" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Free public REST APIs", "item": "https://aisense.no/free-public-apis" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis" aria-current="page">Free public REST APIs</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h1>Free Public REST APIs</h1>
+  <p class="lede">Utility endpoints for time, randomness, encoding, hashing, web lookups, webhooks and crypto — with no API key, no sign-up and no cost. Drop a URL into curl, Python, JavaScript or an LLM tool definition and it works.</p>
+  <ul class="badges">
+    <li>No authentication</li>
+    <li>No sign-up</li>
+    <li>Free</li>
+    <li>5000 requests / IP / 24h</li>
+    <li>CORS enabled</li>
+  </ul>
+  <p><strong>Base URL:</strong> <code>https://aisenseapi.com/services/v1</code> &middot; Open source client libraries and tests: <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a></p>
+</div>
+
+<nav aria-labelledby="categories-heading">
+  <h2 id="categories-heading">API Categories</h2>
+  <ul class="categories">
+    <li><a href="#time">Time</a></li>
+    <li><a href="#random">Random</a></li>
+    <li><a href="#transform">Transform</a></li>
+    <li><a href="#hash">Hash</a></li>
+    <li><a href="#web">Web</a></li>
+    <li><a href="#crypto">Crypto</a></li>
+  </ul>
+</nav>
+
+<section class="callout" aria-labelledby="before-you-start">
+  <h2 id="before-you-start">Before you write a client</h2>
+  <p>Four service-wide behaviours decide how your error handling has to look. Every response format on this page was verified by calling the live service.</p>
+  <dl>
+    <dt>The response key is named after the endpoint.</dt>
+    <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
+
+    <dt>Most failures arrive as HTTP 200.</dt>
+    <dd>A bad request usually returns <code>{"error": "…"}</code> with a 200 status. Branch on the presence of an <code>error</code> key, not on the status code.</dd>
+
+    <dt>Unknown paths do not return 404.</dt>
+    <dd>A path matching no route answers 200 with a body that is not parseable JSON. If your client throws a JSON parse error, check the URL before anything else.</dd>
+
+    <dt>Not everything is JSON.</dt>
+    <dd>The three decoders return <code>application/octet-stream</code> unless you send <code>Accept: application/json</code>.</dd>
+  </dl>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ TIME ══ -->
+<section id="time" aria-labelledby="time-heading">
+<h2 id="time-heading">Time</h2>
+
+<article class="endpoint">
+<h3>Datetime REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/datetime[/{offset}]</span></p>
+<p>Current date and time in ISO 8601. The optional offset is a <strong>four-digit</strong> UTC offset with an optional sign — <code>+0200</code>, <code>-0530</code> or <code>0100</code>. An hour-only value such as <code>1</code> is not a valid route.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/datetime/+0200
+
+{ "datetime": "2026-08-16T11:44:35+02:00" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Timestamp REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/timestamp</span></p>
+<p>Current Unix timestamp in seconds. Response key: <span class="key">timestamp</span>.</p>
+<pre><code>{ "timestamp": 1786873261 }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Microtimestamp REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/microtimestamp</span></p>
+<p>Unix timestamp with microsecond precision. Response key: <span class="key">microtimestamp</span>.</p>
+<pre><code>{ "microtimestamp": 1786873474.745043 }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Timezones REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/timezones[/{offset}]</span></p>
+<p>All available timezones, optionally filtered by a four-digit offset. The list contains <strong>objects, not strings</strong>.</p>
+<pre><code>{
+  "timezones": [
+    { "timezone": "Africa/Abidjan",  "offset": "+0000" },
+    { "timezone": "Africa/Blantyre", "offset": "+0200" }
+  ]
+}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Swatchinternettime REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/swatchinternettime</span></p>
+<p>Swatch Internet Time. The day is divided into 1000 .beats of 86.4 seconds each, based on Biel Meantime, with no time zones. <code>beat</code> is a string with a leading <code>@</code>, not a number.</p>
+<pre><code>{ "beat": "@444", "date": "2026-08-16" }</code></pre>
+</article>
+</section>
+
+<!-- ════════════════════════════════════════════════════════ RANDOM ══ -->
+<section id="random" aria-labelledby="random-heading">
+<h2 id="random-heading">Random</h2>
+
+<article class="endpoint">
+<h3>Random Number REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/random_number[/{from}[/{to}]]</span></p>
+<p>Random integer, inclusive of both bounds. No arguments gives 1–6. A <strong>single</strong> argument is treated as the upper bound with the lower bound fixed at 1.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/random_number/1/100
+
+{ "random_number": 73, "range": { "from": 1, "to": 100 } }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Random Color REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/random_color</span></p>
+<p>Random hex colour, always six digits. Response key: <span class="key">random_color</span>.</p>
+<pre><code>{ "random_color": "#9b6bbf" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>UUID REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/uuid</span></p>
+<p>Generate a UUID version 4. Response key: <span class="key">uuid</span>.</p>
+<pre><code>{ "uuid": "429151ee-82a1-4438-b2f1-b6b9c9e4a41f" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>GUID REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/guid</span></p>
+<p>Generate a GUID. Response key: <span class="key">guid</span>.</p>
+<pre><code>{ "guid": "750dd9a6-a507-4a89-b4ec-8cd71fc115b7" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Password REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/password[/{length}]</span></p>
+<p>Random password including punctuation, twelve characters by default.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/password/16
+
+{ "password": "jFehS]AKGx9wl[jp", "password_length": 16 }</code></pre>
+</article>
+</section>
+
+<!-- ═════════════════════════════════════════════════════ TRANSFORM ══ -->
+<section id="transform" aria-labelledby="transform-heading">
+<h2 id="transform-heading">Transform</h2>
+
+<p>All Transform endpoints are <code>POST</code> and accept JSON, plain text with <code>Content-Type: text/plain</code>, or a file upload.</p>
+
+<article class="endpoint">
+<h3>Base64 Encode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base64_encode</span></p>
+<pre><code>{ "data": "Hello world" }
+
+{ "base64_encoded_data": "SGVsbG8gd29ybGQ=" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Base64 Decode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base64_decode</span></p>
+<p>Returns the decoded bytes as <code>application/octet-stream</code> — the payload and nothing else. Send <code>Accept: application/json</code> to get a typed envelope instead.</p>
+<pre><code># default: raw bytes
+{ "data": "SGVsbG8gd29ybGQ=" }   →   Hello world
+
+# with Accept: application/json
+{ "data": "eyJrZXkiOiJ2YWx1ZSJ9" }
+→ { "type": "json", "decoded_data": { "key": "value" } }
+
+# non-JSON content, with Accept: application/json
+→ { "type": "binary", "encoding": "base64", "decoded_data": "iVBORw0KGgo…" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Base58 Encode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base58_encode</span></p>
+<pre><code>{ "data": "Hello" }   →   { "base58_encoded_data": "9Ajdvzr" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Base58 Decode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base58_decode</span></p>
+<p>Same <code>Accept</code> behaviour as Base64 Decode. An invalid Base58 character returns HTTP 400 with <code>{"error": "Invalid Base58 input."}</code>.</p>
+<pre><code>{ "data": "9Ajdvzr" }   →   Hello</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Base32 Encode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base32_encode</span></p>
+<pre><code>{ "data": "Hello" }   →   { "base32_encoded_data": "JBSWY3DP" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Base32 Decode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/base32_decode</span></p>
+<p>Same <code>Accept</code> behaviour as Base64 Decode.</p>
+<pre><code>{ "data": "JBSWY3DP" }   →   Hello</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>JWT Encode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/jwt_encode</span></p>
+<p>Encodes a payload into an HS256 JSON Web Token. <strong><code>data</code> must be a string.</strong> Passing a JSON object returns <code>{"error": "Invalid data provided. Expected a string."}</code> — serialise the payload first.</p>
+<pre><code>{ "data": "{\"user\":\"alice\"}", "secret": "your_secret_key" }
+
+{ "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ…" }</code></pre>
+<p>Also accepts plain text with an <code>X-Secret</code> header, or a file upload in a <code>jwt_data</code> field.</p>
+</article>
+
+<article class="endpoint">
+<h3>JWT Decode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/jwt_decode</span></p>
+<pre><code>{ "data": "eyJ0eXAiOiJKV1Qi…", "secret": "your_secret_key" }
+
+{ "decoded_payload": { "user": "alice" } }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>QR Code Encode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/qrcode_encode</span></p>
+<p>Generates a QR code as a Base64 PNG. Encodes URLs, plain text, vCards, Wi-Fi credentials and calendar events. <strong>The request field is <code>payload</code>, not <code>data</code>.</strong></p>
+<pre><code>{ "payload": "https://aisenseapi.com/" }
+
+{ "qrcode_image": "iVBORw0KGgoAAAANSUhEUg…", "image_type": "png" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>QR Code Decode REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/qrcode_decode</span></p>
+<p>Accepts a Base64 image in the <code>payload</code> field, or a file upload in a <code>qrcode_image</code> field.</p>
+<pre><code>{ "payload": "iVBORw0KGgoAAAANSUhEUg…" }
+
+{ "qrcode_content": "https://aisenseapi.com/" }</code></pre>
+</article>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ HASH ══ -->
+<section id="hash" aria-labelledby="hash-heading">
+<h2 id="hash-heading">Hash</h2>
+
+<p>All hash endpoints are <code>POST</code> and accept JSON, plain text or a file upload. <strong>Each returns a key named after the algorithm — never <code>hash</code>.</strong></p>
+
+<div class="table-wrap">
+<table>
+<caption class="visually-hidden">Hash endpoints, response keys and example digests</caption>
+<thead>
+<tr><th scope="col">Endpoint</th><th scope="col">Response key</th><th scope="col">Digest of <code>"Hello"</code></th></tr>
+</thead>
+<tbody>
+<tr><td><code>/md5_hash</code></td><td><code>md5_hash</code></td><td><code>8b1a9953c4611296a827abf8c47804d7</code></td></tr>
+<tr><td><code>/sha1_hash</code></td><td><code>sha1_hash</code></td><td><code>f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0</code></td></tr>
+<tr><td><code>/sha256_hash</code></td><td><code>sha256_hash</code></td><td><code>185f8db32271fe25f561a6fc938b2e26…</code></td></tr>
+<tr><td><code>/sha512_hash</code></td><td><code>sha512_hash</code></td><td><code>3615f80c9d293ed7402687f94b22d58e…</code></td></tr>
+<tr><td><code>/crc32_checksum</code></td><td><code>crc32_checksum</code></td><td><code>4157704578</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<article class="endpoint">
+<h3>MD5, SHA1, SHA256 and SHA512 Hash REST API Endpoints</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/md5_hash · /sha1_hash · /sha256_hash · /sha512_hash</span></p>
+<pre><code>curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
+  -H "Content-Type: application/json" -d '{"data": "Hello"}'
+
+{ "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>CRC32 Checksum REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/crc32_checksum</span></p>
+<p>Returns an <strong>integer</strong>, not a hex string.</p>
+<pre><code>{ "data": "Hello" }   →   { "crc32_checksum": 4157704578 }</code></pre>
+</article>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ WEB ══ -->
+<section id="web" aria-labelledby="web-heading">
+<h2 id="web-heading">Web</h2>
+
+<article class="endpoint">
+<h3>Ping REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/ping</span></p>
+<p>Connectivity check. Response key: <span class="key">ping</span>.</p>
+<pre><code>{ "ping": "pong" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Health REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/health</span></p>
+<p>Service health with a high-precision timestamp. The second key is <span class="key">microtimestamp</span>, not <code>timestamp</code>.</p>
+<pre><code>{ "status": "ok", "microtimestamp": 1786873258.589068 }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Client IP REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/client_ip</span></p>
+<p>The public IP address of the caller.</p>
+<pre><code>{ "ip": "203.0.113.42" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>User Agent REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/user_agent</span></p>
+<pre><code>{ "user_agent": "curl/8.5.0" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>IP Reverse Lookup REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/ip_reverse_lookup/{ip}</span></p>
+<p>Geolocates an IP address. <code>city</code> and <code>place</code> are frequently <code>null</code>, and the coordinates fall back to the country centroid when the city is unknown. Latitude and longitude are strings.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/ip_reverse_lookup/8.8.8.8
+
+{
+  "ip": "8.8.8.8",
+  "country": "United States",
+  "city": null,
+  "location": { "lat": "37.751000", "lng": "-97.822000" },
+  "place": null,
+  "timezone": "America/Chicago"
+}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Domain IP Lookup REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/domain_ip_lookup/{domain}</span></p>
+<pre><code>{ "domain": "example.com", "ip": "104.20.23.154" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Storage REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/storage</span> &nbsp;·&nbsp; <span class="method">GET</span> <span class="path">/storage/{storage_id}</span></p>
+<p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere — another machine, a later pipeline step, a different agent call. No database and no credentials.</p>
+<p>The body is stored <strong>verbatim</strong>: whatever you send is exactly what comes back, with no wrapper added or removed. Everything expires after 24 hours.</p>
+<pre><code>curl -X POST https://aisenseapi.com/services/v1/storage \
+  -H "Content-Type: application/json" -d '{"result": 42}'
+
+{ "storage_id": "123e4567-e89b-12d3-a456-426614174000", "expire_timestamp": 1738457158 }
+
+curl https://aisenseapi.com/services/v1/storage/123e4567-e89b-12d3-a456-426614174000
+→ {"result": 42}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>URL Shortener REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/url_shortener/{url}</span></p>
+<p>The target URL goes inline in the path. Links expire after 24 hours.</p>
+<pre><code>curl "https://aisenseapi.com/services/v1/url_shortener/https://example.com/some/long/path"
+
+{ "short_url": "https://307.fi/KtNshX2B", "expire_timestamp": 1786959715 }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Webhook Capture REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/webhook_capture</span> &nbsp;·&nbsp; <span class="method">GET</span> <span class="path">/webhook_capture/{capture_id}</span></p>
+<p>Create a capture session, get a unique URL, point any external service at it — Stripe, GitHub, Shopify — and read back the full inbound request: method, headers, query parameters, client IP and parsed body. No ngrok, no local tunnel, no server. Expires after 24 hours.</p>
+<pre><code># 1. create
+curl -X POST https://aisenseapi.com/services/v1/webhook_capture
+{ "ok": true, "capture_id": "6f8c9e52-…", "update_url": "…/update", "read_url": "…", "expire_timestamp": … }
+
+# 2. point any HTTP method at update_url
+
+# 3. read it back
+{
+  "ok": true,
+  "capture_id": "6f8c9e52-…",
+  "captured_at_datetime": "2026-08-16T09:41:56Z",
+  "request": {
+    "method": "POST",
+    "headers": { "content-type": "application/json" },
+    "client_ip": "203.0.113.10",
+    "body": { "json": { "event": "payment.created" }, "text": null, "base64": null, "raw_length": 28 }
+  }
+}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Webhook Action REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/webhook_action</span> &nbsp;·&nbsp; <span class="method">GET</span> <span class="path">/webhook_action/{action_id}</span></p>
+<p>Human-in-the-loop for automated pipelines. When a process needs a person to decide before it continues, this handles the whole pattern with no backend of your own: post a form definition, send the resulting <code>form_url</code> to a human, and poll <code>result_url</code> until <code>status</code> becomes <code>answered</code>.</p>
+<p>Field types are <code>radio</code>, <code>select</code>, <code>text</code>, <code>textarea</code> and <code>checkbox</code>. <code>options</code> accepts plain strings or <code>{"value": …, "label": …}</code> objects. Expires after 24 hours.</p>
+<pre><code>{
+  "title": "Approve deployment to production?",
+  "fields": [
+    { "type": "radio", "name": "decision", "label": "Decision", "required": true,
+      "options": [ { "value": "approve", "label": "Approve" },
+                   { "value": "reject",  "label": "Reject"  } ] },
+    { "type": "textarea", "name": "comment", "label": "Notes" }
+  ]
+}
+
+{ "ok": true, "action_id": "9e0e6d3b-…", "form_url": "…/form", "result_url": "…",
+  "expire_timestamp": …, "expire_datetime": "2026-08-17T09:45:12Z" }</code></pre>
+<pre><code># poll the result
+{ "ok": true, "action_id": "9e0e6d3b-…", "status": "answered",
+  "answered_at_datetime": "2026-08-16T15:13:20Z",
+  "response": { "decision": "approve", "comment": "Looks good" } }</code></pre>
+</article>
+</section>
+
+<!-- ════════════════════════════════════════════════════════ CRYPTO ══ -->
+<section id="crypto" aria-labelledby="crypto-heading">
+<h2 id="crypto-heading">Crypto</h2>
+
+<div class="warning">
+  <p><strong>Wallet generation is for development and testing only.</strong> A private key produced by a public HTTP endpoint has crossed a network you do not control. Never fund a wallet generated this way.</p>
+</div>
+
+<article class="endpoint">
+<h3>Solana Generate New Wallet REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/solana/generate_new_wallet</span></p>
+<pre><code>{ "private_key": "…", "public_address": "…" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Bitcoin Generate New Wallet REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/bitcoin/generate_new_wallet</span></p>
+<p>Follows Bitcoin's secp256k1 standard, with the private key in hexadecimal and WIF form.</p>
+<pre><code>{ "private_key": "…", "private_key_wif": "…", "public_address": "…" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Ethereum Generate New Wallet REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/ethereum/generate_new_wallet</span></p>
+<pre><code>{ "private_key": "0x…", "public_address": "0x…" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Solana, Bitcoin and Ethereum Balance REST API Endpoints</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/{chain}/balance/{address}</span></p>
+<p>Ethereum returns both balances as <strong>strings</strong>, because Wei routinely exceeds 2<sup>53</sup> — the largest integer a JSON number survives in a JavaScript client. Bitcoin and Solana return numbers; their smallest units stay inside the safe range.</p>
+<pre><code>/solana/balance/{address}
+{ "wallet": "So1111…", "balance_sol": 1694.799038633, "balance_lamports": 1694799038633 }
+
+/bitcoin/balance/{address}
+{ "wallet": "1A1zP1…", "final_balance_btc": 107.36719456, "final_balance_sats": 10736719456 }
+
+/ethereum/balance/{address}
+{ "wallet": "0xd8dA…", "balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061" }</code></pre>
+</article>
+</section>
+
+<!-- ═════════════════════════════════════════════════════ QUICKSTART ══ -->
+<section id="quick-start" aria-labelledby="quickstart-heading">
+<h2 id="quickstart-heading">Quick start</h2>
+
+<h3>curl</h3>
+<pre><code>curl https://aisenseapi.com/services/v1/uuid</code></pre>
+
+<h3>Python</h3>
+<p>Zero dependencies, standard library only.</p>
+<pre><code>from aisense_api import AISenseAPI
+api = AISenseAPI()
+
+print(api.get_uuid()["uuid"])
+print(api.hash_sha256("Hello")["sha256_hash"])
+print(api.ip_reverse_lookup("8.8.8.8")["country"])</code></pre>
+
+<h3>JavaScript</h3>
+<p>Node 18 or later, and every modern browser. Native fetch, no dependencies.</p>
+<pre><code>import { AISenseAPI } from './aisense-api.js'
+const api = new AISenseAPI()
+
+console.log((await api.getUUID()).uuid)
+console.log((await api.hashSHA256('Hello')).sha256_hash)</code></pre>
+
+<h3>LLM function calling</h3>
+<p>The repository includes <code>openai-tools.json</code> with tool definitions for any model that supports function calling, and <code>SKILL.md</code> for Claude.</p>
+<pre><code>import json
+from openai import OpenAI
+
+with open("openai-tools.json") as f:
+    tools = json.load(f)
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-4o", tools=tools,
+    messages=[{"role": "user", "content": "Generate a UUID and hash Hello with SHA256"}]
+)</code></pre>
+
+<p>Client libraries, tool definitions and a test suite that verifies every response format against production: <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a></p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ SUMMARY ══ -->
+<section id="summary" aria-labelledby="summary-heading">
+<h2 id="summary-heading">All endpoints</h2>
+<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Storage, URL Shortener, Webhook Capture and Webhook Action all expire after 24 hours.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Category</th><th scope="col">Endpoint</th><th scope="col">Method</th><th scope="col">Response key(s)</th></tr>
+</thead>
+<tbody>
+<tr><td>Time</td><td><code>/datetime[/{offset}]</code></td><td>GET</td><td><code>datetime</code></td></tr>
+<tr><td>Time</td><td><code>/timestamp</code></td><td>GET</td><td><code>timestamp</code></td></tr>
+<tr><td>Time</td><td><code>/microtimestamp</code></td><td>GET</td><td><code>microtimestamp</code></td></tr>
+<tr><td>Time</td><td><code>/timezones[/{offset}]</code></td><td>GET</td><td><code>timezones</code></td></tr>
+<tr><td>Time</td><td><code>/swatchinternettime</code></td><td>GET</td><td><code>beat</code>, <code>date</code></td></tr>
+<tr><td>Random</td><td><code>/random_number[/{from}[/{to}]]</code></td><td>GET</td><td><code>random_number</code>, <code>range</code></td></tr>
+<tr><td>Random</td><td><code>/random_color</code></td><td>GET</td><td><code>random_color</code></td></tr>
+<tr><td>Random</td><td><code>/uuid</code></td><td>GET</td><td><code>uuid</code></td></tr>
+<tr><td>Random</td><td><code>/guid</code></td><td>GET</td><td><code>guid</code></td></tr>
+<tr><td>Random</td><td><code>/password[/{length}]</code></td><td>GET</td><td><code>password</code>, <code>password_length</code></td></tr>
+<tr><td>Transform</td><td><code>/base64_encode</code></td><td>POST</td><td><code>base64_encoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/base64_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/base58_encode</code></td><td>POST</td><td><code>base58_encoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/base58_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/base32_encode</code></td><td>POST</td><td><code>base32_encoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/base32_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/jwt_encode</code></td><td>POST</td><td><code>jwt</code></td></tr>
+<tr><td>Transform</td><td><code>/jwt_decode</code></td><td>POST</td><td><code>decoded_payload</code></td></tr>
+<tr><td>Transform</td><td><code>/qrcode_encode</code></td><td>POST</td><td><code>qrcode_image</code>, <code>image_type</code></td></tr>
+<tr><td>Transform</td><td><code>/qrcode_decode</code></td><td>POST</td><td><code>qrcode_content</code></td></tr>
+<tr><td>Hash</td><td><code>/md5_hash</code></td><td>POST</td><td><code>md5_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/sha1_hash</code></td><td>POST</td><td><code>sha1_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/sha512_hash</code></td><td>POST</td><td><code>sha512_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/crc32_checksum</code></td><td>POST</td><td><code>crc32_checksum</code></td></tr>
+<tr><td>Web</td><td><code>/ping</code></td><td>GET</td><td><code>ping</code></td></tr>
+<tr><td>Web</td><td><code>/health</code></td><td>GET</td><td><code>status</code>, <code>microtimestamp</code></td></tr>
+<tr><td>Web</td><td><code>/client_ip</code></td><td>GET</td><td><code>ip</code></td></tr>
+<tr><td>Web</td><td><code>/user_agent</code></td><td>GET</td><td><code>user_agent</code></td></tr>
+<tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
+<tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
+<tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
+<tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
+<tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td><code>capture_id</code>, <code>update_url</code>, <code>read_url</code></td></tr>
+<tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td><code>action_id</code>, <code>form_url</code>, <code>result_url</code></td></tr>
+<tr><td>Crypto</td><td><code>/solana/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>public_address</code></td></tr>
+<tr><td>Crypto</td><td><code>/solana/balance/{address}</code></td><td>GET</td><td><code>balance_sol</code>, <code>balance_lamports</code></td></tr>
+<tr><td>Crypto</td><td><code>/bitcoin/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>private_key_wif</code>, <code>public_address</code></td></tr>
+<tr><td>Crypto</td><td><code>/bitcoin/balance/{address}</code></td><td>GET</td><td><code>final_balance_btc</code>, <code>final_balance_sats</code></td></tr>
+<tr><td>Crypto</td><td><code>/ethereum/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>public_address</code></td></tr>
+<tr><td>Crypto</td><td><code>/ethereum/balance/{address}</code></td><td>GET</td><td><code>balance_eth</code>, <code>balance_wei</code> (strings)</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright &copy; 2025 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>
