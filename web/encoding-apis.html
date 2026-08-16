@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Base64, Base58 and Base32 Encode and Decode APIs</title>
+<meta name="description" content="Encode or decode Base64, Base58 and Base32 through free REST APIs. Accept JSON or plain text and receive raw bytes or a typed JSON response. No API key.">
+<link rel="canonical" href="https://aisense.no/encoding-apis">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Base64, Base58 and Base32 APIs"><meta property="og:description" content="Encode and decode Base64, Base58 and Base32 with JSON, text and binary response support."><meta property="og:url" content="https://aisense.no/encoding-apis"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Base64, Base58 and Base32 Encode and Decode APIs","description":"Encode and decode Base64, Base58 and Base32 through unauthenticated REST endpoints.","url":"https://aisense.no/encoding-apis","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Encoding APIs","item":"https://aisense.no/encoding-apis"}]}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Encoding APIs</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Transform utilities - Base encoding</p><h1 id="page-title">Base Encoding APIs</h1><p class="lede">Encode and decode Base64, Base58 and Base32. Send JSON or plain text. Choose raw decoded bytes or a typed JSON response with the Accept header.</p><ul class="badges"><li>No API key</li><li>Six endpoints</li><li>Raw byte output</li><li>Optional JSON output</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Encode or decode</p><p class="sig"><span class="method post">POST</span><span class="path">/base{32,58,64}_encode</span></p><p class="sig"><span class="method post">POST</span><span class="path">/base{32,58,64}_decode</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="base64"><h2>Base64 encode and decode</h2><pre><code># Encode
+curl -X POST https://aisenseapi.com/services/v1/base64_encode \
+  -H "Content-Type: application/json" \
+  -d '{"data":"Hello world"}'
+
+{ "base64_encoded_data": "SGVsbG8gd29ybGQ=" }</code></pre><pre><code># Decode as raw bytes
+curl -X POST https://aisenseapi.com/services/v1/base64_decode \
+  -H "Content-Type: application/json" \
+  -d '{"data":"SGVsbG8gd29ybGQ="}'
+
+Hello world</code></pre></section>
+<section id="base58"><h2>Base58 encode and decode</h2><p>Base58 avoids characters that are easy to confuse in print. It is often used for compact identifiers and blockchain-related formats.</p><pre><code>{ "data": "Hello" }
+
+{ "base58_encoded_data": "9Ajdvzr" }</code></pre><p>Send <code>9Ajdvzr</code> to <code>/base58_decode</code> to get the original bytes. An invalid Base58 character returns HTTP 400 with <code>{"error":"Invalid Base58 input."}</code>.</p></section>
+<section id="base32"><h2>Base32 encode and decode</h2><p>Base32 uses a smaller, case-insensitive alphabet that works well in systems where mixed case or punctuation is inconvenient.</p><pre><code>{ "data": "Hello" }
+
+{ "base32_encoded_data": "JBSWY3DP" }</code></pre><p>Send <code>JBSWY3DP</code> to <code>/base32_decode</code> to retrieve <code>Hello</code>.</p></section>
+<section id="response-format"><h2>Choose raw bytes or JSON</h2><p>The three decode endpoints return <code>application/octet-stream</code> when no Accept header is sent. This is useful for files and binary data.</p><p>Send <code>Accept: application/json</code> when a JSON client needs a predictable envelope:</p><pre><code>{
+  "type": "json",
+  "decoded_data": { "key": "value" }
+}</code></pre><p>When the decoded bytes are not JSON, the response uses <code>type: binary</code> and returns the data as Base64 inside <code>decoded_data</code>.</p></section>
+<section id="reference"><h2>Endpoint reference</h2><div class="table-wrap field-table"><table><thead><tr><th>Endpoint</th><th>JSON response key</th></tr></thead><tbody><tr><td>/base64_encode</td><td>base64_encoded_data</td></tr><tr><td>/base58_encode</td><td>base58_encoded_data</td></tr><tr><td>/base32_encode</td><td>base32_encoded_data</td></tr><tr><td>/base64_decode</td><td>Raw bytes or <code>type</code> and <code>decoded_data</code></td></tr><tr><td>/base58_decode</td><td>Raw bytes or <code>type</code> and <code>decoded_data</code></td></tr><tr><td>/base32_decode</td><td>Raw bytes or <code>type</code> and <code>decoded_data</code></td></tr></tbody></table></div></section>
+<section id="security"><h2>Encoding is not encryption</h2><div class="api-note warning-note"><p>Base64, Base58 and Base32 do not protect data. Anyone can decode the value. Do not use base encoding as a security control.</p></div><p>Use these endpoints when data needs a transport-safe representation. Calculate the encoding locally when the input is confidential.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/qr-code-api">QR Code API<span>Place encoded content in a QR image</span></a><a href="/hashing-apis">Hashing APIs<span>Create content fingerprints and checksums</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#base64">Base64</a></li><li><a href="#base58">Base58</a></li><li><a href="#base32">Base32</a></li><li><a href="#response-format">Response format</a></li><li><a href="#reference">Reference</a></li><li><a href="#security">Security</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>

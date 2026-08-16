@@ -1,5 +1,5 @@
 /*
- * aisense.css — shared styling for the aisense.no documentation pages.
+ * aisense.css - shared styling for the aisense.no documentation pages.
  *
  * Palette and typography taken from the live site's Astra/Elementor globals so
  * these standalone pages sit alongside the WordPress ones without looking like
@@ -14,7 +14,7 @@
  *   --e-global-color-astglobalcolor7  #111111   near black
  *
  * Fonts are Roboto and Roboto Slab, matching the site. They are referenced by
- * name only — no webfont is fetched, so these pages carry no third-party
+ * name only - no webfont is fetched, so these pages carry no third-party
  * requests and work offline. Visitors without Roboto installed fall back to
  * the system sans, which is close enough not to matter.
  */
@@ -71,7 +71,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(4, 107, 210, 0.3
 }
 .skip-link:focus { color: #fff; transform: translateY(0); }
 
-/* ── Header ──────────────────────────────────────────────────────────────── */
+/* Header */
 
 .site-header {
   position: sticky;
@@ -93,7 +93,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(4, 107, 210, 0.3
 
 /*
  * Wordmark as text. Swap in the real logo file when you drop it into
- * web/assets/ — replace the <span> with <img src="assets/logo.svg" alt="AI SENSE">.
+ * web/assets/ - replace the <span> with <img src="assets/logo.svg" alt="AI SENSE">.
  */
 .wordmark {
   font-family: var(--sans);
@@ -120,7 +120,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(4, 107, 210, 0.3
 .site-nav a { color: var(--ink); }
 .site-nav a[aria-current="page"] { color: var(--blue); }
 
-/* ── Layout ──────────────────────────────────────────────────────────────── */
+/* Layout */
 
 main { max-width: 1180px; margin: 0 auto; padding: 0 24px 80px; }
 
@@ -170,7 +170,7 @@ h4 { font-family: var(--sans); font-size: 16px; color: var(--ink); margin: 22px 
 
 p { margin: 0 0 16px; max-width: 74ch; }
 
-/* ── Home page ──────────────────────────────────────────────────────────── */
+/* Home page */
 
 .home-page {
   background:
@@ -248,7 +248,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
   font-size: 13px;
   font-weight: 600;
 }
-.proof-list li::before { content: "✓"; margin-right: 7px; color: #059669; font-weight: 800; }
+.proof-list li::before { content: ""; display: inline-block; width: 7px; height: 7px; margin: 0 9px 1px 0; border-radius: 50%; background: #059669; }
 
 .api-window {
   position: relative;
@@ -353,7 +353,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .button-row-centered { justify-content: center; margin-top: 28px; }
 .text-link { padding: 11px 8px; font-size: 15px; font-weight: 700; }
 
-/* ── Posts and articles ─────────────────────────────────────────────────── */
+/* Posts and articles */
 
 .posts-hero {
   padding: 82px 0 52px;
@@ -423,7 +423,130 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .article-cta h2 { margin: 0 0 12px; padding: 0; border: 0; font-size: clamp(27px, 4vw, 37px); }
 .article-cta .text-link { color: var(--blue-dark); }
 
-/* ── Category navigation ─────────────────────────────────────────────────── */
+/* API detail and topic pages */
+
+.api-detail-main { padding-bottom: 110px; }
+
+.api-guide-index {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+}
+.api-guide-index > h2 { margin-top: 0; }
+.endpoint h3 a {
+  color: inherit;
+  text-decoration-color: rgba(4, 107, 210, 0.35);
+  text-underline-offset: 0.18em;
+}
+.api-detail-hero {
+  padding: 62px 0 55px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.75fr);
+  align-items: center;
+  gap: clamp(42px, 8vw, 105px);
+  border-bottom: 1px solid var(--border);
+}
+.api-detail-hero h1 { margin-bottom: 20px; font-size: clamp(40px, 5.5vw, 64px); letter-spacing: -0.035em; }
+.api-detail-hero .lede { margin-bottom: 24px; }
+.api-detail-hero .badges { margin-bottom: 0; }
+
+.endpoint-banner {
+  position: relative;
+  padding: 28px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  box-shadow: 18px 18px 0 var(--tint);
+}
+.endpoint-banner::after {
+  content: "API";
+  position: absolute;
+  right: -10px;
+  bottom: -32px;
+  color: rgba(255,255,255,0.035);
+  font-family: var(--slab);
+  font-size: 110px;
+  font-weight: 800;
+  line-height: 1;
+}
+.endpoint-banner-label { margin: 0 0 15px; color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.endpoint-banner .sig { position: relative; z-index: 1; align-items: center; margin-bottom: 19px; }
+.endpoint-banner .path { color: #fff; }
+.endpoint-banner > code { position: relative; z-index: 1; display: block; color: #7dd3fc; font-size: 12px; line-height: 1.65; word-break: break-all; }
+
+.api-doc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 255px; gap: clamp(48px, 8vw, 105px); padding-top: 62px; align-items: start; }
+.api-doc { min-width: 0; }
+.api-doc > section:first-child h2 { margin-top: 0; }
+.api-doc h2 { scroll-margin-top: 90px; }
+.api-doc h3 { scroll-margin-top: 90px; }
+.api-doc p { max-width: 76ch; }
+.api-doc pre { max-width: 860px; }
+
+.on-this-page { position: sticky; top: 95px; padding-left: 20px; border-left: 1px solid var(--border); }
+.on-this-page p { margin: 0 0 10px; color: var(--ink); font-size: 12px; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
+.on-this-page ul { margin: 0; padding: 0; list-style: none; }
+.on-this-page li + li { margin-top: 7px; }
+.on-this-page a { color: var(--muted); font-size: 13px; }
+.on-this-page a:hover { color: var(--blue-dark); }
+
+.workflow-steps { margin: 25px 0 10px; padding: 0; list-style: none; counter-reset: workflow; }
+.workflow-steps li { position: relative; min-height: 58px; padding: 0 0 26px 56px; counter-increment: workflow; }
+.workflow-steps li::before {
+  content: counter(workflow);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+}
+.workflow-steps li:not(:last-child)::after { content: ""; position: absolute; top: 36px; bottom: 3px; left: 16px; width: 1px; background: var(--border); }
+.workflow-steps strong { display: block; margin-bottom: 3px; color: var(--ink); }
+.workflow-steps p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.use-case-grid, .related-api-grid, .endpoint-topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+.use-case-grid article, .endpoint-topic-card { padding: 22px; border: 1px solid var(--border); border-radius: 7px; background: #fff; }
+.use-case-grid h3, .endpoint-topic-card h3 { margin: 0 0 6px; font-size: 17px; }
+.use-case-grid p, .endpoint-topic-card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.api-note { margin: 24px 0; padding: 19px 22px; border-left: 4px solid var(--blue); border-radius: 0 6px 6px 0; background: var(--tint); }
+.api-note.warning-note { border-left-color: var(--warn-border); background: var(--warn-bg); }
+.api-note p:last-child { margin-bottom: 0; }
+
+.field-table { margin-top: 22px; }
+.field-table td:first-child { font-family: var(--mono); color: var(--ink); white-space: nowrap; }
+
+.related-api-grid { margin-top: 24px; }
+.related-api-grid a {
+  display: block;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink);
+  font-weight: 700;
+  background: #fff;
+}
+.related-api-grid a span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.related-api-grid a:hover { border-color: var(--blue); color: var(--blue-dark); text-decoration: none; }
+
+.topic-intro { margin-bottom: 40px; }
+.endpoint-topic-grid { margin-top: 30px; }
+.endpoint-topic-card { display: flex; flex-direction: column; }
+.endpoint-topic-card .sig { margin-top: 12px; }
+.endpoint-topic-card pre { margin-top: 14px; }
+.endpoint-topic-card .card-link { margin-top: auto; }
+
+/* Category navigation */
 
 .categories { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 10px; }
 .categories a {
@@ -437,7 +560,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 }
 .categories a:hover { background: var(--blue); color: #fff; border-color: var(--blue); text-decoration: none; }
 
-/* ── Callout ─────────────────────────────────────────────────────────────── */
+/* Callout */
 
 .callout {
   background: var(--tint);
@@ -461,7 +584,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 }
 .warning p:last-child { margin-bottom: 0; }
 
-/* ── Endpoint blocks ─────────────────────────────────────────────────────── */
+/* Endpoint blocks */
 
 .endpoint { padding: 4px 0 8px; border-bottom: 1px solid #eef2f6; }
 .endpoint:last-child { border-bottom: 0; }
@@ -513,7 +636,7 @@ pre code { font-family: inherit; }
 
 .key { font-weight: 600; color: var(--ink); }
 
-/* ── Utilities ───────────────────────────────────────────────────────────── */
+/* Utilities */
 
 /*
  * Available to assistive technology, absent from the visual page. Used on the
@@ -533,7 +656,7 @@ pre code { font-family: inherit; }
   border: 0;
 }
 
-/* ── Tables ──────────────────────────────────────────────────────────────── */
+/* Tables */
 
 .table-wrap { overflow-x: auto; margin: 0 0 24px; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; }
@@ -541,7 +664,7 @@ th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--bor
 th { background: var(--tint); color: var(--ink); font-weight: 600; white-space: nowrap; }
 td code { white-space: nowrap; }
 
-/* ── Footer ──────────────────────────────────────────────────────────────── */
+/* Footer */
 
 .site-footer {
   border-top: 1px solid var(--border);
@@ -587,6 +710,13 @@ td code { white-space: nowrap; }
   .connection-list { grid-template-columns: 1fr; }
   .connection-list article:last-child { grid-column: auto; }
   .article-cta .button-row { align-items: flex-start; }
+  .api-detail-hero, .api-doc-layout { grid-template-columns: 1fr; }
+  .api-detail-hero { padding-top: 48px; gap: 38px; }
+  .endpoint-banner { box-shadow: 9px 9px 0 var(--tint); }
+  .on-this-page { display: none; }
+  .api-doc-layout { padding-top: 42px; }
+  .use-case-grid, .related-api-grid, .endpoint-topic-grid { grid-template-columns: 1fr; }
+  .field-table td:first-child { white-space: normal; }
 }
 
 @media (min-width: 641px) and (max-width: 960px) {
