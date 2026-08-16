@@ -1,12 +1,15 @@
-# Free Public REST APIs — AI SENSE AS
+# Free Public REST APIs - AI SENSE AS
 
 > **Base URL:** `https://aisenseapi.com/services/v1`
 > **Authentication:** None
 > **Cost:** Free
 > **Rate limit:** 5000 requests per IP per 24 hours
 
+AI agents can also use the remote MCP server at `https://aisenseapi.com/mcp`.
+See [`MCP.md`](MCP.md) for its tool list and client examples.
+
 Every response shape below was verified against production. The response key is
-almost never `data` or `result` — it is usually named after the endpoint
+almost never `data` or `result` - it is usually named after the endpoint
 (`/md5_hash` returns `md5_hash`, `/random_color` returns `random_color`). Do not
 guess it.
 
@@ -107,14 +110,14 @@ Swatch Internet Time. `beat` is a string with a leading `@`, not a number.
 ## Random
 
 ### `GET /random_number[/{from}[/{to}]]`
-Random integer, inclusive. No arguments gives 1–6. A **single** argument is
+Random integer, inclusive. No arguments gives 1-6. A **single** argument is
 treated as the upper bound with the lower bound fixed at 1.
 
 ```
-GET /random_number          → 1–6
-GET /random_number/30       → 1–30
-GET /random_number/10/20    → 10–20
-GET /random_number/-57/-3   → -57–-3
+GET /random_number          -> 1-6
+GET /random_number/30       -> 1-30
+GET /random_number/10/20    -> 10-20
+GET /random_number/-57/-3   -> -57--3
 ```
 
 ```json
@@ -170,17 +173,17 @@ Random password, 12 characters by default. Includes punctuation.
 Input: JSON with `data`, or plain text with `Content-Type: text/plain`.
 
 **The response format depends on the `Accept` header.** With no `Accept`, you
-get the decoded bytes as `application/octet-stream` — the payload and nothing
+get the decoded bytes as `application/octet-stream` - the payload and nothing
 else. Send `Accept: application/json` to get a typed envelope instead.
 
 ```json
 // Request                              Accept: application/json
 { "data": "eyJrZXkiOiJ2YWx1ZSJ9" }
 
-// Response — decoded content was JSON
+// Response - decoded content was JSON
 { "type": "json", "decoded_data": { "key": "value" } }
 
-// Response — decoded content was not JSON
+// Response - decoded content was not JSON
 { "type": "binary", "encoding": "base64", "decoded_data": "iVBORw0KGgo..." }
 ```
 
@@ -191,7 +194,7 @@ bytes.
 
 ### `POST /base58_encode`
 ```json
-{ "data": "Hello" } → { "base58_encoded_data": "9Ajdvzr" }
+{ "data": "Hello" } -> { "base58_encoded_data": "9Ajdvzr" }
 ```
 
 ---
@@ -201,14 +204,14 @@ Same `Accept` behaviour as `base64_decode`. An invalid Base58 character returns
 HTTP 400 with `{"error": "Invalid Base58 input."}`.
 
 ```json
-{ "data": "9Ajdvzr" } → Hello
+{ "data": "9Ajdvzr" } -> Hello
 ```
 
 ---
 
 ### `POST /base32_encode`
 ```json
-{ "data": "Hello" } → { "base32_encoded_data": "JBSWY3DP" }
+{ "data": "Hello" } -> { "base32_encoded_data": "JBSWY3DP" }
 ```
 
 ---
@@ -217,7 +220,7 @@ HTTP 400 with `{"error": "Invalid Base58 input."}`.
 Same `Accept` behaviour as `base64_decode`.
 
 ```json
-{ "data": "JBSWY3DP" } → Hello
+{ "data": "JBSWY3DP" } -> Hello
 ```
 
 ---
@@ -226,7 +229,7 @@ Same `Accept` behaviour as `base64_decode`.
 Encodes a payload into an HS256 JWT.
 
 **`data` must be a string.** Passing a JSON object returns
-`{"error": "Invalid data provided. Expected a string."}` — serialise your
+`{"error": "Invalid data provided. Expected a string."}` - serialise your
 payload first.
 
 ```json
@@ -284,7 +287,7 @@ Accepts a Base64 image in the **`payload`** field, or a file upload
 
 All hash endpoints accept JSON (`{"data": "..."}`), plain text
 (`Content-Type: text/plain`), or a file upload. **Each returns a key named after
-the algorithm — not `hash`.**
+the algorithm - not `hash`.**
 
 | Endpoint | Response key | Example value for `"Hello"` |
 |----------|--------------|------------------------------|
@@ -299,7 +302,7 @@ the algorithm — not `hash`.**
 ```json
 // POST /sha256_hash
 { "data": "Hello" }
-→ { "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
+-> { "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
 ```
 
 ---
@@ -370,9 +373,9 @@ country centroid when the city is unknown.
 
 ---
 
-### Storage — 24h TTL
+### Storage - 24h TTL
 
-**Store:** `POST /storage` — JSON, plain text, or a file upload.
+**Store:** `POST /storage` - JSON, plain text, or a file upload.
 
 The request body is stored **verbatim**. Whatever you send is exactly what you
 get back; no `data` wrapper is added or removed. Post `{"data": {...}}` and you
@@ -386,13 +389,13 @@ retrieve `{"data": {...}}`.
 { "storage_id": "123e4567-e89b-12d3-a456-426614174000", "expire_timestamp": 1738457158 }
 ```
 
-**Retrieve:** `GET /storage/{storage_id}` — returns the stored bytes with
+**Retrieve:** `GET /storage/{storage_id}` - returns the stored bytes with
 `application/json` if they parse as JSON, otherwise `application/octet-stream`.
 An unknown or expired id returns `{"error": "Storage id unknown"}`.
 
 ---
 
-### `GET /url_shortener/{url}` — 24h TTL
+### `GET /url_shortener/{url}` - 24h TTL
 The target URL goes inline in the path, unencoded.
 
 ```
@@ -405,7 +408,7 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 
 ---
 
-### Webhook Capture — 24h TTL
+### Webhook Capture - 24h TTL
 
 **Create:** `POST /webhook_capture`
 
@@ -441,7 +444,7 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 
 ---
 
-### Webhook Action — 24h TTL
+### Webhook Action - 24h TTL
 
 **Create:** `POST /webhook_action`
 
@@ -479,7 +482,7 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 }
 ```
 
-**Open the form:** `GET /webhook_action/{action_id}/form` — returns `text/html`.
+**Open the form:** `GET /webhook_action/{action_id}/form` - returns `text/html`.
 
 **Poll:** `GET /webhook_action/{action_id}`
 
@@ -512,7 +515,7 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 
 ## Crypto
 
-> ⚠️ Wallet generation is for **development and testing only**. A key produced
+> Wallet generation is for **development and testing only**. A key produced
 > by a public HTTP endpoint has crossed a network you do not control. Never fund
 > one.
 
@@ -553,7 +556,7 @@ numbers; their smallest units stay well inside the safe range.
 
 | Format | Content-Type | Notes |
 |--------|-------------|-------|
-| JSON | `application/json` | Field name varies — `data` for most, `payload` for QR |
+| JSON | `application/json` | Field name varies - `data` for most, `payload` for QR |
 | Plain text | `text/plain` | Pass the secret via `X-Secret` for JWT endpoints |
 | File upload | `multipart/form-data` | Field names vary by endpoint |
 
@@ -595,9 +598,9 @@ numbers; their smallest units stay well inside the safe range.
 | `/webhook_capture` (create) | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
 | `/webhook_action` (create) | `ok`, `action_id`, `form_url`, `result_url`, `expire_timestamp`, `expire_datetime` |
 
-### TTL — deleted automatically after 24 hours
+### TTL - deleted automatically after 24 hours
 
-`/storage` · `/url_shortener` · `/webhook_capture` · `/webhook_action`
+`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action`
 
 ### Rate limit
 

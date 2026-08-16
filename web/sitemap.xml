@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-08-17</lastmod></url>
   <url><loc>https://aisense.no/webhook-capture-api</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/webhook-action-api</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/temporary-storage-api</loc><lastmod>2026-08-16</lastmod></url>

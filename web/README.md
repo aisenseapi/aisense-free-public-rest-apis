@@ -76,6 +76,10 @@ place. A symlink works if changing the vhost is awkward.
 
 ## Editing
 
+`free-public-mcp-server.html` documents the remote MCP endpoint. Its complete
+protocol notes and tool list live in [`../MCP.md`](../MCP.md). Update both when
+the production tool list changes.
+
 `free-public-apis.html` is generated from [`../API.md`](../API.md), which is the
 verified source of truth for every request and response format - each one was
 checked against the live service. **Change `API.md` first, then reflect it
