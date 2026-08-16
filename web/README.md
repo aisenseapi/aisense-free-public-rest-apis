@@ -10,6 +10,8 @@ in a browser and it renders.
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
+| `privacy.html` | `/privacy` — **needs legal review, see below** |
+| `terms.html` | `/terms` — **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
 
 ## Deploying
@@ -81,9 +83,27 @@ in a comment in that file.
 `assets/` and replace the `<span class="wordmark">` in each page's header with
 an `<img>`. The place to change is marked in `assets/aisense.css`.
 
-**`/ai-sense-posts`, `/terms` and `/privacy` are linked but not built.** They are
-in the site navigation and footer. If `web/` becomes the whole site rather than
-sitting alongside WordPress, those three links will 404.
+**`privacy.html` and `terms.html` have not been reviewed by a lawyer.** Every
+factual claim in them was read out of the service source on 2026-08-16 — the
+rate limit, the 24-hour expiry, the third parties, what the access log records —
+so they describe this system honestly rather than repeating a template. That is
+not the same as being a sound legal document. Each file opens with an HTML
+comment naming the specific points that need a qualified decision: the lawful
+basis asserted for logging IP addresses, whether the liability limitation
+survives Norwegian law, and whether a data processing agreement is needed with
+the four named third parties.
+
+They also state retention periods that are only true once
+`tools/logrotate-aisense.conf` from the service repository is installed. Until
+then the honest answer is "until the host reboots", and the privacy page is
+wrong. Install the rotation before publishing, or change the numbers.
+
+Both pages describe the service. When the service changes, they have to change
+with it, or they become promises nobody is keeping.
+
+**`/ai-sense-posts` is linked but not built.** It is in the site navigation. If
+`web/` becomes the whole site rather than sitting alongside WordPress, that link
+will 404.
 
 ## Style
 
