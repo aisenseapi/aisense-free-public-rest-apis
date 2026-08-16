@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Random Generator APIs - UUID, GUID, Number and Password</title>
+<meta name="description" content="Generate a UUID, GUID, random number, random color or random password through free REST endpoints. No account, no API key and browser-friendly JSON.">
+<link rel="canonical" href="https://aisense.no/random-generator-apis">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Random Generator APIs"><meta property="og:description" content="Generate UUIDs, GUIDs, numbers, colors and passwords with simple GET requests."><meta property="og:url" content="https://aisense.no/random-generator-apis"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Random Generator APIs","description":"Generate UUIDs, GUIDs, numbers, colors and passwords through free REST endpoints.","url":"https://aisense.no/random-generator-apis","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Random Generator APIs","item":"https://aisense.no/random-generator-apis"}]}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Random Generator APIs</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Random utilities - Simple GET requests</p><h1 id="page-title">Random Generator APIs</h1><p class="lede">Generate a UUID, GUID, integer, hexadecimal color or password. Each endpoint returns a small JSON response and requires no parameters unless you want to control a range or length.</p><ul class="badges"><li>No API key</li><li>Five endpoints</li><li>GET requests</li><li>JSON response</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Random utility endpoints</p><p class="sig"><span class="method">GET</span><span class="path">/uuid /guid /random_number</span></p><p class="sig"><span class="method">GET</span><span class="path">/random_color /password</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="uuid"><h2>UUID and GUID</h2><div class="endpoint-topic-grid"><article class="endpoint-topic-card"><h3>UUID</h3><p class="sig"><span class="method">GET</span><span class="path">/uuid</span></p><pre><code>{
+  "uuid": "429151ee-82a1-4438-b2f1-b6b9c9e4a41f"
+}</code></pre></article><article class="endpoint-topic-card"><h3>GUID</h3><p class="sig"><span class="method">GET</span><span class="path">/guid</span></p><pre><code>{
+  "guid": "750dd9a6-a507-4a89-b4ec-8cd71fc115b7"
+}</code></pre></article></div><p>Both endpoints return a version 4 style identifier as a string. The response key matches the endpoint name.</p></section>
+<section id="number"><h2>Random number</h2><p>The number is inclusive of both bounds. With no parameters the range is 1 through 6.</p><div class="table-wrap field-table"><table><thead><tr><th>Request</th><th>Range</th></tr></thead><tbody><tr><td>/random_number</td><td>1 through 6</td></tr><tr><td>/random_number/30</td><td>1 through 30</td></tr><tr><td>/random_number/10/20</td><td>10 through 20</td></tr><tr><td>/random_number/-57/-3</td><td>-57 through -3</td></tr></tbody></table></div><pre><code>curl https://aisenseapi.com/services/v1/random_number/1/100
+
+{
+  "random_number": 73,
+  "range": { "from": 1, "to": 100 }
+}</code></pre></section>
+<section id="password"><h2>Random password</h2><p>The default length is 12 characters. Add a length to the URL when another size is needed. The generated value includes punctuation.</p><pre><code>curl https://aisenseapi.com/services/v1/password/16
+
+{
+  "password": "jFehS]AKGx9wl[jp",
+  "password_length": 16
+}</code></pre><div class="api-note warning-note"><p>A password returned by a public API has crossed the network. Use a local password manager or local secure generator for production credentials.</p></div></section>
+<section id="color"><h2>Random color</h2><p>The endpoint returns a six-digit hexadecimal CSS color.</p><pre><code>curl https://aisenseapi.com/services/v1/random_color
+
+{ "random_color": "#9b6bbf" }</code></pre><p>This is useful for placeholders, test data and visual prototypes where repeatability is not required.</p></section>
+<section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Test fixtures</h3><p>Create unique record IDs and variable input during integration tests.</p></article><article><h3>Workflow correlation</h3><p>Assign a UUID to a temporary job or message chain.</p></article><article><h3>Prototype interfaces</h3><p>Generate colors and values for placeholder content.</p></article><article><h3>Games and simulations</h3><p>Request bounded integers for simple random events.</p></article></div></section>
+<section id="limits"><h2>Limits</h2><p>The service-wide limit is 5000 requests per IP per 24 hours. These endpoints are convenient for public tests and workflows. Generate sensitive secrets inside your own trusted environment.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/time-apis">Time APIs<span>Add timestamps and timezone data</span></a><a href="/hashing-apis">Hashing APIs<span>Create a fingerprint from generated content</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#uuid">UUID and GUID</a></li><li><a href="#number">Numbers</a></li><li><a href="#password">Passwords</a></li><li><a href="#color">Colors</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#limits">Limits</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>

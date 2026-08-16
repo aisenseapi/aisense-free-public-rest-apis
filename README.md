@@ -1,4 +1,4 @@
-# aisense.no — static pages
+# aisense.no - static pages
 
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
@@ -7,14 +7,24 @@ in a browser and it renders.
 |------|-----|
 | `index.html` | `/` |
 | `free-public-apis.html` | `/free-public-apis` |
+| `webhook-capture-api.html` | `/webhook-capture-api` |
+| `webhook-action-api.html` | `/webhook-action-api` |
+| `temporary-storage-api.html` | `/temporary-storage-api` |
+| `url-shortener-api.html` | `/url-shortener-api` |
+| `ip-reverse-lookup-api.html` | `/ip-reverse-lookup-api` |
+| `qr-code-api.html` | `/qr-code-api` |
+| `hashing-apis.html` | `/hashing-apis` |
+| `encoding-apis.html` | `/encoding-apis` |
+| `random-generator-apis.html` | `/random-generator-apis` |
+| `time-apis.html` | `/time-apis` |
 | `custom-apis.html` | `/custom-apis` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `ai-sense-posts.html` | `/ai-sense-posts` |
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
-| `privacy.html` | `/privacy` — **needs legal review, see below** |
-| `terms.html` | `/terms` — **needs legal review, see below** |
+| `privacy.html` | `/privacy` - **needs legal review, see below** |
+| `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
 | `robots.txt` | crawler directives and sitemap location |
 | `sitemap.xml` | canonical URLs for search engines |
@@ -22,7 +32,7 @@ in a browser and it renders.
 ## Deploying
 
 Pull only this directory onto the aisense.no host with a sparse checkout. This
-repository is public, so that machine needs no credentials at all — unlike the
+repository is public, so that machine needs no credentials at all - unlike the
 one holding the service source.
 
 ```bash
@@ -59,14 +69,14 @@ RewriteRule ^(.*)$ $1.html [L]
 
 In nginx: `try_files $uri $uri.html $uri/ =404;`
 
-**Point the document root at `web/`,** not at the repository root — otherwise
+**Point the document root at `web/`,** not at the repository root - otherwise
 the pages sit one directory down and `assets/aisense.css` resolves to the wrong
 place. A symlink works if changing the vhost is awkward.
 
 ## Editing
 
 `free-public-apis.html` is generated from [`../API.md`](../API.md), which is the
-verified source of truth for every request and response format — each one was
+verified source of truth for every request and response format - each one was
 checked against the live service. **Change `API.md` first, then reflect it
 here.** Letting the page drift from `API.md` recreates exactly the problem this
 repository was cleaned up to fix: documentation describing an API that does not
@@ -80,7 +90,7 @@ confused user.
 
 **The contact form is not here.** The WordPress original used Contact Form 7.
 These are static files with no backend, so a form would render, submit and
-silently discard the message — worse than no form. `contact-us.html` shows the
+silently discard the message - worse than no form. `contact-us.html` shows the
 email address instead, with the options for restoring a working form written up
 in a comment in that file.
 
@@ -89,8 +99,8 @@ in a comment in that file.
 an `<img>`. The place to change is marked in `assets/aisense.css`.
 
 **`privacy.html` and `terms.html` have not been reviewed by a lawyer.** Every
-factual claim in them was read out of the service source on 2026-08-16 — the
-rate limit, the 24-hour expiry, the third parties, what the access log records —
+factual claim in them was read out of the service source on 2026-08-16 - the
+rate limit, the 24-hour expiry, the third parties, what the access log records -
 so they describe this system honestly rather than repeating a template. That is
 not the same as being a sound legal document. Each file opens with an HTML
 comment naming the specific points that need a qualified decision: the lawful

@@ -2,6 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/webhook-capture-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/webhook-action-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/temporary-storage-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/url-shortener-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/ip-reverse-lookup-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/qr-code-api</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/hashing-apis</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/random-generator-apis</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/time-apis</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/custom-apis</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/make-your-data-available-for-ai</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-08-16</lastmod></url>

@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <!--
-  ═══════════════════════════════════════════════════════════════════════════
+  ---------------------------------------------------------------------------
   REVIEW BEFORE PUBLISHING.
 
   Every factual claim below was read out of the service source on 2026-08-16
-  and is accurate as of that date — see code/php/DATA-INVENTORY.md in the
+  and is accurate as of that date - see code/php/DATA-INVENTORY.md in the
   private repository for the file and line behind each one. That makes this an
   honest description of the system, which is more than most privacy policies
   manage, but it does not make it a reviewed legal document.
@@ -24,7 +24,7 @@
 
   If the system changes, this page has to change with it. It is a description,
   not a template.
-  ═══════════════════════════════════════════════════════════════════════════
+  ---------------------------------------------------------------------------
 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +36,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
-<meta property="og:title" content="Privacy — AI SENSE">
+<meta property="og:title" content="Privacy - AI SENSE">
 <meta property="og:description" content="What the free public REST APIs log, how long it is kept, and where it goes.">
 <meta property="og:url" content="https://aisense.no/privacy">
 
@@ -108,7 +108,7 @@
 <h3>Every request</h3>
 <p>One line in a server log: the time, your IP address, the HTTP method, the full path you requested, the protocol, the content type and your browser or client's User-Agent string.</p>
 <div class="warning">
-  <p><strong>The path includes anything you put in it.</strong> Several endpoints take their input in the URL rather than in a request body — <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
+  <p><strong>The path includes anything you put in it.</strong> Several endpoints take their input in the URL rather than in a request body - <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
 </div>
 
 <h3>Rate limiting</h3>
@@ -145,7 +145,7 @@
 </tbody>
 </table>
 </div>
-<p>The 24-hour expiry means the data becomes unreachable — no request will return it. Purging of the underlying storage happens on the same schedule as the log rotation above.</p>
+<p>The 24-hour expiry means the data becomes unreachable - no request will return it. Purging of the underlying storage happens on the same schedule as the log rotation above.</p>
 
 <h2 id="where">Where data goes</h2>
 <p>Four endpoints have to ask someone else a question in order to answer yours. Only the value you supplied is passed on:</p>
@@ -166,15 +166,15 @@
 <p>Our API responses permit cross-origin requests from any website, which is what makes the endpoints usable directly from browser JavaScript. A consequence worth stating plainly: if a site you visit calls our API from your browser, your IP address reaches us and is logged, even though you never visited us. We have no way to know which site that was, and we do not receive a referrer for it.</p>
 
 <h2 id="rights">Your rights</h2>
-<p>Under the GDPR you may request access to personal data we hold about you, its correction or erasure, a restriction on how we use it, or a copy of it — and you may object to our use of it. Write to <a href="mailto:support@aisense.no">support@aisense.no</a>.</p>
-<p>One practical limit, stated because it is true rather than to avoid the obligation: log entries and rate-limit counters are stored by IP address and nothing else. If you ask us to find your records, an IP address is all we can search on, and shared or dynamic addresses mean we may not be able to distinguish your requests from someone else's. Data you stored through <code>/storage</code> is different — quote the <code>storage_id</code> and we can act on it precisely, though it will have expired within 24 hours anyway.</p>
+<p>Under the GDPR you may request access to personal data we hold about you, its correction or erasure, a restriction on how we use it, or a copy of it - and you may object to our use of it. Write to <a href="mailto:support@aisense.no">support@aisense.no</a>.</p>
+<p>One practical limit, stated because it is true rather than to avoid the obligation: log entries and rate-limit counters are stored by IP address and nothing else. If you ask us to find your records, an IP address is all we can search on, and shared or dynamic addresses mean we may not be able to distinguish your requests from someone else's. Data you stored through <code>/storage</code> is different - quote the <code>storage_id</code> and we can act on it precisely, though it will have expired within 24 hours anyway.</p>
 <p>You may complain to the Norwegian Data Protection Authority, Datatilsynet, at <a href="https://www.datatilsynet.no">datatilsynet.no</a>.</p>
 
 <h2 id="basis">Why we are allowed to do this</h2>
-<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately — anything you post to the storage or webhook endpoints — you are asking us to hold it, and we hold it only for as long as stated.</p>
+<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
 
 <h2 id="security">Security</h2>
-<p>All traffic is served over HTTPS. The service holds no credentials belonging to you, because it issues none. Data stored through the temporary endpoints is addressed by a random UUID that only you receive — treat that identifier as a secret, since anyone holding it can retrieve what you stored.</p>
+<p>All traffic is served over HTTPS. The service holds no credentials belonging to you, because it issues none. Data stored through the temporary endpoints is addressed by a random UUID that only you receive - treat that identifier as a secret, since anyone holding it can retrieve what you stored.</p>
 
 <h2 id="changes">Changes</h2>
 <p>When the service changes, this page changes with it. The date at the top is the last time it was checked against what the code actually does.</p>
@@ -200,7 +200,7 @@
       0110 Oslo<br>
       Norway
     </address>
-    <p>Free public and custom REST APIs. Copyright &copy; 2026 AI SENSE AS</p>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
   </div>
 </footer>
 
