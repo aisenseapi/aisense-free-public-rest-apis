@@ -128,13 +128,11 @@ has_value "Timezones (objects)"     GET "$BASE/timezones"           '{"timezone"
 has_value "Timezones (filtered)"    GET "$BASE/timezones/+0200"     '"offset":"+0200"'
 has_key   "Swatch Internet Time"    GET "$BASE/swatchinternettime"  "beat"
 
-# An hour-only offset is not a valid route. If this ever starts working the
-# documentation is wrong, so assert the current contract explicitly.
+# An hour-only offset is not a valid route. Since 2026-08-17 an unrouted path
+# is a clean 404 rather than the old debug echo, so status is what proves the
+# contract. If this ever answers 200, the documentation is wrong.
 request GET "$BASE/datetime/1"
-case "$BODY" in
-  '["'*']["'*) ok "Datetime (offset '1') correctly unrouted" ;;
-  *) bad "Datetime (offset '1')" "now routes — API.md says only 4-digit offsets work" ;;
-esac
+[ "$STATUS" = "404" ] && ok "Datetime (offset '1') correctly unrouted -> 404" || bad "Datetime (offset '1')" "expected 404, got $STATUS - API.md says only 4-digit offsets work"
 echo ""
 
 # ── RANDOM ───────────────────────────────────────────────────
@@ -187,12 +185,19 @@ has_value "Base32 Decode" POST "$BASE/base32_decode" 'Hello'                    
 # jwt_encode requires data to be a STRING. Assert the rejection too, because a
 # client passing an object is the single most common mistake against this API.
 has_key   "JWT Encode"          POST "$BASE/jwt_encode" "jwt"             '{"data":"{\"user\":\"alice\"}","secret":"s3cret"}'
-has_value "JWT Encode (rejects object)" POST "$BASE/jwt_encode" "Expected a string" '{"data":{"user":"alice"},"secret":"s3cret"}'
 has_value "JWT Decode"          POST "$BASE/jwt_decode" '"decoded_payload"' '{"data":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ.JkljdqTAf6ecEkEDPjNjlzj-sddlArcJogtn-ajE29E","secret":"s3cret"}'
 
 has_key   "QR Encode"           POST "$BASE/qrcode_encode" "qrcode_image" '{"payload":"https://aisenseapi.com/"}'
 has_value "QR Encode (image_type)" POST "$BASE/qrcode_encode" '"image_type":"png"' '{"payload":"test"}'
-has_value "QR Encode (rejects data field)" POST "$BASE/qrcode_encode" "No payload" '{"data":"test"}'
+# Flipped 2026-08-17: "data" is now an accepted alias for the historical
+# "payload", ending the one input-field exception on the surface. This
+# assertion used to prove the rejection; now it proves the alias.
+has_key "QR Encode (data is an alias for payload)" POST "$BASE/qrcode_encode" "qrcode_image" '{"data":"test"}'
+
+# jwt_encode takes the claims as a JSON object directly since 2026-08-17 -
+# retiring what three documents used to warn about. The string form is
+# asserted further up; both must produce a token.
+has_key "JWT Encode (object claims)" POST "$BASE/jwt_encode" "jwt" '{"data":{"user":"test"},"secret":"mysecret"}'
 echo ""
 
 # ── QR ROUND TRIP ────────────────────────────────────────────
@@ -478,12 +483,29 @@ echo ""
 
 # ── SERVICE-WIDE CONTRACTS ───────────────────────────────────
 echo -e "${YELLOW}📋  Service-wide contracts${NC}"
-# Document the unknown-path behaviour rather than pretending it is a 404.
+# This assertion spent its first two days as a known_bug entry: unknown paths
+# answered HTTP 200 with two concatenated debug arrays and the caller's own
+# IP. Fixed 2026-08-17, and promoted to a real assertion the same day - which
+# is the exact ceremony the known_bug mechanism was built for.
 request GET "$BASE/this_endpoint_does_not_exist"
-case "$BODY" in
-  '["'*']["'*) expected "Unknown path returns 200 + debug echo instead of 404" ;;
-  *) fixed "Unknown path no longer returns the debug echo" ;;
-esac
+if [ "$STATUS" = "404" ]; then
+  case "$BODY" in
+    *'"error"'*) ok "Unknown path -> 404 with the uniform error shape" ;;
+    *) bad "Unknown path" "404 but no error key: $(echo "$BODY" | head -c 120)" ;;
+  esac
+else
+  bad "Unknown path" "expected 404, got $STATUS: $(echo "$BODY" | head -c 120)"
+fi
+
+# The uniform error contract, sampled across the taxonomy. Since 2026-08-17
+# the status code is trustworthy everywhere: the body stays {"error": "..."}
+# exactly as before, and the status says what the message means.
+request POST "$BASE/sha256_hash" '{}'
+[ "$STATUS" = "400" ] && ok "Error contract: caller mistake -> 400" || bad "Error contract (400)" "hash with no data gave $STATUS"
+request GET "$BASE/storage/00000000-0000-4000-8000-000000000000"
+[ "$STATUS" = "404" ] && ok "Error contract: unknown id -> 404" || bad "Error contract (404)" "unknown storage id gave $STATUS"
+request POST "$BASE/jwt_encode" '{"data":"not json at all","secret":"s"}'
+[ "$STATUS" = "400" ] && ok "Error contract: unparseable JWT payload -> 400" || bad "Error contract (jwt garbage)" "gave $STATUS"
 echo ""
 
 # ── SUMMARY ──────────────────────────────────────────────────

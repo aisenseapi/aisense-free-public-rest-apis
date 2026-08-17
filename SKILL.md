@@ -15,28 +15,25 @@ Every shape below was verified against production.
 
 ## Read this before calling anything
 
-Four service-wide behaviours will bite you if you assume the usual conventions.
+Three service-wide behaviours will bite you if you assume the usual conventions.
 
 **1. The response key is named after the endpoint.** There is no generic `data`
 or `result` wrapper. `/md5_hash` returns `md5_hash`. `/ping` returns `ping`.
 `/random_color` returns `random_color`. `/health` returns `microtimestamp`, not
 `timestamp`. Never guess - the table at the bottom lists every key.
 
-**2. Most failures come back as HTTP 200** with `{"error": "..."}`. Branch on the
-presence of an `error` key, not on the status code. A few endpoints do return
-4xx, so handle both.
+**2. Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
+2026-08-17: 400 caller mistake, 404 unknown id or endpoint, 429 rate limit,
+500 our failure, 502/504 upstream. Branch on either the status or the `error`
+key - both are trustworthy, and a path matching no route is a plain 404 in the
+same shape.
 
-**3. Unknown paths do not 404.** A path matching no route returns HTTP 200 and a
-body like `["203.0.113.9",1786873281]["\/services\/v1\/typo","1","typo"]` -
-two concatenated JSON arrays, which is not parseable JSON. If a client throws a
-JSON parse error, check the URL before anything else.
-
-**4. Not everything is JSON.** `base64_decode`, `base58_decode` and
+**3. Not everything is JSON.** `base64_decode`, `base58_decode` and
 `base32_decode` return `application/octet-stream` unless you send
 `Accept: application/json`.
 
-**Rate limit:** 5000 requests per IP per 24 hours, then HTTP 429 with
-`{"status": {"code": 429, "message": "..."}}`.
+**Rate limit:** 5000 requests per IP per 24 hours, then HTTP 429 in the same
+flat error shape.
 
 ---
 
@@ -113,13 +110,13 @@ An invalid Base58 character returns HTTP 400 with
 -> { "decoded_payload": { "user": "alice" } }
 ```
 
-**`data` must be a string.** Passing a JSON object returns
-`{"error": "Invalid data provided. Expected a string."}`. Serialise first.
+`data` takes the claims as a JSON object directly, or as a string containing
+JSON - both produce the same token. A string that is not JSON returns 400.
 HS256 only.
 
 ### QR codes
 
-**The request field is `payload`, not `data`.**
+**The request field is `payload`, with `data` accepted as an alias.**
 
 ```json
 // POST /qrcode_encode

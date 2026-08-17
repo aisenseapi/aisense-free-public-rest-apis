@@ -130,16 +130,13 @@
 
 <section class="callout" aria-labelledby="before-you-start">
   <h2 id="before-you-start">Before you write a client</h2>
-  <p>Four service-wide behaviours decide how your error handling has to look. Every response format on this page was verified by calling the live service.</p>
+  <p>Three service-wide behaviours decide how your error handling has to look. Every response format on this page was verified by calling the live service.</p>
   <dl>
     <dt>The response key is named after the endpoint.</dt>
     <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
 
-    <dt>Most failures arrive as HTTP 200.</dt>
-    <dd>A bad request usually returns <code>{"error": "..."}</code> with a 200 status. Branch on the presence of an <code>error</code> key, not on the status code.</dd>
-
-    <dt>Unknown paths do not return 404.</dt>
-    <dd>A path matching no route answers 200 with a body that is not parseable JSON. If your client throws a JSON parse error, check the URL before anything else.</dd>
+    <dt>Errors are <code>{"error": "message"}</code> with a real HTTP status.</dt>
+    <dd>One rule across the whole surface: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate limit, 500 our failure, 502 and 504 an upstream. Branch on the status or on the <code>error</code> key - both are trustworthy, and a path matching no route is a plain 404 in the same shape.</dd>
 
     <dt>Not everything is JSON.</dt>
     <dd>The three decoders return <code>application/octet-stream</code> unless you send <code>Accept: application/json</code>.</dd>
@@ -321,8 +318,9 @@ Response: Hello</code></pre>
 <article class="endpoint">
 <h3>JWT Encode REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/jwt_encode</span></p>
-<p>Encodes a payload into an HS256 JSON Web Token. <strong><code>data</code> must be a string.</strong> Passing a JSON object returns <code>{"error": "Invalid data provided. Expected a string."}</code> - serialise the payload first.</p>
-<pre><code>{ "data": "{\"user\":\"alice\"}", "secret": "your_secret_key" }
+<p>Encodes claims into an HS256 JSON Web Token. <code>data</code> takes the claims as a <strong>JSON object directly</strong>, or as a string containing JSON - both forms produce the same token. A string that does not parse as JSON returns HTTP 400.</p>
+<pre><code>{ "data": { "user": "alice" }, "secret": "your_secret_key" }          # object form
+{ "data": "{\"user\":\"alice\"}", "secret": "your_secret_key" }      # string form, same token
 
 { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiYWxpY2UifQ..." }</code></pre>
 <p>Also accepts plain text with an <code>X-Secret</code> header, or a file upload in a <code>jwt_data</code> field.</p>
@@ -339,7 +337,7 @@ Response: Hello</code></pre>
 <article class="endpoint">
 <h3>QR Code Encode REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/qrcode_encode</span></p>
-<p>Generates a QR code as a Base64 PNG. Encodes URLs, plain text, vCards, Wi-Fi credentials and calendar events. <strong>The request field is <code>payload</code>, not <code>data</code>.</strong></p>
+<p>Generates a QR code as a Base64 PNG. Encodes URLs, plain text, vCards, Wi-Fi credentials and calendar events. The request field is <code>payload</code>, with <code>data</code> accepted as an alias.</p>
 <pre><code>{ "payload": "https://aisenseapi.com/" }
 
 { "qrcode_image": "iVBORw0KGgoAAAANSUhEUg...", "image_type": "png" }</code></pre>

@@ -186,13 +186,12 @@
     "type": "function",
     "function": {
       "name": "jwt_encode",
-      "description": "Encode a payload into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. IMPORTANT: data must be a JSON string, not an object - passing an object returns {\"error\": \"Invalid data provided. Expected a string.\"}. Serialise the payload first. POST /jwt_encode",
+      "description": "Encode claims into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. data takes the claims as a JSON object directly, or as a string containing JSON - both produce the same token. A string that is not JSON returns HTTP 400. POST /jwt_encode",
       "parameters": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "string",
-            "description": "The payload as a JSON STRING, e.g. \"{\\\"user\\\":\\\"alice\\\"}\". Not an object."
+            "description": "The claims: a JSON object, or a string containing JSON."
           },
           "secret": { "type": "string", "description": "Secret key used to sign the token." }
         },
@@ -219,7 +218,7 @@
     "type": "function",
     "function": {
       "name": "qrcode_encode",
-      "description": "Generate a QR code. Returns {\"qrcode_image\": \"iVBORw0KGgo...\", \"image_type\": \"png\"}. The request field is \"payload\", not \"data\". POST /qrcode_encode",
+      "description": "Generate a QR code. Returns {\"qrcode_image\": \"iVBORw0KGgo...\", \"image_type\": \"png\"}. The request field is \"payload\", with \"data\" accepted as an alias. POST /qrcode_encode",
       "parameters": {
         "type": "object",
         "properties": {
@@ -233,7 +232,7 @@
     "type": "function",
     "function": {
       "name": "qrcode_decode",
-      "description": "Decode a QR code image. Returns {\"qrcode_content\": \"https://example.com\"}. The request field is \"payload\", not \"data\". POST /qrcode_decode",
+      "description": "Decode a QR code image. Returns {\"qrcode_content\": \"https://example.com\"}. The request field is \"payload\", with \"data\" accepted as an alias. POST /qrcode_decode",
       "parameters": {
         "type": "object",
         "properties": {
