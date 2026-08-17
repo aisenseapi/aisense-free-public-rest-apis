@@ -1,7 +1,7 @@
 # Tokenizer physics - phase 0 measurement report
 
 Date: 2026-08-17. Inputs: `results/raw/*.tsv` (one TSV per oracle model),
-`corpus/renders/manifest.tsv`, `probes/manifest.tsv`, `tools/probes.php`.
+`corpus/renders/manifest.tsv`, `probes/manifest.tsv`, `tools/probes.py`.
 
 Every number below is net tokens: the provider's own prompt-token count minus
 that model's calibration constant (empty-message scaffold). Token counts are
@@ -114,7 +114,7 @@ byte-weighted: orders is the largest item and dominates the sums.
 
 ## 2. Probe atoms: tokens per repetition (net / 24)
 
-Each probe repeats one construct R = 24 times (`tools/probes.php`); dividing
+Each probe repeats one construct R = 24 times (`tools/probes.py`); dividing
 net tokens by 24 gives the marginal cost of one instance, with calibration
 noise diluted 24x. Values include the trailing newline of each repetition.
 dict_ref additionally contains one non-repeated header line (noted below).
