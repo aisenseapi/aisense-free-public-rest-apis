@@ -3,3 +3,8 @@
 2026-08-17 19:51:12 ollama qwen3.5:397b calls=64 out=ollama_qwen3-5.tsv
 2026-08-17 19:51:37 ollama gemma4:31b calls=64 out=ollama_gemma4.tsv
 2026-08-17 19:54:36 ollama mistral-large-3:675b calls=64 out=ollama_mistral-large-3.tsv
+2026-08-17 21:48:24 ollama gemma4:31b calls=64 out=ollama_gemma4.tsv
+2026-08-17 21:48:26 openai gpt-4.1-nano calls=64 out=openai_gpt-4-1-nano.tsv
+2026-08-17 21:48:51 ollama qwen3.5:397b calls=64 out=ollama_qwen3-5.tsv
+2026-08-17 21:49:04 ollama mistral-large-3:675b calls=64 out=ollama_mistral-large-3.tsv
+2026-08-17 21:56:49 ollama deepseek-v4-flash:preview calls=64 out=ollama_deepseek-v4-flash.tsv

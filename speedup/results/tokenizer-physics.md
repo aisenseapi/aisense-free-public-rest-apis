@@ -57,12 +57,12 @@ Markdown, TSV, and a TOON approximation.
 | config | md | 127 | 124 | 123 | 135 | 130 |
 | config | tsv | 85 | 95 | 94 | 107 | 101 |
 | config | toon | 99 | 108 | 108 | 121 | 115 |
-| note | json_min | 146 | 152 | 150 | 152 | 159 |
-| note | json_pretty | 175 | 180 | 195 | 196 | 185 |
-| note | yaml | 152 | 155 | 162 | 164 | 161 |
-| note | md | 160 | 159 | 164 | 166 | 165 |
-| note | tsv | 143 | 148 | 151 | 154 | 154 |
-| note | toon | 156 | 159 | 166 | 168 | 165 |
+| note | json_min | 141 | 148 | 145 | 148 | 154 |
+| note | json_pretty | 170 | 176 | 190 | 192 | 180 |
+| note | yaml | 147 | 151 | 157 | 160 | 156 |
+| note | md | 155 | 155 | 159 | 162 | 160 |
+| note | tsv | 138 | 144 | 146 | 150 | 149 |
+| note | toon | 151 | 155 | 161 | 164 | 160 |
 | orders | json_min | 690 | 721 | 904 | 908 | 933 |
 | orders | json_pretty | 1134 | 1165 | 1492 | 1497 | 1358 |
 | orders | yaml | 896 | 942 | 1109 | 1116 | 1121 |
@@ -74,12 +74,12 @@ Per-format totals (sum over the 5 corpus items):
 
 | format | nano | dsk | qwn | gma | mis |
 |---|---|---|---|---|---|
-| json_min | 1233 | 1311 | 1485 | 1518 | 1558 |
-| json_pretty | 1924 | 1995 | 2424 | 2454 | 2218 |
-| yaml | 1501 | 1580 | 1776 | 1814 | 1795 |
-| md | 1209 | 1225 | 1460 | 1495 | 1474 |
-| tsv | 968 | 1047 | 1232 | 1293 | 1296 |
-| toon | 1108 | 1130 | 1389 | 1414 | 1407 |
+| json_min | 1228 | 1307 | 1480 | 1514 | 1553 |
+| json_pretty | 1919 | 1991 | 2419 | 2450 | 2213 |
+| yaml | 1496 | 1576 | 1771 | 1810 | 1790 |
+| md | 1204 | 1221 | 1455 | 1491 | 1469 |
+| tsv | 963 | 1043 | 1227 | 1289 | 1291 |
+| toon | 1103 | 1126 | 1384 | 1410 | 1402 |
 
 Ratio vs json_min, per model, and the union average (mean of the five
 per-model ratios). The union average is the number the charter scores on.
@@ -87,25 +87,25 @@ per-model ratios). The union average is the number the charter scores on.
 | format | nano | dsk | qwn | gma | mis | **union avg** |
 |---|---|---|---|---|---|---|
 | json_min | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | **1.000** |
-| json_pretty | 1.560 | 1.522 | 1.632 | 1.617 | 1.424 | **1.551** |
-| yaml | 1.217 | 1.205 | 1.196 | 1.195 | 1.152 | **1.193** |
-| md | 0.981 | 0.934 | 0.983 | 0.985 | 0.946 | **0.966** |
-| tsv | 0.785 | 0.799 | 0.830 | 0.852 | 0.832 | **0.819** |
-| toon | 0.899 | 0.862 | 0.935 | 0.931 | 0.903 | **0.906** |
+| json_pretty | 1.563 | 1.523 | 1.634 | 1.618 | 1.425 | **1.553** |
+| yaml | 1.218 | 1.206 | 1.197 | 1.196 | 1.153 | **1.194** |
+| md | 0.980 | 0.934 | 0.983 | 0.985 | 0.946 | **0.966** |
+| tsv | 0.784 | 0.798 | 0.829 | 0.851 | 0.831 | **0.819** |
+| toon | 0.898 | 0.862 | 0.935 | 0.931 | 0.903 | **0.906** |
 
 The format ranking is identical on all five models:
 tsv < toon < md < json_min < yaml < json_pretty. TSV beats the TOON
-approximation on every model, by 7.3% (dsk) to 12.6% (nano).
+approximation on every model, by 7.4% (dsk) to 12.7% (nano).
 
 Where the win comes from - union-average ratio vs json_min, per item:
 
 | format | agent_plan | api_response | config | note | orders |
 |---|---|---|---|---|---|
-| json_pretty | 1.602 | 1.517 | 1.536 | 1.227 | 1.603 |
-| yaml | 1.165 | 1.068 | 1.118 | 1.046 | 1.252 |
-| md | 1.044 | 1.315 | 1.325 | 1.073 | 0.844 |
+| json_pretty | 1.602 | 1.517 | 1.536 | 1.234 | 1.603 |
+| yaml | 1.165 | 1.068 | 1.118 | 1.048 | 1.252 |
+| md | 1.044 | 1.315 | 1.325 | 1.075 | 0.844 |
 | tsv | 0.995 | 0.989 | 0.996 | 0.988 | 0.694 |
-| toon | 1.190 | 1.068 | 1.139 | 1.073 | 0.741 |
+| toon | 1.190 | 1.068 | 1.139 | 1.075 | 0.741 |
 
 The entire aggregate win is `orders`, the one genuinely tabular item (TSV
 0.694, TOON 0.741). On the four non-tabular items TSV is within 1.2% of
@@ -151,9 +151,9 @@ dict_ref additionally contains one non-repeated header line (noted below).
 | ind_2sp | 5.00 | 5.00 | 4.92 | 4.92 | 5.00 | 4.97 |
 | ind_4sp | 5.00 | 5.00 | 4.92 | 4.92 | 5.00 | 4.97 |
 | ind_tab | 4.00 | 5.00 | 3.96 | 4.92 | 4.00 | 4.38 |
-| b64_plain | 15.00 | 15.00 | 15.96 | 15.96 | 15.00 | 15.38 |
-| b64_base64 | 50.00 | 51.00 | 60.96 | 53.96 | 65.00 | 56.18 |
-| b64_hex | 59.00 | 59.00 | 124.96 | 124.96 | 125.00 | 98.58 |
+| b64_plain | 14.00 | 15.00 | 14.96 | 14.96 | 15.00 | 14.78 |
+| b64_base64 | 58.00 | 59.00 | 62.96 | 57.96 | 69.00 | 61.38 |
+| b64_hex | 58.00 | 58.00 | 130.96 | 130.96 | 131.00 | 101.78 |
 
 ### Sigils
 
@@ -248,22 +248,22 @@ split. YAML-style nesting pays 1 token per line per *use* of indentation
 regardless of depth-in-spaces, but the safe union assumption is: indentation
 is never free.
 
-### Binary encodings (same 62-byte sentence, three ways)
+### Binary encodings (same 65-byte sentence, three ways)
 
 | model | plain | base64 | penalty | hex | penalty |
 |---|---|---|---|---|---|
-| nano | 360 | 1200 | 3.33x | 1416 | 3.93x |
-| dsk | 360 | 1224 | 3.40x | 1416 | 3.93x |
-| qwn | 383 | 1463 | 3.82x | 2999 | 7.83x |
-| gma | 383 | 1295 | 3.38x | 2999 | 7.83x |
-| mis | 360 | 1560 | 4.33x | 3000 | 8.33x |
+| nano | 336 | 1392 | 4.14x | 1392 | 4.14x |
+| dsk | 360 | 1416 | 3.93x | 1392 | 3.87x |
+| qwn | 359 | 1511 | 4.21x | 3143 | 8.75x |
+| gma | 359 | 1391 | 3.87x | 3143 | 8.75x |
+| mis | 360 | 1656 | 4.60x | 3144 | 8.73x |
 
-Base64 costs 3.3-4.3x the tokens of the plaintext it encodes (union average
-3.65x); the README's "roughly 2-3x" folk figure is an *underestimate* on this
-union. Hex splits the union hard: 3.93x on nano/dsk (which pair hex chars)
-but 7.8-8.3x on qwn/gma/mis, where it degenerates to exactly 1 token per
-character. Union average 6.41x - hex is the single most expensive encoding
-measured.
+Base64 costs 3.9-4.6x the tokens of the plaintext it encodes (union average
+4.15x); the "roughly 2-3x" folk figure is an *underestimate* on this
+union. Hex splits the union hard: about 4x on nano/dsk (which pair hex
+chars) but about 8.7x on qwn/gma/mis, where it degenerates to exactly 1
+token per character. Union average 6.85x - hex is the single most expensive
+encoding measured.
 
 ## 3. Design implications for .sp
 
@@ -327,9 +327,9 @@ measured.
    a digit is a token, full stop; (c) the self profile MAY exploit
    o200k/DeepSeek digit chunking, the a2a profile MUST NOT assume it.
 
-9. **Never embed base64 or hex; UUIDs are near-poison.** Base64 is 3.3-4.3x
-   plaintext (union 3.65x), hex is 3.9x on nano/dsk but 7.8-8.3x on the
-   digit-per-token camp (union 6.41x). A full UUID costs 33-36 tokens on
+9. **Never embed base64 or hex; UUIDs are near-poison.** Base64 is 3.9-4.6x
+   plaintext (union 4.15x), hex is about 4x on nano/dsk but about 8.7x on the
+   digit-per-token camp (union 6.85x). A full UUID costs 33-36 tokens on
    every model (~1 token/char); an 8-char prefix costs 7-8. .sp should
    forbid inline binary in the a2a profile (reference it by URL/handle
    instead) and prefer short decimal row ids over UUIDs wherever the
@@ -346,15 +346,18 @@ measured.
 Model-disagreement register (the minste-felles-multiplum list): dict_ref
 (deepseek yes, other four no), tab indentation (free on nano/qwn/mis, +1 on
 dsk/gma), digit chunking (nano/dsk chunk, qwn/gma/mis are digit-per-token),
-hex penalty (3.9x vs 7.8-8.3x, same split as digits), base64 penalty spread
-(3.33x-4.33x). Everything else measured here - format ranking, sigil parity,
+hex penalty (about 4x vs 8.7x, same split as digits), base64 penalty spread
+(3.87x-4.60x). Everything else measured here - format ranking, sigil parity,
 key-syntax ranking, separator ranking, space-indent cost - is unanimous
 across the union.
 
 ## 4. Honesty
 
 - **Single-run measurements.** Every cell is one API call (N=1 per model per
-  item). Token counting is deterministic per tokenizer, so re-runs should
+  item). In the most recent full run, two deepseek calls failed transiently
+  and were re-measured individually; both reproduced the previous run's
+  values exactly, and every unchanged text in the corpus returned exactly
+  the same count as the run before it, on all five models. Token counting is deterministic per tokenizer, so re-runs should
   reproduce exactly, but provider-side scaffold changes (chat template
   updates, BOS handling) would shift the calibration constant and would not
   be caught until a re-run. No confidence intervals exist or are implied.

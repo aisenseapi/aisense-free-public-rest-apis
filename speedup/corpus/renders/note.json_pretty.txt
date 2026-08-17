@@ -7,7 +7,7 @@
         "retro",
         "tokenizer"
     ],
-    "body": "The refire loop came from an mbstring call that only exists under the Swoole build, not the cron CLI. Rule for future me: any tools/ script must run under the leanest PHP present on the host. Also worth remembering that the access log writes one file per Host header per day, so three hostnames means three files, and any analysis that reads only one is silently wrong by two thirds.",
+    "body": "The refire loop came from a helper that exists in the app runtime but not in the cron runtime. Rule for future me: any tools/ script must run under the leanest runtime present on the host. Also worth remembering that the access log writes one file per hostname per day, so three hostnames means three files, and any analysis that reads only one is silently wrong by two thirds.",
     "open_questions": [
         "Should fired webhooks carry an HMAC signature header?",
         "Is 25 per day the right SSE-era limit for schedule creates?"

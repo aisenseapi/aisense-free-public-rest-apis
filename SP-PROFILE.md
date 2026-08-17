@@ -60,8 +60,8 @@ under `a2a` the rules below are the whole contract.
    numbers alone.
 
 6. Never base64, never hex, never "compressed" glyphs.
-   Measured: base64 costs 3.3-4.3x the plaintext it encodes; hex up to
-   8.3x on digit-splitting vocabularies. If binary must travel, send a URL
+   Measured: base64 costs 3.9-4.6x the plaintext it encodes; hex up to
+   8.75x on digit-splitting vocabularies. If binary must travel, send a URL
    to it.
 
 7. Empty is `-`, null is `null`, and a cell is never simply omitted from a

@@ -47,7 +47,7 @@ rig is here so you can rerun everything with your own keys.
 4. The union splits on digits: o200k and DeepSeek chunk a ten-digit
    timestamp into 4 tokens, Qwen, Gemma and Mistral price it at one digit
    per token. Any digit-packing trick tuned on one family loses on the
-   other. Base64 costs 3.3-4.3x plaintext; hex up to 8.3x.
+   other. Base64 costs 3.9-4.6x plaintext; hex up to 8.75x.
 5. Space is the only free field separator; comma, tab, pipe and newline all
    cost about 0.9 token per field. Space indentation costs one token per
    line regardless of depth.
@@ -64,9 +64,9 @@ keys:
     python tools/probes.py
     python tools/measure.py openai gpt-4.1-nano --all results/raw/my_run.tsv
 
-The rig was originally written in PHP; this Python port reproduces every
-render and probe byte for byte, and returns identical token counts from
-both providers (verified against the published raw TSVs).
+Everything is deterministic end to end: the renderers produce byte-identical
+files on every run, and identical texts return identical token counts from
+both providers - re-measurement is the built-in audit.
 
 Keys can also live in a local .o-tokens file next to this README (gitignored).
 Completion is capped at one token per call; a full 64-call run on a nano

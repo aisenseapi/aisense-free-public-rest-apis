@@ -29,6 +29,6 @@ ind_none	264
 ind_2sp	312
 ind_4sp	360
 ind_tab	288
-b64_plain	1512
-b64_base64	2040
-b64_hex	3000
+b64_plain	1584
+b64_base64	2136
+b64_hex	3144
