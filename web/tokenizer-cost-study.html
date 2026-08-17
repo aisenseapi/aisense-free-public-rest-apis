@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>We Measured LLM Serialization Across Five Tokenizers - AI SENSE</title>
+<meta name="description" content="Six data formats, five tokenizer vocabularies, 315 measurements with provider token counts as ground truth. Plain TSV beat the token-oriented formats, short-key dictionaries lost to full keys, and base64 cost up to 4.3x. Data and rig are open.">
+<link rel="canonical" href="https://aisense.no/tokenizer-cost-study">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="We Measured LLM Serialization Across Five Tokenizers">
+<meta property="og:description" content="The token-saving claims behind LLM data formats were measured against one tokenizer and assumed to transfer. We measured five. The data changed our own plans.">
+<meta property="og:url" content="https://aisense.no/tokenizer-cost-study">
+<meta property="article:published_time" content="2026-08-17">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "We Measured LLM Serialization Across Five Tokenizers",
+      "description": "Six data formats priced by five tokenizer vocabularies with provider token counts as ground truth. The findings that survived, the hypothesis that did not, and the open measurement rig.",
+      "url": "https://aisense.no/tokenizer-cost-study",
+      "datePublished": "2026-08-17",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Tokenizer cost study", "item": "https://aisense.no/tokenizer-cost-study" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts" aria-current="page">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Tokenizer cost study</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Research note - 17 August 2026</p>
+  <h1>We Measured LLM Serialization Across Five Tokenizers</h1>
+  <p class="article-deck">Every "token-efficient" data format ships a savings claim measured against one tokenizer, usually OpenAI's. Agent traffic crosses vendors. So we priced six formats with five different vocabularies, using the providers' own token counters as ground truth - and the data talked us out of the format we had planned to build.</p>
+</header>
+
+<div class="article-body">
+
+<p class="article-lead">The setup was simple. Five corpus items that look like real agent traffic - an API response, twenty order rows, an agent plan, a config, a self-note - rendered six ways: minified JSON, pretty JSON, YAML, Markdown, TSV, and an approximation of TOON, the most popular token-oriented format. Plus 33 single-construct probes: separator characters, key syntaxes, number formats, indentation, base64. Each text was then priced by five models whose vocabularies span the families that matter: OpenAI's o200k, DeepSeek's BPE, Qwen's BPE, Gemma's SentencePiece and Mistral's Tekken. Not with a local tokenizer library and an assumption, but with each provider's own reported prompt token count, calibrated to remove chat scaffolding. 315 measurements, zero failures, spot-checked by re-measurement.</p>
+
+<h2>What survived measurement</h2>
+
+<p><strong>Plain TSV won.</strong> Across the five-vocabulary union it averaged 0.82x the tokens of minified JSON, and it beat our TOON approximation (0.91x) on every single model. The entire win comes from tabular data - twenty uniform rows cost 0.63-0.75x JSON depending on vocabulary. On non-tabular content, TSV sits within 1.2 percent of JSON: there is nearly nothing to save.</p>
+
+<p><strong>The mechanism is column declaration, not clever encoding.</strong> Declaring field names once and sending values positionally costs 4.63 tokens per key-value pair against JSON's 7.03 - minus 34 percent. That is the whole magic of every token-oriented format, isolated.</p>
+
+<p><strong>Space is the only free separator.</strong> A space merges into the following token on all five vocabularies. Comma, tab, pipe and newline each cost about 0.9 token per field. And indentation is a flat tax: one token per line for any depth of spaces.</p>
+
+<h2>What did not survive</h2>
+
+<p><strong>Our own hypothesis died first.</strong> We assumed a header dictionary mapping keys to single letters would save tokens. It loses to repeating full keys on four of five vocabularies, because common English keys - status, price, qty - are already one token everywhere. Abbreviation is a tax dressed as a discount.</p>
+
+<p><strong>Digit tricks do not transfer.</strong> o200k and DeepSeek chunk a ten-digit timestamp into 4 tokens; Qwen, Gemma and Mistral price it at one token per digit. A number-packing scheme tuned on GPT actively loses on half the union.</p>
+
+<p><strong>Base64 is a tax of 3.3-4.3x</strong> over the plaintext it encodes, and hex reaches 8.3x on digit-splitting vocabularies. If binary must travel between agents, send a link to it.</p>
+
+<h2>Why we are not shipping format number sixteen</h2>
+
+<p>We went looking for prior art properly before deciding. TOON sits at roughly a million weekly npm downloads with at least five named challengers, and both the MCP project and LangChain have explicitly declined to bless any encoding layer. Meanwhile the independent accuracy benchmarks are unkind to the whole genre: compressed formats trade several points of task accuracy for their token savings on weaker models, and our measured headroom above plain TSV is a few percent. A new format that buys 3 points of tokens with 9 points of accuracy is not efficiency, it is a bug with good marketing.</p>
+
+<p>What was actually missing was the measurement. To our knowledge, no published work prices serialization across a tokenizer union with provider ground truth - the existing benchmarks are single-vocabulary, and at least one academic study counted tokens with a tokenizer the tested models do not use. So that is what we are shipping: the rig, the corpus, the raw numbers, and a short profile of the conventions that survived - <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/SP-PROFILE.md">the SpeedUp profile (.sp)</a>, eight rules, each citing its price tag, including the rule that says where to stop.</p>
+
+<h2>Rerun it yourself</h2>
+
+<p>Everything is in the open repository under <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/tree/main/speedup">speedup/</a>: the renderer, the probes, the oracle script and the raw TSVs. You need PHP, curl and your own API keys; a full run on a nano model costs a few hundredths of a dollar. Token counting is deterministic - a number you cannot reproduce is a bug report we want.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Agents welcome</p>
+  <p>Our free public REST APIs and the remote MCP server at <code>aisenseapi.com/mcp</code> require no key and no account - the same no-friction surface this study was built on.</p>
+  <div class="button-row"><a href="/free-public-apis">Explore the APIs</a> <a href="/free-public-mcp-server">Connect an agent</a></div>
+</div>
+
+</div>
+</div>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+</body>
+</html>

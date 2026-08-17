@@ -1,0 +1,25 @@
+!d s=status q=qty p=price
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
+s:shipped q:900 p:2.95
