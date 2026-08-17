@@ -582,5 +582,49 @@
         "required": ["data"]
       }
     }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_schedule_create",
+      "description": "Schedule a webhook: we POST your payload to a URL at a chosen time, with one retry. The timer an agent lacks. Provide delay_seconds OR fire_at (unix timestamp), between 5 seconds and 24 hours from now. Returns {\"schedule_id\", \"status\": \"scheduled\", \"fire_at_timestamp\", \"result_url\"}. The target must be a public http/https URL on port 80/443; private, loopback and reserved addresses are refused, redirects are never followed. Poll result_url to see the outcome. POST /webhook_schedule",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "Public http/https URL to POST the payload to." },
+          "delay_seconds": { "type": "integer", "description": "Fire this many seconds from now (5 to 86400)." },
+          "fire_at": { "type": "integer", "description": "Unix timestamp to fire at, as an alternative to delay_seconds." },
+          "payload": { "type": "object", "description": "The JSON body to POST. Up to 32 KB." }
+        },
+        "required": ["url"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_schedule_result",
+      "description": "Check a scheduled webhook. Returns {\"status\": \"scheduled\"|\"fired\"|\"failed\", \"attempts\", \"http_status\", \"response_excerpt\"}. \"fired\" means a delivery was attempted and the target answered with some HTTP status, recorded in http_status - not that it returned 2xx. Readable for 24 hours after the final attempt. GET /webhook_schedule/{schedule_id}",
+      "parameters": {
+        "type": "object",
+        "properties": { "schedule_id": { "type": "string", "description": "The schedule_id from webhook_schedule_create." } },
+        "required": ["schedule_id"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "validate",
+      "description": "Validate a business number by arithmetic - nothing is looked up in any register, so valid means well-formed with a correct check digit, not that it exists. Returns {\"type\", \"valid\", ...per-check fields}. An invalid value is a result with valid false, not an error. The card number is never echoed back. POST /validate/{type}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["iban", "card", "orgnr", "kontonummer", "phone"], "description": "iban (ISO 13616 mod-97), card (Luhn), orgnr (Norwegian org number MOD11), kontonummer (Norwegian bank account MOD11), phone (E.164 shape)." },
+          "data": { "type": "string", "description": "The value to validate. Spaces, dots and dashes are ignored." }
+        },
+        "required": ["type", "data"]
+      }
+    }
   }
 ]

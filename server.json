@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.aisenseapi/free-public-tools",
+  "name": "com.aisenseapi/free-public-tools",
   "title": "AI SENSE Free Public Tools",
   "description": "Public MCP tools for approvals, webhooks, temporary storage, short links, time and UUIDs.",
   "repository": {

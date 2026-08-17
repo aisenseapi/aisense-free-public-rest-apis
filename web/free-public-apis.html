@@ -469,6 +469,14 @@ Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.co
 </article>
 
 <article class="endpoint">
+<h3>Validate REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/validate/{type}</span></p>
+<p>Check-digit validation for <code>iban</code>, <code>card</code>, <code>orgnr</code>, <code>kontonummer</code> and <code>phone</code>. Pure arithmetic - nothing is looked up, so valid means well-formed with a correct check digit. An invalid value is a result with <code>valid: false</code>, and the card number is never echoed back. <a href="/validation-api">Full details</a>.</p>
+<pre><code>POST /validate/iban   { "data": "NO9386011117947" }
+  ->  { "type": "iban", "valid": true, "country": "NO", "checksum_ok": true }</code></pre>
+</article>
+
+<article class="endpoint">
 <h3><a href="/temporary-storage-api">Storage REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/storage</span> - <span class="method">GET</span> <span class="path">/storage/{storage_id}</span></p>
 <p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere - another machine, a later pipeline step, a different agent call. No database and no credentials.</p>
@@ -536,6 +544,17 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 { "ok": true, "action_id": "9e0e6d3b-...", "status": "answered",
   "answered_at_datetime": "2026-08-16T15:13:20Z",
   "response": { "decision": "approve", "comment": "Looks good" } }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3><a href="/webhook-schedule-api">Webhook Schedule REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/webhook_schedule</span> - <span class="method">GET</span> <span class="path">/webhook_schedule/{schedule_id}</span></p>
+<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is 5 seconds to 24 hours. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/webhook-schedule-api">Full details</a>.</p>
+<pre><code>POST /webhook_schedule   { "url": "https://example.com/hook", "delay_seconds": 1200, "payload": { "job": 42 } }
+  ->  { "ok": true, "schedule_id": "1f1d7b8b-...", "status": "scheduled", "result_url": "..." }
+
+GET  /webhook_schedule/{id}
+  ->  { "status": "fired", "attempts": 1, "http_status": 200 }</code></pre>
 </article>
 </section>
 
@@ -668,6 +687,8 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
+<tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET</td><td><code>schedule_id</code>, <code>status</code>, <code>attempts</code>, <code>http_status</code></td></tr>
+<tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td><code>capture_id</code>, <code>update_url</code>, <code>read_url</code></td></tr>
