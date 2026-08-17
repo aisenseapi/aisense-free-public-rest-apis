@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation - no authentication required for any endpoint
 ---
 
@@ -348,6 +348,9 @@ return numbers; their smallest units stay inside the safe range.
 | `/webhook_capture/{id}` | GET | `ok`, `capture_id`, `captured_at_*`, `request` |
 | `/webhook_action` | POST | `ok`, `action_id`, `form_url`, `result_url`, `expire_*` |
 | `/webhook_action/{id}` | GET | `ok`, `action_id`, `status`, `response`, timestamps |
+| `/webhook_schedule` | POST | `ok`, `schedule_id`, `status`, `fire_at_timestamp`, `result_url` |
+| `/webhook_schedule/{id}` | GET | `ok`, `schedule_id`, `status`, `attempts`, `http_status` |
+| `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | `/webhook_action/{id}/form` | GET | `text/html` |
 | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
 | `/bitcoin/generate_new_wallet` | GET | `private_key`, `private_key_wif`, `public_address` |

@@ -607,6 +607,96 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 
 ---
 
+### Webhook Schedule - 24h TTL
+
+The timer an agent does not have. POST a URL and a payload with either
+`delay_seconds` or a `fire_at` unix timestamp, and the service POSTs the payload
+to that URL at that time, with one retry on transport failure.
+
+The horizon is **5 seconds to 24 hours** - this is a 24-hour service, and the
+scheduler is no exception. The result stays readable for 24 hours after the
+final attempt.
+
+**Create:** `POST /webhook_schedule`
+
+```json
+// Request
+{ "url": "https://example.com/hook", "delay_seconds": 1200, "payload": { "job": 42 } }
+
+// Response
+{
+  "ok": true,
+  "schedule_id": "1f1d7b8b-...",
+  "status": "scheduled",
+  "fire_at_timestamp": 1786990000,
+  "fire_at_datetime": "2026-08-17T15:21:37+00:00",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_schedule/1f1d7b8b-...",
+  "expire_timestamp": 1787076400
+}
+```
+
+**Poll:** `GET /webhook_schedule/{schedule_id}`
+
+```json
+{
+  "ok": true,
+  "schedule_id": "1f1d7b8b-...",
+  "status": "fired",
+  "attempts": 1,
+  "http_status": 200,
+  "response_excerpt": "...",
+  "fired_at_datetime": "2026-08-17T15:21:40+00:00"
+}
+```
+
+`status` moves `scheduled` -> `fired` (the target answered with any HTTP status,
+recorded in `http_status`) or `failed` (no response after the retry).
+**`fired` means a delivery was attempted, not that it succeeded** - a target that
+answers 500 is still `fired` with `http_status: 500`.
+
+The target must be an `http`/`https` URL on port 80 or 443 that resolves to a
+**public** address. Private, loopback, link-local and reserved ranges are
+refused, at creation and again at delivery time with the connection pinned to
+the vetted address; redirects are never followed. Credentials in the URL are
+rejected. Payload maximum 32 KB.
+
+---
+
+### Validate
+
+Business-number validation by arithmetic. `POST /validate/{type}` where type is
+`iban`, `card`, `orgnr`, `kontonummer` or `phone`.
+
+Everything is checked locally - nothing is looked up in any register - so
+`valid: true` means **well-formed with a correct check digit**, not that the
+account or number exists. An invalid value is a result with `valid: false` and
+the failing check named, never an error.
+
+```json
+// POST /validate/iban
+{ "data": "NO9386011117947" }
+-> { "type": "iban", "valid": true, "normalized": "NO9386011117947", "country": "NO",
+     "structure_ok": true, "length_ok": true, "checksum_ok": true }
+
+// POST /validate/card  (Luhn; the number is never echoed back)
+{ "data": "4111 1111 1111 1111" } -> { "type": "card", "valid": true, "length": 16, ... }
+
+// POST /validate/orgnr  (Norwegian organisasjonsnummer, MOD11)
+{ "data": "NO 922 601 151 MVA" } -> { "type": "orgnr", "valid": true, "normalized": "922601151", ... }
+
+// POST /validate/kontonummer  (Norwegian bank account, MOD11)
+{ "data": "1234.56.78903" } -> { "type": "kontonummer", "valid": true, ... }
+
+// POST /validate/phone  (E.164 shape only)
+{ "data": "004740000000" } -> { "type": "phone", "valid": true, "e164": "+4740000000", ... }
+```
+
+IBAN uses the authoritative ISO 13616 mod-97 check; `length_ok` is `null` for
+countries outside the built-in length table, where the length cannot be
+confirmed but the checksum still can. An unknown `{type}` returns HTTP 400.
+
+---
+
 ## Crypto
 
 > Wallet generation is for **development and testing only**. A key produced
@@ -695,6 +785,9 @@ numbers; their smallest units stay well inside the safe range.
 | `/url_shortener` | `short_url`, `expire_timestamp` |
 | `/webhook_capture` (create) | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
 | `/webhook_action` (create) | `ok`, `action_id`, `form_url`, `result_url`, `expire_timestamp`, `expire_datetime` |
+| `/webhook_schedule` (create) | `ok`, `schedule_id`, `status`, `fire_at_timestamp`, `result_url`, `expire_timestamp` |
+| `/webhook_schedule/{id}` (poll) | `ok`, `schedule_id`, `status`, `attempts`, `http_status`, `response_excerpt` |
+| `/validate/{type}` | `type`, `valid`, plus per-check fields (`checksum_ok`, `luhn_ok`, ...) |
 
 ### TTL - deleted automatically after 24 hours
 

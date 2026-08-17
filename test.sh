@@ -349,6 +349,43 @@ request POST "$BASE/slugify" '{"data":"!!! ???"}'
 [ "$STATUS" = "400" ] && ok "Slugify (nothing sluggable -> 400)" || bad "Slugify (nothing sluggable)" "expected 400, got $STATUS"
 echo ""
 
+# ── WEBHOOK SCHEDULE + VALIDATE (added 2026-08-17) ───────────
+echo -e "${YELLOW}⏰  Webhook schedule + validate${NC}"
+
+# The full fire loop takes a cron cycle (~60s), too slow for this suite - it is
+# verified separately. Here: creation returns a scheduled job, the status shape
+# is right, and every SSRF and bounds guard refuses as designed. The guards are
+# the part that matters; a scheduler that fires internal addresses is a weapon.
+has_value "Webhook schedule (create)" POST "$BASE/webhook_schedule" '"status":"scheduled"' '{"url":"https://example.com/hook","delay_seconds":60}'
+request POST "$BASE/webhook_schedule" '{"url":"http://169.254.169.254/latest/meta-data/","delay_seconds":60}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses cloud metadata IP" || bad "Webhook schedule (metadata IP)" "expected 400, got $STATUS"
+request POST "$BASE/webhook_schedule" '{"url":"http://127.0.0.1/","delay_seconds":60}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses loopback" || bad "Webhook schedule (loopback)" "expected 400, got $STATUS"
+request POST "$BASE/webhook_schedule" '{"url":"http://10.0.0.1/","delay_seconds":60}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses private range" || bad "Webhook schedule (private range)" "expected 400, got $STATUS"
+request POST "$BASE/webhook_schedule" '{"url":"http://user:pass@example.com/","delay_seconds":60}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses URL credentials" || bad "Webhook schedule (userinfo)" "expected 400, got $STATUS"
+request POST "$BASE/webhook_schedule" '{"url":"https://example.com/","delay_seconds":2}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses sub-5s delay" || bad "Webhook schedule (too soon)" "expected 400, got $STATUS"
+request POST "$BASE/webhook_schedule" '{"url":"https://example.com/","delay_seconds":90000}'
+[ "$STATUS" = "400" ] && ok "Webhook schedule refuses beyond 24h" || bad "Webhook schedule (too far)" "expected 400, got $STATUS"
+
+# validate: fixed vectors with genuine check digits.
+has_value "Validate IBAN (valid NO)" POST "$BASE/validate/iban" '"valid":true' '{"data":"NO9386011117947"}'
+has_value "Validate IBAN (bad checksum)" POST "$BASE/validate/iban" '"checksum_ok":false' '{"data":"NO9386011117940"}'
+has_value "Validate card (Luhn ok)" POST "$BASE/validate/card" '"luhn_ok":true' '{"data":"4111111111111111"}'
+has_value "Validate card (Luhn fail)" POST "$BASE/validate/card" '"valid":false' '{"data":"4111111111111112"}'
+# The card endpoint must never reflect the number back.
+request POST "$BASE/validate/card" '{"data":"4111111111111111"}'
+case "$BODY" in *4111111111111111*) bad "Validate card (no echo)" "the card number was reflected in the response" ;; *) ok "Validate card (number never echoed)" ;; esac
+has_value "Validate orgnr (AI SENSE, MOD11)" POST "$BASE/validate/orgnr" '"valid":true' '{"data":"NO 922 601 151 MVA"}'
+has_value "Validate orgnr (bad check digit)" POST "$BASE/validate/orgnr" '"valid":false' '{"data":"922601152"}'
+has_value "Validate kontonummer (MOD11)" POST "$BASE/validate/kontonummer" '"valid":true' '{"data":"1234.56.78903"}'
+has_value "Validate phone (E.164 from 00)" POST "$BASE/validate/phone" '"e164":"+4740000000"' '{"data":"004740000000"}'
+request POST "$BASE/validate/nonsense" '{"data":"x"}'
+[ "$STATUS" = "400" ] && ok "Validate (unknown type -> 400)" || bad "Validate (unknown type)" "expected 400, got $STATUS"
+echo ""
+
 # ── MCP ──────────────────────────────────────────────────────
 # The MCP server lives at /mcp, outside /services/v1, speaking JSON-RPC 2.0
 # over POST. Documented in MCP.md and registered as

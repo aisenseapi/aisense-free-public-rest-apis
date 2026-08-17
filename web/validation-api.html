@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Validation API - IBAN, Card, Norwegian Org Number | AI SENSE</title>
+<meta name="description" content="Validate an IBAN, payment card (Luhn), Norwegian organisasjonsnummer and kontonummer (MOD11), or phone number (E.164) with one POST request. Pure check-digit arithmetic, no account, no lookup.">
+<link rel="canonical" href="https://aisense.no/validation-api">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Validation API"><meta property="og:description" content="IBAN, card, Norwegian org and account numbers, phone - check-digit validation with one unauthenticated POST."><meta property="og:url" content="https://aisense.no/validation-api"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Validation API","description":"Validate IBAN, card, Norwegian org and account numbers and phone numbers by check digit, with one unauthenticated POST request.","url":"https://aisense.no/validation-api","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Validation API","item":"https://aisense.no/validation-api"}]}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Validation API</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Web utility - Validation</p><h1 id="page-title">Validation API</h1><p class="lede">Check a business number by its check digit: IBAN, payment card, Norwegian organisasjonsnummer and kontonummer, and phone number. Pure arithmetic, one POST, no account.</p><ul class="badges"><li>No API key</li><li>Check-digit maths</li><li>Nothing looked up</li><li>Norwegian formats</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Validate a value</p><p class="sig"><span class="method post">POST</span><span class="path">/validate/{type}</span></p><code>https://aisenseapi.com/services/v1/validate/iban</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="quick-start"><h2>Validate an IBAN</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/validate/iban \
+  -H "Content-Type: application/json" \
+  -d '{"data": "NO9386011117947"}'</code></pre><pre><code>{ "type": "iban", "valid": true, "normalized": "NO9386011117947",
+  "country": "NO", "structure_ok": true, "length_ok": true, "checksum_ok": true }</code></pre><p>An invalid value is a result with <code>valid: false</code> and the failing check named, never an error. Everything is arithmetic on our side: <strong>valid means well-formed with a correct check digit</strong>, not that the account exists.</p></section>
+<section id="types"><h2>The five types</h2><div class="table-wrap field-table"><table><thead><tr><th>Type</th><th>Checks</th></tr></thead><tbody><tr><td><code>iban</code></td><td>ISO 13616 mod-97, with a length table for the countries this service meets. Outside it, <code>length_ok</code> is null and the checksum still decides.</td></tr><tr><td><code>card</code></td><td>Luhn. The card number is never echoed back in the response.</td></tr><tr><td><code>orgnr</code></td><td>Norwegian organisasjonsnummer, 9 digits, MOD11. Accepts an NO prefix and an MVA suffix.</td></tr><tr><td><code>kontonummer</code></td><td>Norwegian bank account, 11 digits, MOD11.</td></tr><tr><td><code>phone</code></td><td>E.164 shape only. Says nothing about whether the number is in service.</td></tr></tbody></table></div></section>
+<section id="examples"><h2>More examples</h2><pre><code># Payment card, Luhn
+POST /validate/card    {"data": "4111 1111 1111 1111"}  -> { "valid": true, "luhn_ok": true }
+
+# Norwegian org number
+POST /validate/orgnr   {"data": "NO 922 601 151 MVA"}   -> { "valid": true, "normalized": "922601151" }
+
+# Norwegian bank account
+POST /validate/kontonummer  {"data": "1234.56.78903"}   -> { "valid": true }
+
+# Phone, E.164
+POST /validate/phone   {"data": "004740000000"}         -> { "valid": true, "e164": "+4740000000" }</code></pre></section>
+<section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Form validation</h3><p>Catch a mistyped account or card before submitting it downstream.</p></article><article><h3>Agent input checking</h3><p>Verify a number a model extracted before it is acted on.</p></article><article><h3>Norwegian onboarding</h3><p>Check an org number or bank account at signup without a register call.</p></article><article><h3>Data cleaning</h3><p>Flag rows whose check digits do not hold.</p></article></div></section>
+<section id="privacy"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>The value travels in the POST body, not the URL. The card endpoint never reflects the number back in its response, so a real card number does not end up in the caller's logs through us.</p></div><p>The service-wide limit is 5000 requests per IP per 24 hours.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/email-validation-api">Email Validation API<span>Syntax plus MX lookup</span></a><a href="/hashing-apis">Hashing APIs<span>MD5, SHA and CRC32</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Quick start</a></li><li><a href="#types">The five types</a></li><li><a href="#examples">Examples</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#privacy">Privacy</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>

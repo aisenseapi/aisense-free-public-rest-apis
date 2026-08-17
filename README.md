@@ -468,6 +468,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url` |
 | Web | `/webhook_action` | POST / GET | `action_id`, `form_url`, `result_url` |
+| Web | `/webhook_schedule` | POST / GET | `schedule_id`, `status`, `attempts`, `http_status` |
+| Web | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | Crypto | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
 | Crypto | `/solana/balance/{address}` | GET | `wallet`, `balance_sol`, `balance_lamports` |
 | Crypto | `/bitcoin/generate_new_wallet` | GET | `private_key`, `private_key_wif`, `public_address` |
