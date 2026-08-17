@@ -1,0 +1,39 @@
+goal: Deploy build 42 to production if the smoke suite passes
+budget_tokens: 50000
+steps:
+  - n: 1
+    tool: run_tests
+    args:
+      suite: smoke
+      timeout_s: 300
+    on_fail: abort
+    status: done
+    result: 109 passed
+  - n: 2
+    tool: create_human_approval
+    args:
+      title: Deploy build 42?
+      fields:
+        - approve
+        - reject
+    on_fail: abort
+    status: done
+    result: approved by ops
+  - n: 3
+    tool: webhook_schedule
+    args:
+      url: "https://ci.example.com/deploy"
+      delay_seconds: 60
+      payload:
+        build: 42
+    on_fail: "retry:2"
+    status: pending
+    result: null
+  - n: 4
+    tool: read_webhook_capture
+    args:
+      capture_id: 6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91
+    on_fail: escalate
+    status: pending
+    result: null
+notes: Roll back with build 41 image if step 4 shows 5xx from the canary.

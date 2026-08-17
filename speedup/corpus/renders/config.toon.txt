@@ -1,0 +1,16 @@
+service: aisense-api
+region: eu-north-1
+port: 443
+tls: true
+rate_limit_per_day: 5000
+ttl_hours: 24
+log_retention_days: 14
+hosts[3]:
+  - api.aisense.no
+  - aisenseapi.com
+  - 307.fi
+features:
+  mcp: true
+  webhook_schedule: true
+  legacy_echo: false
+contact: support@aisense.no
