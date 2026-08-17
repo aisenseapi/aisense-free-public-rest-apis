@@ -10,7 +10,7 @@ counters as ground truth.
 The result changed our own plans. We set out to design a new format and the
 data talked us out of it. The findings are in
 [results/tokenizer-physics.md](results/tokenizer-physics.md); the conventions
-that survived measurement are in [SP-PROFILE.md](../SP-PROFILE.md); the whole
+that survived measurement are in [SU-PROFILE.md](../SU-PROFILE.md); the whole
 rig is here so you can rerun everything with your own keys.
 
 ## Method
@@ -83,7 +83,7 @@ Single-run measurements (spot-checks reproduced exactly, but rerun before
 betting a company on a decimal). The TOON render is our approximation of that
 spec, labelled as such. And token counts say nothing about comprehension: the
 published accuracy benchmarks for compressed formats are unflattering, which
-is exactly why the conventions in SP-PROFILE.md stop where measured savings
+is exactly why the conventions in SU-PROFILE.md stop where measured savings
 end and comprehension risk begins.
 
 Corpus, probes and results are MIT licensed with the rest of this repository.

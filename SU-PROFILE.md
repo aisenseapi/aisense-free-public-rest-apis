@@ -1,4 +1,4 @@
-# The SpeedUp profile (.sp) v0.1
+# The SpeedUp profile (.su) v0.1
 
 Not another serialization format. The world has TOON at a million weekly
 downloads and at least five challengers, and our own measurements say the
@@ -8,15 +8,15 @@ tokenizer vocabularies, with provider ground truth - instead of tuned on one
 vendor and assumed to transfer. This is that set. Every rule cites its
 number; the full data lives in [speedup/](speedup/).
 
-A .sp document is plain text a model writes to another model, or to itself.
+A .su document is plain text a model writes to another model, or to itself.
 It is valid input to any LLM with no decoder, and every rule degrades
 gracefully: break one and you lose its saving, nothing else.
 
 ## The header
 
-    ~sp a2a
+    ~su a2a
 
-One line, first line. `~sp` marks the profile (sigil choice is token-free:
+One line, first line. `~su` marks the profile (sigil choice is token-free:
 all ten candidates we measured cost exactly one leading token in all five
 vocabularies - the tilde is chosen for collision-avoidance, since `#`, `-`
 and `>` carry Markdown meanings a model may act on). The second word is the
@@ -78,12 +78,12 @@ task accuracy on weaker models. So the profile's own rule 8:
    where a misread costs more than the tokens saved. When in doubt, keys.
 
 Comprehension across the vocabulary union is the unfinished measurement, and
-until it is done, no .sp document should carry a claim beyond what the
+until it is done, no .su document should carry a claim beyond what the
 numbers above support.
 
 ## Example
 
-    ~sp a2a
+    ~su a2a
     goal: Deploy build 42 if the smoke suite passes
     budget_tokens: 50000
     ~steps[4] n tool status result

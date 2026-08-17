@@ -192,7 +192,7 @@ dict_full: `status:shipped qty:900 price:2.95` x24. dict_ref: one header
 | mis | 384 | 396 | +12 | 1.031 |
 
 **dict_ref loses to dict_full on 4 of 5 models** (+3% each) and wins only on
-deepseek (-3.6%). The core .sp hypothesis fails at this scale: common English
+deepseek (-3.6%). The core .su hypothesis fails at this scale: common English
 keys like `status` and `price` are already single tokens in all five
 vocabularies, so abbreviating them to one letter saves nothing per row, while
 the header line is pure overhead that 24 rows never amortize. This is a
@@ -265,16 +265,16 @@ chars) but about 8.7x on qwn/gma/mis, where it degenerates to exactly 1
 token per character. Union average 6.85x - hex is the single most expensive
 encoding measured.
 
-## 3. Design implications for .sp
+## 3. Design implications for .su
 
-1. **The bar for .sp is 0.819, not 1.0.** Plain TSV already delivers
+1. **The bar for .su is 0.819, not 1.0.** Plain TSV already delivers
    0.819x json_min on the union average and beats the TOON approximation
-   (0.906) on all five models. If a .sp candidate cannot beat TSV on
+   (0.906) on all five models. If a .su candidate cannot beat TSV on
    tabular payloads it is adding syntax for nothing.
 
 2. **Tabular blocks are the only large win; do not sp-ify prose.** On
    `orders`, TSV is 0.694x json_min (union avg); on the four non-tabular
-   items it is 0.988-0.996x, i.e. noise. A .sp document should switch to a
+   items it is 0.988-0.996x, i.e. noise. A .su document should switch to a
    table block for repeated records and leave key-value or prose sections
    close to conventional forms, because there is no measured token win to
    buy comprehension risk with outside tables.
@@ -330,7 +330,7 @@ encoding measured.
 9. **Never embed base64 or hex; UUIDs are near-poison.** Base64 is 3.9-4.6x
    plaintext (union 4.15x), hex is about 4x on nano/dsk but about 8.7x on the
    digit-per-token camp (union 6.85x). A full UUID costs 33-36 tokens on
-   every model (~1 token/char); an 8-char prefix costs 7-8. .sp should
+   every model (~1 token/char); an 8-char prefix costs 7-8. .su should
    forbid inline binary in the a2a profile (reference it by URL/handle
    instead) and prefer short decimal row ids over UUIDs wherever the
    producer controls the id space.
@@ -338,7 +338,7 @@ encoding measured.
 10. **Pretty-printing is the most expensive decision in the baseline set.**
     json_pretty is 1.551x json_min on the union (1.42x mis to 1.63x qwn) -
     the whitespace costs more than the entire jump from JSON to TSV saves.
-    Any .sp rendering rule that adds alignment padding or blank lines must
+    Any .su rendering rule that adds alignment padding or blank lines must
     be justified by phase-3 comprehension gains, because sections 2 (ind_*)
     and this ratio show whitespace is charged nearly full price by every
     vocabulary.
@@ -376,7 +376,7 @@ across the union.
 - **Comprehension is NOT yet measured.** Per the charter, the metric is
   fewest tokens *at equal or better task accuracy*. Phase 3 has not run.
   Nothing in this report shows that any model can read TSV, TOON, or a
-  future .sp with the accuracy it reads JSON; positional (key-free) values -
+  future .su with the accuracy it reads JSON; positional (key-free) values -
   the mechanism behind the entire measured win - are exactly the kind of
   compression most likely to cost accuracy. No compression claim in this
   report survives unless phase 3 confirms it at equal accuracy.
