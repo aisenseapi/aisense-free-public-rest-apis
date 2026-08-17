@@ -79,7 +79,7 @@ def main():
     probes['ind_tab'] = '\tkey: value\n' * R
 
     # the base64 trap, same payload three ways
-    payload = 'The refire loop came from an mbstring call under cron CLI php.'
+    payload = 'The retry loop came from a stale cache key under the nightly job.'
     probes['b64_plain'] = (payload + '\n') * R
     probes['b64_base64'] = (base64.b64encode(payload.encode()).decode() + '\n') * R
     probes['b64_hex'] = (payload.encode().hex() + '\n') * R

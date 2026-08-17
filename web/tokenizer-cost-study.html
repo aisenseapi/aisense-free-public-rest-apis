@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>We Measured LLM Serialization Across Five Tokenizers - AI SENSE</title>
-<meta name="description" content="Six data formats, five tokenizer vocabularies, 315 measurements with provider token counts as ground truth. Plain TSV beat the token-oriented formats, short-key dictionaries lost to full keys, and base64 cost up to 4.3x. Data and rig are open.">
+<meta name="description" content="Six data formats, five tokenizer vocabularies, 315 measurements with provider token counts as ground truth. Plain TSV beat the token-oriented formats, short-key dictionaries lost to full keys, and base64 cost up to 4.6x. Data and rig are open.">
 <link rel="canonical" href="https://aisense.no/tokenizer-cost-study">
 
 <meta property="og:type" content="article">
@@ -90,7 +90,7 @@
 
 <p><strong>Digit tricks do not transfer.</strong> o200k and DeepSeek chunk a ten-digit timestamp into 4 tokens; Qwen, Gemma and Mistral price it at one token per digit. A number-packing scheme tuned on GPT actively loses on half the union.</p>
 
-<p><strong>Base64 is a tax of 3.3-4.3x</strong> over the plaintext it encodes, and hex reaches 8.3x on digit-splitting vocabularies. If binary must travel between agents, send a link to it.</p>
+<p><strong>Base64 is a tax of 3.9-4.6x</strong> over the plaintext it encodes, and hex reaches 8.75x on digit-splitting vocabularies. If binary must travel between agents, send a link to it.</p>
 
 <h2>Why we are not shipping format number sixteen</h2>
 

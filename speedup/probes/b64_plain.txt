@@ -1,24 +1,24 @@
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
-The refire loop came from an mbstring call under cron CLI php.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
+The retry loop came from a stale cache key under the nightly job.
