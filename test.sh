@@ -309,6 +309,96 @@ has_key   "Ethereum Balance" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9
 has_value "Ethereum Balance (wei is a string)" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" '"balance_wei":"'
 echo ""
 
+# ── MCP ──────────────────────────────────────────────────────
+# The MCP server lives at /mcp, outside /services/v1, speaking JSON-RPC 2.0
+# over POST. Documented in MCP.md and registered as
+# io.github.aisenseapi/free-public-tools, so this section is what keeps those
+# two documents honest the same way the sections above keep API.md honest.
+echo -e "${YELLOW}🔌  MCP server${NC}"
+MCP_BASE="${AISENSE_MCP_BASE:-https://aisenseapi.com/mcp}"
+
+# mcp_post <json-body> [MCP-Protocol-Version] [accept] [mcp-method]
+# "accept" as the third argument sends the streamable-http Accept header, and
+# a fourth argument sends it as the MCP-Method header. 2026-07-28 requires
+# both; the older protocol versions require neither.
+mcp_post() {
+  local body="$1" ver="$2" accept="$3" method="$4"
+  local args=(-s -m 30 -w '\n%{http_code}' -X POST "$MCP_BASE" -H 'Content-Type: application/json')
+  [ -n "$ver" ] && args+=(-H "MCP-Protocol-Version: $ver")
+  [ "$accept" = "accept" ] && args+=(-H 'Accept: application/json, text/event-stream')
+  [ -n "$method" ] && args+=(-H "MCP-Method: $method")
+  RAW=$(curl "${args[@]}" -d "$body")
+  STATUS="${RAW##*$'\n'}"
+  BODY="${RAW%$'\n'*}"
+}
+
+mcp_expect() {
+  local label="$1" want="$2"
+  case "$BODY" in
+    *"$want"*) ok "$label" ;;
+    *) bad "$label" "expected [$want] in: $(echo "$BODY" | head -c 140)" ;;
+  esac
+}
+
+mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
+mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
+
+# Nine tools, exactly. MCP.md and web/free-public-mcp-server.html both say
+# nine, so a tenth tool must land in all three places in the same commit.
+mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
+MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
+if [ "$MCP_TOOLS" -eq 9 ]; then
+  ok "MCP tools/list (exactly 9 tools)"
+else
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 9 - update MCP.md and the web page together with this number"
+fi
+
+# 2026-07-28 enforces three contracts, checked in a fixed order: the
+# streamable-http Accept header must name both content types, the version in
+# the header must agree with _meta in the body, and an MCP-Method header must
+# match the JSON-RPC method. Each rung is asserted on its own, because each is
+# a mistake a client can make in isolation and the error message differs.
+mcp_post '{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}' '2026-07-28'
+mcp_expect "MCP 2026-07-28 without Accept -> -32020" '-32020'
+mcp_post '{"jsonrpc":"2.0","id":4,"method":"tools/list","params":{}}' '2026-07-28' accept
+mcp_expect "MCP 2026-07-28 without _meta -> -32022" '-32022'
+mcp_post '{"jsonrpc":"2.0","id":5,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}' '2026-07-28' accept
+mcp_expect "MCP 2026-07-28 without MCP-Method header" 'Mcp-Method does not match'
+mcp_post '{"jsonrpc":"2.0","id":6,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}' '2026-07-28' accept 'tools/list'
+mcp_expect "MCP tools/list (2026-07-28, all three)" '"get_current_time"'
+
+mcp_post '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"get_current_time","arguments":{}}}' '2025-11-25'
+mcp_expect "MCP call get_current_time" 'datetime'
+mcp_post '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"generate_uuid","arguments":{}}}' '2025-11-25'
+mcp_expect "MCP call generate_uuid" '"structuredContent"'
+
+# Round trip through the storage tools: what goes in must come back out.
+MCP_MARK="mcp-rt-$(date +%s)-$$"
+mcp_post "{\"jsonrpc\":\"2.0\",\"id\":7,\"method\":\"tools/call\",\"params\":{\"name\":\"store_temporary_data\",\"arguments\":{\"data\":\"$MCP_MARK\"}}}" '2025-11-25'
+MCP_SID=$(echo "$BODY" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
+if [ -n "$MCP_SID" ]; then
+  ok "MCP store_temporary_data"
+  mcp_post "{\"jsonrpc\":\"2.0\",\"id\":8,\"method\":\"tools/call\",\"params\":{\"name\":\"read_temporary_data\",\"arguments\":{\"storage_id\":\"$MCP_SID\"}}}" '2025-11-25'
+  mcp_expect "MCP read_temporary_data (round trip)" "$MCP_MARK"
+else
+  bad "MCP store_temporary_data" "no storage_id in: $(echo "$BODY" | head -c 140)"
+fi
+
+# Error signalling: tool failures are results with isError, protocol failures
+# are JSON-RPC errors. Implementations mix these up constantly; this one does
+# not, and the distinction is load-bearing for clients.
+mcp_post '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"no_such_tool","arguments":{}}}' '2025-11-25'
+mcp_expect "MCP unknown tool -> isError:true" '"isError":true'
+mcp_post '{"jsonrpc":"2.0","id":10,"method":"no/such_method","params":{}}' '2025-11-25'
+mcp_expect "MCP unknown method -> -32601" '-32601'
+
+# Verbs: POST only, OPTIONS for CORS preflight.
+MCP_GET=$(curl -s -m 15 -o /dev/null -w '%{http_code}' "$MCP_BASE")
+[ "$MCP_GET" = "405" ] && ok "MCP GET -> 405" || bad "MCP GET" "expected 405, got $MCP_GET"
+MCP_OPT=$(curl -s -m 15 -o /dev/null -w '%{http_code}' -X OPTIONS "$MCP_BASE")
+[ "$MCP_OPT" = "204" ] && ok "MCP OPTIONS -> 204" || bad "MCP OPTIONS" "expected 204, got $MCP_OPT"
+echo ""
+
 # ── SERVICE-WIDE CONTRACTS ───────────────────────────────────
 echo -e "${YELLOW}📋  Service-wide contracts${NC}"
 # Document the unknown-path behaviour rather than pretending it is a 404.
