@@ -107,6 +107,34 @@ Swatch Internet Time. `beat` is a string with a leading `@`, not a number.
 
 ---
 
+### `POST /timestamp_convert`
+One time value in, every representation out. Accepts a unix timestamp in
+seconds, a unix timestamp in **milliseconds** (13 digits and up - the format
+`Date.now()` produces, and the usual source of dates in the year 56000), an
+ISO 8601 or RFC 2822 datetime, or the literal `"now"`. Reports which format it
+detected. The optional `offset` uses the same four-digit form as `/datetime`.
+
+Unlike the older endpoints, bad input returns a real **HTTP 400**.
+
+```json
+// Request
+{ "data": "1700000000123", "offset": "+0100" }
+
+// Response
+{
+  "input": "1700000000123",
+  "detected": "unix_ms",
+  "timestamp": 1700000000,
+  "datetime": "2023-11-14T23:13:20+01:00",
+  "rfc2822": "Tue, 14 Nov 2023 23:13:20 +0100",
+  "utc_datetime": "2023-11-14T22:13:20+00:00"
+}
+```
+
+`detected` is one of `unix`, `unix_ms`, `datetime`, `now`.
+
+---
+
 ## Random
 
 ### `GET /random_number[/{from}[/{to}]]`
@@ -225,6 +253,19 @@ Same `Accept` behaviour as `base64_decode`.
 
 ---
 
+### `POST /slugify`
+Text to URL slug, with Scandinavian letters and common Latin diacritics
+transliterated by a fixed table so the same input gives the same slug on every
+machine. Characters outside the table are dropped; input that leaves nothing
+behind returns **HTTP 400** rather than an empty slug.
+
+```json
+{ "data": "Blåbærsyltetøy på Ås!" } -> { "slug": "blabaersyltetoy-pa-as" }
+{ "data": "Große Übung" }           -> { "slug": "grosse-ubung" }
+```
+
+---
+
 ### `POST /jwt_encode`
 Encodes a payload into an HS256 JWT.
 
@@ -307,6 +348,30 @@ the algorithm - not `hash`.**
 
 ---
 
+### `POST /hash_verify`
+Verify data against a hash from any of the endpoints above. JSON only, since
+the hash travels alongside the data. The algorithm is recognized from the hash
+itself: an integer means crc32 in the form `/crc32_checksum` returns, and hex
+strings are mapped by length - 8 is crc32, 32 md5, 40 sha1, 64 sha256,
+128 sha512.
+
+A mismatch is a **result**, not an error, and `computed` is always included so
+you can see what the data actually hashes to. Unrecognized hash formats return
+**HTTP 400**.
+
+```json
+// Request
+{ "data": "Hello", "hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
+
+// Response
+{ "match": true, "algorithm": "sha256", "computed": "185f8db32271fe25f561a6fc..." }
+
+// Integer crc32, straight from /crc32_checksum
+{ "data": "Hello", "hash": 4157704578 } -> { "match": true, "algorithm": "crc32", "computed": 4157704578 }
+```
+
+---
+
 ## Web
 
 ### `GET /ping`
@@ -369,6 +434,35 @@ country centroid when the city is unknown.
 ### `GET /domain_ip_lookup/{domain}`
 ```json
 { "domain": "example.com", "ip": "104.20.23.154" }
+```
+
+---
+
+### `POST /email_validate`
+Syntax check, then DNS. `has_mx` means the domain publishes MX records;
+`has_address_record` means it resolves at all, which RFC 5321 allows as a
+delivery fallback - so a missing MX alone does not prove an address dead.
+Neither proves a mailbox exists; only an SMTP conversation could, and this
+endpoint deliberately never opens one.
+
+An address that fails validation is a **result** with `valid_syntax: false`,
+not an error. 400 is reserved for sending no input at all. DNS resolution uses
+the host resolver only - nothing is sent to any third party. Internationalized
+domains are not converted to punycode and report `valid_syntax: false`.
+
+```json
+// Request
+{ "data": "test@gmail.com" }
+
+// Response
+{
+  "email": "test@gmail.com",
+  "valid_syntax": true,
+  "domain": "gmail.com",
+  "has_mx": true,
+  "mx_hosts": ["gmail-smtp-in.l.google.com", "alt1.gmail-smtp-in.l.google.com"],
+  "has_address_record": true
+}
 ```
 
 ---
@@ -569,6 +663,7 @@ numbers; their smallest units stay well inside the safe range.
 | `/microtimestamp` | `microtimestamp` |
 | `/timezones` | `timezones` (array of objects) |
 | `/swatchinternettime` | `beat`, `date` |
+| `/timestamp_convert` | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | `/random_number` | `random_number`, `range` |
 | `/random_color` | `random_color` |
 | `/uuid` | `uuid` |
@@ -593,6 +688,9 @@ numbers; their smallest units stay well inside the safe range.
 | `/user_agent` | `user_agent` |
 | `/ip_reverse_lookup` | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup` | `domain`, `ip` |
+| `/email_validate` | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
+| `/hash_verify` | `match`, `algorithm`, `computed` |
+| `/slugify` | `slug` |
 | `/storage` (store) | `storage_id`, `expire_timestamp` |
 | `/url_shortener` | `short_url`, `expire_timestamp` |
 | `/webhook_capture` (create) | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |

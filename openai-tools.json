@@ -528,5 +528,59 @@
         "required": ["address"]
       }
     }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "timestamp_convert",
+      "description": "Convert one time value into every representation. Accepts unix seconds, unix MILLISECONDS (13+ digits, the Date.now() format - detected automatically), ISO 8601, RFC 2822, or \"now\". Returns {\"input\", \"detected\": \"unix\"|\"unix_ms\"|\"datetime\"|\"now\", \"timestamp\", \"datetime\", \"rfc2822\", \"utc_datetime\"}. Bad input returns HTTP 400. POST /timestamp_convert",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": { "type": "string", "description": "The value to convert: unix seconds, unix milliseconds, ISO 8601, RFC 2822, or \"now\"." },
+          "offset": { "type": "string", "description": "Optional four-digit UTC offset for the datetime output, e.g. \"+0200\" or \"-0530\". Same form as /datetime." }
+        },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "email_validate",
+      "description": "Validate an email address: syntax, then DNS. Returns {\"email\", \"valid_syntax\", \"domain\", \"has_mx\", \"mx_hosts\", \"has_address_record\"}. A failing address is a RESULT with valid_syntax false, not an error. has_address_record covers the RFC 5321 A-record fallback, so absent MX alone does not prove the address dead. Does not verify the mailbox exists. POST /email_validate",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "The email address to validate." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_verify",
+      "description": "Verify data against a hash. The algorithm is recognized from the hash itself: an integer means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": { "type": "string", "description": "The data that was hashed." },
+          "hash": { "type": "string", "description": "The expected hash: hex string, or integer crc32 as a string." }
+        },
+        "required": ["data", "hash"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "slugify",
+      "description": "Turn text into a URL slug. Scandinavian letters and common Latin diacritics are transliterated by a fixed table (deterministic across machines): \"Blåbærsyltetøy på Ås!\" becomes \"blabaersyltetoy-pa-as\". Returns {\"slug\"}. Input with no sluggable characters returns HTTP 400 rather than an empty slug. POST /slugify",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "The text to slugify." } },
+        "required": ["data"]
+      }
+    }
   }
 ]

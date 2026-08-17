@@ -309,6 +309,46 @@ has_key   "Ethereum Balance" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9
 has_value "Ethereum Balance (wei is a string)" GET "$BASE/ethereum/balance/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" '"balance_wei":"'
 echo ""
 
+# ── UTILITY ENDPOINTS (added 2026-08-17) ─────────────────────
+echo -e "${YELLOW}🧰  Utility endpoints${NC}"
+
+# timestamp_convert: fixed vector so a timezone or off-by-1000 regression is
+# caught by value, not by shape. 1700000000 is 2023-11-14T22:13:20+00:00.
+has_value "Timestamp convert (unix)" POST "$BASE/timestamp_convert" '"datetime":"2023-11-14T22:13:20+00:00"' '{"data":"1700000000"}'
+has_value "Timestamp convert (detects milliseconds)" POST "$BASE/timestamp_convert" '"detected":"unix_ms"' '{"data":"1700000000123"}'
+has_value "Timestamp convert (ms divides to seconds)" POST "$BASE/timestamp_convert" '"timestamp":1700000000' '{"data":"1700000000123"}'
+has_value "Timestamp convert (ISO back to unix)" POST "$BASE/timestamp_convert" '"timestamp":1700000000' '{"data":"2023-11-14T22:13:20+00:00"}'
+has_value "Timestamp convert (offset +0100)" POST "$BASE/timestamp_convert" '"datetime":"2023-11-14T23:13:20+01:00"' '{"data":"1700000000","offset":"+0100"}'
+request POST "$BASE/timestamp_convert" '{"data":"not a date"}'
+[ "$STATUS" = "400" ] && ok "Timestamp convert (bad input -> 400)" || bad "Timestamp convert (bad input)" "expected 400, got $STATUS"
+
+# email_validate: a failing address is a result, not an error.
+has_value "Email validate (gmail.com has MX)" POST "$BASE/email_validate" '"has_mx":true' '{"data":"test@gmail.com"}'
+has_value "Email validate (bad syntax is a result)" POST "$BASE/email_validate" '"valid_syntax":false' '{"data":"not-an-email"}'
+
+# hash_verify: the tampered vector differs from the real digest in its final
+# character, which is exactly the kind of mismatch eyeballs skip.
+has_value "Hash verify (sha256 match)" POST "$BASE/hash_verify" '"match":true' '{"data":"Hello","hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"}'
+has_value "Hash verify (tampered digest)" POST "$BASE/hash_verify" '"match":false' '{"data":"Hello","hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381970"}'
+has_value "Hash verify (integer crc32)" POST "$BASE/hash_verify" '"algorithm":"crc32"' '{"data":"Hello","hash":4157704578}'
+request POST "$BASE/hash_verify" '{"data":"Hello","hash":"abc123"}'
+[ "$STATUS" = "400" ] && ok "Hash verify (unknown length -> 400)" || bad "Hash verify (unknown length)" "expected 400, got $STATUS"
+
+# slugify: the Scandinavian vector is sent as explicit UTF-8 bytes from a
+# file, because Windows shells mangle multibyte characters on the command
+# line and the test must not depend on the terminal's encoding.
+has_value "Slugify (ascii)" POST "$BASE/slugify" '"slug":"hello-world"' '{"data":"Hello World"}'
+printf '{"data":"Bl\xc3\xa5b\xc3\xa6rsyltet\xc3\xb8y p\xc3\xa5 \xc3\x85s!"}' > /tmp/aisense-slug-test.json
+SLUG_RAW=$(curl -s -m 30 -X POST "$BASE/slugify" -H 'Content-Type: application/json' --data-binary @/tmp/aisense-slug-test.json)
+rm -f /tmp/aisense-slug-test.json
+case "$SLUG_RAW" in
+  *'"slug":"blabaersyltetoy-pa-as"'*) ok "Slugify (transliterates aa ae oe)" ;;
+  *) bad "Slugify (transliterates aa ae oe)" "got: $(echo "$SLUG_RAW" | head -c 120)" ;;
+esac
+request POST "$BASE/slugify" '{"data":"!!! ???"}'
+[ "$STATUS" = "400" ] && ok "Slugify (nothing sluggable -> 400)" || bad "Slugify (nothing sluggable)" "expected 400, got $STATUS"
+echo ""
+
 # ── MCP ──────────────────────────────────────────────────────
 # The MCP server lives at /mcp, outside /services/v1, speaking JSON-RPC 2.0
 # over POST. Documented in MCP.md and registered as
