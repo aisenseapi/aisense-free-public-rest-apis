@@ -434,6 +434,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Time | `/microtimestamp` | GET | `microtimestamp` |
 | Time | `/timezones[/{offset}]` | GET | `timezones` |
 | Time | `/swatchinternettime` | GET | `beat`, `date` |
+| Time | `/timestamp_convert` | POST | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | Random | `/random_number[/{from}[/{to}]]` | GET | `random_number`, `range` |
 | Random | `/random_color` | GET | `random_color` |
 | Random | `/uuid` | GET | `uuid` |
@@ -445,6 +446,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Transform | `/base58_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | Transform | `/base32_encode` | POST | `base32_encoded_data` |
 | Transform | `/base32_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| Transform | `/slugify` | POST | `slug` |
 | Transform | `/jwt_encode` | POST | `jwt` |
 | Transform | `/jwt_decode` | POST | `decoded_payload` |
 | Transform | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
@@ -454,12 +456,14 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Hash | `/sha256_hash` | POST | `sha256_hash` |
 | Hash | `/sha512_hash` | POST | `sha512_hash` |
 | Hash | `/crc32_checksum` | POST | `crc32_checksum` |
+| Hash | `/hash_verify` | POST | `match`, `algorithm`, `computed` |
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |
 | Web | `/client_ip` | GET | `ip` |
 | Web | `/user_agent` | GET | `user_agent` |
 | Web | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | Web | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
+| Web | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts` |
 | Web | `/storage` | POST / GET | `storage_id`, `expire_timestamp` |
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url` |

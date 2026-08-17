@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation - no authentication required for any endpoint
 ---
 
@@ -311,6 +311,7 @@ return numbers; their smallest units stay inside the safe range.
 | `/microtimestamp` | GET | `microtimestamp` |
 | `/timezones[/{offset}]` | GET | `timezones` (array of objects) |
 | `/swatchinternettime` | GET | `beat`, `date` |
+| `/timestamp_convert` | POST | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | `/random_number[/{from}[/{to}]]` | GET | `random_number`, `range` |
 | `/random_color` | GET | `random_color` |
 | `/uuid` | GET | `uuid` |
@@ -322,6 +323,7 @@ return numbers; their smallest units stay inside the safe range.
 | `/base64_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | `/base58_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | `/base32_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/slugify` | POST | `slug` |
 | `/jwt_encode` | POST | `jwt` |
 | `/jwt_decode` | POST | `decoded_payload` |
 | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
@@ -331,12 +333,14 @@ return numbers; their smallest units stay inside the safe range.
 | `/sha256_hash` | POST | `sha256_hash` |
 | `/sha512_hash` | POST | `sha512_hash` |
 | `/crc32_checksum` | POST | `crc32_checksum` (integer) |
+| `/hash_verify` | POST | `match`, `algorithm`, `computed` |
 | `/ping` | GET | `ping` |
 | `/health` | GET | `status`, `microtimestamp` |
 | `/client_ip` | GET | `ip` |
 | `/user_agent` | GET | `user_agent` |
 | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
+| `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
 | `/storage` | POST | `storage_id`, `expire_timestamp` |
 | `/storage/{id}` | GET | the stored body, verbatim |
 | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |

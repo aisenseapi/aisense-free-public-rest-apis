@@ -31,6 +31,11 @@
 <section id="swatch"><h2>Swatch Internet Time</h2><p>This endpoint divides the day into 1000 beats based on Biel Mean Time.</p><pre><code>curl https://aisenseapi.com/services/v1/swatchinternettime
 
 { "beat": "@444", "date": "2026-08-16" }</code></pre><p><code>beat</code> is a string that begins with <code>@</code>.</p></section>
+<section id="convert"><h2>Convert between time formats</h2><p><code>POST /timestamp_convert</code> takes one value - unix seconds, unix <strong>milliseconds</strong> (13 digits and up, detected automatically), ISO 8601, RFC 2822 or <code>"now"</code> - and returns every representation, with an optional four-digit offset for the datetime output. Bad input returns HTTP 400.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/timestamp_convert 
+  -H "Content-Type: application/json" -d '{"data": "1700000000123", "offset": "+0100"}'
+
+{ "detected": "unix_ms", "timestamp": 1700000000,
+  "datetime": "2023-11-14T23:13:20+01:00", "utc_datetime": "2023-11-14T22:13:20+00:00" }</code></pre></section>
 <section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Workflow timestamps</h3><p>Add a shared server-side timestamp to an automation result.</p></article><article><h3>Timezone selection</h3><p>Build a list of zones that currently share a given UTC offset.</p></article><article><h3>Scheduling input</h3><p>Convert a user-selected offset into an ISO 8601 value.</p></article><article><h3>Testing</h3><p>Fetch a current value when test code needs time from an external source.</p></article></div></section>
 <section id="limits"><h2>Response and error handling</h2><p>The response key matches the endpoint name. Most invalid requests in the wider service return an <code>error</code> object with HTTP 200, so clients should inspect the body. The service-wide limit is 5000 requests per IP per 24 hours.</p></section>
 <section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/ip-reverse-lookup-api">IP Reverse Lookup API<span>Get an approximate IANA timezone for an IP</span></a><a href="/random-generator-apis">Random Generator APIs<span>Create IDs and test values</span></a></div></section>

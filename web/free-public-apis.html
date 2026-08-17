@@ -192,6 +192,17 @@
 <p>Swatch Internet Time. The day is divided into 1000 .beats of 86.4 seconds each, based on Biel Meantime, with no time zones. <code>beat</code> is a string with a leading <code>@</code>, not a number.</p>
 <pre><code>{ "beat": "@444", "date": "2026-08-16" }</code></pre>
 </article>
+
+<article class="endpoint">
+<h3>Timestamp Convert REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/timestamp_convert</span></p>
+<p>One time value in, every representation out. Accepts unix seconds, unix <strong>milliseconds</strong> (13 digits and up, the <code>Date.now()</code> format, detected automatically), ISO 8601, RFC 2822, or <code>"now"</code>. The optional <code>offset</code> uses the same four digit form as <code>/datetime</code>. Bad input returns HTTP 400.</p>
+<pre><code>Request:  { "data": "1700000000123", "offset": "+0100" }
+
+Response: { "input": "1700000000123", "detected": "unix_ms", "timestamp": 1700000000,
+  "datetime": "2023-11-14T23:13:20+01:00", "rfc2822": "Tue, 14 Nov 2023 23:13:20 +0100",
+  "utc_datetime": "2023-11-14T22:13:20+00:00" }</code></pre>
+</article>
 </section>
 
 <!-- RANDOM -->
@@ -301,6 +312,13 @@ Response: Hello</code></pre>
 </article>
 
 <article class="endpoint">
+<h3>Slugify REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/slugify</span></p>
+<p>Text to URL slug. Scandinavian letters and common Latin diacritics are transliterated by a fixed table, so the same input gives the same slug on every machine. Input with no sluggable characters returns HTTP 400 rather than an empty slug.</p>
+<pre><code>{ "data": "Blåbærsyltetøy på Ås!" }   ->   { "slug": "blabaersyltetoy-pa-as" }</code></pre>
+</article>
+
+<article class="endpoint">
 <h3>JWT Encode REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/jwt_encode</span></p>
 <p>Encodes a payload into an HS256 JSON Web Token. <strong><code>data</code> must be a string.</strong> Passing a JSON object returns <code>{"error": "Invalid data provided. Expected a string."}</code> - serialise the payload first.</p>
@@ -376,6 +394,15 @@ Response: Hello</code></pre>
 <pre><code>Request:  { "data": "Hello" }
 Response: { "crc32_checksum": 4157704578 }</code></pre>
 </article>
+
+<article class="endpoint">
+<h3>Hash Verify REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/hash_verify</span></p>
+<p>Verify data against a hash from any endpoint above. The algorithm is recognized from the hash itself: an integer means crc32, hex strings map by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). A mismatch is a result with <code>match: false</code>, and <code>computed</code> is always included so the difference is visible. JSON only.</p>
+<pre><code>Request:  { "data": "Hello", "hash": "185f8db32271fe25f561a6fc938b2e26..." }
+
+Response: { "match": true, "algorithm": "sha256", "computed": "185f8db3..." }</code></pre>
+</article>
 </section>
 
 <!-- WEB -->
@@ -429,6 +456,16 @@ Response: { "crc32_checksum": 4157704578 }</code></pre>
 <h3>Domain IP Lookup REST API Endpoint</h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/domain_ip_lookup/{domain}</span></p>
 <pre><code>{ "domain": "example.com", "ip": "104.20.23.154" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Email Validate REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/email_validate</span></p>
+<p>Syntax check, then DNS through the host resolver - nothing goes to a third party. <code>has_mx</code> means the domain publishes MX records; <code>has_address_record</code> covers the RFC 5321 fallback, so a missing MX alone does not prove an address dead. A failing address is a result with <code>valid_syntax: false</code>, and the endpoint never opens an SMTP conversation.</p>
+<pre><code>Request:  { "data": "test@gmail.com" }
+
+Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.com",
+  "has_mx": true, "mx_hosts": ["gmail-smtp-in.l.google.com", "..."], "has_address_record": true }</code></pre>
 </article>
 
 <article class="endpoint">
@@ -601,6 +638,7 @@ response = client.chat.completions.create(
 <tr><td>Time</td><td><code>/microtimestamp</code></td><td>GET</td><td><code>microtimestamp</code></td></tr>
 <tr><td>Time</td><td><code>/timezones[/{offset}]</code></td><td>GET</td><td><code>timezones</code></td></tr>
 <tr><td>Time</td><td><code>/swatchinternettime</code></td><td>GET</td><td><code>beat</code>, <code>date</code></td></tr>
+<tr><td>Time</td><td><code>/timestamp_convert</code></td><td>POST</td><td><code>detected</code>, <code>timestamp</code>, <code>datetime</code>, <code>rfc2822</code>, <code>utc_datetime</code></td></tr>
 <tr><td>Random</td><td><code>/random_number[/{from}[/{to}]]</code></td><td>GET</td><td><code>random_number</code>, <code>range</code></td></tr>
 <tr><td>Random</td><td><code>/random_color</code></td><td>GET</td><td><code>random_color</code></td></tr>
 <tr><td>Random</td><td><code>/uuid</code></td><td>GET</td><td><code>uuid</code></td></tr>
@@ -612,6 +650,7 @@ response = client.chat.completions.create(
 <tr><td>Transform</td><td><code>/base58_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
 <tr><td>Transform</td><td><code>/base32_encode</code></td><td>POST</td><td><code>base32_encoded_data</code></td></tr>
 <tr><td>Transform</td><td><code>/base32_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
+<tr><td>Transform</td><td><code>/slugify</code></td><td>POST</td><td><code>slug</code></td></tr>
 <tr><td>Transform</td><td><code>/jwt_encode</code></td><td>POST</td><td><code>jwt</code></td></tr>
 <tr><td>Transform</td><td><code>/jwt_decode</code></td><td>POST</td><td><code>decoded_payload</code></td></tr>
 <tr><td>Transform</td><td><code>/qrcode_encode</code></td><td>POST</td><td><code>qrcode_image</code>, <code>image_type</code></td></tr>
@@ -621,12 +660,14 @@ response = client.chat.completions.create(
 <tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha512_hash</code></td><td>POST</td><td><code>sha512_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/crc32_checksum</code></td><td>POST</td><td><code>crc32_checksum</code></td></tr>
+<tr><td>Hash</td><td><code>/hash_verify</code></td><td>POST</td><td><code>match</code>, <code>algorithm</code>, <code>computed</code></td></tr>
 <tr><td>Web</td><td><code>/ping</code></td><td>GET</td><td><code>ping</code></td></tr>
 <tr><td>Web</td><td><code>/health</code></td><td>GET</td><td><code>status</code>, <code>microtimestamp</code></td></tr>
 <tr><td>Web</td><td><code>/client_ip</code></td><td>GET</td><td><code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/user_agent</code></td><td>GET</td><td><code>user_agent</code></td></tr>
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
+<tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td><code>capture_id</code>, <code>update_url</code>, <code>read_url</code></td></tr>
