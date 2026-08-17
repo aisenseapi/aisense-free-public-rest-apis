@@ -17,17 +17,17 @@ rig is here so you can rerun everything with your own keys.
 
 - Six renders per corpus item: minified JSON, pretty JSON, YAML, Markdown,
   TSV, and a TOON approximation. Deterministic renderer, byte-identical
-  across runs (tools/render.php).
+  across runs (tools/render.py).
 - 33 single-construct probes: sigil characters, key-value syntaxes, a header
   dictionary vs repeated keys, number and identifier formats, separators,
-  indentation, and base64/hex against plaintext (tools/probes.php).
+  indentation, and base64/hex against plaintext (tools/probes.py).
 - Five oracles, one per vocabulary family: OpenAI gpt-4.1-nano (o200k),
   deepseek-v4-flash (DeepSeek BPE), qwen3.5 (Qwen BPE), gemma4
   (SentencePiece), mistral-large-3 (Tekken), the last four via Ollama Cloud.
 - Ground truth is the provider's own count: usage.prompt_tokens on OpenAI,
   prompt_eval_count on Ollama, with a per-model calibration row (empty
   message) subtracted so chat scaffolding does not pollute the numbers
-  (tools/measure.sh).
+  (tools/measure.py).
 - 315 measurements, zero failures, spot-checked by re-measurement. Raw data
   in results/raw/, one TSV per oracle.
 
@@ -54,21 +54,26 @@ rig is here so you can rerun everything with your own keys.
 
 ## Reproduce it
 
-You need PHP (any 8.x, no extensions), curl, and keys:
+You need Python 3 (standard library only - no pip installs, no curl), and
+keys:
 
     export SPEEDUP_OPENAI_KEY=sk-...
     export SPEEDUP_OLLAMA_KEY=...        # ollama.com cloud key
 
-    php tools/render.php
-    php tools/probes.php
-    bash tools/measure.sh openai gpt-4.1-nano --all results/raw/my_run.tsv
+    python tools/render.py
+    python tools/probes.py
+    python tools/measure.py openai gpt-4.1-nano --all results/raw/my_run.tsv
+
+The rig was originally written in PHP; this Python port reproduces every
+render and probe byte for byte, and returns identical token counts from
+both providers (verified against the published raw TSVs).
 
 Keys can also live in a local .o-tokens file next to this README (gitignored).
 Completion is capped at one token per call; a full 64-call run on a nano
 model costs a few hundredths of a dollar and every run appends to
 results/cost-log.txt.
 
-To add a vocabulary, point measure.sh at any model whose API reports prompt
+To add a vocabulary, point measure.py at any model whose API reports prompt
 token counts, and rerun. To challenge a finding, rerun it - token counting is
 deterministic, and a number you cannot reproduce is a bug report we want.
 
