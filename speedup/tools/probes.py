@@ -9,7 +9,7 @@ calibration noise. The design questions each group answers:
   sigil_*   which section/marker characters are cheap across vocabularies
   key_*     what a key-value pair costs in each syntax style
   dict_*    whether a header dictionary plus short references beats
-            repeating full keys (the core .sp hypothesis)
+            repeating full keys (the core .su hypothesis)
   num_*     how numbers, timestamps and uuids tokenize
   sep_*     newline vs space vs tab vs pipe as separators
   ind_*     what indentation costs per level
