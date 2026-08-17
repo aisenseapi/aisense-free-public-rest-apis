@@ -42,15 +42,14 @@ Every response shape in this repo was verified against production.
 There is no generic `data` or `result` wrapper. Do not guess the key -
 [`API.md`](API.md) lists every one.
 
-**Most failures arrive as HTTP 200.** A bad request usually returns
-`{"error": "..."}` with a 200 status. Branch on the presence of an `error` key,
-not on the status code. A path that matches no route also returns 200, with a
-body that is not parseable JSON at all - if your client throws a parse error,
-check the URL first.
+**Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
+2026-08-17: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate
+limit, 500 our failure, 502/504 an upstream. Branch on the status or on the
+`error` key - both are trustworthy, and every error body kept its exact
+wording through the change, so older clients keep working.
 
 **There is a rate limit: 5000 requests per IP per 24 hours.** Exceeding it
-returns HTTP 429 with a different envelope from everything else:
-`{"status": {"code": 429, "message": "..."}}`.
+returns HTTP 429 in the same flat error shape as everything else.
 
 ---
 
@@ -256,19 +255,19 @@ The three decoders (`base64_decode`, `base58_decode`, `base32_decode`) answer
 with `application/octet-stream` unless you send `Accept: application/json`.
 This is the one place the API is not JSON.
 
-**JWT - `data` must be a string.** Passing an object returns
-`{"error": "Invalid data provided. Expected a string."}`.
+**JWT - `data` takes the claims as a JSON object, or as a string containing
+JSON.** Both forms produce the same token.
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/jwt_encode \
   -H "Content-Type: application/json" \
-  -d '{"data": "{\"user\":\"alice\"}", "secret": "my-secret-key"}'
+  -d '{"data": {"user": "alice"}, "secret": "my-secret-key"}'
 # -> { "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." }
 ```
 
 `jwt_decode` returns `decoded_payload`.
 
-**QR - the request field is `payload`, not `data`.**
+**QR - the request field is `payload`, with `data` accepted as an alias.**
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/qrcode_encode \

@@ -30,17 +30,17 @@ guess it.
 
 ## Reading this document
 
-Three service-wide behaviours matter more than any single endpoint, because they
-decide how you write your error handling.
+Two service-wide behaviours matter more than any single endpoint.
 
-**Most failures come back as HTTP 200.** A bad request usually returns
-`{"error": "..."}` with a 200 status. A few endpoints do return 4xx. Branch on
-the presence of an `error` key, not on the status code.
-
-**Unknown paths do not 404.** A path that matches no route returns HTTP 200 and
-a body like `["203.0.113.9",1786873281]["\/services\/v1\/typo","1","typo"]`.
-That is two concatenated JSON arrays, so it is not parseable JSON. If your
-client throws a JSON parse error, check the URL before you check anything else.
+**Errors are `{"error": "message"}` with a real HTTP status.** One rule across
+the whole surface, uniform since 2026-08-17: 400 is your mistake, 404 is an
+unknown id or endpoint, 429 is the rate limit, 500 is our failure, 502 and 504
+are an upstream refusing or timing out. Branch on the status or on the `error`
+key - both are trustworthy, and the body shape is the same everywhere. A path
+that matches no route is a plain 404 with the same error shape. (Before
+2026-08-17 most failures arrived as HTTP 200 and unknown paths returned an
+unparseable debug echo; clients written against that era keep working, since
+every error body is unchanged.)
 
 **Not everything is JSON.** `base64_decode`, `base58_decode` and `base32_decode`
 answer with `application/octet-stream` unless you send `Accept: application/json`.
@@ -269,12 +269,16 @@ behind returns **HTTP 400** rather than an empty slug.
 ### `POST /jwt_encode`
 Encodes a payload into an HS256 JWT.
 
-**`data` must be a string.** Passing a JSON object returns
-`{"error": "Invalid data provided. Expected a string."}` - serialise your
-payload first.
+`data` takes the claims as a **JSON object directly**, or as a string
+containing JSON - both forms produce the same token. (Before 2026-08-17 only
+the string form was accepted, and passing an object was the most-hit trap on
+the surface.) A string that does not parse as JSON returns HTTP 400.
 
 ```json
-// Request
+// Request - object form
+{ "data": { "user": "alice" }, "secret": "your_secret_key" }
+
+// Request - string form, same token
 { "data": "{\"user\":\"alice\"}", "secret": "your_secret_key" }
 
 // Response
@@ -298,7 +302,7 @@ or a file upload (`jwt_data` field, `multipart/form-data`).
 ---
 
 ### `POST /qrcode_encode`
-Generates a QR code. The request field is **`payload`**, not `data`.
+Generates a QR code. The request field is `payload`, with `data` accepted as an alias since 2026-08-17.
 
 ```json
 // Request
@@ -795,11 +799,11 @@ numbers; their smallest units stay well inside the safe range.
 
 ### Rate limit
 
-**5000 requests per IP per 24 hours.** Exceeding it returns HTTP 429 with a
-different envelope from every other endpoint:
+**5000 requests per IP per 24 hours.** Exceeding it returns HTTP 429 in the
+same flat error shape as everything else:
 
 ```json
-{ "status": { "code": 429, "message": "Too Many Requests last 24H. Limit exceeded! (5000/24H)" } }
+{ "error": "Too many requests. The limit is 5000 per IP per 24 hours." }
 ```
 
 ### CORS
