@@ -478,7 +478,17 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .posts-hero h1 { font-size: clamp(45px, 6vw, 68px); }
 .posts-hero .lede { max-width: 760px; }
 
-.post-list { padding: 65px 0 92px; }
+/* Grid gap rather than margin-bottom on the cards: no trailing margin after
+   the last card, and one number to tune. 32px, not 8 - the card shadow blurs
+   45px, so tighter spacing makes neighbouring shadows overlap. */
+.post-list { padding: 65px 0 92px; display: grid; gap: 32px; }
+
+/* A text-only card (no image) spans the full card width instead of sitting
+   in the image column beside an empty cell, and drops the image-driven
+   height. */
+.post-card > .post-card-body:only-child { grid-column: 1 / -1; }
+.post-card:has(> .post-card-body:only-child) { min-height: 0; }
+
 .post-card {
   display: grid;
   grid-template-columns: minmax(330px, 1.08fr) minmax(320px, 0.92fr);
