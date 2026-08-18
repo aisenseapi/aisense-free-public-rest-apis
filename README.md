@@ -19,6 +19,32 @@ for the tool list and client examples.
 
 ---
 
+## SpeedUp (.su) - token cost, measured properly
+
+Every serialization format marketed for LLM input ships a token-saving claim
+measured against a single tokenizer. Agent traffic crosses vendors, so we
+measured instead of assumed: six formats and 33 single-construct probes,
+priced by five vocabulary families (OpenAI o200k, DeepSeek, Qwen,
+SentencePiece, Tekken), with each provider's own token counter as ground
+truth.
+
+- [`SU-PROFILE.md`](SU-PROFILE.md) - the SpeedUp profile: eight writing
+  conventions for agent-to-agent text, each citing its measured price tag
+- [`speedup/`](speedup/) - the measurement rig (Python, standard library
+  only), corpus, probes and raw numbers; rerun everything with your own keys
+- [The study](https://aisense.no/tokenizer-cost-study) - what survived
+  measurement, what did not, and why we decided against shipping yet another
+  format
+
+Headline numbers: plain TSV averages 0.82x minified JSON across the
+five-vocabulary union and beats the token-oriented formats on every model;
+declaring columns once and sending values positionally is the entire
+mechanism (minus 34 percent per key-value pair); base64 costs 3.9-4.6x the
+plaintext it encodes; and single-letter key dictionaries lose to full keys
+on four of five vocabularies.
+
+---
+
 ## Why this exists
 
 Most utility APIs require sign-up, rate limit tiers, or pricing for basic
