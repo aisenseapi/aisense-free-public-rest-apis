@@ -115,12 +115,12 @@
   <h2 id="api-guides-heading">Detailed API guides</h2>
   <p>Each guide includes request formats, response fields, curl examples and common errors.</p>
   <div class="related-api-grid">
-    <a href="/webhook-capture-api"><strong>Webhook Capture API</strong><span>Receive and inspect webhooks for 24 hours.</span></a>
-    <a href="/webhook-action-api"><strong>Webhook Action API</strong><span>Pause a workflow for a human answer.</span></a>
-    <a href="/temporary-storage-api"><strong>Temporary Storage API</strong><span>Store JSON, text or files for 24 hours.</span></a>
-    <a href="/url-shortener-api"><strong>URL Shortener API</strong><span>Create short links that expire after 24 hours.</span></a>
-    <a href="/ip-reverse-lookup-api"><strong>IP Reverse Lookup API</strong><span>Look up country, location and timezone data.</span></a>
-    <a href="/qr-code-api"><strong>QR Code API</strong><span>Encode and decode QR code images.</span></a>
+    <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive and inspect webhooks for 24 hours.</span></a>
+    <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Pause a workflow for a human answer.</span></a>
+    <a href="/free-public-api-storage-api-endpoint"><strong>Temporary Storage API</strong><span>Store JSON, text or files for 24 hours.</span></a>
+    <a href="/free-public-api-url-shortener-api-endpoint"><strong>URL Shortener API</strong><span>Create short links that expire after 24 hours.</span></a>
+    <a href="/free-public-api-ip-reverse-lookup-api-endpoint"><strong>IP Reverse Lookup API</strong><span>Look up country, location and timezone data.</span></a>
+    <a href="/free-public-api-qr-code-encode-api-endpoint"><strong>QR Code API</strong><span>Encode and decode QR code images.</span></a>
     <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512 and CRC32.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
@@ -252,7 +252,7 @@ Response: { "input": "1700000000123", "detected": "unix_ms", "timestamp": 170000
 <h2 id="transform-heading">Transform</h2>
 
 <p>All Transform endpoints are <code>POST</code> and accept JSON, plain text with <code>Content-Type: text/plain</code>, or a file upload.</p>
-<p>Use the <a href="/encoding-apis">encoding API guide</a> for Base32, Base58 and Base64. The <a href="/qr-code-api">QR code API guide</a> covers image encoding and decoding.</p>
+<p>Use the <a href="/encoding-apis">encoding API guide</a> for Base32, Base58 and Base64. The <a href="/free-public-api-qr-code-encode-api-endpoint">QR code API guide</a> covers image encoding and decoding.</p>
 
 <article class="endpoint">
 <h3>Base64 Encode REST API Endpoint</h3>
@@ -435,7 +435,7 @@ Response: { "match": true, "algorithm": "sha256", "computed": "185f8db3..." }</c
 </article>
 
 <article class="endpoint">
-<h3><a href="/ip-reverse-lookup-api">IP Reverse Lookup REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-ip-reverse-lookup-api-endpoint">IP Reverse Lookup REST API Endpoint</a></h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/ip_reverse_lookup/{ip}</span></p>
 <p>Geolocates an IP address. <code>city</code> and <code>place</code> are frequently <code>null</code>, and the coordinates fall back to the country centroid when the city is unknown. Latitude and longitude are strings.</p>
 <pre><code>curl https://aisenseapi.com/services/v1/ip_reverse_lookup/8.8.8.8
@@ -469,13 +469,13 @@ Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.co
 <article class="endpoint">
 <h3>Validate REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/validate/{type}</span></p>
-<p>Check-digit validation for <code>iban</code>, <code>card</code>, <code>orgnr</code>, <code>kontonummer</code> and <code>phone</code>. Pure arithmetic - nothing is looked up, so valid means well-formed with a correct check digit. An invalid value is a result with <code>valid: false</code>, and the card number is never echoed back. <a href="/validation-api">Full details</a>.</p>
+<p>Check-digit validation for <code>iban</code>, <code>card</code>, <code>orgnr</code>, <code>kontonummer</code> and <code>phone</code>. Pure arithmetic - nothing is looked up, so valid means well-formed with a correct check digit. An invalid value is a result with <code>valid: false</code>, and the card number is never echoed back. <a href="/free-public-api-validate-api-endpoint">Full details</a>.</p>
 <pre><code>POST /validate/iban   { "data": "NO9386011117947" }
   ->  { "type": "iban", "valid": true, "country": "NO", "checksum_ok": true }</code></pre>
 </article>
 
 <article class="endpoint">
-<h3><a href="/temporary-storage-api">Storage REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-storage-api-endpoint">Storage REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/storage</span> - <span class="method">GET</span> <span class="path">/storage/{storage_id}</span></p>
 <p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere - another machine, a later pipeline step, a different agent call. No database and no credentials.</p>
 <p>The body is stored <strong>verbatim</strong>: whatever you send is exactly what comes back, with no wrapper added or removed. Everything expires after 24 hours.</p>
@@ -489,7 +489,7 @@ Response: {"result": 42}</code></pre>
 </article>
 
 <article class="endpoint">
-<h3><a href="/url-shortener-api">URL Shortener REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-url-shortener-api-endpoint">URL Shortener REST API Endpoint</a></h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/url_shortener/{url}</span></p>
 <p>The target URL goes inline in the path. Links expire after 24 hours.</p>
 <pre><code>curl "https://aisenseapi.com/services/v1/url_shortener/https://example.com/some/long/path"
@@ -498,7 +498,7 @@ Response: {"result": 42}</code></pre>
 </article>
 
 <article class="endpoint">
-<h3><a href="/webhook-capture-api">Webhook Capture REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_capture</span> - <span class="method">GET</span> <span class="path">/webhook_capture/{capture_id}</span></p>
 <p>Create a capture session, get a unique URL, point any external service at it - Stripe, GitHub, Shopify - and read back the full inbound request: method, headers, query parameters, client IP and parsed body. No ngrok, no local tunnel, no server. Expires after 24 hours.</p>
 <pre><code># 1. create
@@ -522,7 +522,7 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 </article>
 
 <article class="endpoint">
-<h3><a href="/webhook-action-api">Webhook Action REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_action</span> - <span class="method">GET</span> <span class="path">/webhook_action/{action_id}</span></p>
 <p>Human-in-the-loop for automated pipelines. When a process needs a person to decide before it continues, this handles the whole pattern with no backend of your own: post a form definition, send the resulting <code>form_url</code> to a human, and poll <code>result_url</code> until <code>status</code> becomes <code>answered</code>.</p>
 <p>Field types are <code>radio</code>, <code>select</code>, <code>text</code>, <code>textarea</code> and <code>checkbox</code>. <code>options</code> accepts plain strings or <code>{"value": ..., "label": ...}</code> objects. Expires after 24 hours.</p>
@@ -545,9 +545,9 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 </article>
 
 <article class="endpoint">
-<h3><a href="/webhook-schedule-api">Webhook Schedule REST API Endpoint</a></h3>
+<h3><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook Schedule REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_schedule</span> - <span class="method">GET</span> <span class="path">/webhook_schedule/{schedule_id}</span></p>
-<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is 5 seconds to 24 hours. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/webhook-schedule-api">Full details</a>.</p>
+<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is 5 seconds to 24 hours. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/free-public-api-webhook-schedule-api-endpoint">Full details</a>.</p>
 <pre><code>POST /webhook_schedule   { "url": "https://example.com/hook", "delay_seconds": 1200, "payload": { "job": 42 } }
   ->  { "ok": true, "schedule_id": "1f1d7b8b-...", "status": "scheduled", "result_url": "..." }
 
@@ -643,18 +643,18 @@ response = client.chat.completions.create(
 <section id="guides" aria-labelledby="guides-heading">
 <h2 id="guides-heading">Endpoint guides</h2>
 <p>Every endpoint has its own page with worked examples, response fields, the edge cases that matter and what the thing is actually good for.</p>
-<h3>Time</h3>
-<div class="related-api-grid"><a href="/unix-timestamp-api">Unix Timestamp API<span>Seconds, microseconds and ISO 8601</span></a><a href="/timestamp-converter-api">Timestamp Converter API<span>Both directions at once</span></a><a href="/timezones-api">Timezones API<span>IANA list with current offsets</span></a><a href="/swatch-internet-time-api">Swatch Internet Time API<span>One clock, no timezones</span></a></div>
-<h3>Random</h3>
-<div class="related-api-grid"><a href="/uuid-generator-api">UUID Generator API<span>Version 4 uuid and guid</span></a><a href="/random-number-api">Random Number API<span>Inclusive range, echoed back</span></a><a href="/random-color-api">Random Color API<span>Six-digit hex for CSS</span></a><a href="/password-generator-api">Password Generator API<span>Throwaway test credentials</span></a></div>
 <h3>Transform</h3>
-<div class="related-api-grid"><a href="/base64-api">Base64 API<span>Encode and decode, three response modes</span></a><a href="/base58-api">Base58 API<span>No confusable characters</span></a><a href="/base32-api">Base32 API<span>Case-insensitive and typeable</span></a><a href="/jwt-api">JWT API<span>Sign and inspect HS256 tokens</span></a><a href="/qr-code-api">QR Code API<span>Generate and read QR images</span></a><a href="/slugify-api">Slugify API<span>Text to URL slug</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-base64-encode-api-endpoint">Free Base64 Encode API Endpoint<span>Text and files to base64</span></a><a href="/free-public-api-base64-decode-api-endpoint">Free Base64 Decode API Endpoint<span>Three response modes by Accept</span></a><a href="/free-public-api-base58-encode-api-endpoint">Free Base58 Encode API Endpoint<span>No lookalike characters</span></a><a href="/free-public-api-base58-decode-api-endpoint">Free Base58 Decode API Endpoint<span>Always raw bytes</span></a><a href="/free-public-api-base32-encode-api-endpoint">Free Base32 Encode API Endpoint<span>Case insensitive output</span></a><a href="/free-public-api-base32-decode-api-endpoint">Free Base32 Decode API Endpoint<span>Lowercase and padding tolerant</span></a><a href="/free-public-api-jwt-encode-api-endpoint">Free JWT Encode API Endpoint<span>Sign HS256 claims</span></a><a href="/free-public-api-jwt-decode-api-endpoint">Free JWT Decode API Endpoint<span>Verify and read a token</span></a><a href="/free-public-api-qr-code-encode-api-endpoint">Free QR Code API Endpoint<span>Content into a QR image</span></a><a href="/free-public-api-qr-code-decode-api-endpoint">Free QR Code Decode API Endpoint<span>Read a QR image back</span></a><a href="/free-public-api-slugify-api-endpoint">Free Slugify API Endpoint<span>Text to a URL slug</span></a></div>
 <h3>Hash</h3>
-<div class="related-api-grid"><a href="/md5-hash-api">MD5 Hash API<span>Fast fingerprints, non-adversarial</span></a><a href="/sha1-hash-api">SHA-1 Hash API<span>Legacy interoperability</span></a><a href="/sha256-hash-api">SHA-256 Hash API<span>The default for integrity</span></a><a href="/sha512-hash-api">SHA-512 Hash API<span>Longer digest, 64-bit friendly</span></a><a href="/crc32-checksum-api">CRC32 Checksum API<span>Cheap corruption detection</span></a><a href="/hash-verify-api">Hash Verify API<span>Constant-time comparison</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
+<h3>Random</h3>
+<div class="related-api-grid"><a href="/free-public-api-uuid-api-endpoint">Free UUID API Endpoint<span>Version 4 identifiers</span></a><a href="/free-public-api-guid-api-endpoint">Free GUID API Endpoint<span>The same value, GUID field</span></a><a href="/free-public-api-password-api-endpoint">Free Password API Endpoint<span>Length 6 to 128, default 12</span></a><a href="/free-public-api-random-number-api-endpoint">Free Random Number API Endpoint<span>Inclusive bounds, echoed back</span></a><a href="/free-public-api-random-color-api-endpoint">Free Random Color API Endpoint<span>Six digit hex for CSS</span></a></div>
+<h3>Time</h3>
+<div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 with an offset</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
 <h3>Web</h3>
-<div class="related-api-grid"><a href="/client-ip-api">Client IP API<span>The address this server sees</span></a><a href="/user-agent-api">User Agent API<span>What your client actually sends</span></a><a href="/domain-ip-lookup-api">Domain IP Lookup API<span>Hostname to address</span></a><a href="/ip-reverse-lookup-api">IP Reverse Lookup API<span>Address to location data</span></a><a href="/ping-api">Ping API<span>Is anything answering</span></a><a href="/health-check-api">Health Check API<span>Is the service fit to serve</span></a><a href="/html-to-pdf-api">HTML to PDF API<span>Render markup into a PDF file</span></a><a href="/email-validation-api">Email Validation API<span>Syntax, domain and MX checks</span></a><a href="/validation-api">Validation API<span>IBAN, organisation numbers and more</span></a><a href="/temporary-storage-api">Temporary Storage API<span>24 hour key-value store</span></a><a href="/url-shortener-api">URL Shortener API<span>Short links that expire</span></a><a href="/webhook-capture-api">Webhook Capture API<span>Inspect any inbound request</span></a><a href="/webhook-action-api">Webhook Action API<span>Human approval in a workflow</span></a><a href="/webhook-schedule-api">Webhook Schedule API<span>Fire a request later</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a></div>
 <h3>Crypto</h3>
-<div class="related-api-grid"><a href="/bitcoin-wallet-api">Bitcoin Wallet API<span>Test addresses and balances</span></a><a href="/ethereum-wallet-api">Ethereum Wallet API<span>Test addresses and balances</span></a><a href="/solana-wallet-api">Solana Wallet API<span>Test addresses and balances</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Free Bitcoin Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-bitcoin-balance-api-endpoint">Free Bitcoin Balance API Endpoint<span>BTC and satoshis</span></a><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Free Ethereum Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-ethereum-balance-api-endpoint">Free Ethereum Balance API Endpoint<span>Strings, not numbers</span></a><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Free Solana Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-solana-balance-api-endpoint">Free Solana Balance API Endpoint<span>SOL and lamports</span></a></div>
 </section>
 
 <section id="summary" aria-labelledby="summary-heading">

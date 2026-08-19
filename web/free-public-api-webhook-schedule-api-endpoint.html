@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Webhook Schedule API Endpoint - Delayed Callback | AI SENSE</title>
+<meta name="description" content="The free webhook schedule API endpoint calls your URL later. POST a target with a delay and it fires between 5 seconds and 24 hours from now.">
+<link rel="canonical" href="https://aisense.no/free-public-api-webhook-schedule-api-endpoint">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Webhook Schedule API Endpoint - Delayed Callback"><meta property="og:description" content="The free webhook schedule API endpoint calls your URL later. POST a target with a delay and it fires between 5 seconds and 24 hours from now."><meta property="og:url" content="https://aisense.no/free-public-api-webhook-schedule-api-endpoint"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Webhook Schedule API Endpoint","description":"The free webhook schedule API endpoint delivers an HTTP request to your URL between 5 seconds and 24 hours after you schedule it.","url":"https://aisense.no/free-public-api-webhook-schedule-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Webhook Schedule API Endpoint","item":"https://aisense.no/free-public-api-webhook-schedule-api-endpoint"}]},{"@type":"WebPage","name":"Free Webhook Schedule API Endpoint","description":"Reference page for POST /webhook_schedule and GET /webhook_schedule/{schedule_id} on the free public REST API from AI SENSE AS.","url":"https://aisense.no/free-public-api-webhook-schedule-api-endpoint","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Webhook Schedule API Endpoint</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Web - Scheduling</p><h1 id="page-title">Free Webhook Schedule API Endpoint</h1><p class="lede">The free webhook schedule API endpoint calls a URL of yours at a chosen moment later. You POST a target and a payload with either a delay or a fire time, and the request leaves our side then, not now.</p><ul class="badges"><li>No API key</li><li>5s to 24h</li><li>One retry</li><li>SSRF-guarded</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Schedule and check</p><p class="sig"><span class="method post">POST</span><span class="path">/webhook_schedule</span></p><p class="sig"><span class="method">GET</span><span class="path">/webhook_schedule/{schedule_id}</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="quick-start"><h2>Schedule a delivery</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/webhook_schedule \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/hook", "delay_seconds": 1200, "payload": {"job": 42}}'</code></pre><pre><code>{
+  "ok": true,
+  "schedule_id": "b4ee9fc4-e939-47d7-b522-1a68e553c546",
+  "status": "scheduled",
+  "fire_at_timestamp": 1787181214,
+  "fire_at_datetime": "2026-08-19T23:13:34+00:00",
+  "result_url": "https://aisenseapi.com/services/v1/webhook_schedule/b4ee9fc4-e939-47d7-b522-1a68e553c546",
+  "expire_timestamp": 1787267614,
+  "expire_datetime": "2026-08-20T23:13:34+00:00"
+}</code></pre><p>Keep the <code>schedule_id</code>. It is the only route back to the job, and there is no listing call that would find it for you. The <code>result_url</code> field saves you building that path by hand.</p></section>
+<section id="timing"><h2>Give it a delay or a fire time</h2><p>Two request fields set the moment. Send <code>delay_seconds</code> to count forward from now, or send <code>fire_at</code> as a unix timestamp to name an absolute instant. Pick one.</p><div class="table-wrap field-table"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>url</td><td>string</td><td>The target to call. A public http or https URL on port 80 or 443.</td></tr><tr><td>delay_seconds</td><td>integer</td><td>Seconds to wait before firing, counted from the moment of the POST.</td></tr><tr><td>fire_at</td><td>integer</td><td>Unix timestamp of the delivery, used instead of <code>delay_seconds</code>.</td></tr><tr><td>payload</td><td>object</td><td>The JSON body handed to your target when the request goes out.</td></tr></tbody></table></div><p>Both routes land in the same window. The fire time must sit between 5 seconds and 24 hours from now, and anything outside that is refused at once.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/webhook_schedule \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/hook", "delay_seconds": 2}'
+
+{"error":"fire_at must be between 5 seconds and 24 hours from now."}</code></pre><p>A <code>delay_seconds</code> of 90000 draws the identical error, because it reaches past the 24-hour ceiling.</p></section>
+<section id="poll"><h2>Check the result</h2><pre><code>curl https://aisenseapi.com/services/v1/webhook_schedule/e12681a8-f24f-4f24-9e34-7bbb0a9f9a77</code></pre><p>Before the moment arrives, the job simply reports itself as waiting.</p><pre><code>{
+  "ok": true,
+  "schedule_id": "e12681a8-f24f-4f24-9e34-7bbb0a9f9a77",
+  "status": "scheduled",
+  "url": "https://example.com/hook",
+  "created_at_timestamp": 1787180038,
+  "created_at_datetime": "2026-08-19T22:53:58+00:00",
+  "fire_at_timestamp": 1787180048,
+  "fire_at_datetime": "2026-08-19T22:54:08+00:00",
+  "attempts": 0
+}</code></pre><p>An unknown or expired identifier answers with HTTP 404 and a short error object.</p><pre><code>{"error":"Schedule id unknown"}</code></pre></section>
+<section id="status"><h2>What the status field goes through</h2><p>A job starts at <code>scheduled</code>. It ends at either <code>fired</code> or <code>failed</code>. Nothing else appears in that field.</p><div class="api-note"><p><strong>Fired means a delivery was attempted.</strong> It does not mean your target was happy. The answer your server gave is recorded separately in <code>http_status</code>, so a target that replies 500 is still a fired job.</p></div><p>The real call below proves the distinction. The example target does not accept POST, so it answered 405, and the job is recorded as fired all the same.</p><pre><code>{
+  "status": "fired",
+  "attempts": 1,
+  "http_status": 405,
+  "response_excerpt": "&lt;!doctype html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;&lt;title&gt;Example Domain&lt;/title&gt;...",
+  "fired_at_timestamp": 1787180101,
+  "fired_at_datetime": "2026-08-19T22:55:01+00:00"
+}</code></pre><p>Read <code>attempts</code> beside the status. A transport failure, where no HTTP answer comes back at all, is retried once. If the second try also gets nowhere, the job becomes <code>failed</code>. Results stay readable for 24 hours after the final attempt.</p></section>
+<section id="delivery"><h2>How the free webhook schedule API endpoint delivers</h2><ol class="workflow-steps"><li><strong>You post the job</strong><p>The target and the payload are stored, and a <code>schedule_id</code> comes back immediately. Your own process is free to exit.</p></li><li><strong>The clock runs on our side</strong><p>Nothing is held open. No connection, no polling loop and no timer of yours has to survive the wait.</p></li><li><strong>The request goes out</strong><p>At the fire time we send the payload to your URL and record what came back, including the HTTP status and an excerpt of the response body.</p></li><li><strong>You read the outcome</strong><p>A GET on <code>result_url</code> tells you which of the two end states the job reached, and how many attempts it took.</p></li></ol><p>This is the timer an autonomous process does not otherwise have. A script that wants something to happen in twenty minutes usually has to stay alive for twenty minutes. Here it does not.</p></section>
+<section id="security"><h2>What it will not call</h2><div class="api-note warning-note"><p>Private, loopback, link-local and reserved addresses are refused. The check runs at creation and again at delivery time, with the connection pinned to the address that was checked, so a hostname cannot pass validation and then quietly repoint at an internal service.</p></div><pre><code>curl -X POST https://aisenseapi.com/services/v1/webhook_schedule \
+  -H "Content-Type: application/json" \
+  -d '{"url": "http://127.0.0.1/hook", "delay_seconds": 60}'
+
+{"error":"Target address is private or reserved."}</code></pre><p>Redirects are never followed, and credentials in the URL are rejected outright. These guards are what keep a public scheduler from becoming a tool for reaching inside private networks.</p></section>
+<section id="use-cases"><h2>Common uses</h2><p>Most callers reach the free webhook schedule API endpoint from a pipeline rather than a browser. Four patterns come up again and again.</p><div class="use-case-grid"><article><h3>Agent wait states</h3><p>Let an autonomous process pause and be woken by a callback instead of holding a connection.</p></article><article><h3>Timeouts and reminders</h3><p>Schedule a follow-up that fires unless something cancels it first.</p></article><article><h3>Retry after a delay</h3><p>Re-trigger a step a few minutes after a transient failure.</p></article><article><h3>Deferred notifications</h3><p>Send a message at a specific later time without running a scheduler yourself.</p></article></div></section>
+<section id="limits"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>The payload is stored until delivery and for 24 hours after. Do not schedule secrets you would not want held for a day. The horizon is capped at 24 hours because this is a 24-hour service throughout.</p></div><p>The base URL is <code>https://aisenseapi.com/services/v1</code>. No key and no account are required. Every service on the <a href="/free-public-apis">free public REST APIs</a> hub shares one limit of 5000 requests per IP per 24 hours, and a schedule POST and a result GET both count against that same budget.</p><p>Point the job at a target you control. The free webhook schedule API endpoint has no way to tell a wanted callback from an unwanted one, so treat the delivery as traffic you are responsible for.</p></section>
+<section id="related"><h2>Related APIs</h2><p>Pair the scheduler with a target you can watch, or with a place to park the body it should carry.</p><div class="related-api-grid"><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API Endpoint<span>A target that records what arrives</span></a><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action API Endpoint<span>Ask a human before continuing</span></a><a href="/free-public-api-storage-api-endpoint">Storage API Endpoint<span>Park a body the callback points at</span></a><a href="/free-public-api-ping-api-endpoint">Ping API Endpoint<span>Check the service is answering</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Schedule</a></li><li><a href="#timing">Delay or fire time</a></li><li><a href="#poll">Check result</a></li><li><a href="#status">Status values</a></li><li><a href="#delivery">Delivery model</a></li><li><a href="#security">Security</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#limits">Limits</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>
