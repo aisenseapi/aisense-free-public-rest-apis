@@ -485,6 +485,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |
 | Web | `/client_ip` | GET | `ip` |
+| Web | `/html2pdf` | POST | `storage_id`, `storage_url`, `expire_timestamp` |
 | Web | `/user_agent` | GET | `user_agent` |
 | Web | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | Web | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
