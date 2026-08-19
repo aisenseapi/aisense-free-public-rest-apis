@@ -394,6 +394,42 @@ The second key is `microtimestamp`, not `timestamp`.
 
 ---
 
+### `POST /html2pdf`
+Renders HTML into a PDF and stores it for 24 hours. The response carries a
+link, not the file: the PDF is fetched in a second request.
+
+The markup goes in `data` or `html` - the two names are interchangeable. An
+optional `options` object sets the page up.
+
+```json
+// Request
+{
+  "html": "<h1>Invoice 4817</h1><p>Paid</p>",
+  "options": { "page-size": "A5", "orientation": "Landscape", "margin-top": "20mm" }
+}
+
+// Response
+{
+  "storage_id": "1c896e41-d5b7-4017-b888-8381d7866088",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/1c896e41-d5b7-4017-b888-8381d7866088",
+  "expire_timestamp": 1787257796
+}
+```
+
+Fetching `storage_url` returns the file with `Content-Type: application/pdf`.
+
+`options` accepts `page-size` (A3, A4, A5, Letter, Legal, Tabloid),
+`orientation` (Portrait, Landscape) and `margin-top`, `margin-bottom`,
+`margin-left`, `margin-right` (up to three digits, optional mm, cm or in
+suffix). Values outside those lists are ignored rather than passed on.
+
+The renderer runs sandboxed with no network access and local file access
+disabled, so remote images, stylesheets and fonts referenced in the markup
+are not fetched - inline everything the document needs. Empty input returns
+HTTP 400; a render failure returns HTTP 500 with the reason.
+
+---
+
 ### `GET /client_ip`
 ```json
 { "ip": "203.0.113.42" }
@@ -779,6 +815,7 @@ numbers; their smallest units stay well inside the safe range.
 | `/ping` | `ping` |
 | `/health` | `status`, `microtimestamp` |
 | `/client_ip` | `ip` |
+| `/html2pdf` | `storage_id`, `storage_url`, `expire_timestamp` |
 | `/user_agent` | `user_agent` |
 | `/ip_reverse_lookup` | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup` | `domain`, `ip` |
