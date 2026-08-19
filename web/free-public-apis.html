@@ -640,6 +640,23 @@ response = client.chat.completions.create(
 </section>
 
 <!-- SUMMARY -->
+<section id="guides" aria-labelledby="guides-heading">
+<h2 id="guides-heading">Endpoint guides</h2>
+<p>Every endpoint has its own page with worked examples, response fields, the edge cases that matter and what the thing is actually good for.</p>
+<h3>Time</h3>
+<div class="related-api-grid"><a href="/unix-timestamp-api">Unix Timestamp API<span>Seconds, microseconds and ISO 8601</span></a><a href="/timestamp-converter-api">Timestamp Converter API<span>Both directions at once</span></a><a href="/timezones-api">Timezones API<span>IANA list with current offsets</span></a><a href="/swatch-internet-time-api">Swatch Internet Time API<span>One clock, no timezones</span></a></div>
+<h3>Random</h3>
+<div class="related-api-grid"><a href="/uuid-generator-api">UUID Generator API<span>Version 4 uuid and guid</span></a><a href="/random-number-api">Random Number API<span>Inclusive range, echoed back</span></a><a href="/random-color-api">Random Color API<span>Six-digit hex for CSS</span></a><a href="/password-generator-api">Password Generator API<span>Throwaway test credentials</span></a></div>
+<h3>Transform</h3>
+<div class="related-api-grid"><a href="/base64-api">Base64 API<span>Encode and decode, three response modes</span></a><a href="/base58-api">Base58 API<span>No confusable characters</span></a><a href="/base32-api">Base32 API<span>Case-insensitive and typeable</span></a><a href="/jwt-api">JWT API<span>Sign and inspect HS256 tokens</span></a><a href="/qr-code-api">QR Code API<span>Generate and read QR images</span></a><a href="/slugify-api">Slugify API<span>Text to URL slug</span></a></div>
+<h3>Hash</h3>
+<div class="related-api-grid"><a href="/md5-hash-api">MD5 Hash API<span>Fast fingerprints, non-adversarial</span></a><a href="/sha1-hash-api">SHA-1 Hash API<span>Legacy interoperability</span></a><a href="/sha256-hash-api">SHA-256 Hash API<span>The default for integrity</span></a><a href="/sha512-hash-api">SHA-512 Hash API<span>Longer digest, 64-bit friendly</span></a><a href="/crc32-checksum-api">CRC32 Checksum API<span>Cheap corruption detection</span></a><a href="/hash-verify-api">Hash Verify API<span>Constant-time comparison</span></a></div>
+<h3>Web</h3>
+<div class="related-api-grid"><a href="/client-ip-api">Client IP API<span>The address this server sees</span></a><a href="/user-agent-api">User Agent API<span>What your client actually sends</span></a><a href="/domain-ip-lookup-api">Domain IP Lookup API<span>Hostname to address</span></a><a href="/ip-reverse-lookup-api">IP Reverse Lookup API<span>Address to location data</span></a><a href="/ping-api">Ping API<span>Is anything answering</span></a><a href="/health-check-api">Health Check API<span>Is the service fit to serve</span></a><a href="/html-to-pdf-api">HTML to PDF API<span>Render markup into a PDF file</span></a><a href="/email-validation-api">Email Validation API<span>Syntax, domain and MX checks</span></a><a href="/validation-api">Validation API<span>IBAN, organisation numbers and more</span></a><a href="/temporary-storage-api">Temporary Storage API<span>24 hour key-value store</span></a><a href="/url-shortener-api">URL Shortener API<span>Short links that expire</span></a><a href="/webhook-capture-api">Webhook Capture API<span>Inspect any inbound request</span></a><a href="/webhook-action-api">Webhook Action API<span>Human approval in a workflow</span></a><a href="/webhook-schedule-api">Webhook Schedule API<span>Fire a request later</span></a></div>
+<h3>Crypto</h3>
+<div class="related-api-grid"><a href="/bitcoin-wallet-api">Bitcoin Wallet API<span>Test addresses and balances</span></a><a href="/ethereum-wallet-api">Ethereum Wallet API<span>Test addresses and balances</span></a><a href="/solana-wallet-api">Solana Wallet API<span>Test addresses and balances</span></a></div>
+</section>
+
 <section id="summary" aria-labelledby="summary-heading">
 <h2 id="summary-heading">All endpoints</h2>
 <p>Relative to <code>https://aisenseapi.com/services/v1</code>. Storage, URL Shortener, Webhook Capture and Webhook Action all expire after 24 hours.</p>

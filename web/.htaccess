@@ -17,37 +17,53 @@
 
 <IfModule mod_alias.c>
 
-# ── hashing ──────────────────────────────────────────────────────────────
-RedirectMatch 301 ^/free-public-api-(md5|sha1|sha256|sha512)-hash-api-endpoint/?$ https://aisense.no/hashing-apis
+# -- hashing: each algorithm has its own page ------------------------------
+RedirectMatch 301 ^/free-public-api-md5-hash-api-endpoint/?$ https://aisense.no/md5-hash-api
+RedirectMatch 301 ^/free-public-api-sha1-hash-api-endpoint/?$ https://aisense.no/sha1-hash-api
+RedirectMatch 301 ^/free-public-api-sha256-hash-api-endpoint/?$ https://aisense.no/sha256-hash-api
+RedirectMatch 301 ^/free-public-api-sha512-hash-api-endpoint/?$ https://aisense.no/sha512-hash-api
 
-# ── encoding: base32/58/64 and jwt ───────────────────────────────────────
-RedirectMatch 301 ^/free-public-api-base(32|58|64)-(en|de)code-api-endpoint/?$ https://aisense.no/encoding-apis
-RedirectMatch 301 ^/free-public-api-jwt-(en|de)code-api-endpoint/?$ https://aisense.no/encoding-apis
+# -- encoding: one page per alphabet ---------------------------------------
+RedirectMatch 301 ^/free-public-api-base64-(en|de)code-api-endpoint/?$ https://aisense.no/base64-api
+RedirectMatch 301 ^/free-public-api-base58-(en|de)code-api-endpoint/?$ https://aisense.no/base58-api
+RedirectMatch 301 ^/free-public-api-base32-(en|de)code-api-endpoint/?$ https://aisense.no/base32-api
+RedirectMatch 301 ^/free-public-api-jwt-(en|de)code-api-endpoint/?$ https://aisense.no/jwt-api
 
-# ── qr codes ─────────────────────────────────────────────────────────────
+# -- qr codes ---------------------------------------------------------------
 RedirectMatch 301 ^/free-public-api-qr-code-(en|de)code-api-endpoint/?$ https://aisense.no/qr-code-api
 
-# ── random generators ────────────────────────────────────────────────────
-RedirectMatch 301 ^/free-public-api-(uuid|guid|random-color|random-number)-api-endpoint/?$ https://aisense.no/random-generator-apis
+# -- random generators ------------------------------------------------------
+RedirectMatch 301 ^/free-public-api-(uuid|guid)-api-endpoint/?$ https://aisense.no/uuid-generator-api
+RedirectMatch 301 ^/free-public-api-random-color-api-endpoint/?$ https://aisense.no/random-color-api
+RedirectMatch 301 ^/free-public-api-random-number-api-endpoint/?$ https://aisense.no/random-number-api
 
-# ── time ─────────────────────────────────────────────────────────────────
-RedirectMatch 301 ^/free-public-api-(datetime|timestamp|microtimestamp|swatchinternettime|timezones)-api-endpoint/?$ https://aisense.no/time-apis
+# -- time -------------------------------------------------------------------
+RedirectMatch 301 ^/free-public-api-(datetime|timestamp|microtimestamp)-api-endpoint/?$ https://aisense.no/unix-timestamp-api
+RedirectMatch 301 ^/free-public-api-timezones-api-endpoint/?$ https://aisense.no/timezones-api
+RedirectMatch 301 ^/free-public-api-swatchinternettime-api-endpoint/?$ https://aisense.no/swatch-internet-time-api
 
-# ── endpoints that kept a page of their own ──────────────────────────────
+# -- endpoints that kept a page of their own --------------------------------
 RedirectMatch 301 ^/free-public-api-storage-api-endpoint/?$ https://aisense.no/temporary-storage-api
 RedirectMatch 301 ^/free-public-api-url-shortener-api-endpoint/?$ https://aisense.no/url-shortener-api
 RedirectMatch 301 ^/free-public-api-webhook-capture-api-endpoint/?$ https://aisense.no/webhook-capture-api
 RedirectMatch 301 ^/free-public-api-webhook-action-api-endpoint/?$ https://aisense.no/webhook-action-api
 RedirectMatch 301 ^/free-public-api-ip-reverse-lookup-api-endpoint/?$ https://aisense.no/ip-reverse-lookup-api
 
-# ── endpoints documented only in the full reference ──────────────────────
-# client ip, ping, health, html to pdf and the three wallet generators have
-# no topic page; the reference lists every one of them.
-RedirectMatch 301 ^/free-public-api-(client-ip|ping|health|html-to-pdf)-api-endpoint/?$ https://aisense.no/free-public-apis
-RedirectMatch 301 ^/free-public-api-(bitcoin|ethereum|solana)-generate-new-wallet-api-endpoint/?$ https://aisense.no/free-public-apis
-RedirectMatch 301 ^/(client_ip|html2pdf|upload)/?$ https://aisense.no/free-public-apis
+# -- network, documents and status ------------------------------------------
+RedirectMatch 301 ^/free-public-api-client-ip-api-endpoint/?$ https://aisense.no/client-ip-api
+RedirectMatch 301 ^/free-public-api-ping-api-endpoint/?$ https://aisense.no/ping-api
+RedirectMatch 301 ^/free-public-api-health-api-endpoint/?$ https://aisense.no/health-check-api
+RedirectMatch 301 ^/free-public-api-html-to-pdf-api-endpoint/?$ https://aisense.no/html-to-pdf-api
+RedirectMatch 301 ^/(client_ip)/?$ https://aisense.no/client-ip-api
+RedirectMatch 301 ^/(html2pdf)/?$ https://aisense.no/html-to-pdf-api
+RedirectMatch 301 ^/(upload)/?$ https://aisense.no/free-public-apis
 
-# ── anything else in the old endpoint scheme ─────────────────────────────
+# -- crypto wallets ---------------------------------------------------------
+RedirectMatch 301 ^/free-public-api-bitcoin-generate-new-wallet-api-endpoint/?$ https://aisense.no/bitcoin-wallet-api
+RedirectMatch 301 ^/free-public-api-ethereum-generate-new-wallet-api-endpoint/?$ https://aisense.no/ethereum-wallet-api
+RedirectMatch 301 ^/free-public-api-solana-generate-new-wallet-api-endpoint/?$ https://aisense.no/solana-wallet-api
+
+# -- anything else in the old endpoint scheme -------------------------------
 # Catch-all for endpoint pages not named above, so none of them dead-ends.
 RedirectMatch 301 ^/free-public-api-[a-z0-9-]+-api-endpoint/?$ https://aisense.no/free-public-apis
 

@@ -26,4 +26,31 @@
   <url><loc>https://aisense.no/contact-us</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/privacy</loc><lastmod>2026-08-16</lastmod></url>
   <url><loc>https://aisense.no/terms</loc><lastmod>2026-08-16</lastmod></url>
+  <url><loc>https://aisense.no/base64-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/base58-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/base32-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/jwt-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/md5-hash-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/sha1-hash-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/sha256-hash-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/sha512-hash-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/crc32-checksum-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/hash-verify-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/uuid-generator-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/password-generator-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/random-number-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/random-color-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/unix-timestamp-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/timestamp-converter-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/timezones-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/swatch-internet-time-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/html-to-pdf-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/client-ip-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/user-agent-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/domain-ip-lookup-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/ping-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/health-check-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/bitcoin-wallet-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/ethereum-wallet-api</loc><lastmod>2026-08-19</lastmod></url>
+  <url><loc>https://aisense.no/solana-wallet-api</loc><lastmod>2026-08-19</lastmod></url>
 </urlset>
