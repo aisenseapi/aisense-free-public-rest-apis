@@ -27,6 +27,8 @@ in a browser and it renders.
 | `privacy.html` | `/privacy` - **needs legal review, see below** |
 | `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
+| `404.html` | served by `ErrorDocument` for any unknown path, noindex |
+| `.htaccess` | 301 redirects from the old URL scheme, error page |
 | `robots.txt` | crawler directives and sitemap location |
 | `sitemap.xml` | canonical URLs for search engines |
 
@@ -48,7 +50,7 @@ sparse set.
 
 After that, `git pull` is the whole deploy.
 
-## Two things the webserver has to do
+## Three things the webserver has to do
 
 **Serve extensionless URLs.** Every link here points at `/about`, not
 `/about.html`, because those are the URLs the site already has and the ones
@@ -73,6 +75,28 @@ In nginx: `try_files $uri $uri.html $uri/ =404;`
 **Point the document root at `web/`,** not at the repository root - otherwise
 the pages sit one directory down and `assets/aisense.css` resolves to the wrong
 place. A symlink works if changing the vhost is awkward.
+
+**Let `.htaccess` apply.** `.htaccess` here holds the 301 redirects from the
+pre-rebuild URL scheme plus `ErrorDocument 404 /404.html`. Apache ignores the
+file unless the vhost allows it:
+
+```apache
+<Directory "/path/to/document/root">
+    AllowOverride FileInfo
+</Directory>
+```
+
+`FileInfo` is the minimum that covers `Redirect*` and `ErrorDocument`; `None`
+makes the file inert with no warning anywhere - it is present, readable, and
+has no effect, which is a genuinely confusing failure to diagnose. After
+changing a vhost, run `apachectl configtest` before `apachectl graceful`.
+
+The redirects matter: the site was rebuilt from a WordPress install that
+published one page per endpoint at `/free-public-api-<name>-api-endpoint`.
+Those 36 URLs plus the feed, category, author and embed paths are all still in
+search indexes, and each one 301s to the page that now covers its content.
+Verify after any server change - `curl -sI https://aisense.no/free-public-api-storage-api-endpoint`
+must answer 301, not 404.
 
 ## Editing
 
