@@ -1,0 +1,68 @@
+# aisense.no - redirects from the pre-rebuild URL scheme, and the error page.
+#
+# The old site published one page per endpoint under
+# /free-public-api-<name>-api-endpoint. The rebuild consolidated those into
+# topic pages, which left every indexed URL answering 404 with the bare
+# Apache error page. Each rule below sends one old URL to the page that now
+# covers its content, with 301 so search engines transfer the ranking.
+#
+# Everything is wrapped in IfModule so a host without mod_alias ignores the
+# file instead of failing. Only Redirect/ErrorDocument directives are used,
+# both allowed under AllowOverride FileInfo.
+#
+# Adding a rule: match the old path exactly, allow an optional trailing
+# slash, and point at a page that genuinely covers the topic - a redirect to
+# an unrelated page is treated as a soft 404 and ranks no better than the
+# real one.
+
+<IfModule mod_alias.c>
+
+# ── hashing ──────────────────────────────────────────────────────────────
+RedirectMatch 301 ^/free-public-api-(md5|sha1|sha256|sha512)-hash-api-endpoint/?$ https://aisense.no/hashing-apis
+
+# ── encoding: base32/58/64 and jwt ───────────────────────────────────────
+RedirectMatch 301 ^/free-public-api-base(32|58|64)-(en|de)code-api-endpoint/?$ https://aisense.no/encoding-apis
+RedirectMatch 301 ^/free-public-api-jwt-(en|de)code-api-endpoint/?$ https://aisense.no/encoding-apis
+
+# ── qr codes ─────────────────────────────────────────────────────────────
+RedirectMatch 301 ^/free-public-api-qr-code-(en|de)code-api-endpoint/?$ https://aisense.no/qr-code-api
+
+# ── random generators ────────────────────────────────────────────────────
+RedirectMatch 301 ^/free-public-api-(uuid|guid|random-color|random-number)-api-endpoint/?$ https://aisense.no/random-generator-apis
+
+# ── time ─────────────────────────────────────────────────────────────────
+RedirectMatch 301 ^/free-public-api-(datetime|timestamp|microtimestamp|swatchinternettime|timezones)-api-endpoint/?$ https://aisense.no/time-apis
+
+# ── endpoints that kept a page of their own ──────────────────────────────
+RedirectMatch 301 ^/free-public-api-storage-api-endpoint/?$ https://aisense.no/temporary-storage-api
+RedirectMatch 301 ^/free-public-api-url-shortener-api-endpoint/?$ https://aisense.no/url-shortener-api
+RedirectMatch 301 ^/free-public-api-webhook-capture-api-endpoint/?$ https://aisense.no/webhook-capture-api
+RedirectMatch 301 ^/free-public-api-webhook-action-api-endpoint/?$ https://aisense.no/webhook-action-api
+RedirectMatch 301 ^/free-public-api-ip-reverse-lookup-api-endpoint/?$ https://aisense.no/ip-reverse-lookup-api
+
+# ── endpoints documented only in the full reference ──────────────────────
+# client ip, ping, health, html to pdf and the three wallet generators have
+# no topic page; the reference lists every one of them.
+RedirectMatch 301 ^/free-public-api-(client-ip|ping|health|html-to-pdf)-api-endpoint/?$ https://aisense.no/free-public-apis
+RedirectMatch 301 ^/free-public-api-(bitcoin|ethereum|solana)-generate-new-wallet-api-endpoint/?$ https://aisense.no/free-public-apis
+RedirectMatch 301 ^/(client_ip|html2pdf|upload)/?$ https://aisense.no/free-public-apis
+
+# ── anything else in the old endpoint scheme ─────────────────────────────
+# Catch-all for endpoint pages not named above, so none of them dead-ends.
+RedirectMatch 301 ^/free-public-api-[a-z0-9-]+-api-endpoint/?$ https://aisense.no/free-public-apis
+
+# ── renamed and superseded pages ─────────────────────────────────────────
+RedirectMatch 301 ^/custom-iot-beehive-monitoring-system/?$ https://aisense.no/smart-beehive-monitoring-system
+RedirectMatch 301 ^/aisense-ai-data-feed-specification(-complete)?-v1-0/?$ https://aisense.no/make-your-data-available-for-ai
+RedirectMatch 301 ^/universal-real-world-tokenization-framework.*$ https://aisense.no/ai-sense-posts
+
+# ── leftovers from the WordPress install ─────────────────────────────────
+RedirectMatch 301 ^/(feed|comments/feed)/?$ https://aisense.no/ai-sense-posts
+RedirectMatch 301 ^/(category|author|tag)/.*$ https://aisense.no/
+RedirectMatch 301 ^/(.+)/embed/?$ https://aisense.no/$1
+
+</IfModule>
+
+# Branded error page instead of the stock Apache one. The response keeps its
+# 404 status; only the body changes.
+ErrorDocument 404 /404.html
