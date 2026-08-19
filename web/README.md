@@ -1,5 +1,11 @@
 # aisense.no - static pages
 
+Developer documentation. It is deliberately NOT part of the published
+`website` branch: served from the live domain it would sit one guessable
+URL away from `/terms` and `/privacy` while openly discussing their
+weaknesses, which reads very differently on the company's own domain than
+it does in a repository. Keep it out of the deployed tree.
+
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
@@ -137,10 +143,12 @@ basis asserted for logging IP addresses, whether the liability limitation
 survives Norwegian law, and whether a data processing agreement is needed with
 the four named third parties.
 
-They also state retention periods that are only true once
-`tools/logrotate-aisense.conf` from the service repository is installed. Until
-then the honest answer is "until the host reboots", and the privacy page is
-wrong. Install the rotation before publishing, or change the numbers.
+They also state retention periods that depend on
+`tools/logrotate-aisense.conf` from the service repository being installed on
+the API host. That is done - `deploy.sh` syncs the unit on every deploy and
+reports it, last confirmed 2026-08-19 - so the retention numbers are now true.
+If the rotation is ever removed, the honest answer becomes "until the host
+reboots" and the privacy page is wrong again.
 
 Both pages describe the service. When the service changes, they have to change
 with it, or they become promises nobody is keeping.
