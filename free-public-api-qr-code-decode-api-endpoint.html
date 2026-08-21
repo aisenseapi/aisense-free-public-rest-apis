@@ -16,7 +16,9 @@
 <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">QR Code Decode API Endpoint</li></ol></nav>
 <section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Transform - Encoding</p><h1 id="page-title">Free QR Code Decode API Endpoint</h1><p class="lede">The free QR code decode API endpoint reads a QR image and hands back the text inside it. Send the picture as base64 in a JSON body, or upload the file itself. One POST, one field in the reply.</p><ul class="badges"><li>No API key</li><li>Base64 or file upload</li><li>One response field</li><li>Image in, text out</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Decode a QR code</p><p class="sig"><span class="method post">POST</span><span class="path">/qrcode_decode</span></p><code>https://aisenseapi.com/services/v1/qrcode_decode</code></div></section>
 <div class="api-doc-layout"><article class="api-doc">
-<section id="quick-start"><h2>Send a base64 image</h2><p>Put the base64 of your QR image in a JSON field named <code>payload</code>. The service decodes the string, looks for a code and returns what it holds.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/qrcode_decode \
+<section id="quick-start"><p class="api-note">Want to see it answer before you write code? The <a href="/free-qr-code-decoder-api">free QR code decoder API tool</a> posts to this same endpoint from your browser - drop or paste an image and it prints the raw response. It reads barcodes as well as QR codes.</p>
+
+<h2>Send a base64 image</h2><p>Put the base64 of your QR image in a JSON field named <code>payload</code>. The service decodes the string, looks for a code and returns what it holds.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/qrcode_decode \
   -H "Content-Type: application/json" \
   -d '{"payload":"iVBORw0KGgoAAAANSUhEUg..."}'</code></pre><pre><code>{
   "qrcode_content": "https://aisense.no/free-public-apis"
