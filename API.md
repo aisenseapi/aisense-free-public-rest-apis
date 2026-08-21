@@ -653,9 +653,12 @@ The timer an agent does not have. POST a URL and a payload with either
 `delay_seconds` or a `fire_at` unix timestamp, and the service POSTs the payload
 to that URL at that time, with one retry on transport failure.
 
-The horizon is **5 seconds to 24 hours** - this is a 24-hour service, and the
+The horizon is **one minute to 24 hours** - this is a 24-hour service, and the
 scheduler is no exception. The result stays readable for 24 hours after the
 final attempt.
+
+Validation accepts anything from 5 seconds out, but that is the input check, not
+the resolution. Delivery runs once a minute, so a job fires at the next whole minute after it falls due, not at the exact second requested. Measured on 2026-08-21: a job due in 5 seconds was delivered 38 seconds later. Schedule in minutes and treat anything finer as noise.
 
 **Create:** `POST /webhook_schedule`
 
