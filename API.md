@@ -658,7 +658,10 @@ scheduler is no exception. The result stays readable for 24 hours after the
 final attempt.
 
 Validation accepts anything from 5 seconds out, but that is the input check, not
-the resolution. Delivery runs once a minute, so a job fires at the next whole minute after it falls due, not at the exact second requested. Measured on 2026-08-21: a job due in 5 seconds was delivered 38 seconds later. Schedule in minutes and treat anything finer as noise.
+the resolution. Delivery runs once a minute, so a job fires at the next whole
+minute after it falls due, not at the exact second requested. Measured on
+2026-08-21: a job due in 5 seconds was delivered 38 seconds later. Schedule in
+minutes and treat anything finer as noise.
 
 **Create:** `POST /webhook_schedule`
 
