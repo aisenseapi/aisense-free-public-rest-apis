@@ -547,7 +547,7 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 <article class="endpoint">
 <h3><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook Schedule REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_schedule</span> - <span class="method">GET</span> <span class="path">/webhook_schedule/{schedule_id}</span></p>
-<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is 5 seconds to 24 hours. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/free-public-api-webhook-schedule-api-endpoint">Full details</a>.</p>
+<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is one minute to 24 hours, and delivery lands on the next whole minute after the job falls due rather than at the exact second. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/free-public-api-webhook-schedule-api-endpoint">Full details</a>.</p>
 <pre><code>POST /webhook_schedule   { "url": "https://example.com/hook", "delay_seconds": 1200, "payload": { "job": 42 } }
   ->  { "ok": true, "schedule_id": "1f1d7b8b-...", "status": "scheduled", "result_url": "..." }
 
