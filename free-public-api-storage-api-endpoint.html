@@ -16,7 +16,9 @@
 <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Storage API Endpoint</li></ol></nav>
 <section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Web - Storage</p><h1 id="page-title">Free Storage API Endpoint</h1><p class="lede">The free storage API endpoint takes any POST body, keeps it exactly as sent and hands back a UUID. Another machine, workflow step or AI agent reads the same bytes for the next 24 hours.</p><ul class="badges"><li>No API key</li><li>Verbatim body</li><li>JSON or text</li><li>24-hour expiry</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Store and retrieve</p><p class="sig"><span class="method post">POST</span><span class="path">/storage</span></p><p class="sig"><span class="method">GET</span><span class="path">/storage/{storage_id}</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
 <div class="api-doc-layout"><article class="api-doc">
-<section id="quick-start"><h2>Store a JSON body</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/storage \
+<section id="quick-start"><p class="api-note">Prefer a browser? The <a href="/upload">file uploader</a> does the same thing without a terminal: drop a file, paste text, or paste a screenshot, and it hands you the shareable URL.</p>
+
+<h2>Store a JSON body</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" \
   -d '{"result":42,"status":"complete"}'</code></pre><pre><code>{
   "storage_id": "7bf4be7d-4386-49fd-99bb-6f2fe65f8a14",

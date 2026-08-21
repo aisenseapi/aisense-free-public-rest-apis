@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>File uploader for the free storage API - AISENSE - FREE PUBLIC API SERVICES</title>
+<meta name="description" content="Free file uploader for the AI SENSE temporary storage API. Drop a file, paste text or paste a screenshot and get a shareable URL back. No API key, no account, no sign-up. Everything is deleted after 24 hours.">
+<link rel="canonical" href="https://aisense.no/upload">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="File uploader for the free storage API - AI SENSE">
+<meta property="og:description" content="Drop a file, paste text or paste a screenshot and get a shareable URL. No key, no account. Deleted after 24 hours.">
+<meta property="og:url" content="https://aisense.no/upload">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "AI SENSE file uploader",
+      "url": "https://aisense.no/upload",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any browser",
+      "description": "Browser front end for the AI SENSE temporary storage API. Uploads a file, pasted text or a pasted image and returns a shareable URL that expires after 24 hours.",
+      "inLanguage": "en",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "NOK" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Free public REST APIs", "item": "https://aisense.no/free-public-apis" },
+        { "@type": "ListItem", "position": 3, "name": "File uploader" }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  .up-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    padding: 1.6rem;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+    margin: 2rem 0;
+  }
+  .up-drop {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2.4rem 1.2rem;
+    text-align: center;
+    cursor: pointer;
+    background: var(--tint);
+    color: var(--body);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .up-drop:hover, .up-drop:focus-visible, .up-drop.is-over {
+    background: #eef5ff;
+    border-color: var(--blue);
+    color: var(--blue-dark);
+  }
+  .up-drop strong { display: block; margin-bottom: .3rem; font-size: 1.05rem; }
+  .up-drop small { color: var(--muted); }
+  .up-or {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 1rem 0;
+    color: var(--muted);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  .up-or::before, .up-or::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .up-paste { display: flex; flex-direction: column; gap: .6rem; }
+  .up-paste textarea {
+    width: 100%;
+    padding: .75rem .9rem;
+    font-family: var(--mono);
+    font-size: .85rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--body);
+    resize: vertical;
+    min-height: 9rem;
+  }
+  .up-paste textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(4, 107, 210, .15);
+  }
+  .up-list { margin-top: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+  .up-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .75rem .9rem;
+    background: #fff;
+    font-size: .9rem;
+  }
+  .up-name { font-weight: 600; word-break: break-all; color: var(--ink); }
+  .up-meta { color: var(--muted); font-size: .8rem; margin-top: .15rem; }
+  .up-bar { height: 6px; background: var(--tint); border-radius: 4px; overflow: hidden; margin-top: .5rem; }
+  .up-bar span { display: block; height: 100%; width: 0; background: var(--blue); transition: width .2s; }
+  .up-url { margin-top: .6rem; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  .up-url input {
+    flex: 1;
+    min-width: 15rem;
+    padding: .55rem .6rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--tint);
+    color: var(--ink);
+  }
+  .up-error { color: #b91c1c; font-size: .85rem; margin-top: .4rem; }
+  .up-noscript { border-left: 4px solid var(--warn-border); background: var(--warn-bg); padding: .9rem 1rem; }
+  @media (max-width: 640px) { .up-card { padding: 1rem; } }
+</style>
+
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / File uploader
+</nav>
+
+<div class="hero">
+  <h1>File uploader</h1>
+  <p class="lede">Drop a file, paste some text, or paste a screenshot straight from your clipboard. You get back a URL anyone can open. No API key, no account, no sign-up - and everything is deleted after 24 hours.</p>
+</div>
+
+<div class="up-card">
+
+  <noscript>
+    <p class="up-noscript"><strong>This page needs JavaScript.</strong> The uploader runs entirely in your browser and posts directly to the storage endpoint. Without JavaScript you can still use the API from the command line - see <a href="/free-public-api-storage-api-endpoint">the storage endpoint documentation</a>.</p>
+  </noscript>
+
+  <div class="up-drop" id="up-drop" role="button" tabindex="0">
+    <strong>Drop files here</strong>
+    <small>or click to choose files, or paste an image with Ctrl+V / Cmd+V</small>
+  </div>
+  <input type="file" id="up-input" multiple hidden>
+
+  <div class="up-or"><span>or paste text</span></div>
+
+  <div class="up-paste">
+    <textarea id="up-text" aria-label="Text to upload" placeholder="Paste or type text here.&#10;&#10;It is uploaded as a .txt file and shared the same way as any other upload."></textarea>
+    <button type="button" class="button button-primary" id="up-send" style="align-self:flex-start">Upload text</button>
+  </div>
+
+  <div class="up-list" id="up-list" aria-live="polite"></div>
+</div>
+
+<h2 id="how">How it works</h2>
+<p>This page is a thin front end for the <a href="/free-public-api-storage-api-endpoint">temporary storage endpoint</a>. Your browser posts the file directly to <code>https://aisenseapi.com/services/v1/storage</code> and the response contains a <code>storage_id</code>. The shareable URL is that endpoint plus the id.</p>
+
+<p>Nothing passes through this website: the upload goes from your browser straight to the API, so the only copy is the one the API stores. That copy is readable by anyone holding the URL, and it is removed 24 hours after it was written.</p>
+
+<h2 id="limits">What to keep in mind</h2>
+<ul>
+  <li><strong>Anything you upload is public.</strong> The URL is unguessable, but it is not a password. Do not upload secrets, credentials or personal data.</li>
+  <li><strong>It expires after 24 hours.</strong> This is for handing something over inside a task, not for hosting.</li>
+  <li><strong>The rate limit is 5000 requests per IP per 24 hours</strong>, which no ordinary use of this page will reach.</li>
+</ul>
+
+<h2 id="api">Doing the same from the command line</h2>
+<div class="api-window">
+  <div class="api-window-bar">Upload a file and read it back</div>
+  <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/storage \
+  -F "file=@report.pdf"
+
+# -&gt; {"storage_id":"...","read_url":"...","expire_timestamp":...}
+
+curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pre></div>
+</div>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-api-storage-api-endpoint">Storage endpoint reference</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var ENDPOINT = 'https://aisenseapi.com/services/v1/storage';
+
+  var drop  = document.getElementById('up-drop');
+  var input = document.getElementById('up-input');
+  var list  = document.getElementById('up-list');
+  var text  = document.getElementById('up-text');
+  var send  = document.getElementById('up-send');
+
+  if (!drop || !input || !list) { return; }
+
+  drop.addEventListener('click', function () { input.click(); });
+  drop.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+
+  input.addEventListener('change', function () {
+    handleFiles(input.files);
+    input.value = '';
+  });
+
+  ['dragenter', 'dragover'].forEach(function (name) {
+    drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (name) {
+    drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) { handleFiles(e.dataTransfer.files); }
+  });
+
+  // Without these, dropping a file anywhere outside the drop zone makes the
+  // browser navigate away to that file and the page is lost.
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  window.addEventListener('paste', function (e) {
+    if (!e.clipboardData) { return; }
+
+    var items = Array.prototype.slice.call(e.clipboardData.items || []);
+    var files = items.filter(function (it) { return it.kind === 'file'; });
+
+    if (files.length === 0) { return; }
+
+    // Pasting into the textarea should paste text, not hijack an image that
+    // happens to sit on the clipboard alongside it.
+    if (document.activeElement === text) {
+      var hasText = items.some(function (it) {
+        return it.kind === 'string' && it.type === 'text/plain';
+      });
+      if (hasText) { return; }
+    }
+
+    e.preventDefault();
+
+    files.forEach(function (item) {
+      var blob = item.getAsFile();
+      if (!blob) { return; }
+
+      var ext = (blob.type.split('/')[1] || 'bin').toLowerCase();
+      if (ext === 'jpeg') { ext = 'jpg'; }
+
+      var name = (blob.name && blob.name !== 'image.png')
+        ? blob.name
+        : 'pasted-' + Date.now() + '.' + ext;
+
+      upload(named(blob, name, blob.type));
+    });
+  });
+
+  send.addEventListener('click', function () {
+    var value = text.value;
+    if (!value.trim()) { text.focus(); return; }
+    upload(named(new Blob([value], { type: 'text/plain' }), 'pasted-' + Date.now() + '.txt', 'text/plain'));
+    text.value = '';
+  });
+
+  function named(blob, name, type) {
+    try {
+      return new File([blob], name, { type: type || 'application/octet-stream' });
+    } catch (err) {
+      // Older Safari has no File constructor. FormData still takes a Blob when
+      // the filename is passed as the third argument to append().
+      blob.name = name;
+      return blob;
+    }
+  }
+
+  function handleFiles(files) {
+    Array.prototype.slice.call(files).forEach(upload);
+  }
+
+  function size(bytes) {
+    if (bytes < 1024) { return bytes + ' B'; }
+    if (bytes < 1048576) { return (bytes / 1024).toFixed(1) + ' KB'; }
+    return (bytes / 1048576).toFixed(2) + ' MB';
+  }
+
+  function upload(file) {
+    var item = document.createElement('div');
+    item.className = 'up-item';
+
+    var name = document.createElement('div');
+    name.className = 'up-name';
+    name.textContent = file.name;
+
+    var meta = document.createElement('div');
+    meta.className = 'up-meta';
+    meta.textContent = size(file.size) + ' - uploading';
+
+    var track = document.createElement('div');
+    track.className = 'up-bar';
+    var bar = document.createElement('span');
+    track.appendChild(bar);
+
+    item.appendChild(name);
+    item.appendChild(meta);
+    item.appendChild(track);
+    list.appendChild(item);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', ENDPOINT, true);
+
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable) { bar.style.width = (e.loaded / e.total * 100) + '%'; }
+    };
+
+    xhr.onerror = function () { fail(item, track, 'Network error during upload.'); };
+
+    xhr.onload = function () {
+      bar.style.width = '100%';
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        fail(item, track, 'The server returned ' + xhr.status + '.');
+        return;
+      }
+
+      var data;
+      try {
+        data = JSON.parse(xhr.responseText);
+      } catch (err) {
+        fail(item, track, 'The response was not valid JSON.');
+        return;
+      }
+
+      if (data.error) { fail(item, track, data.error); return; }
+      if (!data.storage_id) { fail(item, track, 'The response carried no storage_id.'); return; }
+
+      var url = ENDPOINT + '/' + data.storage_id;
+      var expires = data.expire_timestamp
+        ? new Date(data.expire_timestamp * 1000).toLocaleString()
+        : 'in 24 hours';
+
+      meta.textContent = size(file.size) + ' - uploaded. Expires ' + expires;
+      track.parentNode.removeChild(track);
+
+      var row = document.createElement('div');
+      row.className = 'up-url';
+
+      var field = document.createElement('input');
+      field.type = 'text';
+      field.readOnly = true;
+      field.value = url;
+      field.setAttribute('aria-label', 'Shareable URL for ' + file.name);
+
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'button button-primary';
+      copy.textContent = 'Copy';
+
+      var open = document.createElement('a');
+      open.className = 'button button-light';
+      open.href = url;
+      open.target = '_blank';
+      open.rel = 'noopener';
+      open.textContent = 'Open';
+
+      copy.addEventListener('click', function () {
+        field.select();
+        var done = function () {
+          copy.textContent = 'Copied';
+          setTimeout(function () { copy.textContent = 'Copy'; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done, function () {
+            try { document.execCommand('copy'); done(); } catch (err) { /* it is selected either way */ }
+          });
+        } else {
+          try { document.execCommand('copy'); done(); } catch (err) { /* it is selected either way */ }
+        }
+      });
+
+      row.appendChild(field);
+      row.appendChild(copy);
+      row.appendChild(open);
+      item.appendChild(row);
+    };
+
+    var form = new FormData();
+    form.append('file', file, file.name);
+    xhr.send(form);
+  }
+
+  function fail(item, track, message) {
+    if (track && track.parentNode) { track.parentNode.removeChild(track); }
+    var error = document.createElement('div');
+    error.className = 'up-error';
+    error.textContent = message;
+    item.appendChild(error);
+  }
+})();
+</script>
+
+</body>
+</html>
