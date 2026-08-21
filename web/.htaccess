@@ -67,7 +67,6 @@ RedirectMatch 301 ^/universal-real-world-tokenization-framework.*$ https://aisen
 # Loose ends from the WordPress install.
 RedirectMatch 301 ^/(client_ip)/?$ https://aisense.no/free-public-api-client-ip-api-endpoint
 RedirectMatch 301 ^/(html2pdf)/?$ https://aisense.no/free-public-api-html-to-pdf-api-endpoint
-RedirectMatch 301 ^/(upload)/?$ https://aisense.no/free-public-apis
 RedirectMatch 301 ^/(feed|comments/feed)/?$ https://aisense.no/ai-sense-posts
 RedirectMatch 301 ^/(category|author|tag)/.*$ https://aisense.no/
 RedirectMatch 301 ^/(.+)/embed/?$ https://aisense.no/$1
