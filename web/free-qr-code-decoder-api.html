@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free QR code decoder API - and every other barcode | AI SENSE</title>
+<meta name="description" content="Free QR code decoder API with no key and no account. One POST returns qrcode_content. It also reads EAN-13, UPC, Code 39, Code 128, ITF and Codabar. Drop or paste an image here to try the endpoint in your browser first.">
+<link rel="canonical" href="https://aisense.no/free-qr-code-decoder-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free QR code decoder API - AI SENSE">
+<meta property="og:description" content="One POST, one field back. Reads QR codes and EAN-13, UPC, Code 39, Code 128, ITF and Codabar. No API key, no account.">
+<meta property="og:url" content="https://aisense.no/free-qr-code-decoder-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="assets/aisense.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free QR code decoder API",
+      "url": "https://aisense.no/free-qr-code-decoder-api",
+      "documentation": "https://aisense.no/free-public-api-qr-code-decode-api-endpoint",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Machine to machine endpoint that reads the content out of a QR code or barcode image. POST a file or a base64 image and receive one field, qrcode_content. No API key, no account, 5000 requests per IP per 24 hours.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/qrcode_decode",
+          "httpMethod": "POST",
+          "contentType": ["multipart/form-data", "application/json"],
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the free QR code decoder API really free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. No API key, no account and no sign up. The only limit is 5000 requests per IP address per 24 hours, which is far above any normal machine to machine use." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it read barcodes other than QR codes?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Decoding is done by zbar, which reads every symbology it supports, not only QR. EAN-13, UPC, Code 39, Code 128, ITF and Codabar all come back through the same field. QR, EAN-13 and Code 39 were verified against the live endpoint on 2026-08-21." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the image stored anywhere?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. The image is decoded inside the request and the temporary file is deleted in the same call. There is no id and no shareable URL." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is the decoded text not a clickable link?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A QR code is an instruction nobody can read before decoding it, which is what makes it a common phishing carrier. The destination is printed as plain text so it can be read before anyone decides to visit it." }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Free public REST APIs", "item": "https://aisense.no/free-public-apis" },
+        { "@type": "ListItem", "position": 3, "name": "Free QR code decoder API" }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+  .qr-lead-api { margin: 1.2rem 0 0; }
+  .qr-lead-api .api-window { margin: .6rem 0 0; }
+  .qr-badges { display: flex; flex-wrap: wrap; gap: .4rem; margin: .9rem 0 0; }
+  .qr-badges span {
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    background: var(--tint);
+    border: 1px solid var(--border);
+    color: var(--body);
+  }
+  .qr-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    padding: 1.6rem;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+    margin: 2rem 0;
+  }
+  .qr-drop {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2.4rem 1.2rem;
+    text-align: center;
+    cursor: pointer;
+    background: var(--tint);
+    color: var(--body);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .qr-drop:hover, .qr-drop:focus-visible, .qr-drop.is-over {
+    background: #eef5ff;
+    border-color: var(--blue);
+    color: var(--blue-dark);
+  }
+  .qr-drop strong { display: block; margin-bottom: .3rem; font-size: 1.05rem; }
+  .qr-drop small { color: var(--muted); }
+  .qr-list { margin-top: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+  .qr-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .75rem .9rem;
+    background: #fff;
+    font-size: .9rem;
+    display: flex;
+    gap: .9rem;
+    align-items: flex-start;
+  }
+  .qr-thumb {
+    width: 68px;
+    height: 68px;
+    flex: 0 0 68px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--tint);
+  }
+  .qr-body { flex: 1; min-width: 0; }
+  .qr-name { font-weight: 600; word-break: break-all; color: var(--ink); }
+  .qr-meta { color: var(--muted); font-size: .8rem; margin-top: .15rem; }
+  .qr-out {
+    margin-top: .5rem;
+    padding: .6rem .7rem;
+    font-family: var(--mono);
+    font-size: .85rem;
+    background: var(--tint);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--ink);
+    user-select: all;
+  }
+  .qr-raw {
+    margin-top: .4rem;
+    font-family: var(--mono);
+    font-size: .75rem;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  .qr-actions { margin-top: .5rem; display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+  .qr-flag {
+    font-size: .78rem;
+    color: #92400e;
+    background: var(--warn-bg);
+    border-left: 3px solid var(--warn-border);
+    padding: .35rem .6rem;
+    border-radius: 4px;
+  }
+  .qr-error { color: #b91c1c; font-size: .85rem; margin-top: .4rem; }
+  .qr-noscript { border-left: 4px solid var(--warn-border); background: var(--warn-bg); padding: .9rem 1rem; }
+  @media (max-width: 640px) { .qr-card { padding: 1rem; } .qr-item { flex-direction: column; } }
+</style>
+
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free QR code decoder API
+</nav>
+
+<div class="hero">
+  <h1>Free QR code decoder API</h1>
+  <p class="lede">The free QR code decoder API is one POST that returns one field. No API key, no account, no sign up - built for machine to machine use, with a drop zone further down so you can see it answer before you write any code. It reads barcodes too, not just QR.</p>
+
+  <div class="qr-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/qrcode_decode \
+  -F "qrcode_image=@ticket.png"
+
+{"qrcode_content":"https://aisense.no/upload"}</code></pre></div>
+    </div>
+    <div class="qr-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>JSON or multipart</span>
+      <span>5000 req / IP / 24h</span>
+      <span>Nothing stored</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try the free QR code decoder API in the browser</h2>
+<p>Same endpoint, same request. This page posts your image straight to it from your browser and prints exactly what came back.</p>
+
+<div class="qr-card">
+
+  <noscript>
+    <p class="qr-noscript"><strong>This page needs JavaScript</strong> for the drop zone only. The endpoint itself is plain HTTP and works from curl, a script or an agent without any of this - the request is at the top of the page.</p>
+  </noscript>
+
+  <div class="qr-drop" id="qr-drop" role="button" tabindex="0">
+    <strong>Drop a QR code or barcode image here</strong>
+    <small>or click to choose a file, or paste a screenshot with Ctrl+V / Cmd+V</small>
+  </div>
+  <input type="file" id="qr-input" accept="image/*" multiple hidden>
+
+  <div class="qr-list" id="qr-list" aria-live="polite"></div>
+</div>
+
+<h2 id="barcodes">It is not only a QR code decoder</h2>
+<p>Decoding is done by <strong>zbar</strong>, which reads every symbology it supports rather than QR alone: <strong>EAN-13, Code 128, UPC, ITF and Codabar</strong>, plus Code 39, Code 93, EAN-8 and DataBar. They all come back through the same <code>qrcode_content</code> field, so one call covers a retail barcode on a package and a QR code on an invoice without you deciding which is which in advance.</p>
+
+<p class="api-note"><strong>Verified against the live endpoint on 2026-08-21:</strong> QR (PNG and JPEG, down to 90 pixels, and rotated 12 degrees), EAN-13 with a valid checksum, and Code 39. The remaining symbologies are ones the decoder supports; they are listed as capability, not as something measured here.</p>
+
+<h2 id="m2m">Built for machine to machine use</h2>
+<p>There is no browser step in the contract. An agent, a cron job, a warehouse scanner or a serverless function can call this endpoint directly, with no key to provision and no account to create, which is the part that usually takes longer than the integration itself.</p>
+
+<div class="api-window">
+  <div class="api-window-bar">Base64 image in a JSON body</div>
+  <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/qrcode_decode \
+  -H "Content-Type: application/json" \
+  -d '{"payload":"iVBORw0KGgoAAAANSUhEUg..."}'
+
+{"qrcode_content":"7034148410004"}</code></pre></div>
+</div>
+
+<p>Both <code>payload</code> and <code>data</code> are accepted as the field name. The base64 must be the raw encoding - a <code>data:image/png;base64,</code> prefix is rejected with <code>400</code> and <code>{"error":"Invalid base64 payload"}</code>, so strip it before sending.</p>
+
+<p>If the image carries no readable code, the answer is <code>400</code> with <code>{"error":"No valid payload. Provide a file or base64 image"}</code>. Treat that as a real answer about the image rather than a fault worth retrying.</p>
+
+<h2 id="safety">The decoded text is shown, never linked</h2>
+<p>A QR code is an instruction nobody can read until it has been decoded, which is exactly what makes it a convenient carrier for phishing. Stickers placed over real payment codes and lookalike domains on parking signs both work because the victim cannot see the destination before arriving at it.</p>
+
+<p>So this page prints what the code says as plain, selectable text and never turns it into a clickable link. If it decodes to a URL, read the domain first and decide for yourself. That is one deliberate click of friction, and it is the whole point.</p>
+
+<h2 id="limits">What it does and does not do</h2>
+<ul>
+  <li><strong>Nothing is stored.</strong> The image is decoded inside the request and the temporary file is removed in the same call. There is no id and no shareable URL - if you want that, use the <a href="/upload">file uploader</a> instead.</li>
+  <li><strong>One code per image.</strong> The first code found comes back as a single string.</li>
+  <li><strong>Going the other way</strong> is the <a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode endpoint</a>, which turns text into a PNG.</li>
+  <li><strong>The full parameter table and error contract</strong> are in the <a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode endpoint reference</a>.</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-api-qr-code-decode-api-endpoint">Endpoint reference</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var ENDPOINT = 'https://aisenseapi.com/services/v1/qrcode_decode';
+
+  var drop  = document.getElementById('qr-drop');
+  var input = document.getElementById('qr-input');
+  var list  = document.getElementById('qr-list');
+
+  if (!drop || !input || !list) { return; }
+
+  drop.addEventListener('click', function () { input.click(); });
+  drop.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+
+  input.addEventListener('change', function () {
+    each(input.files);
+    input.value = '';
+  });
+
+  ['dragenter', 'dragover'].forEach(function (name) {
+    drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (name) {
+    drop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-over'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) { each(e.dataTransfer.files); }
+  });
+
+  // Otherwise the browser navigates away to the dropped file and the page is gone.
+  window.addEventListener('dragover', function (e) { e.preventDefault(); });
+  window.addEventListener('drop', function (e) { e.preventDefault(); });
+
+  window.addEventListener('paste', function (e) {
+    if (!e.clipboardData) { return; }
+
+    var files = Array.prototype.slice.call(e.clipboardData.items || [])
+      .filter(function (it) { return it.kind === 'file'; });
+
+    if (files.length === 0) { return; }
+    e.preventDefault();
+
+    files.forEach(function (item) {
+      var blob = item.getAsFile();
+      if (!blob) { return; }
+
+      var ext = (blob.type.split('/')[1] || 'png').toLowerCase();
+      if (ext === 'jpeg') { ext = 'jpg'; }
+
+      var name = (blob.name && blob.name !== 'image.png')
+        ? blob.name
+        : 'pasted-' + Date.now() + '.' + ext;
+
+      try {
+        decode(new File([blob], name, { type: blob.type }));
+      } catch (err) {
+        blob.name = name;
+        decode(blob);
+      }
+    });
+  });
+
+  function each(files) {
+    Array.prototype.slice.call(files).forEach(decode);
+  }
+
+  function decode(file) {
+    var item = document.createElement('div');
+    item.className = 'qr-item';
+
+    var thumb = document.createElement('img');
+    thumb.className = 'qr-thumb';
+    thumb.alt = '';
+    if (window.URL && URL.createObjectURL) {
+      var blobUrl = URL.createObjectURL(file);
+      thumb.src = blobUrl;
+      thumb.addEventListener('load', function () { URL.revokeObjectURL(blobUrl); });
+    }
+
+    var body = document.createElement('div');
+    body.className = 'qr-body';
+
+    var name = document.createElement('div');
+    name.className = 'qr-name';
+    name.textContent = file.name;
+
+    var meta = document.createElement('div');
+    meta.className = 'qr-meta';
+    meta.textContent = 'POST /services/v1/qrcode_decode - decoding';
+
+    body.appendChild(name);
+    body.appendChild(meta);
+    item.appendChild(thumb);
+    item.appendChild(body);
+    list.appendChild(item);
+
+    var started = Date.now();
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', ENDPOINT, true);
+
+    xhr.onerror = function () { fail(body, meta, 'Network error while decoding.'); };
+
+    xhr.onload = function () {
+      var ms = Date.now() - started;
+      var data;
+      try {
+        data = JSON.parse(xhr.responseText);
+      } catch (err) {
+        fail(body, meta, 'The response was not valid JSON.');
+        return;
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300 || data.error) {
+        fail(body, meta, data.error || ('The server returned ' + xhr.status + '.'));
+        return;
+      }
+
+      if (typeof data.qrcode_content !== 'string') {
+        fail(body, meta, 'The response carried no qrcode_content.');
+        return;
+      }
+
+      meta.textContent = 'HTTP ' + xhr.status + ' in ' + ms + ' ms';
+      show(body, data.qrcode_content, xhr.responseText);
+    };
+
+    var form = new FormData();
+    form.append('qrcode_image', file, file.name);
+    xhr.send(form);
+  }
+
+  function show(body, content, raw) {
+    var out = document.createElement('div');
+    out.className = 'qr-out';
+
+    // textContent, never innerHTML, and never an <a>. A QR code is an
+    // instruction nobody can read before decoding it, which is what makes it a
+    // convenient phishing carrier. Print the destination and let the reader
+    // decide, rather than putting it one click away.
+    out.textContent = content;
+    body.appendChild(out);
+
+    // The point of the page is that this is an endpoint. Show what it answered.
+    var rawLine = document.createElement('div');
+    rawLine.className = 'qr-raw';
+    rawLine.textContent = raw.length > 300 ? raw.slice(0, 300) + '...' : raw;
+    body.appendChild(rawLine);
+
+    var actions = document.createElement('div');
+    actions.className = 'qr-actions';
+
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'button button-primary';
+    copy.textContent = 'Copy text';
+
+    copy.addEventListener('click', function () {
+      var done = function () {
+        copy.textContent = 'Copied';
+        setTimeout(function () { copy.textContent = 'Copy text'; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(content).then(done, function () { select(out); });
+      } else {
+        select(out);
+      }
+    });
+
+    actions.appendChild(copy);
+
+    if (/^[a-z][a-z0-9+.-]*:/i.test(content)) {
+      var scheme = content.split(':')[0].toLowerCase();
+      var flag = document.createElement('span');
+      flag.className = 'qr-flag';
+      flag.textContent = 'This is a ' + scheme + ' link. Read the destination before you visit it.';
+      actions.appendChild(flag);
+    }
+
+    body.appendChild(actions);
+  }
+
+  function select(node) {
+    if (!window.getSelection || !document.createRange) { return; }
+    var range = document.createRange();
+    range.selectNodeContents(node);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function fail(body, meta, message) {
+    meta.textContent = 'could not decode';
+    var error = document.createElement('div');
+    error.className = 'qr-error';
+    error.textContent = message;
+    body.appendChild(error);
+  }
+})();
+</script>
+
+</body>
+</html>
