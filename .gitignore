@@ -1,0 +1,10 @@
+# Artifacts left behind by trying the documented curl examples in this
+# directory. The base64 and html2pdf examples write their output to a file, so
+# anyone following the docs produces these; they are results, not source.
+decoded.bin
+invoice.pdf
+*.qr.png
+
+# The OpenAPI document is generated and verified against the live service. It
+# is committed deliberately when complete - see the note in its own commit -
+# rather than picked up as a stray working file.
