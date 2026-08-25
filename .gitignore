@@ -5,9 +5,15 @@ decoded.bin
 invoice.pdf
 *.qr.png
 
-# The OpenAPI document is generated and verified against the live service. It
-# is committed deliberately when complete - see the note in its own commit -
-# rather than picked up as a stray working file.
+# The OpenAPI document is generated and verified against the live service, and
+# the copy in the working tree is incomplete: the whole Transform family is
+# missing, eleven endpoints including qrcode_decode. A client generated from it
+# would conclude those endpoints do not exist, which is worse than shipping no
+# specification at all - so it must not be swept up by `git add -A` in a public
+# repository. Committing it when it is finished is then a deliberate act:
+#
+#   git add -f openapi.yaml
+openapi.yaml
 
 # Agent session state, dropped into every checkout by AgentSyncToolkit. Session
 # transcripts, not source - 6.3 MB of them across this repo on 2026-08-25. The
