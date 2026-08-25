@@ -22,9 +22,13 @@ openapi.yaml
 # .agent-state/ would be served as static files off the live domain.
 .agent-state/
 
-# Same origin, same reason. These two are synced into each checkout rather than
-# written for this project, and under web/ they would publish as
-# https://aisense.no/AGENTS.md. Ignored inside web/ only - whether the repo root
-# should carry its own AGENTS.md is a separate question.
-web/AGENTS.md
-web/AGENT_CONTEXT.md
+# Same origin, same reason: AgentSyncToolkit writes these into every checkout it
+# syncs, rather than anyone having written them for this project. Unqualified, so
+# they are ignored at any depth. The copy under web/ would otherwise publish as
+# https://aisense.no/AGENTS.md, and the copy at the root would land in a public
+# repository looking like project documentation that nobody here wrote.
+#
+# If this project ever wants an AGENTS.md of its own, adding it is the same
+# deliberate step as openapi.yaml above: git add -f AGENTS.md
+AGENTS.md
+AGENT_CONTEXT.md
