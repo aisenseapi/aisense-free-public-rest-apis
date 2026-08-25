@@ -9,21 +9,23 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
+68 pages. The 48 endpoint pages share one naming pattern and are collapsed
+into a single row here; each one is listed individually in `sitemap.xml`.
+
 | File | URL |
 |------|-----|
 | `index.html` | `/` |
-| `free-public-apis.html` | `/free-public-apis` |
-| `webhook-capture-api.html` | `/webhook-capture-api` |
-| `webhook-action-api.html` | `/webhook-action-api` |
-| `temporary-storage-api.html` | `/temporary-storage-api` |
-| `url-shortener-api.html` | `/url-shortener-api` |
-| `ip-reverse-lookup-api.html` | `/ip-reverse-lookup-api` |
-| `qr-code-api.html` | `/qr-code-api` |
+| `free-public-apis.html` | `/free-public-apis` - generated from [`../API.md`](../API.md), see Editing |
+| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 48 of them, each at its matching URL |
+| `free-qr-code-decoder-api.html` | `/free-qr-code-decoder-api` - browser tool for the QR decode endpoint |
+| `free-public-mcp-server.html` | `/free-public-mcp-server` |
 | `hashing-apis.html` | `/hashing-apis` |
 | `encoding-apis.html` | `/encoding-apis` |
 | `random-generator-apis.html` | `/random-generator-apis` |
 | `time-apis.html` | `/time-apis` |
 | `custom-apis.html` | `/custom-apis` |
+| `upload.html` | `/upload` |
+| `tokenizer-cost-study.html` | `/tokenizer-cost-study` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `ai-sense-posts.html` | `/ai-sense-posts` |
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
@@ -33,6 +35,7 @@ in a browser and it renders.
 | `privacy.html` | `/privacy` - **needs legal review, see below** |
 | `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
+| `assets/posts/smart-beehive-monitoring-system.jpg` | image for the beehive post |
 | `404.html` | served by `ErrorDocument` for any unknown path, noindex |
 | `.htaccess` | 301 redirects from the old URL scheme, error page |
 | `robots.txt` | crawler directives and sitemap location |
@@ -40,21 +43,52 @@ in a browser and it renders.
 
 ## Deploying
 
-Pull only this directory onto the aisense.no host with a sparse checkout. This
-repository is public, so that machine needs no credentials at all - unlike the
-one holding the service source.
+**This directory is not what deploys.** The site is published from the
+`website` branch, which carries these same files at the repository root,
+without this README, on a history of its own -
+`git merge-base --is-ancestor origin/website origin/main` answers no.
+
+So every change here needs a second commit on `website` before it reaches the
+live site. There is no publish script; the two sides are kept in step by hand,
+with the same commit message on each. Pushing a fix to `main` alone changes
+nothing on aisense.no, and the symptom is indistinguishable from a failed
+deploy - you pull on the web host, the HTML is unchanged, and the search goes
+looking for caching or a wrong document root. Check parity instead:
 
 ```bash
-git clone --filter=blob:none --sparse https://github.com/aisenseapi/aisense-free-public-rest-apis.git .
-git sparse-checkout set web
+diff <(git ls-tree -r origin/website | awk '{print $3, $4}' | sort) \
+     <(git ls-tree -r origin/main -- web | awk '{print $3, substr($4,5)}' \
+       | grep -v README.md | sort)
 ```
 
-`--filter=blob:none` is the part that matters. `sparse-checkout` alone decides
-what gets written to the working tree; without the filter the rest of the
-repository is still downloaded. With it, blobs are fetched only for paths in the
-sparse set.
+Empty output means both branches carry the same site. Any line is a file that
+exists on one side only - on the `main` side, that is a page written but not
+published.
 
-After that, `git pull` is the whole deploy.
+What is checked out on the web host, read from its own config on 2026-08-25:
+
+```
+remote.origin.url=https://github.com/aisenseapi/aisense-free-public-rest-apis.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.website.remote=origin
+branch.website.merge=refs/heads/website
+```
+
+A full clone with `website` checked out, at `/var/www/htdocs/www.aisense.no`,
+which is also the DocumentRoot. The repository is public, so that machine needs
+no credentials at all - unlike the one holding the service source. Publishing is
+then the whole of:
+
+```bash
+git pull --ff-only
+```
+
+One caveat on keeping this README off the live host. The branch split keeps it
+out of the *working tree*, but the refspec above fetches every branch, so all of
+`main` - this file included - sits in `.git` on that machine. What makes it
+unreachable is the `Require all denied` on `.git` in the vhost, not the branch
+split. Cloning with `--single-branch -b website` would fetch `website` alone and
+let the split carry its own weight.
 
 ## Three things the webserver has to do
 
@@ -78,9 +112,25 @@ RewriteRule ^(.*)$ $1.html [L]
 
 In nginx: `try_files $uri $uri.html $uri/ =404;`
 
-**Point the document root at `web/`,** not at the repository root - otherwise
-the pages sit one directory down and `assets/aisense.css` resolves to the wrong
-place. A symlink works if changing the vhost is awkward.
+The live vhost does neither - it maps extensionless URLs with an `AliasMatch`
+on a single path segment. Two behaviours follow from that, both measured
+against the live site on 2026-08-25 and both worth knowing before diagnosing
+anything here.
+
+An unknown path maps to a missing `.html` file rather than reaching a router,
+so a wrong URL 404s instead of being handled. And the alias tolerates a
+trailing slash: `/about/` returns 200 with the same bytes as `/about`, with no
+redirect between them, so the canonical tag is the only thing telling search
+engines which of the two counts. That second one is why the stylesheet had to
+become root-relative - as a relative path it resolved to
+`/about/assets/aisense.css` from the slash form, and the page rendered
+unstyled.
+
+**Point the document root at the site root** - the top of the `website`
+checkout, where `index.html` and `assets/` sit. Every path in these pages,
+including the stylesheet, is root-relative, so mounting them one directory
+down breaks `/assets/aisense.css` on every page at once. A symlink works if
+changing the vhost is awkward.
 
 **Let `.htaccess` apply.** `.htaccess` here holds the 301 redirects from the
 pre-rebuild URL scheme plus `ErrorDocument 404 /404.html`. Apache ignores the
