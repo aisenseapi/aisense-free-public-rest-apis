@@ -8,3 +8,17 @@ invoice.pdf
 # The OpenAPI document is generated and verified against the live service. It
 # is committed deliberately when complete - see the note in its own commit -
 # rather than picked up as a stray working file.
+
+# Agent session state, dropped into every checkout by AgentSyncToolkit. Session
+# transcripts, not source - 6.3 MB of them across this repo on 2026-08-25. The
+# copy under web/ is the one that matters: that directory is mirrored to the
+# `website` branch, which is the document root of aisense.no, so a committed
+# .agent-state/ would be served as static files off the live domain.
+.agent-state/
+
+# Same origin, same reason. These two are synced into each checkout rather than
+# written for this project, and under web/ they would publish as
+# https://aisense.no/AGENTS.md. Ignored inside web/ only - whether the repo root
+# should carry its own AGENTS.md is a separate question.
+web/AGENTS.md
+web/AGENT_CONTEXT.md
