@@ -20,6 +20,17 @@
  */
 
 :root {
+  /*
+   * These pages are light-only - there is no dark palette here and no
+   * prefers-color-scheme block anywhere in this file. Declaring that explicitly
+   * matters on phones: Chrome on Android applies Auto Dark Theme to sites that
+   * state no preference, algorithmically inverting colours it was never given.
+   * That inversion is uneven - it will recolour a background without recolouring
+   * the text sitting on it - which is how a form field ends up white on white.
+   * Saying light here opts out of the guesswork and renders what was designed.
+   */
+  color-scheme: light;
+
   --blue:        #046bd2;
   --blue-dark:   #045cb4;
   --ink:         #1e293b;
@@ -398,7 +409,14 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .api-window-bar > span:nth-child(3) { background: #34d399; }
 .api-window-bar p { margin: 0 0 0 auto; color: #94a3b8; font-family: var(--mono); font-size: 11px; }
 .api-window-body { padding: clamp(25px, 4vw, 42px); }
-.api-window-body > code { display: block; margin-bottom: 34px; color: #fff; font-size: 13px; word-break: break-all; }
+/*
+ * Same collision as .endpoint-banner > code, and worse here: the shared `code`
+ * rule's var(--tint) background met the #fff below at a contrast delta of 11 -
+ * white on white - in the hero window on the front page, which is the first
+ * thing a visitor sees. Clearing the background restores the dark window
+ * underneath. Any future `code` placed on a dark surface needs the same reset.
+ */
+.api-window-body > code { display: block; margin-bottom: 34px; padding: 0; background: transparent; color: #fff; font-size: 13px; word-break: break-all; }
 .api-label { display: inline-block; margin-bottom: 10px; color: #7dd3fc; font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; }
 .api-response { font-family: var(--mono); font-size: 13px; line-height: 1.9; }
 .code-key { color: #7dd3fc; }
@@ -601,7 +619,16 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .endpoint-banner-label { margin: 0 0 15px; color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 .endpoint-banner .sig { position: relative; z-index: 1; align-items: center; margin-bottom: 19px; }
 .endpoint-banner .path { color: #fff; }
-.endpoint-banner > code { position: relative; z-index: 1; display: block; color: #7dd3fc; font-size: 12px; line-height: 1.65; word-break: break-all; }
+/*
+ * The background reset is load-bearing, not tidying. The shared `code` rule
+ * paints var(--tint) - a near-white - on every inline code element, and that
+ * background lands on this element too, on top of the dark banner behind it.
+ * The #7dd3fc below is chosen for the dark banner, so against the tint it came
+ * out at a contrast delta of 49: the example URL on every endpoint page was
+ * effectively invisible, worst of all on a phone in daylight. Clearing the
+ * background lets the banner show through and takes it back to 156.
+ */
+.endpoint-banner > code { position: relative; z-index: 1; display: block; padding: 0; background: transparent; color: #7dd3fc; font-size: 12px; line-height: 1.65; word-break: break-all; }
 
 .api-doc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 255px; gap: clamp(48px, 8vw, 105px); padding-top: 62px; align-items: start; }
 .api-doc { min-width: 0; }
@@ -806,8 +833,33 @@ td code { white-space: nowrap; }
 @media (max-width: 640px) {
   body { font-size: 16px; }
   main { padding: 0 18px 60px; }
-  .site-header .inner { padding: 12px 18px; gap: 14px; }
-  .site-nav { gap: 14px; font-size: 13px; width: 100%; margin-left: 0; }
+  /*
+   * The nav is a single scrollable row on phones, not a wrapped block. With
+   * seven links at 375px it used to wrap onto three rows and stand 177px tall -
+   * 22% of an 812px screen, held there permanently by position:sticky. One row
+   * that scrolls sideways is 58px and keeps every link reachable.
+   *
+   * flex-wrap:nowrap on .inner is what forces it; min-width:0 is what lets the
+   * nav actually shrink inside the flex row rather than pushing the wordmark
+   * off. Right padding sits on the nav, not .inner, so the last link can scroll
+   * clear of the edge instead of being clipped by it.
+   */
+  .site-header .inner { flex-wrap: nowrap; gap: 12px; padding: 10px 0 10px 18px; }
+  .wordmark { flex: 0 0 auto; font-size: 22px; }
+  .site-nav {
+    width: auto;
+    min-width: 0;
+    margin-left: auto;
+    flex-wrap: nowrap;
+    gap: 18px;
+    font-size: 13px;
+    padding: 2px 18px 2px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .site-nav::-webkit-scrollbar { display: none; }
+  .site-nav a { white-space: nowrap; }
 
   .login-shell { grid-template-columns: 1fr; min-height: 0; gap: 42px; padding: 55px 0; }
   .login-intro h1 { font-size: clamp(38px, 10vw, 56px); }
