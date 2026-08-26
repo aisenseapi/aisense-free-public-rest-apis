@@ -416,7 +416,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
  * thing a visitor sees. Clearing the background restores the dark window
  * underneath. Any future `code` placed on a dark surface needs the same reset.
  */
-.api-window-body > code { display: block; margin-bottom: 34px; padding: 0; background: transparent; color: #fff; font-size: 13px; word-break: break-all; }
+.api-window-body > code { display: block; margin-bottom: 34px; padding: 0 5px; background: transparent; color: #fff; font-size: 13px; word-break: break-all; }
 .api-label { display: inline-block; margin-bottom: 10px; color: #7dd3fc; font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.09em; }
 .api-response { font-family: var(--mono); font-size: 13px; line-height: 1.9; }
 .code-key { color: #7dd3fc; }
