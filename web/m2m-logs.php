@@ -64,22 +64,55 @@ if ( strlen( $expected ) < 32 ) {
     m2m_send( 503, null, 'Token file is too short to be a key.' );
 }
 
+/*
+ * The token arrives in X-Aisense-Token, not in Authorization.
+ *
+ * This Apache does not pass Authorization through to PHP. That is the default
+ * and not a misconfiguration: the header is dropped unless CGIPassAuth is on or
+ * a rewrite rule copies it into the environment. Verified here on 2026-08-27 by
+ * sending a known value and printing every $_SERVER key containing "auth", which
+ * printed nothing at all.
+ *
+ * A custom header is passed through untouched, so this needs no change to the
+ * server config. That matters on a box running end of life PHP, where the right
+ * instinct is to touch as little as possible.
+ *
+ * Authorization is still read as a fallback, so this keeps working if that
+ * config is ever turned on.
+ */
 $presented = '';
 
-// getallheaders is not available under every SAPI, so read both spellings.
-$auth = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
-
-if ( $auth === '' && isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
-    $auth = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+if ( isset( $_SERVER['HTTP_X_AISENSE_TOKEN'] ) ) {
+    $presented = trim( (string) $_SERVER['HTTP_X_AISENSE_TOKEN'] );
 }
 
-if ( stripos( $auth, 'Bearer ' ) === 0 ) {
-    $presented = trim( substr( $auth, 7 ) );
+if ( $presented === '' ) {
+    $auth = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+
+    if ( $auth === '' && isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
+        $auth = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    }
+
+    if ( stripos( $auth, 'Bearer ' ) === 0 ) {
+        $presented = trim( substr( $auth, 7 ) );
+    }
+}
+
+/*
+ * "No token" and "wrong token" are reported separately.
+ *
+ * Both were one message until 2026-08-27, and the caller spent a round of
+ * debugging on two files that were identical all along while the header was
+ * being dropped in front of them. Saying which failed reveals nothing: an
+ * attacker already knows whether they sent a header.
+ */
+if ( $presented === '' ) {
+    m2m_send( 401, null, 'No token presented. Send it as the X-Aisense-Token header.' );
 }
 
 // hash_equals, not ==, so a wrong token cannot be found one byte at a time.
-if ( $presented === '' || ! hash_equals( $expected, $presented ) ) {
-    m2m_send( 401, null, 'Unauthorized.' );
+if ( ! hash_equals( $expected, $presented ) ) {
+    m2m_send( 401, null, 'Token does not match the one on this server.' );
 }
 
 // --- helpers -------------------------------------------------------------
