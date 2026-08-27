@@ -245,6 +245,15 @@ Response: { "input": "1700000000123", "detected": "unix_ms", "timestamp": 170000
 
 { "password": "jFehS]AKGx9wl[jp", "password_length": 16 }</code></pre>
 </article>
+
+<article class="endpoint">
+<h3>Passphrase REST API Endpoint</h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/passphrase[/{groups}]</span></p>
+<p>Pronounceable passphrase, four hyphen separated groups by default, 2 to 12 allowed. The argument counts <strong>groups, not characters</strong>.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/passphrase/4
+
+{ "passphrase": "hudil-rosi4-Zerzo-Coze#", "groups": 4, "length": 23, "entropy_bits": 91.4 }</code></pre>
+</article>
 </section>
 
 <!-- TRANSFORM -->
@@ -648,7 +657,7 @@ response = client.chat.completions.create(
 <h3>Hash</h3>
 <div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
-<div class="related-api-grid"><a href="/free-public-api-uuid-api-endpoint">Free UUID API Endpoint<span>Version 4 identifiers</span></a><a href="/free-public-api-guid-api-endpoint">Free GUID API Endpoint<span>The same value, GUID field</span></a><a href="/free-public-api-password-api-endpoint">Free Password API Endpoint<span>Length 6 to 128, default 12</span></a><a href="/free-public-api-random-number-api-endpoint">Free Random Number API Endpoint<span>Inclusive bounds, echoed back</span></a><a href="/free-public-api-random-color-api-endpoint">Free Random Color API Endpoint<span>Six digit hex for CSS</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-uuid-api-endpoint">Free UUID API Endpoint<span>Version 4 identifiers</span></a><a href="/free-public-api-guid-api-endpoint">Free GUID API Endpoint<span>The same value, GUID field</span></a><a href="/free-public-api-password-api-endpoint">Free Password API Endpoint<span>Length 6 to 128, default 12</span></a><a href="/free-public-api-passphrase-api-endpoint">Free Passphrase API Endpoint<span>Pronounceable, 2 to 12 groups</span></a><a href="/free-public-api-random-number-api-endpoint">Free Random Number API Endpoint<span>Inclusive bounds, echoed back</span></a><a href="/free-public-api-random-color-api-endpoint">Free Random Color API Endpoint<span>Six digit hex for CSS</span></a></div>
 <h3>Time</h3>
 <div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 with an offset</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
 <h3>Web</h3>
@@ -678,6 +687,7 @@ response = client.chat.completions.create(
 <tr><td>Random</td><td><code>/uuid</code></td><td>GET</td><td><code>uuid</code></td></tr>
 <tr><td>Random</td><td><code>/guid</code></td><td>GET</td><td><code>guid</code></td></tr>
 <tr><td>Random</td><td><code>/password[/{length}]</code></td><td>GET</td><td><code>password</code>, <code>password_length</code></td></tr>
+<tr><td>Random</td><td><code>/passphrase[/{groups}]</code></td><td>GET</td><td><code>passphrase</code>, <code>groups</code>, <code>length</code>, <code>entropy_bits</code></td></tr>
 <tr><td>Transform</td><td><code>/base64_encode</code></td><td>POST</td><td><code>base64_encoded_data</code></td></tr>
 <tr><td>Transform</td><td><code>/base64_decode</code></td><td>POST</td><td>raw bytes, or <code>type</code> + <code>decoded_data</code></td></tr>
 <tr><td>Transform</td><td><code>/base58_encode</code></td><td>POST</td><td><code>base58_encoded_data</code></td></tr>
