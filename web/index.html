@@ -96,7 +96,7 @@
         <span class="code-key">"uuid"</span>: <span class="code-value">"429151ee-82a1-4438-b2f1-b6b9c9e4a41f"</span><br>
         <span>}</span>
       </div>
-      <p class="api-status"><span aria-hidden="true"></span> Live public endpoint</p>
+      <p class="api-status" id="api-status" data-state="unknown" aria-live="polite"><span aria-hidden="true"></span> <span id="api-status-text">Public endpoint, no API key</span></p>
     </div>
   </div>
 </section>
@@ -214,5 +214,62 @@
   </div>
 </footer>
 
+<script>
+/* The status dot under the example response. Without this script the badge
+   states what the endpoint is, which needs no checking. With it, the badge
+   states whether the endpoint answered, which does.
+
+   One call per visit, plus one when the tab is brought back into focus, with a
+   30 second floor so flicking between tabs cannot turn into a poll. A visitor's
+   requests count against their own 5000 per day, and a marketing page has no
+   business spending that budget on decoration. */
+(function(){
+  var box  = document.getElementById('api-status');
+  var text = document.getElementById('api-status-text');
+  if ( !box || !text || !window.fetch ) return;
+
+  var checkedAt = 0;
+
+  function show( state, message ){
+    box.setAttribute( 'data-state', state );
+    text.textContent = message;
+  }
+
+  function check(){
+    var now = new Date().getTime();
+    if ( now - checkedAt < 30000 ) return;
+    checkedAt = now;
+
+    var control = window.AbortController ? new AbortController() : null;
+    var giveUp  = control ? window.setTimeout( function(){ control.abort(); }, 5000 ) : null;
+    var options = { cache: 'no-store' };
+    if ( control ) options.signal = control.signal;
+
+    window.fetch( 'https://aisenseapi.com/services/v1/health', options ).then( function( reply ){
+      window.clearTimeout( giveUp );
+      if ( reply.status === 429 ){
+        show( 'limited', 'Rate limit reached from your network' );
+        return null;
+      }
+      if ( !reply.ok ) throw new Error( reply.status );
+      return reply.json();
+    }).then( function( body ){
+      if ( !body ) return;
+      if ( body.status === 'ok' ) show( 'up', 'Live public endpoint' );
+      else show( 'down', 'Endpoint reporting a problem' );
+    }).catch( function(){
+      window.clearTimeout( giveUp );
+      show( 'down', 'Endpoint not responding' );
+    });
+  }
+
+  check();
+
+  document.addEventListener( 'visibilitychange', function(){
+    if ( document.visibilityState === 'visible' ) check();
+  });
+})();
+</script>
 </body>
+
 </html>
