@@ -170,6 +170,11 @@ has_key   "UUID"                    GET "$BASE/uuid"                "uuid"
 has_key   "GUID"                    GET "$BASE/guid"                "guid"
 has_key   "Password"                GET "$BASE/password"            "password"
 has_value "Password (length 16)"    GET "$BASE/password/16"         '"password_length":16'
+has_key   "Passphrase"              GET "$BASE/passphrase"          "passphrase"
+has_value "Passphrase (6 groups)"   GET "$BASE/passphrase/6"        '"groups":6'
+has_value "Passphrase reports bits" GET "$BASE/passphrase"          '"entropy_bits":'
+has_value "Passphrase (1 group)"    GET "$BASE/passphrase/1"        '"error":"The number of groups'
+has_value "Passphrase (13 groups)"  GET "$BASE/passphrase/13"       '"error":"The number of groups'
 echo ""
 
 # ── TRANSFORM ────────────────────────────────────────────────

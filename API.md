@@ -182,6 +182,27 @@ Random password, 12 characters by default. Includes punctuation.
 { "password": "jFehS]AKGx9wl[jp", "password_length": 16 }
 ```
 
+### `GET /passphrase[/{groups}]`
+Pronounceable passphrase, 4 hyphen separated groups by default, 2 to 12
+allowed. Groups are built from consonant-vowel syllables, so the result can be
+read aloud and retyped from memory. One digit and one symbol are always
+included, because the complexity rules that demand them are close to universal.
+
+The argument counts **groups, not characters**. That is why this is a separate
+endpoint rather than a style on `/password`, where the same number means a
+length.
+
+```json
+{ "passphrase": "hudil-rosi4-Zerzo-Coze#", "groups": 4, "length": 23, "entropy_bits": 91.4 }
+```
+
+`entropy_bits` is accumulated from the random draws that produced this specific
+passphrase, not estimated afterwards from the finished string. Counting
+characters would overstate it: `Zerzo` looks like five characters from a large
+alphabet and is really four uniform choices from small ones. The default of 4
+groups lands around 91 bits, which is in the region of a 14 character fully
+random password.
+
 ---
 
 ## Transform
