@@ -422,7 +422,11 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .code-key { color: #7dd3fc; }
 .code-value { color: #86efac; }
 .api-status { margin: 34px 0 0; color: #94a3b8; font-size: 12px; }
-.api-status span { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 4px rgba(52,211,153,0.12); }
+.api-status span { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #94a3b8; box-shadow: 0 0 0 4px rgba(148,163,184,0.12); transition: background 160ms linear, box-shadow 160ms linear; }
+.api-status[data-state="up"] span { background: #34d399; box-shadow: 0 0 0 4px rgba(52,211,153,0.12); }
+.api-status[data-state="down"] span { background: #f87171; box-shadow: 0 0 0 4px rgba(248,113,113,0.12); }
+.api-status[data-state="limited"] span { background: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,0.12); }
+@media (prefers-reduced-motion: reduce) { .api-status span { transition: none; } }
 
 .home-section { padding: 93px 0 106px; border-top: 1px solid var(--border); }
 .section-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 0.65fr); gap: 18px 80px; align-items: end; margin-bottom: 43px; }
