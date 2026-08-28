@@ -374,15 +374,37 @@ curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pr
     xhr.onload = function () {
       bar.style.width = '100%';
 
-      if (xhr.status < 200 || xhr.status >= 300) {
-        fail(item, track, 'The server returned ' + xhr.status + '.');
-        return;
-      }
-
-      var data;
+      // Parse before branching on the status. The API sends a JSON body with a
+      // usable sentence on its error responses too, and "the server returned
+      // 429" is a fact about the transport rather than an answer to what the
+      // person should do next.
+      var data = null;
       try {
         data = JSON.parse(xhr.responseText);
       } catch (err) {
+        data = null;
+      }
+
+      if (xhr.status === 429) {
+        // The rate limit is per IP, so on a shared or office connection this
+        // fires for something the person never did themselves. Saying which
+        // limit and when it lifts is the difference between a dead end and a
+        // wait.
+        fail(item, track,
+          'Rate limit reached for your network: 5000 requests per IP per 24 hours. '
+          + 'It resets at midnight UTC. Everyone on this connection shares that budget, '
+          + 'so a script elsewhere on the network can use it up.');
+        return;
+      }
+
+      if (xhr.status < 200 || xhr.status >= 300) {
+        fail(item, track, (data && data.error)
+          ? data.error
+          : 'The server returned ' + xhr.status + '.');
+        return;
+      }
+
+      if (data === null) {
         fail(item, track, 'The response was not valid JSON.');
         return;
       }
