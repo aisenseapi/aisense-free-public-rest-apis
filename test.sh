@@ -440,6 +440,11 @@ else
   bad "MCP tools/list" "found $MCP_TOOLS tools, expected 9 - update MCP.md and the web page together with this number"
 fi
 
+mcp_post '{"jsonrpc":"2.0","id":20,"method":"resources/list","params":{}}' '2025-11-25'
+mcp_expect "MCP resources/list publishes Verifyum" 'https://aisense.no/verifyum'
+mcp_post '{"jsonrpc":"2.0","id":21,"method":"resources/read","params":{"uri":"https://aisense.no/verifyum"}}' '2025-11-25'
+mcp_expect "MCP resources/read keeps the original file local" 'not uploaded to Verifyum'
+
 # 2026-07-28 enforces three contracts, checked in a fixed order: the
 # streamable-http Accept header must name both content types, the version in
 # the header must agree with _meta in the body, and an MCP-Method header must

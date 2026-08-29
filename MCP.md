@@ -1,6 +1,7 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to nine public tools at one remote MCP endpoint.
+Connect an AI agent to nine public tools and one read-only product resource at
+one remote MCP endpoint.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
@@ -23,6 +24,20 @@ IP per 24 hours. This limit is shared with the public REST API.
 
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
+
+## Available resource
+
+| URI | What it contains |
+|-----|------------------|
+| `https://aisense.no/verifyum` | Public product information for Verifyum, including the local file-processing boundary and current anchoring status |
+
+Call `resources/list` to discover the resource. Call `resources/read` with the
+URI above to read it as Markdown. The resource is informational. It does not
+accept a file and cannot create a proof.
+
+Verifyum processes the original file locally in the browser. Adding a remote
+file-processing tool here would break that boundary, so MCP exposes product
+context only.
 
 ## OpenAI Responses API
 
@@ -121,6 +136,7 @@ JSON is returned as JSON. Text stays as text. Other bytes are Base64 encoded.
 - Do not store passwords, private keys, health data or long-lived confidential data.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.
+- The Verifyum resource is read-only and contains no user data.
 
 The endpoint is public because the tools operate on short-lived public data and
 do not access a user account. Authentication can be added later for private or
