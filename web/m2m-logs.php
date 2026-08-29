@@ -1,6 +1,6 @@
 <?php
 /**
- * Machine access to this site's Apache logs, for the operator dashboard on
+ * Machine access to the web box's Apache logs, for the operator dashboard on
  * aisenseapi.com.
  *
  * This file is in a public repository. Everything about how it works is
@@ -13,9 +13,10 @@
  *
  *   - Reads. Never writes, deletes, includes or executes anything.
  *   - No shell, no eval, no dynamic include, no unserialize.
- *   - No path ever comes from the caller. A date is validated, converted to a
- *     number, and that number builds the filename.
- *   - Two actions and nothing else. An unknown action is refused, not guessed.
+ *   - No path ever comes from the caller. The site is selected from a fixed
+ *     list. A date is validated, converted to a number, and that number builds
+ *     the filename.
+ *   - Three actions and nothing else. An unknown action is refused, not guessed.
  *
  * No str_contains or str_starts_with anywhere: both arrived in PHP 8.0 and this
  * box does not have them.
@@ -25,8 +26,30 @@ header( 'Content-Type: application/json; charset=utf-8' );
 header( 'Cache-Control: no-store' );
 header( 'X-Content-Type-Options: nosniff' );
 
-/** Log directory. Apache already answers 403 for it, verified 2026-08-27. */
-$log_dir = __DIR__ . '/logs';
+require_once __DIR__ . '/m2m-content-stats.php';
+
+/**
+ * Web services on this physical box.
+ *
+ * The query contains only the short key. These absolute paths are fixed here,
+ * so a caller cannot turn a dashboard request into an arbitrary file read.
+ */
+$sites = array(
+    'www' => array(
+        'host'    => 'aisense.no',
+        'log_dir' => __DIR__ . '/logs',
+        'root'    => __DIR__,
+    ),
+    'data' => array(
+        'host'                     => 'data.aisenseapi.com',
+        'log_dir'                  => '/var/www/htdocs/data.aisenseapi.com/logs',
+        'root'                     => '/var/www/htdocs/data.aisenseapi.com',
+        'published_dir'            => '/var/www/htdocs/data.aisenseapi.com/content',
+        'published_retention_days' => 180,
+    ),
+);
+
+$site = isset( $_GET['site'] ) ? (string) $_GET['site'] : 'www';
 
 /**
  * Token file, deliberately outside the document root.
@@ -115,6 +138,26 @@ if ( ! hash_equals( $expected, $presented ) ) {
     m2m_send( 401, null, 'Token does not match the one on this server.' );
 }
 
+if ( ! isset( $sites[ $site ] ) ) {
+    m2m_send( 400, null, 'Unknown site. Known sites: www, data.' );
+}
+
+$site_config = $sites[ $site ];
+$log_dir = $site_config['log_dir'];
+$action = isset( $_GET['action'] ) ? (string) $_GET['action'] : 'status';
+
+if ( ! in_array( $action, array( 'status', 'logs', 'inventory' ), true ) ) {
+    m2m_send( 400, null, 'Unknown action. Known actions: status, logs, inventory.' );
+}
+
+if ( $action === 'inventory' && ( ! is_dir( $site_config['root'] ) || ! is_readable( $site_config['root'] ) ) ) {
+    m2m_send( 503, null, 'The configured public root for this site was not found or is unreadable.' );
+}
+
+if ( $action !== 'inventory' && ! is_dir( $log_dir ) ) {
+    m2m_send( 503, null, 'The configured log directory for this site was not found.' );
+}
+
 // --- helpers -------------------------------------------------------------
 
 /**
@@ -177,7 +220,14 @@ function m2m_tail( $file, $n ) {
 
 // --- actions -------------------------------------------------------------
 
-$action = isset( $_GET['action'] ) ? (string) $_GET['action'] : 'status';
+/*
+ * inventory: aggregate public files, links, forms and published AI content.
+ * The helper returns counts and sizes only. It never returns a name, URL,
+ * submitted value or body from the files it inspects.
+ */
+if ( $action === 'inventory' ) {
+    m2m_send( 200, m2m_content_inventory( $site, $site_config, time() ) );
+}
 
 /*
  * status: which days exist, how big they are, and what the server thinks the
@@ -199,7 +249,8 @@ if ( $action === 'status' ) {
     ksort( $days );
 
     m2m_send( 200, array(
-        'host'          => 'aisense.no',
+        'site'          => $site,
+        'host'          => $site_config['host'],
         'log_dir_found' => is_dir( $log_dir ),
         'days'          => $days,
         'day_count'     => count( $days ),
@@ -230,6 +281,8 @@ if ( $action === 'logs' ) {
     $rows = m2m_tail( $file, $lines );
 
     m2m_send( 200, array(
+        'site'      => $site,
+        'host'      => $site_config['host'],
         'date'      => $date,
         'which'     => $which,
         'file'      => basename( $file ),
@@ -241,4 +294,4 @@ if ( $action === 'logs' ) {
     ) );
 }
 
-m2m_send( 400, null, 'Unknown action. Known actions: status, logs.' );
+m2m_send( 400, null, 'Unknown action. Known actions: status, logs, inventory.' );
