@@ -626,7 +626,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
  * effectively invisible, worst of all on a phone in daylight. Clearing the
  * background lets the banner show through and takes it back to 156.
  */
-.endpoint-banner > code { position: relative; z-index: 1; display: block; padding: 6px 2px; background: transparent; color: #7dd3fc; font-size: 12px; line-height: 1.65; word-break: break-all; }
+.endpoint-banner > code { position: relative; z-index: 1; display: block; padding: 2px 6px; background: transparent; color: #7dd3fc; font-size: 12px; line-height: 1.65; word-break: break-all; }
 
 .api-doc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 255px; gap: clamp(48px, 8vw, 105px); padding-top: 62px; align-items: start; }
 .api-doc { min-width: 0; }
