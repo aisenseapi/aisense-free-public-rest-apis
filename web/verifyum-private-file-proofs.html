@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Why Verifyum Keeps the Original File Private - AI SENSE</title>
+<meta name="description" content="How Verifyum creates a private manifest and file commitment in the browser without uploading the original file, and what a portable file proof can show.">
+<link rel="canonical" href="https://aisense.no/verifyum-private-file-proofs">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Why Verifyum Keeps the Original File Private">
+<meta property="og:description" content="The file stays on the user's device. The browser creates the private manifest and commitment locally.">
+<meta property="og:url" content="https://aisense.no/verifyum-private-file-proofs">
+<meta property="article:published_time" content="2026-08-29">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Why Verifyum Keeps the Original File Private",
+      "description": "How Verifyum creates private, portable file proofs locally in the browser without uploading the original file.",
+      "url": "https://aisense.no/verifyum-private-file-proofs",
+      "datePublished": "2026-08-29",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Verifyum file proofs", "item": "https://aisense.no/verifyum-private-file-proofs" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Verifyum file proofs</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 29 August 2026</p>
+  <h1>Why Verifyum Keeps the Original File Private</h1>
+  <p class="article-deck">A file proof should not require handing the file to the service that creates the proof. Verifyum starts there. Hashing and manifest creation happen in the browser, and the original file stays on the user's device.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">The usual proof flow begins with an upload. That is a bad fit for contracts, unpublished work, source archives and internal records. The proof service receives the most sensitive item before it has proved anything. Verifyum was built around a smaller exchange.</p>
+
+<h2>The browser creates the private input</h2>
+
+<p>When a user selects a file, browser code reads its bytes and computes SHA-256 locally. It records the byte length and adds a random nonce. Those values form a versioned private manifest.</p>
+
+<p>The manifest is canonicalized and hashed with a Verifyum-specific prefix. The result is a commitment. A commitment can be public without exposing the file hash, the nonce, the filename or the file itself.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">What leaves the device</p>
+  <h2>The original file does not.</h2>
+  <p>The current live service creates a private draft entirely in the browser. The user downloads that draft and keeps it with the original file.</p>
+</div>
+
+<h2>Portable means the proof cannot depend on one database</h2>
+
+<p>A useful file proof has to survive a missing account, a closed company and a database that no longer answers. Verifyum's protocol keeps the private manifest with the user. Public proof metadata is designed to contain the commitment and the information needed to inspect a Solana transaction.</p>
+
+<p>Full verification starts with the selected original file. The verifier hashes it again, checks its size, rebuilds the commitment and compares each result with the proof package. Once anchoring is enabled, the same process also checks the finalized Solana transaction, its signer and its exact memo.</p>
+
+<h2>A blockchain time is not the file's birthday</h2>
+
+<p>A finalized transaction can show that a specific commitment existed by the recorded block time. It cannot show when the original file was created. It also cannot establish authorship, ownership or whether the contents are true.</p>
+
+<p>That limit belongs in the product description because the distinction matters. Verifyum checks byte identity and the chain of evidence around a commitment. Other claims need other evidence.</p>
+
+<h2>Where the public service stands today</h2>
+
+<p>The local draft flow is live at <a href="https://verifyum.com/">Verifyum</a>. The browser can hash a file, create the private manifest, calculate the commitment and download the result. The original file is never uploaded.</p>
+
+<p>Solana anchoring remains disabled while the isolated Devnet signer, spend controls, finality checks and recovery tests are completed. The interface states this before a user selects a file. Production anchoring will not be claimed until the transaction path is enabled and verified.</p>
+
+<h2>Built and operated by AI SENSE AS</h2>
+
+<p>Verifyum is an AI SENSE product. It applies the same rule we use for public APIs and machine tools: make the contract narrow, show the exact output and keep sensitive data out of the service when the job can be done locally.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Try the current milestone</p>
+  <h2>Create a local proof draft.</h2>
+  <p>Choose a file in your browser and download the private result. Nothing is uploaded.</p>
+  <div class="button-row"><a href="https://verifyum.com/">Open Verifyum</a> <a href="/verifyum">View the AI SENSE product page</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>

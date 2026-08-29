@@ -9,7 +9,7 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-68 pages. The 48 endpoint pages share one naming pattern and are collapsed
+70 pages. The 48 endpoint pages share one naming pattern and are collapsed
 into a single row here; each one is listed individually in `sitemap.xml`.
 
 | File | URL |
@@ -26,6 +26,8 @@ into a single row here; each one is listed individually in `sitemap.xml`.
 | `custom-apis.html` | `/custom-apis` |
 | `upload.html` | `/upload` |
 | `tokenizer-cost-study.html` | `/tokenizer-cost-study` |
+| `verifyum.html` | `/verifyum` |
+| `verifyum-private-file-proofs.html` | `/verifyum-private-file-proofs` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `ai-sense-posts.html` | `/ai-sense-posts` |
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |

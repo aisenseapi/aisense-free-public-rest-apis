@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Verifyum - Private, Portable File Proofs | AI SENSE</title>
+<meta name="description" content="Verifyum creates private, portable file proofs in the browser. The original file stays on your device and is never uploaded to Verifyum.">
+<link rel="canonical" href="https://aisense.no/verifyum">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Verifyum - Private, Portable File Proofs">
+<meta property="og:description" content="Create a private file manifest and commitment locally in the browser. The original file stays on your device.">
+<meta property="og:url" content="https://aisense.no/verifyum">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Verifyum",
+      "description": "Private, portable file proofs created locally in the browser without uploading the original file.",
+      "url": "https://verifyum.com/",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web browser",
+      "provider": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Verifyum", "item": "https://aisense.no/verifyum" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content" class="product-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Verifyum</li></ol></nav>
+
+<section class="product-hero" aria-labelledby="verifyum-title">
+  <div>
+    <p class="eyebrow">An AI SENSE product</p>
+    <h1 id="verifyum-title">Private file proofs that stay with the file.</h1>
+    <p class="lede">Verifyum hashes a selected file and creates its private manifest in your browser. The original file stays on your device. You keep the portable result.</p>
+    <div class="button-row">
+      <a class="button button-primary" href="https://verifyum.com/">Open Verifyum</a>
+      <a class="button button-secondary" href="/verifyum-private-file-proofs">Read how it works</a>
+    </div>
+    <ul class="badges"><li>Local SHA-256</li><li>No file upload</li><li>Portable manifest</li></ul>
+  </div>
+
+  <div class="product-proof-panel" aria-label="Verifyum proof details">
+    <p class="product-proof-label">VERIFYUM</p>
+    <dl>
+      <div><dt>Original file</dt><dd>Stays on your device</dd></div>
+      <div><dt>Private manifest</dt><dd>Created in your browser</dd></div>
+      <div><dt>Protocol</dt><dd>Version 2</dd></div>
+      <div><dt>Public milestone</dt><dd>Local drafts</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="product-section" aria-labelledby="how-verifyum-works">
+  <div class="section-heading">
+    <p class="eyebrow">How it works</p>
+    <h2 id="how-verifyum-works">The browser does the sensitive work.</h2>
+    <p>Verifyum receives no original file bytes. The browser creates the inputs needed for a proof package and gives the private parts back to you.</p>
+  </div>
+
+  <ol class="workflow-steps product-workflow">
+    <li><strong>Select a file</strong><p>The file is opened by browser code on your device.</p></li>
+    <li><strong>Create the private manifest</strong><p>SHA-256, file size and a random nonce are combined in a versioned manifest.</p></li>
+    <li><strong>Compute the commitment</strong><p>The browser canonicalizes the manifest and derives a public commitment from it.</p></li>
+    <li><strong>Keep the local draft</strong><p>You download the draft and store it with the original file.</p></li>
+  </ol>
+</section>
+
+<section class="product-section product-section-tint" aria-labelledby="current-status">
+  <div class="product-status-copy">
+    <p class="eyebrow">Current status</p>
+    <h2 id="current-status">Local proof drafts are live.</h2>
+    <p>The current public service creates the private manifest and commitment locally. Solana anchoring is disabled while the isolated Devnet signer and its operating checks are completed.</p>
+    <p>This status is deliberate. Verifyum will not claim a public blockchain anchor until the transaction has been created, finalized and independently checked.</p>
+  </div>
+  <div class="api-note product-status-note">
+    <p><strong>What you can use today</strong></p>
+    <p>Create and download a private draft at <a href="https://verifyum.com/create">verifyum.com/create</a>. Nothing is uploaded.</p>
+  </div>
+</section>
+
+<section class="product-section" aria-labelledby="what-a-proof-says">
+  <div class="section-heading">
+    <p class="eyebrow">Clear limits</p>
+    <h2 id="what-a-proof-says">A file proof answers a narrow question.</h2>
+    <p>It checks whether a file matches the bytes described by a private manifest and its public commitment. It does not decide who created the file or whether its contents are true.</p>
+  </div>
+
+  <div class="use-case-grid product-facts">
+    <article><h3>Byte identity</h3><p>A changed byte produces a different SHA-256 value and a different commitment.</p></article>
+    <article><h3>Portable verification</h3><p>The proof design keeps the inputs needed for independent checks outside the Verifyum database.</p></article>
+    <article><h3>No creation-time claim</h3><p>A future blockchain time can show when an anchor existed. It cannot prove when the original file was created.</p></article>
+    <article><h3>No content judgement</h3><p>A matching proof says the bytes match. It says nothing about authorship, ownership or accuracy.</p></article>
+  </div>
+</section>
+
+<section class="product-cta" aria-labelledby="open-verifyum-title">
+  <p class="eyebrow">Operated by AI SENSE AS</p>
+  <h2 id="open-verifyum-title">Create a private file proof draft.</h2>
+  <p>The original file stays on your device.</p>
+  <a class="button button-primary" href="https://verifyum.com/">Open Verifyum</a>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav>
+    <address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address>
+    <p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+</body>
+</html>
