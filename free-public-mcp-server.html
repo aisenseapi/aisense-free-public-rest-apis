@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Public MCP Server for AI Agents | AI SENSE</title>
-<meta name="description" content="Connect an AI agent to nine public MCP tools for human approval, webhook capture, temporary storage, URL shortening, time and UUIDs. No API key or account.">
+<meta name="description" content="Connect an AI agent to nine public MCP tools and a read-only Verifyum product resource. No API key or account.">
 <link rel="canonical" href="https://aisense.no/free-public-mcp-server">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Public MCP Server for AI Agents">
-<meta property="og:description" content="One remote MCP endpoint with tools for human approval, webhooks, storage, short links, time and UUIDs.">
+<meta property="og:description" content="One remote MCP endpoint with nine workflow tools and a read-only Verifyum product resource.">
 <meta property="og:url" content="https://aisense.no/free-public-mcp-server">
 <meta name="twitter:card" content="summary">
-<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -51,7 +51,7 @@
 <header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server" aria-current="page">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
 <main id="main-content" class="api-detail-main">
 <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Free public MCP server</li></ol></nav>
-<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to human approval, webhook capture, temporary storage, short links, time and UUID tools through one public MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Nine tools</li><li>Current and legacy MCP</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to human approval, webhook capture, temporary storage, short links, time and UUID tools through one public MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Nine tools</li><li>One product resource</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
 <div class="api-doc-layout"><article class="api-doc">
 <section id="start"><h2>Connect with one URL</h2><p>Give your MCP client this server URL:</p><pre><code>https://aisenseapi.com/mcp</code></pre><p>The server is public and stateless. It works without an API key, OAuth flow or account. The same endpoint supports current MCP requests and the initialize flow used by older clients.</p></section>
 <section id="openai"><h2>Use it with the OpenAI Responses API</h2><pre><code>from openai import OpenAI
@@ -84,6 +84,7 @@ print(response.output_text)</code></pre><p>Change <code>require_approval</code> 
 <tr><td>create_human_approval</td><td>Hosted approval form and result URL</td></tr>
 <tr><td>read_human_approval</td><td>Pending or answered approval result</td></tr>
 </tbody></table></div></section>
+<section id="resources"><h2>One read-only product resource</h2><p><code>resources/list</code> returns <code>https://aisense.no/verifyum</code>. Reading it gives an agent public information about <a href="/verifyum">Verifyum</a>, including the current product status and the rule that the original file stays on the user's device.</p><p>The resource does not accept files or create proofs. Verifyum performs file hashing and private manifest creation locally in the browser, so a remote MCP file tool would cross the product's privacy boundary.</p></section>
 <section id="approval"><h2>Put a person in the loop</h2><p>An agent can create a hosted approval form when it reaches a decision that needs a person. The tool returns a form URL for the reviewer and an action ID for the agent.</p><pre><code>{
   "title": "Deploy build 42?",
   "description": "The tests passed. A person must approve production.",
@@ -109,9 +110,8 @@ print(response.output_text)</code></pre><p>Change <code>require_approval</code> 
     }
   }'</code></pre><p>The complete protocol notes and tool schemas are in the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/MCP.md">public GitHub documentation</a>.</p></section>
 <section id="related"><h2>Related documentation</h2><div class="related-api-grid"><a href="/free-public-apis">Free Public REST APIs<span>Use more than 40 endpoints directly</span></a><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action API<span>Create richer forms with custom fields</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API<span>Inspect incoming HTTP requests</span></a><a href="/free-public-api-storage-api-endpoint">Temporary Storage API<span>Store JSON, text or files for 24 hours</span></a></div></section>
-</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Tools</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#limits">Limits</a></li><li><a href="#direct">Direct request</a></li></ul></aside></div>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Tools</a></li><li><a href="#resources">Resources</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#limits">Limits</a></li><li><a href="#direct">Direct request</a></li></ul></aside></div>
 </main>
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom APIs. Copyright 2026 AI SENSE AS</p></div></footer>
 </body>
 </html>
-
