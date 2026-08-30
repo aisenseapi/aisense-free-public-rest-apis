@@ -9,13 +9,15 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP server
 
-AI agents can connect directly to nine curated tools at:
+AI agents can connect directly to twelve curated tools at:
 
 `https://aisenseapi.com/mcp`
 
 The MCP server covers human approval, webhook capture, temporary storage, URL
-shortening, time and UUIDs. It needs no account or API key. See [`MCP.md`](MCP.md)
-for the tool list and client examples.
+shortening, time, UUIDs and three Verifyum public proof operations. It needs no
+account or API key. Verifyum proof creation accepts only a completed commitment
+and a stable idempotency key. See [`MCP.md`](MCP.md) for the tool list, privacy
+boundary and client examples.
 
 ---
 

@@ -1,7 +1,7 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to nine public tools and one read-only product resource at
-one remote MCP endpoint.
+Connect an AI agent to nine workflow tools, three Verifyum proof tools and one
+read-only product resource at one remote MCP endpoint.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
@@ -21,6 +21,9 @@ IP per 24 hours. This limit is shared with the public REST API.
 | `read_webhook_capture` | Reads the captured method, headers and body |
 | `create_human_approval` | Creates a hosted approval form for a person |
 | `read_human_approval` | Checks the form status and reads the answer |
+| `verifyum_anchor_commitment` | Creates a public Solana Mainnet proof from a completed Verifyum commitment |
+| `verifyum_get_proof` | Reads the public lifecycle state for a Verifyum proof ID |
+| `verifyum_verify_public_proof` | Verifies public metadata and the finalized Solana transaction |
 
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
@@ -32,12 +35,13 @@ job in an agent workflow.
 | `https://aisense.no/verifyum` | Public product information for Verifyum, including the local file-processing boundary and current anchoring status |
 
 Call `resources/list` to discover the resource. Call `resources/read` with the
-URI above to read it as Markdown. The resource is informational. It does not
-accept a file and cannot create a proof.
+URI above to read it as Markdown. The resource is informational and does not
+accept a file.
 
-Verifyum processes the original file locally in the browser. Adding a remote
-file-processing tool here would break that boundary, so MCP exposes product
-context only.
+Verifyum processes the original file locally in the browser or another local
+process. The remote MCP server accepts only a completed commitment and
+idempotency key for creation, or a public proof ID for reads. It does not expose
+a file-processing tool.
 
 ## OpenAI Responses API
 
@@ -52,9 +56,9 @@ response = client.responses.create(
         {
             "type": "mcp",
             "server_label": "aisense",
-            "server_description": "Public tools for webhooks, approvals, storage, time and IDs.",
+            "server_description": "Public workflow tools and Verifyum public proof tools.",
             "server_url": "https://aisenseapi.com/mcp",
-            "require_approval": "never",
+            "require_approval": "always",
         }
     ],
     input="Create a human approval request for deployment of build 42.",
@@ -63,8 +67,9 @@ response = client.responses.create(
 print(response.output_text)
 ```
 
-Use your normal approval policy if calls should pause for confirmation. The
-tools do not send messages, charge money or modify outside accounts. Several
+The example asks for approval before tool calls because
+`verifyum_anchor_commitment` creates a real public Solana transaction. A client
+may use a more specific per-tool policy when it supports one. Several other
 tools create temporary public URLs.
 
 ## Current MCP request
@@ -129,6 +134,45 @@ that emits the webhook. Then call `read_webhook_capture` with the returned
 The result includes the HTTP method, request URI, headers, client IP and body.
 JSON is returned as JSON. Text stays as text. Other bytes are Base64 encoded.
 
+## Verifyum public proof tools
+
+`verifyum_anchor_commitment` accepts exactly two fields:
+
+```json
+{
+  "commitment": "sha256:<64 lowercase hex characters>",
+  "idempotency_key": "one-stable-url-safe-key"
+}
+```
+
+The commitment must already be calculated locally. Never send the original
+file, filename, raw file hash, nonce, private manifest, wallet key, RPC key or
+M2M token. The anchor call checks the live Verifyum health response and OpenAPI
+contract before it submits the pair unchanged. It sends no Authorization
+header.
+
+This call creates a real public Solana Mainnet transaction. Use it only after
+clear user intent. Do not call it during discovery, speculative work, bulk work
+or a hidden background task. If the POST times out, its result is unknown. Retry
+the same commitment with the same idempotency key. Do not make a new pair.
+
+`verifyum_get_proof` reads the public lifecycle response. It may return queued,
+submitted, finalized or failed.
+
+`verifyum_verify_public_proof` verifies the public metadata signature against
+the published Verifyum key registry. It also checks finalized status, signer,
+Memo program, exact memo, transaction signature, slot and block time through
+public Solana RPC.
+
+A finalized proof shows that the commitment existed no later than the estimated
+Solana block time. It does not prove authorship, ownership, legal signature
+validity, original creation time or whether the file contents are true.
+
+Current policy and limits are published at
+[verifyum.com/agents](https://verifyum.com/agents). Public creation is currently
+free because AI SENSE AS pays the Solana network fee. This is not a permanent
+pricing promise.
+
 ## Data and security
 
 - Temporary data, capture records, short links and approval forms expire after 24 hours.
@@ -137,6 +181,8 @@ JSON is returned as JSON. Text stays as text. Other bytes are Base64 encoded.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.
 - The Verifyum resource is read-only and contains no user data.
+- Verifyum anchor input is public and permanent. The source file and private proof data stay local.
+- MCP logs contain the JSON-RPC method and tool name, not tool arguments or results.
 
 The endpoint is public because the tools operate on short-lived public data and
 do not access a user account. Authentication can be added later for private or
