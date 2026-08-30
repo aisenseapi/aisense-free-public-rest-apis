@@ -14,6 +14,7 @@
 <meta property="og:description" content="The file stays on the user's device. The browser creates the private manifest and commitment locally.">
 <meta property="og:url" content="https://aisense.no/verifyum-private-file-proofs">
 <meta property="article:published_time" content="2026-08-29">
+<meta property="article:modified_time" content="2026-08-30">
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
@@ -28,6 +29,7 @@
       "description": "How Verifyum creates private, portable file proofs locally in the browser without uploading the original file.",
       "url": "https://aisense.no/verifyum-private-file-proofs",
       "datePublished": "2026-08-29",
+      "dateModified": "2026-08-30",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
       "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
@@ -71,14 +73,14 @@
 <div class="article-cta">
   <p class="eyebrow">What leaves the device</p>
   <h2>The original file does not.</h2>
-  <p>The current live service creates a private draft entirely in the browser. The user downloads that draft and keeps it with the original file.</p>
+  <p>The live service creates a private draft entirely in the browser. The user downloads that draft and keeps it with the original file. Only the domain-separated commitment is submitted to Verifyum.</p>
 </div>
 
 <h2>Portable means the proof cannot depend on one database</h2>
 
 <p>A useful file proof has to survive a missing account, a closed company and a database that no longer answers. Verifyum's protocol keeps the private manifest with the user. Public proof metadata is designed to contain the commitment and the information needed to inspect a Solana transaction.</p>
 
-<p>Full verification starts with the selected original file. The verifier hashes it again, checks its size, rebuilds the commitment and compares each result with the proof package. Once anchoring is enabled, the same process also checks the finalized Solana transaction, its signer and its exact memo.</p>
+<p>Full verification starts with the selected original file. The verifier hashes it again, checks its size, rebuilds the commitment and compares each result with the proof package. It also checks the finalized Solana transaction, its signer and its exact memo.</p>
 
 <h2>A blockchain time is not the file's birthday</h2>
 
@@ -88,19 +90,21 @@
 
 <h2>Where the public service stands today</h2>
 
-<p>The local draft flow is live at <a href="https://verifyum.com/">Verifyum</a>. The browser can hash a file, create the private manifest, calculate the commitment and download the result. The original file is never uploaded.</p>
+<p>Public proof creation is live at <a href="https://verifyum.com/">Verifyum</a>. The browser hashes the file, creates the private manifest, calculates the commitment and downloads the draft. The original file, filename, raw hash, nonce and private manifest are not uploaded.</p>
 
-<p>Solana anchoring remains disabled while the isolated Devnet signer, spend controls, finality checks and recovery tests are completed. The interface states this before a user selects a file. Production anchoring will not be claimed until the transaction path is enabled and verified.</p>
+<p>Solana Mainnet anchoring is active. A <a href="https://1ns0c79n4m0sy5es4wztcvrm1y.verifyum.com/">public browser proof</a> finalized through the credential-free production flow on 30 August 2026. The <a href="https://api.verifyum.com/health">health endpoint</a> reports the current network and anchoring state.</p>
+
+<p>No account, crypto wallet or payment method is needed. Verifyum is currently free, and AI SENSE AS covers the network fee. A hard ceiling allows at most 10 new anchor reservations per rolling hour per IP. Lower safety limits may apply.</p>
 
 <h2>Built and operated by AI SENSE AS</h2>
 
 <p>Verifyum is an AI SENSE product. It applies the same rule we use for public APIs and machine tools: make the contract narrow, show the exact output and keep sensitive data out of the service when the job can be done locally.</p>
 
 <div class="article-cta">
-  <p class="eyebrow">Try the current milestone</p>
-  <h2>Create a local proof draft.</h2>
-  <p>Choose a file in your browser and download the private result. Nothing is uploaded.</p>
-  <div class="button-row"><a href="https://verifyum.com/">Open Verifyum</a> <a href="/verifyum">View the AI SENSE product page</a></div>
+  <p class="eyebrow">Create a proof</p>
+  <h2>Anchor a private file proof on Solana Mainnet.</h2>
+  <p>Choose a file in your browser. The original stays on your device, and only the commitment is submitted.</p>
+  <div class="button-row"><a href="https://verifyum.com/create">Create a free proof</a> <a href="https://verifyum.com/verify/solana">Verify on Solana</a></div>
 </div>
 </div>
 </div>
