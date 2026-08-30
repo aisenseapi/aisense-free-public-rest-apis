@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Public MCP Server for AI Agents | AI SENSE</title>
-<meta name="description" content="Connect an AI agent to nine public MCP tools and a read-only Verifyum product resource. No API key or account.">
+<meta name="description" content="Connect an AI agent to nine workflow tools, three Verifyum public proof tools and one product resource. No API key or account.">
 <link rel="canonical" href="https://aisense.no/free-public-mcp-server">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Public MCP Server for AI Agents">
-<meta property="og:description" content="One remote MCP endpoint with nine workflow tools and a read-only Verifyum product resource.">
+<meta property="og:description" content="One remote MCP endpoint with nine workflow tools, three Verifyum proof tools and one product resource.">
 <meta property="og:url" content="https://aisense.no/free-public-mcp-server">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
@@ -20,7 +20,7 @@
     {
       "@type": "TechArticle",
       "headline": "Free Public MCP Server for AI Agents",
-      "description": "Connect AI agents to public tools for human approval, webhook capture, temporary storage, URL shortening, time and UUIDs.",
+      "description": "Connect AI agents to public workflow tools and Verifyum public proof operations.",
       "url": "https://aisense.no/free-public-mcp-server",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
@@ -51,7 +51,7 @@
 <header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server" aria-current="page">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
 <main id="main-content" class="api-detail-main">
 <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Free public MCP server</li></ol></nav>
-<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to human approval, webhook capture, temporary storage, short links, time and UUID tools through one public MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Nine tools</li><li>One product resource</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to nine workflow tools and three clearly separated Verifyum public proof tools through one MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Twelve tools</li><li>One product resource</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
 <div class="api-doc-layout"><article class="api-doc">
 <section id="start"><h2>Connect with one URL</h2><p>Give your MCP client this server URL:</p><pre><code>https://aisenseapi.com/mcp</code></pre><p>The server is public and stateless. It works without an API key, OAuth flow or account. The same endpoint supports current MCP requests and the initialize flow used by older clients.</p></section>
 <section id="openai"><h2>Use it with the OpenAI Responses API</h2><pre><code>from openai import OpenAI
@@ -64,16 +64,16 @@ response = client.responses.create(
         {
             "type": "mcp",
             "server_label": "aisense",
-            "server_description": "Public tools for webhooks, approvals, storage, time and IDs.",
+            "server_description": "Public workflow tools and Verifyum public proof tools.",
             "server_url": "https://aisenseapi.com/mcp",
-            "require_approval": "never",
+            "require_approval": "always",
         }
     ],
     input="Create a human approval request for deployment of build 42.",
 )
 
-print(response.output_text)</code></pre><p>Change <code>require_approval</code> if your application should confirm tool calls. The server does not send messages, access accounts or charge money. Some tools create temporary public URLs.</p></section>
-<section id="tools"><h2>Nine tools for agent workflows</h2><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+print(response.output_text)</code></pre><p>The example asks for approval because one Verifyum tool creates a real public Solana transaction. Use a per-tool approval policy when your client supports one.</p></section>
+<section id="tools"><h2>Nine workflow tools</h2><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>get_current_time</td><td>Date, time and timestamp for a timezone</td></tr>
 <tr><td>generate_uuid</td><td>Random UUID version 4</td></tr>
 <tr><td>shorten_url</td><td>307.fi link with 24-hour expiry</td></tr>
@@ -84,7 +84,12 @@ print(response.output_text)</code></pre><p>Change <code>require_approval</code> 
 <tr><td>create_human_approval</td><td>Hosted approval form and result URL</td></tr>
 <tr><td>read_human_approval</td><td>Pending or answered approval result</td></tr>
 </tbody></table></div></section>
-<section id="resources"><h2>One read-only product resource</h2><p><code>resources/list</code> returns <code>https://aisense.no/verifyum</code>. Reading it gives an agent public information about <a href="/verifyum">Verifyum</a>, including active Solana Mainnet anchoring and the rule that the original file stays on the user's device.</p><p>The resource does not accept files or create proofs. Verifyum performs file hashing and private manifest creation locally in the browser. Only the domain-separated commitment is submitted for the public Solana transaction.</p><p>It also explains the files produced by the current flow. The public proof link can be saved as a QR-code PNG or an A4 PDF receipt. The QR code contains only the public URL, and the PDF is rendered locally by the browser.</p></section>
+<section id="verifyum-tools"><h2>Three Verifyum public proof tools</h2><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<tr><td>verifyum_anchor_commitment</td><td>Public Solana Mainnet proof from a completed commitment</td></tr>
+<tr><td>verifyum_get_proof</td><td>Public lifecycle state for a proof ID</td></tr>
+<tr><td>verifyum_verify_public_proof</td><td>Metadata signature and independent Solana checks</td></tr>
+</tbody></table></div><div class="api-note"><p><code>verifyum_anchor_commitment</code> creates a real public Solana transaction. Call it only after clear user intent. Do not call it during discovery, speculative work, bulk work or a hidden background task.</p></div><p>The anchor tool accepts only a completed <code>sha256:</code> commitment and a stable idempotency key. The source file, filename, raw file hash, nonce and private manifest stay local. It reads the live Verifyum health response and OpenAPI contract before the write, and sends no Authorization header.</p><p>If a POST times out, retry the same commitment with the same idempotency key. The tool does not retry automatically. HTTP 429 and 503 errors include the upstream HTTP status, structured Verifyum error and <code>Retry-After</code> value when present.</p><p>The verification tool checks the public metadata signature, finalized Solana status, signer, Memo program, exact memo, transaction signature, slot and block time. A valid result proves a time boundary for the commitment. It does not prove authorship, ownership, legal validity, original creation time or whether the file contents are true.</p><p>Read the current service policy and limits at <a href="https://verifyum.com/agents">verifyum.com/agents</a>. Public creation is currently free because AI SENSE AS pays the Solana network fee. This is not a permanent pricing promise.</p></section>
+<section id="resources"><h2>One read-only product resource</h2><p><code>resources/list</code> returns <code>https://aisense.no/verifyum</code>. Reading it gives an agent public information about <a href="/verifyum">Verifyum</a>, including active Solana Mainnet anchoring and the rule that the original file stays on the user's device.</p><p>The resource itself is informational and does not accept files. Verifyum performs file hashing and private manifest creation locally in the browser or another local process. Only the domain-separated commitment is submitted for the public Solana transaction.</p><p>It also explains the files produced by the current flow. The public proof link can be saved as a QR-code PNG or an A4 PDF receipt. The QR code contains only the public URL, and the PDF is rendered locally by the browser.</p></section>
 <section id="approval"><h2>Put a person in the loop</h2><p>An agent can create a hosted approval form when it reaches a decision that needs a person. The tool returns a form URL for the reviewer and an action ID for the agent.</p><pre><code>{
   "title": "Deploy build 42?",
   "description": "The tests passed. A person must approve production.",
@@ -93,7 +98,7 @@ print(response.output_text)</code></pre><p>Change <code>require_approval</code> 
 }</code></pre><p>The agent calls <code>read_human_approval</code> until the status changes from <code>pending</code> to <code>answered</code>. The form and result expire after 24 hours.</p><p><a href="/free-public-api-webhook-action-api-endpoint">Read the Webhook Action API guide</a> for the underlying form format.</p></section>
 <section id="webhooks"><h2>Give an agent a webhook inbox</h2><p><code>create_webhook_capture</code> returns a unique update URL. Send that URL to the system that emits the webhook. The agent can then call <code>read_webhook_capture</code> and inspect the request.</p><p>The result includes the method, URI, headers, client IP and body. JSON stays structured. Text stays readable. Other bytes are Base64 encoded.</p><p><a href="/free-public-api-webhook-capture-api-endpoint">Read the Webhook Capture API guide</a> for request examples.</p></section>
 <section id="protocol"><h2>Protocol support</h2><p>The endpoint supports MCP revision <code>2026-07-28</code>. It also accepts revisions <code>2025-11-25</code>, <code>2025-06-18</code> and <code>2025-03-26</code> for existing clients.</p><div class="api-note"><p>The transport uses HTTP POST and JSON-RPC 2.0. The server does not issue session IDs. Each request stands on its own.</p></div><p>Current clients use <code>server/discover</code>. Older clients use <code>initialize</code>. Both receive the same tool list.</p></section>
-<section id="limits"><h2>Limits and data</h2><ul><li>5000 requests per IP per 24 hours, shared with the REST API</li><li>256 KB maximum MCP request body</li><li>24-hour expiry for stored data, short links, captures and approval forms</li><li>Browser origins are checked against an allowlist</li></ul><p>Temporary IDs and URLs are unguessable capability links. Send them only to the intended recipient. Do not use the public service for passwords, private keys, health data or material that needs long-term retention.</p></section>
+<section id="limits"><h2>Limits and data</h2><ul><li>5000 MCP and REST requests per IP per 24 hours</li><li>Separate, lower Verifyum anchor limits protect the public service and Solana wallet</li><li>256 KB maximum MCP request body</li><li>24-hour expiry for stored data, short links, captures and approval forms</li><li>Browser origins are checked against an allowlist</li></ul><p>Temporary IDs and URLs are unguessable capability links. Send them only to the intended recipient. Do not use the public service for passwords, private keys, health data or material that needs long-term retention.</p><p>MCP logs contain the JSON-RPC method and tool name. Tool arguments and results are not logged.</p></section>
 <section id="direct"><h2>Call the protocol directly</h2><pre><code>curl -X POST https://aisenseapi.com/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
@@ -110,7 +115,7 @@ print(response.output_text)</code></pre><p>Change <code>require_approval</code> 
     }
   }'</code></pre><p>The complete protocol notes and tool schemas are in the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/MCP.md">public GitHub documentation</a>.</p></section>
 <section id="related"><h2>Related documentation</h2><div class="related-api-grid"><a href="/free-public-apis">Free Public REST APIs<span>Use more than 40 endpoints directly</span></a><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action API<span>Create richer forms with custom fields</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API<span>Inspect incoming HTTP requests</span></a><a href="/free-public-api-storage-api-endpoint">Temporary Storage API<span>Store JSON, text or files for 24 hours</span></a></div></section>
-</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Tools</a></li><li><a href="#resources">Resources</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#limits">Limits</a></li><li><a href="#direct">Direct request</a></li></ul></aside></div>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Workflow tools</a></li><li><a href="#verifyum-tools">Verifyum tools</a></li><li><a href="#resources">Resources</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#limits">Limits</a></li><li><a href="#direct">Direct request</a></li></ul></aside></div>
 </main>
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom APIs. Copyright 2026 AI SENSE AS</p></div></footer>
 </body>

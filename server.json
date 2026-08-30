@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.aisenseapi/free-public-tools",
   "title": "AI SENSE Free Public Tools",
-  "description": "Public MCP tools for approvals, webhooks, temporary storage, short links, time and UUIDs, plus a read-only Verifyum product resource.",
+  "description": "Public MCP tools for workflows and Verifyum public proofs, plus a read-only Verifyum product resource.",
   "repository": {
     "url": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
     "source": "github"
   },
-  "version": "1.1.0",
+  "version": "1.2.0",
   "remotes": [
     {
       "type": "streamable-http",
