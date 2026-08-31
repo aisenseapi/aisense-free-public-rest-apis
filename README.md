@@ -22,7 +22,17 @@ Verifyum has its own dedicated MCP endpoint at
 without an account or API key. File hashing still happens on the agent's
 machine. The browser flow, public HTTP API and published protocol remain
 available. The official MCP registry lists it as `com.verifyum/mcp` version
-`0.1.0`.
+`0.1.0`. Finalized proofs also join hourly and daily Merkle checkpoints in
+the [Verifyum Witness Layer](https://verifyum.com/witness). Supplemental
+records are published through OpenTimestamps with eventual Bitcoin anchoring,
+GitHub, the Internet Archive and Certificate Transparency. Those services
+receive only an aggregate checkpoint root.
+
+An agent can also assemble one decision record locally from its instructions,
+prompt, model, parameters, tool calls and output, then anchor only the
+commitment. The proof shows that the exact record existed unchanged by the
+block time. It does not prove that the model actually ran with the recorded
+settings.
 
 ---
 

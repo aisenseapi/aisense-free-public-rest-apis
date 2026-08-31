@@ -186,6 +186,45 @@ submitted, finalized or failed.
 web runtime. The result states that Verifyum is checking its own public data
 and returns the exact Solana RPC request for a separate confirmation.
 
+## Agent decision records
+
+An autonomous system can assemble one decision record locally from its system
+instructions, exact prompt, model and version, parameters, tool calls and
+output. It hashes the document locally and anchors only the commitment. The
+record itself stays inside the operator's infrastructure.
+
+A matching proof shows that the exact record existed unchanged no later than
+the block time. It does not prove that the agent actually ran with the recorded
+parameters. Prefer one record per case or day, or anchor the head of a local
+hash chain, instead of anchoring every individual decision.
+
+## Verifyum Witness Layer
+
+Finalized proofs are grouped into hourly and daily Merkle checkpoints. The
+Witness Layer adds OpenTimestamps with eventual Bitcoin anchoring, a public
+GitHub checkpoint log, the Internet Archive and Certificate Transparency
+around the primary Solana record and Verifyum signature.
+
+External witnesses receive only an aggregate checkpoint root. They do not
+receive a file, raw file hash, nonce, private manifest or proof ID. Each
+supplemental channel reports `pending`, `confirmed`, `unavailable` or `failed`.
+A pending or missing witness does not invalidate the Solana proof.
+
+A proof membership shows inclusion in a Verifyum checkpoint. It does not by
+itself show that an external channel confirmed the checkpoint. Read the
+separate channel receipt before making that claim.
+
+Public inspection starts at these routes:
+
+```text
+GET https://api.verifyum.com/v2/proofs/{proof-id}/witnesses
+GET https://verifyum.com/witness/checkpoints/{hourly|daily}/{batch-id}.json
+GET https://verifyum.com/witness/receipts/{hourly|daily}/{batch-id}.json
+```
+
+The human-readable explanation is at
+[verifyum.com/witness](https://verifyum.com/witness).
+
 A finalized proof shows that the commitment existed no later than the estimated
 Solana block time. It does not prove authorship, ownership, legal signature
 validity, original creation time or whether the file contents are true.
