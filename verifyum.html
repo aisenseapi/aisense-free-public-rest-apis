@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Verifyum - Private File Proofs on Solana Mainnet | AI SENSE</title>
-<meta name="description" content="Create a private, independently verifiable file proof on Solana Mainnet. No account or wallet. The original file stays on your device.">
+<meta name="description" content="Create a private file proof on Solana Mainnet. The original stays local, with public Solana and Witness Layer evidence.">
 <link rel="canonical" href="https://aisense.no/verifyum">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Verifyum - Private File Proofs on Solana Mainnet">
-<meta property="og:description" content="Create a free file proof on Solana Mainnet without an account, crypto wallet or file upload.">
+<meta property="og:description" content="Create a free file proof with public Solana and Witness Layer evidence. The original file stays local.">
 <meta property="og:url" content="https://aisense.no/verifyum">
 <meta name="twitter:card" content="summary">
 
@@ -72,7 +72,7 @@
       <a class="button button-primary" href="https://verifyum.com/create">Create a free proof</a>
       <a class="button button-secondary" href="/verifyum-private-file-proofs">Read how it works</a>
     </div>
-    <ul class="badges"><li>Solana Mainnet</li><li>No file upload</li><li>No wallet</li></ul>
+    <ul class="badges"><li>Solana Mainnet</li><li>Witness Layer</li><li>No file upload</li><li>No wallet</li></ul>
   </div>
 
   <div class="product-proof-panel" aria-label="Verifyum proof details">
@@ -113,6 +113,11 @@
   <p>The endpoint exposes three tools for anchoring a completed commitment, reading a public proof and checking a public proof. The verification tool performs the Ed25519 signature check in the web runtime and returns the exact Solana RPC request for a separate confirmation.</p>
   <p>The official MCP registry lists <code>com.verifyum/mcp</code> version <code>0.1.0</code>. MCP is an additional access method. The browser flow, public HTTP API and published protocol remain available.</p>
   <p><a href="https://verifyum.com/agents">Read the agent guide</a>.</p>
+  <div class="api-note">
+    <p><strong>Agent decision records</strong></p>
+    <p>An agent can assemble one local record from its system instructions, exact prompt, model and version, parameters, tool calls and output, then anchor only the commitment. A matching proof shows that the record existed unchanged by the block time. It does not prove that the agent actually ran with the recorded settings.</p>
+    <p>For normal use, anchor one record per case or day, or the head of a local hash chain. Do not anchor every individual decision.</p>
+  </div>
 </section>
 
 <section class="product-section product-section-tint" aria-labelledby="current-status">
@@ -126,6 +131,22 @@
     <p><strong>Verified public proof</strong></p>
     <p>A credential-free browser proof was <a href="https://1ns0c79n4m0sy5es4wztcvrm1y.verifyum.com/">finalized through the public service</a> on 30 August 2026. Its <a href="https://1ns0c79n4m0sy5es4wztcvrm1y.verifyum.com/.well-known/verifyum.json">public metadata</a> can be inspected directly.</p>
   </div>
+</section>
+
+<section class="product-section" aria-labelledby="verifyum-witnesses">
+  <div class="section-heading">
+    <p class="eyebrow">Witness Layer</p>
+    <h2 id="verifyum-witnesses">One checkpoint, several public witnesses.</h2>
+    <p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive and Certificate Transparency add supplemental records around the primary Solana proof and Verifyum signature.</p>
+  </div>
+
+  <div class="use-case-grid product-facts">
+    <article><h3>Aggregate privacy</h3><p>External witnesses receive one aggregate checkpoint root. They never receive the file, raw file hash, nonce, private manifest or proof ID.</p></article>
+    <article><h3>Public inspection</h3><p>Checkpoint documents, Merkle membership and channel receipts are available through read-only public URLs. Membership shows inclusion in a checkpoint. The separate receipt shows whether an external channel confirmed it.</p></article>
+    <article><h3>Visible state</h3><p>Each channel reports pending, confirmed, unavailable or failed. Bitcoin confirmation takes time by design.</p></article>
+    <article><h3>Same proof boundary</h3><p>A pending or missing witness does not invalidate the Solana proof. The number of channels is not a quality score.</p></article>
+  </div>
+  <p><a href="https://verifyum.com/witness">How the witnesses work</a>. You can also <a href="https://api.verifyum.com/v2/proofs/1ns0c79n4m0sy5es4wztcvrm1y/witnesses">inspect the known public proof's checkpoint membership</a>.</p>
 </section>
 
 <section class="product-section" aria-labelledby="keep-verifyum-proof">

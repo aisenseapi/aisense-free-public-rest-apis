@@ -94,6 +94,14 @@
 
 <p>Solana Mainnet anchoring is active. A <a href="https://1ns0c79n4m0sy5es4wztcvrm1y.verifyum.com/">public browser proof</a> finalized through the credential-free production flow on 30 August 2026. The <a href="https://api.verifyum.com/health">health endpoint</a> reports the current network and anchoring state.</p>
 
+<h2>Witnesses see a checkpoint, not the file</h2>
+
+<p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive and Certificate Transparency add records around the primary Solana transaction and Verifyum signature.</p>
+
+<p>Each external service receives only an aggregate checkpoint root. It never receives the original file, raw file hash, nonce, private manifest or proof ID. A public Merkle path lets someone who already knows a proof ID confirm that it belongs to a checkpoint.</p>
+
+<p>Channel states are pending, confirmed, unavailable and failed. Merkle membership shows inclusion in a Verifyum checkpoint. A separate receipt shows whether an external channel confirmed it. A pending or missing witness does not invalidate the Solana proof. <a href="https://verifyum.com/witness">Read how the Witness Layer works</a>.</p>
+
 <h2>Save the public link as QR or PDF</h2>
 
 <p>After finalization, the public proof link can be downloaded as a QR-code PNG or printed and saved as an A4 PDF receipt. These are convenient copies of the public proof. They do not replace the private draft.</p>
