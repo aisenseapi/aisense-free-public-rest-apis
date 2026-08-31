@@ -594,6 +594,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 }
 .product-hero h1 { margin-bottom: 22px; font-size: clamp(43px, 6vw, 70px); letter-spacing: -0.04em; }
 .product-hero .lede { margin-bottom: 27px; }
+.product-hero .button-row { margin-bottom: 20px; }
 .product-hero .badges { margin-bottom: 0; }
 
 .product-proof-panel {
