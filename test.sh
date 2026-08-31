@@ -399,7 +399,7 @@ echo ""
 # ── MCP ──────────────────────────────────────────────────────
 # The MCP server lives at /mcp, outside /services/v1, speaking JSON-RPC 2.0
 # over POST. Documented in MCP.md and registered as
-# io.github.aisenseapi/free-public-tools, so this section is what keeps those
+# com.aisenseapi/free-public-tools, so this section is what keeps those
 # two documents honest the same way the sections above keep API.md honest.
 echo -e "${YELLOW}🔌  MCP server${NC}"
 MCP_BASE="${AISENSE_MCP_BASE:-https://aisenseapi.com/mcp}"
@@ -445,6 +445,8 @@ mcp_expect "MCP resources/list publishes Verifyum" 'https://aisense.no/verifyum'
 mcp_post '{"jsonrpc":"2.0","id":21,"method":"resources/read","params":{"uri":"https://aisense.no/verifyum"}}' '2025-11-25'
 mcp_expect "MCP resources/read keeps the original file local" 'not uploaded to Verifyum'
 mcp_expect "MCP resources/read links dedicated Verifyum MCP" 'https://api.verifyum.com/mcp'
+mcp_expect "MCP resources/read describes Witness Layer" 'OpenTimestamps with eventual Bitcoin anchoring'
+mcp_expect "MCP resources/read links witness status" 'https://verifyum.com/witness'
 
 # 2026-07-28 enforces three contracts, checked in a fixed order: the
 # streamable-http Accept header must name both content types, the version in
@@ -486,6 +488,8 @@ mcp_post "{\"jsonrpc\":\"2.0\",\"id\":23,\"method\":\"tools/call\",\"params\":{\
 mcp_expect "Verifyum MCP public proof verifies Ed25519" 'service_signature_valid'
 mcp_expect "Verifyum MCP states its trust boundary" 'Verifyum service about its own data'
 mcp_expect "Verifyum MCP returns the Solana RPC request" 'getTransaction'
+has_value "Verifyum witness membership" GET "https://api.verifyum.com/v2/proofs/$MCP_VERIFYUM_PROOF_ID/witnesses" '"checkpoint"'
+has_value "Verifyum witness membership uses the proof ID" GET "https://api.verifyum.com/v2/proofs/$MCP_VERIFYUM_PROOF_ID/witnesses" "\"subject_id\":\"$MCP_VERIFYUM_PROOF_ID\""
 MCP_BASE="$MCP_AI_SENSE_BASE"
 
 # Round trip through the storage tools: what goes in must come back out.
