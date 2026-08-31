@@ -7,17 +7,22 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 **Base URL:** `https://aisenseapi.com/services/v1/`
 
-## Free public MCP server
+## Free public MCP endpoints
 
-AI agents can connect directly to twelve curated tools at:
+AI agents can connect directly to nine AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
-The MCP server covers human approval, webhook capture, temporary storage, URL
-shortening, time, UUIDs and three Verifyum public proof operations. It needs no
-account or API key. Verifyum proof creation accepts only a completed commitment
-and a stable idempotency key. See [`MCP.md`](MCP.md) for the tool list, privacy
-boundary and client examples.
+The AI SENSE MCP server covers human approval, webhook capture, temporary
+storage, URL shortening, time and UUIDs. It needs no account or API key. See
+[`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
+
+Verifyum has its own dedicated MCP endpoint at
+`https://api.verifyum.com/mcp`. It exposes the three Verifyum proof operations
+without an account or API key. File hashing still happens on the agent's
+machine. The browser flow, public HTTP API and published protocol remain
+available. The official MCP registry lists it as `com.verifyum/mcp` version
+`0.1.0`.
 
 ---
 
