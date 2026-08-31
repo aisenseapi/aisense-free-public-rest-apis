@@ -1,5 +1,14 @@
+# AI SENSE publishes public tools for people and AI agents.
+# AI crawlers and agents are welcome on the public site.
 User-agent: *
 Allow: /
 Disallow: /logs/
 
 Sitemap: https://aisense.no/sitemap.xml
+
+# Agent discovery:
+# https://aisense.no/llms.txt
+# https://aisense.no/free-public-mcp-server
+# https://aisenseapi.com/mcp
+# https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
+# https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/SKILL.md

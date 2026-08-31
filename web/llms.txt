@@ -1,0 +1,32 @@
+# AI SENSE
+
+> Free public REST API and MCP tools for agents, scripts and small services.
+
+AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work without an account or API key.
+
+## Start here
+
+- Website: https://aisense.no/
+- REST API catalog: https://aisense.no/free-public-apis
+- MCP guide: https://aisense.no/free-public-mcp-server
+- Source and documentation: https://github.com/aisenseapi/aisense-free-public-rest-apis
+
+## MCP
+
+- Remote server: https://aisenseapi.com/mcp
+- Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
+- Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
+- Agent skill: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/SKILL.md
+
+The MCP server exposes public workflow tools and a read-only Verifyum product resource. Verifyum proof creation writes a real Solana transaction. Use it only after clear user intent.
+
+## REST API
+
+- Base URL: https://aisenseapi.com/services/v1
+- API guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/API.md
+
+## Products
+
+- AI SENSE: https://aisense.no/
+- Verifyum: https://verifyum.com/
+- AI Data Feed: https://data.aisenseapi.com/
