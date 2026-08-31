@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Public MCP Server for AI Agents | AI SENSE</title>
-<meta name="description" content="Connect an AI agent to nine workflow tools, three Verifyum public proof tools and one product resource. No API key or account.">
+<meta name="description" content="Connect an AI agent to nine public workflow tools and one product resource. No API key or account.">
 <link rel="canonical" href="https://aisense.no/free-public-mcp-server">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Public MCP Server for AI Agents">
-<meta property="og:description" content="One remote MCP endpoint with nine workflow tools, three Verifyum proof tools and one product resource.">
+<meta property="og:description" content="One remote MCP endpoint with nine workflow tools and one product resource.">
 <meta property="og:url" content="https://aisense.no/free-public-mcp-server">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
@@ -20,7 +20,7 @@
     {
       "@type": "TechArticle",
       "headline": "Free Public MCP Server for AI Agents",
-      "description": "Connect AI agents to public workflow tools and Verifyum public proof operations.",
+      "description": "Connect AI agents to nine public workflow tools and one product resource.",
       "url": "https://aisense.no/free-public-mcp-server",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
@@ -51,7 +51,7 @@
 <header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server" aria-current="page">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
 <main id="main-content" class="api-detail-main">
 <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Free public MCP server</li></ol></nav>
-<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to nine workflow tools and three clearly separated Verifyum public proof tools through one MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Twelve tools</li><li>One product resource</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Remote tools for AI agents</p><h1 id="page-title">Free Public MCP Server</h1><p class="lede">Connect an agent to nine public workflow tools through one MCP endpoint.</p><ul class="badges"><li>No API key</li><li>No account</li><li>Nine tools</li><li>One product resource</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Remote MCP endpoint</p><p class="sig"><span class="method post">POST</span><span class="path">/mcp</span></p><code>https://aisenseapi.com/mcp</code></div></section>
 <div class="api-doc-layout"><article class="api-doc">
 <section id="start"><h2>Connect with one URL</h2><p>Give your MCP client this server URL:</p><pre><code>https://aisenseapi.com/mcp</code></pre><p>The server is public and stateless. It works without an API key, OAuth flow or account. The same endpoint supports current MCP requests and the initialize flow used by older clients.</p></section>
 <section id="openai"><h2>Use it with the OpenAI Responses API</h2><pre><code>from openai import OpenAI
@@ -64,7 +64,7 @@ response = client.responses.create(
         {
             "type": "mcp",
             "server_label": "aisense",
-            "server_description": "Public workflow tools and Verifyum public proof tools.",
+            "server_description": "Public AI SENSE workflow tools.",
             "server_url": "https://aisenseapi.com/mcp",
             "require_approval": "always",
         }
@@ -72,7 +72,7 @@ response = client.responses.create(
     input="Create a human approval request for deployment of build 42.",
 )
 
-print(response.output_text)</code></pre><p>The example asks for approval because one Verifyum tool creates a real public Solana transaction. Use a per-tool approval policy when your client supports one.</p></section>
+print(response.output_text)</code></pre><p>The example asks for approval before every tool call. Use a per-tool approval policy when your client supports one.</p></section>
 <section id="tools"><h2>Nine workflow tools</h2><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>get_current_time</td><td>Date, time and timestamp for a timezone</td></tr>
 <tr><td>generate_uuid</td><td>Random UUID version 4</td></tr>
@@ -84,11 +84,11 @@ print(response.output_text)</code></pre><p>The example asks for approval because
 <tr><td>create_human_approval</td><td>Hosted approval form and result URL</td></tr>
 <tr><td>read_human_approval</td><td>Pending or answered approval result</td></tr>
 </tbody></table></div></section>
-<section id="verifyum-tools"><h2>Three Verifyum public proof tools</h2><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<section id="verifyum-tools"><h2>Separate Verifyum MCP endpoint</h2><p>Verifyum has its own stateless endpoint at <code>https://api.verifyum.com/mcp</code>. The AI SENSE endpoint does not proxy these tools. Verifyum needs no account, wallet, payment, API key or npm package.</p><pre><code>claude mcp add --transport http verifyum https://api.verifyum.com/mcp</code></pre><p>MCP is an additional way to reach Verifyum. The browser flow, public HTTP API and published protocol remain available. File hashing, nonce generation and private-manifest construction stay on the agent's machine.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>verifyum_anchor_commitment</td><td>Public Solana Mainnet proof from a completed commitment</td></tr>
 <tr><td>verifyum_get_proof</td><td>Public lifecycle state for a proof ID</td></tr>
 <tr><td>verifyum_verify_public_proof</td><td>Metadata signature and independent Solana checks</td></tr>
-</tbody></table></div><div class="api-note"><p><code>verifyum_anchor_commitment</code> creates a real public Solana transaction. Call it only after clear user intent. Do not call it during discovery, speculative work, bulk work or a hidden background task.</p></div><p>The anchor tool accepts only a completed <code>sha256:</code> commitment and a stable idempotency key. The source file, filename, raw file hash, nonce and private manifest stay local. It reads the live Verifyum health response and OpenAPI contract before the write, and sends no Authorization header.</p><p>If a POST times out, retry the same commitment with the same idempotency key. The tool does not retry automatically. HTTP 429 and 503 errors include the upstream HTTP status, structured Verifyum error and <code>Retry-After</code> value when present.</p><p>The verification tool checks the public metadata signature, finalized Solana status, signer, Memo program, exact memo, transaction signature, slot and block time. A valid result proves a time boundary for the commitment. It does not prove authorship, ownership, legal validity, original creation time or whether the file contents are true.</p><p>Read the current service policy and limits at <a href="https://verifyum.com/agents">verifyum.com/agents</a>. Public creation is currently free because AI SENSE AS pays the Solana network fee. This is not a permanent pricing promise.</p></section>
+</tbody></table></div><div class="api-note"><p><code>verifyum_anchor_commitment</code> creates a real public Solana transaction. Call it only after clear user intent. Do not call it during discovery, speculative work, bulk work or a hidden background task.</p></div><p>The endpoint accepts only a completed <code>sha256:</code> commitment and stable idempotency key, or a public proof ID. The source file, filename, raw file hash, nonce and private manifest stay local.</p><p>The verification tool performs the full Ed25519 signature check in the web runtime. It states that the hosted check uses Verifyum's own public data and returns the exact Solana RPC request for a separate confirmation. A valid result proves a time boundary for the commitment. It does not prove authorship, ownership, legal validity, original creation time or whether the file contents are true.</p><p>The official MCP registry lists <code>com.verifyum/mcp</code> version <code>0.1.0</code>. Read the current service policy and limits at <a href="https://verifyum.com/agents">verifyum.com/agents</a>. Public creation is currently free because AI SENSE AS pays the Solana network fee. This is not a permanent pricing promise.</p></section>
 <section id="resources"><h2>One read-only product resource</h2><p><code>resources/list</code> returns <code>https://aisense.no/verifyum</code>. Reading it gives an agent public information about <a href="/verifyum">Verifyum</a>, including active Solana Mainnet anchoring and the rule that the original file stays on the user's device.</p><p>The resource itself is informational and does not accept files. Verifyum performs file hashing and private manifest creation locally in the browser or another local process. Only the domain-separated commitment is submitted for the public Solana transaction.</p><p>It also explains the files produced by the current flow. The public proof link can be saved as a QR-code PNG or an A4 PDF receipt. The QR code contains only the public URL, and the PDF is rendered locally by the browser.</p></section>
 <section id="approval"><h2>Put a person in the loop</h2><p>An agent can create a hosted approval form when it reaches a decision that needs a person. The tool returns a form URL for the reviewer and an action ID for the agent.</p><pre><code>{
   "title": "Deploy build 42?",
