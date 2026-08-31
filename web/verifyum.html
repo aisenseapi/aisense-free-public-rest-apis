@@ -103,6 +103,18 @@
   </ol>
 </section>
 
+<section class="product-section" aria-labelledby="verifyum-agents">
+  <div class="section-heading">
+    <p class="eyebrow">For AI agents</p>
+    <h2 id="verifyum-agents">Connect directly with one MCP URL.</h2>
+    <p>Verifyum also offers a stateless MCP endpoint for AI agents. Connect with one URL and no account, wallet, payment, API key or npm package. File hashing, nonce generation and private-manifest construction stay on the agent's machine.</p>
+  </div>
+  <pre><code>claude mcp add --transport http verifyum https://api.verifyum.com/mcp</code></pre>
+  <p>The endpoint exposes three tools for anchoring a completed commitment, reading a public proof and checking a public proof. The verification tool performs the Ed25519 signature check in the web runtime and returns the exact Solana RPC request for a separate confirmation.</p>
+  <p>The official MCP registry lists <code>com.verifyum/mcp</code> version <code>0.1.0</code>. MCP is an additional access method. The browser flow, public HTTP API and published protocol remain available.</p>
+  <p><a href="https://verifyum.com/agents">Read the agent guide</a>.</p>
+</section>
+
 <section class="product-section product-section-tint" aria-labelledby="current-status">
   <div class="product-status-copy">
     <p class="eyebrow">Current status</p>

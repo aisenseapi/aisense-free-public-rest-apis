@@ -430,20 +430,21 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Twelve tools, exactly. MCP.md and web/free-public-mcp-server.html both say
-# twelve, so a new tool must land in all three places in the same commit.
+# Nine tools, exactly. MCP.md and web/free-public-mcp-server.html both say
+# nine, so a new tool must land in all three places in the same commit.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 12 ]; then
-  ok "MCP tools/list (exactly 12 tools)"
+if [ "$MCP_TOOLS" -eq 9 ]; then
+  ok "MCP tools/list (exactly 9 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 12 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 9 - update MCP.md and the web page together with this number"
 fi
 
 mcp_post '{"jsonrpc":"2.0","id":20,"method":"resources/list","params":{}}' '2025-11-25'
 mcp_expect "MCP resources/list publishes Verifyum" 'https://aisense.no/verifyum'
 mcp_post '{"jsonrpc":"2.0","id":21,"method":"resources/read","params":{"uri":"https://aisense.no/verifyum"}}' '2025-11-25'
 mcp_expect "MCP resources/read keeps the original file local" 'not uploaded to Verifyum'
+mcp_expect "MCP resources/read links dedicated Verifyum MCP" 'https://api.verifyum.com/mcp'
 
 # 2026-07-28 enforces three contracts, checked in a fixed order: the
 # streamable-http Accept header must name both content types, the version in
@@ -464,13 +465,28 @@ mcp_expect "MCP call get_current_time" 'datetime'
 mcp_post '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"generate_uuid","arguments":{}}}' '2025-11-25'
 mcp_expect "MCP call generate_uuid" '"structuredContent"'
 
-# Read one already-public Mainnet proof through both Verifyum read tools. Never
-# call verifyum_anchor_commitment from a health or discovery test.
+# Read one already-public Mainnet proof through the separate Verifyum MCP
+# endpoint. Never call verifyum_anchor_commitment from a health or discovery
+# test.
 MCP_VERIFYUM_PROOF_ID="${AISENSE_VERIFYUM_PROOF_ID:-1ns0c79n4m0sy5es4wztcvrm1y}"
-mcp_post "{\"jsonrpc\":\"2.0\",\"id\":22,\"method\":\"tools/call\",\"params\":{\"name\":\"verifyum_get_proof\",\"arguments\":{\"proof_id\":\"$MCP_VERIFYUM_PROOF_ID\"}}}" '2025-11-25'
-mcp_expect "MCP Verifyum proof status is read-only" '"status":"finalized"'
-mcp_post "{\"jsonrpc\":\"2.0\",\"id\":23,\"method\":\"tools/call\",\"params\":{\"name\":\"verifyum_verify_public_proof\",\"arguments\":{\"proof_id\":\"$MCP_VERIFYUM_PROOF_ID\"}}}" '2025-11-25'
-mcp_expect "MCP Verifyum public proof verifies" '"verified":true'
+MCP_AI_SENSE_BASE="$MCP_BASE"
+MCP_BASE="${VERIFYUM_MCP_BASE:-https://api.verifyum.com/mcp}"
+mcp_post '{"jsonrpc":"2.0","id":20,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
+mcp_expect "Verifyum MCP initialize" 'verifyum-mcp-endpoint'
+mcp_post '{"jsonrpc":"2.0","id":21,"method":"tools/list","params":{}}' '2025-03-26'
+VERIFYUM_MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
+if [ "$VERIFYUM_MCP_TOOLS" -eq 3 ]; then
+  ok "Verifyum MCP tools/list (exactly 3 tools)"
+else
+  bad "Verifyum MCP tools/list" "found $VERIFYUM_MCP_TOOLS tools, expected 3"
+fi
+mcp_post "{\"jsonrpc\":\"2.0\",\"id\":22,\"method\":\"tools/call\",\"params\":{\"name\":\"verifyum_get_proof\",\"arguments\":{\"proof_id\":\"$MCP_VERIFYUM_PROOF_ID\"}}}" '2025-03-26'
+mcp_expect "Verifyum MCP proof status is read-only" 'finalized'
+mcp_post "{\"jsonrpc\":\"2.0\",\"id\":23,\"method\":\"tools/call\",\"params\":{\"name\":\"verifyum_verify_public_proof\",\"arguments\":{\"proof_id\":\"$MCP_VERIFYUM_PROOF_ID\"}}}" '2025-03-26'
+mcp_expect "Verifyum MCP public proof verifies Ed25519" 'service_signature_valid'
+mcp_expect "Verifyum MCP states its trust boundary" 'Verifyum service about its own data'
+mcp_expect "Verifyum MCP returns the Solana RPC request" 'getTransaction'
+MCP_BASE="$MCP_AI_SENSE_BASE"
 
 # Round trip through the storage tools: what goes in must come back out.
 MCP_MARK="mcp-rt-$(date +%s)-$$"
