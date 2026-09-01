@@ -430,14 +430,14 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Nine tools, exactly. MCP.md and web/free-public-mcp-server.html both say
-# nine, so a new tool must land in all three places in the same commit.
+# Ten tools, exactly. MCP.md and web/free-public-mcp-server.html both say
+# ten, so a new tool must land in all three places in the same commit.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 9 ]; then
-  ok "MCP tools/list (exactly 9 tools)"
+if [ "$MCP_TOOLS" -eq 10 ]; then
+  ok "MCP tools/list (exactly 10 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 9 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 10 - update MCP.md and the web page together with this number"
 fi
 
 mcp_post '{"jsonrpc":"2.0","id":20,"method":"resources/list","params":{}}' '2025-11-25'
@@ -446,12 +446,22 @@ mcp_post '{"jsonrpc":"2.0","id":21,"method":"resources/read","params":{"uri":"ht
 mcp_expect "MCP resources/read keeps the original file local" 'not uploaded to Verifyum'
 mcp_expect "MCP resources/read links dedicated Verifyum MCP" 'https://api.verifyum.com/mcp'
 mcp_expect "MCP resources/read describes Witness Layer" 'OpenTimestamps with eventual Bitcoin anchoring'
-mcp_expect "MCP resources/read has nine evidence records" 'nine evidence records in total'
+mcp_expect "MCP resources/read has nine evidence records" 'Nine evidence records'
 mcp_expect "MCP resources/read includes Software Heritage" 'Software Heritage'
 mcp_expect "MCP resources/read includes Sigsum" 'Sigsum log'
+mcp_expect "MCP resources/read keeps Solana primary" 'One finalized Solana Mainnet Memo transaction per proof'
+mcp_expect "MCP resources/read separates evidence tiers" 'Operator records and availability redundancy'
+mcp_expect "MCP resources/read names archival Solana history" 'archival provider'
+mcp_expect "MCP resources/read names Sigsum witnesses" 'Glasklar, Mullvad and Tillitis'
+mcp_expect "MCP resources/read keeps the eIDAS scope" 'Article 41(2)'
+mcp_expect "MCP resources/read links public HTTP API" 'POST https://api.verifyum.com/v2/anchor'
+mcp_expect "MCP resources/read separates announcements" 'excluded from the nine evidence records'
+mcp_expect "MCP resources/read links Telegram" 'https://t.me/verifyum'
+mcp_expect "MCP resources/read links Atom" 'https://verifyum.com/feed.xml'
+mcp_expect "MCP resources/read keeps QR fallback" 'A QR failure does not affect the proof'
 mcp_expect "MCP resources/read keeps qualified timestamp boundary" 'Verifyum is not a qualified trust service'
 mcp_expect "MCP resources/read keeps user proof boundary" 'user proof is not a qualified electronic timestamp'
-mcp_expect "MCP resources/read separates operator records" 'operator records, not independent witnesses'
+mcp_expect "MCP resources/read separates operator records" 'These are not independent witnesses'
 mcp_expect "MCP resources/read links witness status" 'https://verifyum.com/witness'
 
 # 2026-07-28 enforces three contracts, checked in a fixed order: the
