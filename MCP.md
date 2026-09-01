@@ -212,6 +212,9 @@ The Verifyum endpoint is separate from `https://aisenseapi.com/mcp`:
 https://api.verifyum.com/mcp
 ```
 
+The public HTTP API uses `POST https://api.verifyum.com/v2/anchor` and
+`GET https://api.verifyum.com/v2/proofs/{proof-id}`. It also needs no API key.
+
 `verifyum_anchor_commitment` accepts exactly two fields:
 
 ```json
@@ -251,26 +254,32 @@ hash chain, instead of anchoring every individual decision.
 
 ## Verifyum Witness Layer
 
-Finalized proofs are grouped into hourly and daily Merkle checkpoints. The
-Witness Layer adds OpenTimestamps with eventual Bitcoin anchoring, a public
-GitHub checkpoint log, the Internet Archive, Certificate Transparency, a
-qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned
-Sigsum log with a quorum of two out of three around the primary Solana record
-and Verifyum signature - nine evidence records in total for checkpoints
-created since 2026-09-01.
+Finalized proofs are grouped into hourly and daily Merkle checkpoints. Nine
+records surround each finalized proof.
 
-Solana and the Verifyum signature remain the primary evidence. The qualified
-timestamp's eIDAS legal presumption covers the daily checkpoint root alone. A
-Verifyum user proof is not a qualified electronic timestamp, and Verifyum is
-not a qualified trust service. A Software Heritage identifier or Internet
-Archive capture shows what was stored, never when. The Verifyum signature and
-GitHub log are operator records, not independent witnesses. The number of
-channels is not a quality score.
+| Tier | Records |
+| --- | --- |
+| Primary evidence | One finalized Solana Mainnet Memo transaction per proof |
+| Independent corroboration | Hourly OpenTimestamps on Bitcoin, daily qualified EU timestamp, daily witness-cosigned Sigsum and daily Certificate Transparency certificate |
+| Operator records and availability redundancy | Verifyum Ed25519 signature, GitHub checkpoint log, Software Heritage and Internet Archive |
+
+The Solana transaction is the primary evidence. Deep Solana history generally
+requires an archival provider. The qualified timestamp's eIDAS legal
+presumption covers the daily checkpoint root alone. A Verifyum user proof is
+not a qualified electronic timestamp. Verifyum is not a qualified trust
+service. Software Heritage and Internet Archive show what was stored. They do
+not establish when the original file existed. The number of channels is not a
+quality score.
+
+The Sigsum digest is cosigned by Glasklar, Mullvad and Tillitis with a quorum
+of two out of three. The qualified timestamp uses RFC 3161. Its eIDAS Article
+41(2) presumption applies only to the daily checkpoint root.
 
 External witnesses receive only an aggregate checkpoint root. They do not
 receive a file, raw file hash, nonce, private manifest or proof ID. Each
-supplemental channel reports `pending`, `confirmed`, `unavailable` or `failed`.
-A pending or missing witness does not invalidate the Solana proof.
+channel reports `pending`, `confirmed`, `unavailable` or `failed`.
+A pending or missing witness does not invalidate the Solana proof or Verifyum
+signature.
 
 A proof membership shows inclusion in a Verifyum checkpoint. It does not by
 itself show that an external channel confirmed the checkpoint. Read the
@@ -286,6 +295,13 @@ GET https://verifyum.com/witness/receipts/{hourly|daily}/{batch-id}.json
 
 The human-readable explanation is at
 [verifyum.com/witness](https://verifyum.com/witness).
+
+Every finalized proof is also announced on
+[Telegram](https://t.me/verifyum) and in the
+[Atom feed](https://verifyum.com/feed.xml). These posts help people and agents
+find new proofs. They are announcement channels and are excluded from the nine
+evidence records. Their timestamps date the announcement. They say nothing
+about the original file date.
 
 A finalized proof shows that the commitment existed no later than the estimated
 Solana block time. It does not prove authorship, ownership, legal signature

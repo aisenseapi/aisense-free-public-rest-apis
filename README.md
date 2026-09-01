@@ -24,21 +24,29 @@ without an account or API key. File hashing still happens on the agent's
 machine. The browser flow, public HTTP API and published protocol remain
 available. The official MCP registry lists it as `com.verifyum/mcp` version
 `0.1.0`. Finalized proofs also join hourly and daily Merkle checkpoints in
-the [Verifyum Witness Layer](https://verifyum.com/witness). Supplemental
-records are published through OpenTimestamps with eventual Bitcoin anchoring,
-GitHub, the Internet Archive, Certificate Transparency, a qualified EU
-timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log
-with a quorum of two out of three. Those services receive only an aggregate
-checkpoint root. Together with Solana and the Verifyum signature, they make
-nine evidence records in total for checkpoints created since 2026-09-01.
+the [Verifyum Witness Layer](https://verifyum.com/witness). Nine records
+surround each finalized proof.
 
-Solana and the Verifyum signature remain the primary evidence. The qualified
-timestamp's eIDAS legal presumption covers the daily checkpoint root alone.
-A Verifyum user proof is not a qualified electronic timestamp, and Verifyum is
-not a qualified trust service. A Software Heritage identifier or Internet
-Archive capture shows what was stored, never when. The Verifyum signature and
-GitHub log are operator records, not independent witnesses. The number of
-channels is not a quality score.
+| Tier | Records |
+| --- | --- |
+| Primary evidence | One finalized Solana Mainnet Memo transaction per proof |
+| Independent corroboration | Hourly OpenTimestamps on Bitcoin, daily qualified EU timestamp, daily witness-cosigned Sigsum and daily Certificate Transparency certificate |
+| Operator records and availability redundancy | Verifyum Ed25519 signature, GitHub checkpoint log, Software Heritage and Internet Archive |
+
+The Solana transaction is the primary evidence. Deep Solana history generally
+requires an archival provider. Glasklar, Mullvad and Tillitis cosign the
+Sigsum digest with a quorum of two out of three. The qualified timestamp uses
+RFC 3161. Its eIDAS Article 41(2) presumption covers the daily checkpoint root
+alone. A Verifyum user proof is not a qualified electronic timestamp. Verifyum
+is not a qualified trust service. Software Heritage and Internet Archive show
+what was stored. They do not establish when the original file existed. The
+number of channels is not a quality score.
+
+Every finalized proof is also announced on
+[Telegram](https://t.me/verifyum) and in the
+[Atom feed](https://verifyum.com/feed.xml). These are announcement channels.
+They are excluded from the nine evidence records. Their timestamps date the
+announcement. They say nothing about the original file date.
 
 An agent can also assemble one decision record locally from its instructions,
 prompt, model, parameters, tool calls and output, then anchor only the

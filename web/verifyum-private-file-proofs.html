@@ -96,19 +96,32 @@
 
 <h2>Witnesses see a checkpoint, not the file</h2>
 
-<p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive, Certificate Transparency, a qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log with a quorum of two out of three add seven records around the primary Solana transaction and Verifyum signature - nine evidence records in total for checkpoints created since 2026-09-01.</p>
+<p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. Nine records surround each finalized proof.</p>
 
-<p>Solana and the Verifyum signature remain the primary evidence. The qualified timestamp's eIDAS legal presumption covers the daily checkpoint root alone. A Verifyum user proof is not a qualified electronic timestamp, and Verifyum is not a qualified trust service. A Software Heritage identifier or Internet Archive capture shows what was stored, never when. The Verifyum signature and GitHub log are operator records, not independent witnesses.</p>
+<div class="table-wrap field-table">
+<table>
+<thead><tr><th>Tier</th><th>Records</th></tr></thead>
+<tbody>
+<tr><td>Primary evidence</td><td>One finalized Solana Mainnet Memo transaction per proof</td></tr>
+<tr><td>Independent corroboration</td><td>Hourly OpenTimestamps on Bitcoin, daily qualified EU timestamp, daily witness-cosigned Sigsum and daily Certificate Transparency certificate</td></tr>
+<tr><td>Operator records and availability redundancy</td><td>Verifyum Ed25519 signature, GitHub checkpoint log, Software Heritage and Internet Archive</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The Solana transaction is the primary evidence. Deep Solana history generally requires an archival provider. The Sigsum digest is cosigned by Glasklar, Mullvad and Tillitis with a quorum of two out of three. The qualified timestamp uses RFC 3161. Its eIDAS Article 41(2) presumption covers the daily checkpoint root alone. A Verifyum user proof is not a qualified electronic timestamp. Verifyum is not a qualified trust service. Software Heritage and Internet Archive show what was stored. They do not establish when the original file existed.</p>
 
 <p>Each external service receives only an aggregate checkpoint root. It never receives the original file, raw file hash, nonce, private manifest or proof ID. A public Merkle path lets someone who already knows a proof ID confirm that it belongs to a checkpoint.</p>
 
-<p>Channel states are pending, confirmed, unavailable and failed. Merkle membership shows inclusion in a Verifyum checkpoint. A separate receipt shows whether an external channel confirmed it. A pending or missing witness does not invalidate the Solana proof. The number of channels is not a quality score. <a href="https://verifyum.com/witness">Read how the Witness Layer works</a>.</p>
+<p>Channel states are pending, confirmed, unavailable and failed. Merkle membership shows inclusion in a Verifyum checkpoint. A separate receipt shows whether an external channel confirmed it. A pending or missing witness does not invalidate the Solana proof or Verifyum signature. The number of channels is not a quality score. <a href="https://verifyum.com/witness">Read how the Witness Layer works</a>.</p>
+
+<p>Every finalized proof is also announced on <a href="https://t.me/verifyum">Telegram</a> and in the <a href="https://verifyum.com/feed.xml">Atom feed</a>. These are announcement channels and are excluded from the nine evidence records. Their timestamps date the announcement. They say nothing about the original file date.</p>
 
 <h2>Save the public link as QR or PDF</h2>
 
 <p>After finalization, the public proof link can be downloaded as a QR-code PNG or printed and saved as an A4 PDF receipt. These are convenient copies of the public proof. They do not replace the private draft.</p>
 
-<p>The QR code contains only the already-public proof URL. The image is generated on demand by the free AISenseAPI QR endpoint. The PDF receipt is assembled from public proof metadata and rendered locally by the browser.</p>
+<p>Verifyum sends only the canonical public proof URL to <code>POST https://aisenseapi.com/services/v1/qrcode_encode</code>. The endpoint returns a Base64 PNG. The browser validates the PNG signature and size before using it. A QR failure does not affect the proof. The receipt then shows the public URL as text. The PDF receipt is assembled from public proof metadata and rendered locally by the browser.</p>
 
 <p>The private draft and the later public proof are separate in the current flow. Keep the original file and private draft together, and also save the public proof link.</p>
 

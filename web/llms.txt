@@ -35,4 +35,7 @@ Agent Wake creates a durable MCP task that completes after a webhook, human answ
 - Verifyum Witness Layer: https://verifyum.com/witness
 - AI Data Feed: https://data.aisenseapi.com/
 
-Verifyum's Witness Layer uses nine evidence records in total for checkpoints created since 2026-09-01. Solana and the Verifyum signature remain the primary evidence. A Verifyum user proof is not a qualified electronic timestamp. Individual channel states can be pending, confirmed, unavailable or failed. The number of channels is not a quality score.
+Verifyum's Witness Layer uses nine evidence records for checkpoints created since 2026-09-01. One finalized Solana Mainnet Memo transaction per proof is the primary evidence. Hourly OpenTimestamps on Bitcoin, a daily qualified EU timestamp, daily witness-cosigned Sigsum and a daily Certificate Transparency certificate provide independent corroboration. Glasklar, Mullvad and Tillitis cosign the Sigsum digest with a quorum of two out of three. The Verifyum signature, GitHub checkpoint log, Software Heritage and Internet Archive are operator records or availability redundancy. A Verifyum user proof is not a qualified electronic timestamp. Individual channel states can be pending, confirmed, unavailable or failed. The number of channels is not a quality score.
+Verifyum announcements: https://t.me/verifyum
+Verifyum Atom feed: https://verifyum.com/feed.xml
+Announcement timestamps date the announcement. They say nothing about the original file date.
