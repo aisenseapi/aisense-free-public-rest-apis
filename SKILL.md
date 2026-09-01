@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation - no authentication required for any endpoint
 ---
 
@@ -273,6 +273,26 @@ non-JSON-by-default endpoint besides the decoders.
 
 ---
 
+### Agent Wake - webhook, human or time, 24h maximum
+
+`POST /agent_wake` creates one durable event task. Send `event_type` as
+`webhook`, `human` or `time`. `timeout_seconds` accepts 60 to 86400.
+
+```json
+{ "event_type": "webhook", "timeout_seconds": 3600 }
+```
+
+The result contains `taskId`, `status`, `ttlMs`, `pollIntervalMs` and metadata
+with `statusUrl`. Webhook tasks also return `wakeUrl`. Human tasks return
+`formUrl`. Time tasks accept `delay_seconds` or `wake_at`.
+
+Read with `GET /agent_wake/{task_id}`. Cancel with
+`DELETE /agent_wake/{task_id}`. The first webhook completes the task and later
+requests cannot replace the result. The task ID is a bearer link. Keep secrets
+and personal data out of the event body.
+
+---
+
 ## Crypto
 
 > Wallet generation is for **development and testing only**. A private key
@@ -347,6 +367,8 @@ return numbers; their smallest units stay inside the safe range.
 | `/webhook_action/{id}` | GET | `ok`, `action_id`, `status`, `response`, timestamps |
 | `/webhook_schedule` | POST | `ok`, `schedule_id`, `status`, `fire_at_timestamp`, `result_url` |
 | `/webhook_schedule/{id}` | GET | `ok`, `schedule_id`, `status`, `attempts`, `http_status` |
+| `/agent_wake` | POST | `taskId`, `status`, `ttlMs`, event URLs in `_meta` |
+| `/agent_wake/{id}` | GET / DELETE | `status`, `result` or cancellation state |
 | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | `/webhook_action/{id}/form` | GET | `text/html` |
 | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |

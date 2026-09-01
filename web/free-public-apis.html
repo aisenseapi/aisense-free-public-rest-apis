@@ -95,7 +95,7 @@
 
 <section class="callout" aria-labelledby="mcp-server-heading">
   <h2 id="mcp-server-heading">Connecting an AI agent?</h2>
-  <p>Use the free remote MCP server at <code>https://aisenseapi.com/mcp</code>. It gives an agent nine workflow tools.</p>
+  <p>Use the free remote MCP server at <code>https://aisenseapi.com/mcp</code>. It gives an agent ten workflow tools, including durable Agent Wake tasks.</p>
   <p>For Verifyum alone, connect directly to <code>https://api.verifyum.com/mcp</code>. It needs no account or API key, and file hashing stays on the agent's machine.</p>
   <p><a href="/free-public-mcp-server">See the MCP tool list and client examples</a>.</p>
 </section>
@@ -124,6 +124,7 @@
   <h2 id="api-guides-heading">Detailed API guides</h2>
   <p>Each guide includes request formats, response fields, curl examples and common errors.</p>
   <div class="related-api-grid">
+    <a href="/free-public-api-agent-wake-api-endpoint"><strong>Agent Wake API</strong><span>Resume after a webhook, human answer or time.</span></a>
     <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive and inspect webhooks for 24 hours.</span></a>
     <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Pause a workflow for a human answer.</span></a>
     <a href="/free-public-api-storage-api-endpoint"><strong>Temporary Storage API</strong><span>Store JSON, text or files for 24 hours.</span></a>
@@ -572,6 +573,18 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 GET  /webhook_schedule/{id}
   ->  { "status": "fired", "attempts": 1, "http_status": 200 }</code></pre>
 </article>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-agent-wake-api-endpoint">Agent Wake REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/agent_wake</span> - <span class="method">GET</span> <span class="path">/agent_wake/{task_id}</span></p>
+<p>Create one durable wait state for a webhook, a person or a time. The first matching event completes the task. The same task model is available through the MCP Tasks extension, so an agent can stop polling separate capture and approval tools and resume from one result.</p>
+<pre><code>POST /agent_wake   { "event_type": "webhook", "timeout_seconds": 3600 }
+  ->  { "resultType": "task", "taskId": "2eb1a08d-...", "status": "working",
+        "_meta": { "com.aisenseapi/agentWake": { "wakeUrl": ".../wake" } } }
+
+GET  /agent_wake/{task_id}
+  ->  { "resultType": "complete", "status": "completed", "result": { ... } }</code></pre>
+</article>
 </section>
 
 <!-- CRYPTO -->
@@ -670,14 +683,14 @@ response = client.chat.completions.create(
 <h3>Time</h3>
 <div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 with an offset</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
 <h3>Web</h3>
-<div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a><a href="/free-public-api-agent-wake-api-endpoint">Free Agent Wake API Endpoint<span>Resume after an outside event</span></a></div>
 <h3>Crypto</h3>
 <div class="related-api-grid"><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Free Bitcoin Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-bitcoin-balance-api-endpoint">Free Bitcoin Balance API Endpoint<span>BTC and satoshis</span></a><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Free Ethereum Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-ethereum-balance-api-endpoint">Free Ethereum Balance API Endpoint<span>Strings, not numbers</span></a><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Free Solana Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-solana-balance-api-endpoint">Free Solana Balance API Endpoint<span>SOL and lamports</span></a></div>
 </section>
 
 <section id="summary" aria-labelledby="summary-heading">
 <h2 id="summary-heading">All endpoints</h2>
-<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Storage, URL Shortener, Webhook Capture and Webhook Action all expire after 24 hours.</p>
+<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Storage, URL Shortener, Webhook Capture, Webhook Action and Agent Wake all expire after 24 hours.</p>
 
 <div class="table-wrap">
 <table>
@@ -722,6 +735,7 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
 <tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET</td><td><code>schedule_id</code>, <code>status</code>, <code>attempts</code>, <code>http_status</code></td></tr>
+<tr><td>Web</td><td><code>/agent_wake</code></td><td>POST / GET / DELETE</td><td><code>taskId</code>, <code>status</code>, <code>result</code></td></tr>
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>

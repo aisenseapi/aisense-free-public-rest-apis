@@ -1,6 +1,6 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to nine workflow tools and one read-only product resource
+Connect an AI agent to ten workflow tools and one read-only product resource
 at the AI SENSE remote MCP endpoint.
 
 **Server URL:** `https://aisenseapi.com/mcp`
@@ -39,6 +39,7 @@ proxy these tools.
 | `read_webhook_capture` | Reads the captured method, headers and body |
 | `create_human_approval` | Creates a hosted approval form for a person |
 | `read_human_approval` | Checks the form status and reads the answer |
+| `create_agent_wake` | Creates a durable MCP task for a webhook, human response or time event |
 
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
@@ -119,8 +120,8 @@ The endpoint also accepts the initialize flow used by these revisions:
 - `2025-06-18`
 - `2025-03-26`
 
-The server is stateless. It does not issue an `Mcp-Session-Id`. Send each
-request to the same URL.
+The transport does not issue an `Mcp-Session-Id`. Agent Wake task state is kept
+by task ID for up to 24 hours. Send each request to the same URL.
 
 ## Human approval example
 
@@ -147,6 +148,56 @@ that emits the webhook. Then call `read_webhook_capture` with the returned
 
 The result includes the HTTP method, request URI, headers, client IP and body.
 JSON is returned as JSON. Text stays as text. Other bytes are Base64 encoded.
+
+## Agent Wake and MCP Tasks
+
+`create_agent_wake` is available to clients using MCP revision `2026-07-28`
+with the `io.modelcontextprotocol/tasks` extension. It creates a durable task
+for one of these events:
+
+- `webhook` completes after the first request reaches its wake URL
+- `human` completes after a person answers the hosted form
+- `time` completes on the first status check after its wake time
+
+The client declares task support on the tool call:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 20,
+  "method": "tools/call",
+  "params": {
+    "name": "create_agent_wake",
+    "arguments": {
+      "event_type": "webhook",
+      "timeout_seconds": 3600
+    },
+    "_meta": {
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientCapabilities": {
+        "extensions": {
+          "io.modelcontextprotocol/tasks": {}
+        }
+      }
+    }
+  }
+}
+```
+
+The result has `resultType: "task"` and a `taskId`. Poll with `tasks/get`.
+Task requests must repeat the task extension capability and send the task ID in
+the `MCP-Name` header. The server supports `tasks/get`, `tasks/update` and
+`tasks/cancel`. It does not expose `tasks/list` or `tasks/result`.
+
+A human task reports `input_required` and includes one URL mode
+`elicitation/create` request. Opening the URL does not approve anything. The
+task completes only when the form is submitted. A decline or cancel response
+sent through `tasks/update` cancels the task.
+
+The first webhook wins. Later requests cannot replace its result. Standard
+credential headers are redacted before the request is stored. The body may
+still contain sensitive data, so keep secrets and personal data out of the
+public service.
 
 ## Separate Verifyum MCP endpoint
 
@@ -247,7 +298,7 @@ pricing promise.
 
 ## Data and security
 
-- Temporary data, capture records, short links and approval forms expire after 24 hours.
+- Temporary data, capture records, short links, approval forms and Agent Wake tasks expire after 24 hours.
 - The IDs and URLs are unguessable capability links. Share them with the intended recipient.
 - Do not store passwords, private keys, health data or long-lived confidential data.
 - Requests with a browser `Origin` header are accepted only from approved origins.
@@ -265,6 +316,9 @@ account-bound tools.
 
 The endpoint returns JSON-RPC 2.0 errors for invalid requests. Tool input
 errors are returned as MCP tool results with `isError` set to `true`.
+
+Agent Wake returns JSON-RPC error `-32003` when the current Tasks extension is
+missing. Unknown task IDs return `-32602`.
 
 | HTTP status | Meaning |
 |-------------|---------|

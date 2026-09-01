@@ -20,10 +20,13 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 
 The MCP server exposes public workflow tools and a read-only Verifyum product resource. Verifyum proof creation writes a real Solana transaction. Use it only after clear user intent.
 
+Agent Wake creates a durable MCP task that completes after a webhook, human answer or time event. It uses the io.modelcontextprotocol/tasks extension with MCP revision 2026-07-28. REST clients can use the same task model at https://aisenseapi.com/services/v1/agent_wake.
+
 ## REST API
 
 - Base URL: https://aisenseapi.com/services/v1
 - API guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/API.md
+- Agent Wake guide: https://aisense.no/free-public-api-agent-wake-api-endpoint
 
 ## Products
 
