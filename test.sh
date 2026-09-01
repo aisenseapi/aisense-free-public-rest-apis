@@ -446,6 +446,12 @@ mcp_post '{"jsonrpc":"2.0","id":21,"method":"resources/read","params":{"uri":"ht
 mcp_expect "MCP resources/read keeps the original file local" 'not uploaded to Verifyum'
 mcp_expect "MCP resources/read links dedicated Verifyum MCP" 'https://api.verifyum.com/mcp'
 mcp_expect "MCP resources/read describes Witness Layer" 'OpenTimestamps with eventual Bitcoin anchoring'
+mcp_expect "MCP resources/read has nine evidence records" 'nine evidence records in total'
+mcp_expect "MCP resources/read includes Software Heritage" 'Software Heritage'
+mcp_expect "MCP resources/read includes Sigsum" 'Sigsum log'
+mcp_expect "MCP resources/read keeps qualified timestamp boundary" 'Verifyum is not a qualified trust service'
+mcp_expect "MCP resources/read keeps user proof boundary" 'user proof is not a qualified electronic timestamp'
+mcp_expect "MCP resources/read separates operator records" 'operator records, not independent witnesses'
 mcp_expect "MCP resources/read links witness status" 'https://verifyum.com/witness'
 
 # 2026-07-28 enforces three contracts, checked in a fixed order: the

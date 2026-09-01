@@ -204,8 +204,17 @@ Finalized proofs are grouped into hourly and daily Merkle checkpoints. The
 Witness Layer adds OpenTimestamps with eventual Bitcoin anchoring, a public
 GitHub checkpoint log, the Internet Archive, Certificate Transparency, a
 qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned
-Sigsum log around the primary Solana record and Verifyum signature - nine
-evidence records in total.
+Sigsum log with a quorum of two out of three around the primary Solana record
+and Verifyum signature - nine evidence records in total for checkpoints
+created since 2026-09-01.
+
+Solana and the Verifyum signature remain the primary evidence. The qualified
+timestamp's eIDAS legal presumption covers the daily checkpoint root alone. A
+Verifyum user proof is not a qualified electronic timestamp, and Verifyum is
+not a qualified trust service. A Software Heritage identifier or Internet
+Archive capture shows what was stored, never when. The Verifyum signature and
+GitHub log are operator records, not independent witnesses. The number of
+channels is not a quality score.
 
 External witnesses receive only an aggregate checkpoint root. They do not
 receive a file, raw file hash, nonce, private manifest or proof ID. Each
