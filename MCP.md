@@ -202,8 +202,10 @@ hash chain, instead of anchoring every individual decision.
 
 Finalized proofs are grouped into hourly and daily Merkle checkpoints. The
 Witness Layer adds OpenTimestamps with eventual Bitcoin anchoring, a public
-GitHub checkpoint log, the Internet Archive and Certificate Transparency
-around the primary Solana record and Verifyum signature.
+GitHub checkpoint log, the Internet Archive, Certificate Transparency, a
+qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned
+Sigsum log around the primary Solana record and Verifyum signature - nine
+evidence records in total.
 
 External witnesses receive only an aggregate checkpoint root. They do not
 receive a file, raw file hash, nonce, private manifest or proof ID. Each
