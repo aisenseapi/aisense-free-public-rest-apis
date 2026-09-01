@@ -306,6 +306,40 @@ else
 fi
 echo ""
 
+# Agent Wake is exposed through both MCP Tasks and a public REST adapter.
+# This round trip covers the adapter boundary that the direct MCP tests cannot.
+echo -e "${YELLOW}Agent Wake REST round trip${NC}"
+WAKE_MARKER="agent-wake-$(date +%s)-$$"
+request POST "$BASE/agent_wake" '{"event_type":"webhook","timeout_seconds":300}'
+WAKE_TASK_ID=$(echo "$BODY" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
+if [ "$STATUS" = "201" ] && [ -n "$WAKE_TASK_ID" ]; then
+  ok "Agent Wake (create)"
+
+  RAW=$(curl -s -m 30 -w '\n%{http_code}' -X POST "$BASE/agent_wake/$WAKE_TASK_ID/wake" \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer must-not-leak' \
+    -d "{\"marker\":\"$WAKE_MARKER\"}")
+  STATUS="${RAW##*$'\n'}"
+  BODY="${RAW%$'\n'*}"
+
+  if body_is_sane "Agent Wake (wake)" && [ "$STATUS" = "200" ] && [[ "$BODY" == *'"accepted":true'* ]]; then
+    ok "Agent Wake (wake)"
+  else
+    bad "Agent Wake (wake)" "expected HTTP 200 and accepted:true, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  has_value "Agent Wake (completed)" GET "$BASE/agent_wake/$WAKE_TASK_ID" '"status":"completed"'
+  has_value "Agent Wake (body round trip)" GET "$BASE/agent_wake/$WAKE_TASK_ID" "$WAKE_MARKER"
+  has_value "Agent Wake (authorization redacted)" GET "$BASE/agent_wake/$WAKE_TASK_ID" '"authorization":"[redacted]"'
+
+  if [ "$STATUS" != "200" ] || [[ "$BODY" != *'"status":"completed"'* ]]; then
+    curl -s -m 15 -o /dev/null -X DELETE "$BASE/agent_wake/$WAKE_TASK_ID"
+  fi
+else
+  bad "Agent Wake (create)" "expected HTTP 201 and a task ID, got $STATUS: $(echo "$BODY" | head -c 140)"
+fi
+echo ""
+
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
 has_key   "Solana Wallet"   GET "$BASE/solana/generate_new_wallet"   "public_address"
