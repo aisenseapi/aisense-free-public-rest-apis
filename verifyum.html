@@ -111,7 +111,7 @@
   </div>
   <pre><code>claude mcp add --transport http verifyum https://api.verifyum.com/mcp</code></pre>
   <p>The endpoint exposes three tools for anchoring a completed commitment, reading a public proof and checking a public proof. The verification tool performs the Ed25519 signature check in the web runtime and returns the exact Solana RPC request for a separate confirmation.</p>
-  <p>The official MCP registry lists <code>com.verifyum/mcp</code> version <code>0.1.0</code>. MCP is an additional access method. The browser flow, public HTTP API and published protocol remain available.</p>
+  <p>The official MCP registry lists <code>com.verifyum/mcp</code> version <code>0.1.0</code>. MCP is an additional access method. The browser flow and published protocol remain available. The key-free public HTTP API uses <code>POST https://api.verifyum.com/v2/anchor</code> and <code>GET https://api.verifyum.com/v2/proofs/{proof-id}</code>.</p>
   <p><a href="https://verifyum.com/agents">Read the agent guide</a>.</p>
   <div class="api-note">
     <p><strong>Agent decision records</strong></p>
@@ -136,17 +136,30 @@
 <section class="product-section" aria-labelledby="verifyum-witnesses">
   <div class="section-heading">
     <p class="eyebrow">Witness Layer</p>
-    <h2 id="verifyum-witnesses">One checkpoint, nine evidence records.</h2>
-    <p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive, Certificate Transparency, a qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log with a quorum of two out of three add supplemental records around the primary Solana proof and Verifyum signature - nine evidence records in total for checkpoints created since 2026-09-01.</p>
-    <p>Solana and the Verifyum signature remain the primary evidence. The qualified timestamp's eIDAS legal presumption covers the daily checkpoint root alone. A Verifyum user proof is not a qualified electronic timestamp, and Verifyum is not a qualified trust service. A Software Heritage identifier or Internet Archive capture shows what was stored, never when. The Verifyum signature and GitHub log are operator records, not independent witnesses.</p>
+    <h2 id="verifyum-witnesses">One proof, three evidence tiers.</h2>
+    <p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. Nine records surround each finalized proof.</p>
   </div>
+
+  <div class="table-wrap field-table">
+    <table>
+      <thead><tr><th>Tier</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td>Primary evidence</td><td>One finalized Solana Mainnet Memo transaction per proof</td></tr>
+        <tr><td>Independent corroboration</td><td>Hourly OpenTimestamps on Bitcoin, daily qualified EU timestamp, daily witness-cosigned Sigsum and daily Certificate Transparency certificate</td></tr>
+        <tr><td>Operator records and availability redundancy</td><td>Verifyum Ed25519 signature, GitHub checkpoint log, Software Heritage and Internet Archive</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The Solana transaction is the primary evidence. Deep Solana history generally requires an archival provider. The Sigsum digest is cosigned by Glasklar, Mullvad and Tillitis with a quorum of two out of three. The qualified timestamp uses RFC 3161. Its eIDAS Article 41(2) presumption covers the daily checkpoint root alone. A Verifyum user proof is not a qualified electronic timestamp. Verifyum is not a qualified trust service. Software Heritage and Internet Archive show what was stored. They do not establish when the original file existed.</p>
 
   <div class="use-case-grid product-facts">
     <article><h3>Aggregate privacy</h3><p>External witnesses receive one aggregate checkpoint root. They never receive the file, raw file hash, nonce, private manifest or proof ID.</p></article>
     <article><h3>Public inspection</h3><p>Checkpoint documents, Merkle membership and channel receipts are available through read-only public URLs. Membership shows inclusion in a checkpoint. The separate receipt shows whether an external channel confirmed it.</p></article>
     <article><h3>Visible state</h3><p>Each channel reports pending, confirmed, unavailable or failed. Bitcoin confirmation takes time by design.</p></article>
-    <article><h3>Same proof boundary</h3><p>A pending or missing witness does not invalidate the Solana proof. The number of channels is not a quality score.</p></article>
+    <article><h3>Same proof boundary</h3><p>A pending or missing witness does not invalidate the Solana proof or Verifyum signature. The number of channels is not a quality score.</p></article>
   </div>
+  <p>Every finalized proof is also announced on <a href="https://t.me/verifyum">Telegram</a> and in the <a href="https://verifyum.com/feed.xml">Atom feed</a>. These posts help people and agents find new proofs. They are announcement channels and are excluded from the nine evidence records. Their timestamps date the announcement. They say nothing about the original file date.</p>
   <p><a href="https://verifyum.com/witness">How the witnesses work</a>. You can also <a href="https://api.verifyum.com/v2/proofs/1ns0c79n4m0sy5es4wztcvrm1y/witnesses">inspect the known public proof's checkpoint membership</a>.</p>
 </section>
 
@@ -158,7 +171,7 @@
   </div>
 
   <div class="use-case-grid product-facts">
-    <article><h3>QR code</h3><p>The QR code contains only the already-public proof URL. The image is generated by the free AISenseAPI QR endpoint.</p></article>
+    <article><h3>QR code</h3><p>Verifyum sends only the canonical public proof URL to <code>POST https://aisenseapi.com/services/v1/qrcode_encode</code>. The endpoint returns a Base64 PNG. A QR failure does not affect the proof. The receipt then shows the public URL as text.</p></article>
     <article><h3>PDF receipt</h3><p>The proof page builds an A4 receipt from public metadata. Your browser renders it for printing or saving as PDF.</p></article>
   </div>
 </section>
