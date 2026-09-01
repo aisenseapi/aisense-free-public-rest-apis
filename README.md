@@ -25,8 +25,9 @@ available. The official MCP registry lists it as `com.verifyum/mcp` version
 `0.1.0`. Finalized proofs also join hourly and daily Merkle checkpoints in
 the [Verifyum Witness Layer](https://verifyum.com/witness). Supplemental
 records are published through OpenTimestamps with eventual Bitcoin anchoring,
-GitHub, the Internet Archive and Certificate Transparency. Those services
-receive only an aggregate checkpoint root.
+GitHub, the Internet Archive, Certificate Transparency, a qualified EU
+timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log.
+Those services receive only an aggregate checkpoint root.
 
 An agent can also assemble one decision record locally from its instructions,
 prompt, model, parameters, tool calls and output, then anchor only the
