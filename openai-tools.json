@@ -614,6 +614,51 @@
   {
     "type": "function",
     "function": {
+      "name": "agent_wake_create",
+      "description": "Create a durable task that completes after a webhook, human answer or time event. Returns a random taskId, statusUrl and an event-specific wakeUrl, formUrl or wakeAt value. The task expires after timeout_seconds. POST /agent_wake",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "event_type": { "type": "string", "enum": ["webhook", "human", "time"], "description": "The event that completes the task." },
+          "timeout_seconds": { "type": "integer", "minimum": 60, "maximum": 86400, "description": "Task lifetime in seconds. Defaults to 86400." },
+          "delay_seconds": { "type": "integer", "minimum": 1, "description": "For time events. Wake this many seconds from now." },
+          "wake_at": { "type": "integer", "description": "For time events. Unix timestamp to wake at." },
+          "title": { "type": "string", "description": "For human events. The question on the form." },
+          "description": { "type": "string", "description": "For human events. Supporting detail." },
+          "options": { "type": "array", "items": { "type": "string" }, "description": "For human events. Two to ten choices." },
+          "allow_note": { "type": "boolean", "description": "For human events. Allow an optional note." }
+        },
+        "required": ["event_type"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "agent_wake_status",
+      "description": "Read a durable Agent Wake task. Returns working, input_required, completed, failed or cancelled. A completed task includes the event result. GET /agent_wake/{task_id}",
+      "parameters": {
+        "type": "object",
+        "properties": { "task_id": { "type": "string", "description": "The taskId from agent_wake_create." } },
+        "required": ["task_id"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "agent_wake_cancel",
+      "description": "Cancel a waiting Agent Wake task. DELETE /agent_wake/{task_id}",
+      "parameters": {
+        "type": "object",
+        "properties": { "task_id": { "type": "string", "description": "The taskId from agent_wake_create." } },
+        "required": ["task_id"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "validate",
       "description": "Validate a business number by arithmetic - nothing is looked up in any register, so valid means well-formed with a correct check digit, not that it exists. Returns {\"type\", \"valid\", ...per-check fields}. An invalid value is a result with valid false, not an error. The card number is never echoed back. POST /validate/{type}",
       "parameters": {

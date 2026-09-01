@@ -5,7 +5,7 @@
   ---------------------------------------------------------------------------
   REVIEW BEFORE PUBLISHING.
 
-  Every factual claim below was read out of the service source on 2026-08-16
+  Every factual claim below was read out of the service source on 2026-09-01
   and is accurate as of that date - see code/php/DATA-INVENTORY.md in the
   private repository for the file and line behind each one. That makes this an
   honest description of the system, which is more than most privacy policies
@@ -95,7 +95,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 16 August 2026.</small></p>
+  <p><small>Last updated 1 September 2026.</small></p>
 </div>
 
 <h2 id="controller">Who is responsible</h2>
@@ -116,7 +116,7 @@
 <p>We count requests per IP address to enforce the published limit of 5000 per 24 hours. The counter is stored against the address.</p>
 
 <h3>What you send to the storage endpoints</h3>
-<p>Four endpoints exist to hold data briefly, and they hold exactly what you give them:</p>
+<p>Five endpoint groups exist to hold data briefly, and they hold the event or content you give them:</p>
 <div class="table-wrap">
 <table>
 <thead><tr><th scope="col">Endpoint</th><th scope="col">What is stored</th></tr></thead>
@@ -125,6 +125,7 @@
 <tr><td><code>/url_shortener</code></td><td>The address you asked us to shorten</td></tr>
 <tr><td><code>/webhook_capture</code></td><td>The complete inbound request, <strong>including all headers</strong> and the sender's IP</td></tr>
 <tr><td><code>/webhook_action</code></td><td>The form you defined and the answer someone submitted to it</td></tr>
+<tr><td><code>/agent_wake</code></td><td>Task state and the webhook, human answer or time result. Standard credential headers on webhooks are redacted</td></tr>
 </tbody>
 </table>
 </div>
@@ -139,7 +140,7 @@
 <table>
 <thead><tr><th scope="col">Data</th><th scope="col">Kept for</th></tr></thead>
 <tbody>
-<tr><td>Storage, URL shortener, webhook capture, webhook action</td><td>24 hours, then it expires</td></tr>
+<tr><td>Storage, URL shortener, webhook capture, webhook action, Agent Wake</td><td>24 hours, then it expires</td></tr>
 <tr><td>Rate limit counters</td><td>Rolling 24 hours</td></tr>
 <tr><td>Server access logs</td><td>14 days</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>

@@ -9,12 +9,13 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-AI agents can connect directly to nine AI SENSE workflow tools at:
+AI agents can connect directly to ten AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
-The AI SENSE MCP server covers human approval, webhook capture, temporary
-storage, URL shortening, time and UUIDs. It needs no account or API key. See
+The AI SENSE MCP server covers Agent Wake tasks, human approval, webhook
+capture, temporary storage, URL shortening, time and UUIDs. It needs no account
+or API key. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
 Verifyum has its own dedicated MCP endpoint at
@@ -108,6 +109,25 @@ returns HTTP 429 in the same flat error shape as everything else.
 ---
 
 ## The high-value endpoints
+
+### Agent Wake - resume after an outside event
+
+Create one task that waits for a webhook, a human answer or a chosen time. MCP
+clients use the current Tasks extension and poll `tasks/get`. REST clients use
+`POST /agent_wake` and the returned status URL.
+
+```json
+{ "event_type": "webhook", "timeout_seconds": 3600 }
+```
+
+The result contains an unguessable task ID and a wake URL. The first request to
+that URL completes the task. Human tasks create a hosted form. Time tasks
+complete on the first read after the selected timestamp. Each task expires in
+60 seconds to 24 hours.
+
+See [`MCP.md`](MCP.md) for the task flow and [`API.md`](API.md) for REST calls.
+
+---
 
 ### Webhook Action - human-in-the-loop for agents
 
@@ -536,7 +556,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 ## Notes
 
 - POST endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads
-- Storage, URL Shortener, Webhook Capture and Webhook Action auto-expire after 24 hours
+- Storage, URL Shortener, Webhook Capture, Webhook Action and Agent Wake auto-expire after 24 hours
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
 - Rate limit: 5000 requests per IP per 24 hours
 

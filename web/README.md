@@ -9,14 +9,14 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-70 pages. The 48 endpoint pages share one naming pattern and are collapsed
+71 pages. The 49 endpoint pages share one naming pattern and are collapsed
 into a single row here; each one is listed individually in `sitemap.xml`.
 
 | File | URL |
 |------|-----|
 | `index.html` | `/` |
 | `free-public-apis.html` | `/free-public-apis` - generated from [`../API.md`](../API.md), see Editing |
-| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 48 of them, each at its matching URL |
+| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 49 of them, each at its matching URL |
 | `free-qr-code-decoder-api.html` | `/free-qr-code-decoder-api` - browser tool for the QR decode endpoint |
 | `free-public-mcp-server.html` | `/free-public-mcp-server` |
 | `hashing-apis.html` | `/hashing-apis` |

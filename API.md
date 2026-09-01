@@ -747,6 +747,75 @@ rejected. Payload maximum 32 KB.
 
 ---
 
+### Agent Wake - MCP task or REST polling, up to 24h
+
+Agent Wake creates one durable wait state. It completes when a webhook arrives,
+a person answers a hosted form or a selected time is reached. The MCP tool uses
+the `io.modelcontextprotocol/tasks` extension. The REST interface exposes the
+same task state for scripts and services.
+
+**Create:** `POST /agent_wake`
+
+```jsonc
+// Webhook event
+{ "event_type": "webhook", "timeout_seconds": 3600 }
+
+// Human response
+{
+  "event_type": "human",
+  "title": "Release build 42?",
+  "description": "The checks passed.",
+  "options": ["Release", "Hold"],
+  "allow_note": true,
+  "timeout_seconds": 3600
+}
+
+// Time event. Use delay_seconds or wake_at.
+{ "event_type": "time", "delay_seconds": 600, "timeout_seconds": 900 }
+```
+
+```json
+{
+  "resultType": "task",
+  "taskId": "2eb1a08d-759f-4af9-8caa-8b02b7ca17ba",
+  "status": "working",
+  "statusMessage": "Waiting for an event.",
+  "createdAt": "2026-09-01T12:00:00Z",
+  "lastUpdatedAt": "2026-09-01T12:00:00Z",
+  "ttlMs": 3600000,
+  "pollIntervalMs": 2000,
+  "_meta": {
+    "com.aisenseapi/agentWake": {
+      "eventType": "webhook",
+      "statusUrl": "https://aisenseapi.com/services/v1/agent_wake/2eb1a08d-...",
+      "wakeUrl": "https://aisenseapi.com/services/v1/agent_wake/2eb1a08d-.../wake",
+      "expiresAt": "2026-09-01T13:00:00Z"
+    }
+  }
+}
+```
+
+**Wake a webhook task:** `POST`, `PUT` or `PATCH` to
+`/agent_wake/{task_id}/wake`. The first accepted request completes the task.
+Later requests return HTTP 409 and cannot replace the result. The body limit is
+256 KB. Authorization, Cookie, X-API-Key and common token or secret headers are
+redacted before storage.
+
+**Read:** `GET /agent_wake/{task_id}`
+
+The status is `working`, `input_required`, `completed`, `failed` or `cancelled`.
+A completed response includes `result`. A human task includes a `formUrl` and a
+URL mode elicitation while it waits. A time task becomes complete on the first
+read after its wake time.
+
+**Cancel:** `DELETE /agent_wake/{task_id}`
+
+Task IDs are bearer links and there is no list operation. Anyone holding a task
+URL can read its result. Do not send secrets, credentials, personal data or
+anything that needs more than 24 hours of retention.
+
+---
+
 ### Validate
 
 Business-number validation by arithmetic. `POST /validate/{type}` where type is
