@@ -136,8 +136,9 @@
 <section class="product-section" aria-labelledby="verifyum-witnesses">
   <div class="section-heading">
     <p class="eyebrow">Witness Layer</p>
-    <h2 id="verifyum-witnesses">One checkpoint, several public witnesses.</h2>
-    <p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive, Certificate Transparency, a qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log add supplemental records around the primary Solana proof and Verifyum signature - nine evidence records in total.</p>
+    <h2 id="verifyum-witnesses">One checkpoint, nine evidence records.</h2>
+    <p>Finalized proofs are grouped into hourly and daily Merkle checkpoints. OpenTimestamps with eventual Bitcoin anchoring, a public GitHub checkpoint log, the Internet Archive, Certificate Transparency, a qualified EU timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log with a quorum of two out of three add supplemental records around the primary Solana proof and Verifyum signature - nine evidence records in total for checkpoints created since 2026-09-01.</p>
+    <p>Solana and the Verifyum signature remain the primary evidence. The qualified timestamp's eIDAS legal presumption covers the daily checkpoint root alone. A Verifyum user proof is not a qualified electronic timestamp, and Verifyum is not a qualified trust service. A Software Heritage identifier or Internet Archive capture shows what was stored, never when. The Verifyum signature and GitHub log are operator records, not independent witnesses.</p>
   </div>
 
   <div class="use-case-grid product-facts">
@@ -179,7 +180,7 @@
 
   <div class="use-case-grid product-facts">
     <article><h3>Byte identity</h3><p>A changed byte produces a different SHA-256 value and a different commitment.</p></article>
-    <article><h3>Independent timestamp</h3><p>The finalized transaction gives a public time boundary that can be checked without relying on the Verifyum database.</p></article>
+    <article><h3>Public time boundary</h3><p>The finalized transaction gives a public time boundary that can be checked without relying on the Verifyum database.</p></article>
     <article><h3>No creation-time claim</h3><p>The block time shows when the commitment existed. It cannot prove when the original file was first created.</p></article>
     <article><h3>No legal or content claim</h3><p>A matching proof does not establish authorship, ownership, legal signature validity or whether the contents are true.</p></article>
   </div>

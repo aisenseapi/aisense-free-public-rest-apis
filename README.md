@@ -26,8 +26,18 @@ available. The official MCP registry lists it as `com.verifyum/mcp` version
 the [Verifyum Witness Layer](https://verifyum.com/witness). Supplemental
 records are published through OpenTimestamps with eventual Bitcoin anchoring,
 GitHub, the Internet Archive, Certificate Transparency, a qualified EU
-timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log.
-Those services receive only an aggregate checkpoint root.
+timestamp under eIDAS, Software Heritage and a witness-cosigned Sigsum log
+with a quorum of two out of three. Those services receive only an aggregate
+checkpoint root. Together with Solana and the Verifyum signature, they make
+nine evidence records in total for checkpoints created since 2026-09-01.
+
+Solana and the Verifyum signature remain the primary evidence. The qualified
+timestamp's eIDAS legal presumption covers the daily checkpoint root alone.
+A Verifyum user proof is not a qualified electronic timestamp, and Verifyum is
+not a qualified trust service. A Software Heritage identifier or Internet
+Archive capture shows what was stored, never when. The Verifyum signature and
+GitHub log are operator records, not independent witnesses. The number of
+channels is not a quality score.
 
 An agent can also assemble one decision record locally from its instructions,
 prompt, model, parameters, tool calls and output, then anchor only the
