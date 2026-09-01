@@ -7,7 +7,7 @@
 
   This describes the service accurately - the rate limit, the expiry, the
   absence of any guarantee - because those were read out of the source on
-  2026-08-16. What it is not is a reviewed contract.
+  2026-09-01. What it is not is a reviewed contract.
 
   Points that need a lawyer rather than an engineer:
 
@@ -80,7 +80,7 @@
 <div class="hero">
   <h1>Terms of Service</h1>
   <p class="lede">For the free public REST APIs at <code>aisenseapi.com/services/v1</code>. Custom API work is covered by its own written agreement, not by this page.</p>
-  <p><small>Last updated 16 August 2026.</small></p>
+  <p><small>Last updated 1 September 2026.</small></p>
 </div>
 
 <h2 id="what">What you are getting</h2>
@@ -89,7 +89,7 @@
 
 <h2 id="limits">Limits</h2>
 <p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the window rolls. The limit is a technical control. We may change it.</p>
-<p><strong>Data expires after 24 hours</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code> and <code>/webhook_action</code>. This is not configurable and cannot be extended.</p>
+<p><strong>Data expires after 24 hours</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code>, <code>/webhook_action</code> and <code>/agent_wake</code>. Agent Wake may use a shorter timeout. The 24-hour maximum cannot be extended.</p>
 
 <h2 id="not-a-backup">This is not storage you can rely on</h2>
 <div class="warning">
