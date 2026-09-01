@@ -29,4 +29,7 @@ The MCP server exposes public workflow tools and a read-only Verifyum product re
 
 - AI SENSE: https://aisense.no/
 - Verifyum: https://verifyum.com/
+- Verifyum Witness Layer: https://verifyum.com/witness
 - AI Data Feed: https://data.aisenseapi.com/
+
+Verifyum's Witness Layer uses nine evidence records in total for checkpoints created since 2026-09-01. Solana and the Verifyum signature remain the primary evidence. A Verifyum user proof is not a qualified electronic timestamp. Individual channel states can be pending, confirmed, unavailable or failed. The number of channels is not a quality score.
