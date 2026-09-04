@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Share a File With a Link, No Account Needed - AI SENSE</title>
+<meta name="description" content="A browser uploader that posts a file, pasted text or a pasted screenshot straight to the storage API and gives back a shareable URL. No account, and everything is deleted after 24 hours.">
+<link rel="canonical" href="https://aisense.no/share-a-file-with-a-link">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Share a File With a Link, No Account Needed">
+<meta property="og:description" content="The browser posts straight to the storage API. Nothing passes through the website, and the copy is gone in 24 hours.">
+<meta property="og:url" content="https://aisense.no/share-a-file-with-a-link">
+<meta property="article:published_time" content="2026-09-04">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Share a File With a Link, No Account Needed",
+      "description": "A browser uploader that posts a file, pasted text or a pasted screenshot straight to the storage API and returns a shareable URL that expires after 24 hours.",
+      "url": "https://aisense.no/share-a-file-with-a-link",
+      "datePublished": "2026-09-04",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Share a file with a link", "item": "https://aisense.no/share-a-file-with-a-link" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Share a file with a link</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 4 September 2026</p>
+  <h1>Share a File With a Link, No Account Needed</h1>
+  <p class="article-deck">Drop a file, paste some text, or paste a screenshot from the clipboard. You get back a URL anyone can open. There is no account and no sign-up, and the copy is deleted after 24 hours.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">Handing a file to someone in the middle of a task is a small problem that most tools answer with a large one: make an account, install a client, accept the terms, then share. The AI SENSE uploader at <a href="/upload">aisense.no/upload</a> answers it with a text box and a drop zone, and it is built on the same rule we use for the rest of our public tools. Keep the service narrow, and keep data out of it when the job can be done without holding on to it.</p>
+
+<h2>The browser posts straight to the API</h2>
+
+<p>The page is a thin front end. When you drop a file, your browser sends it directly to the public storage endpoint at <code>aisenseapi.com/services/v1/storage</code> and reads back an identifier. The shareable link is that endpoint with the identifier on the end.</p>
+
+<p>Nothing passes through the website itself. The upload travels from your browser to the API, so the only copy that exists is the one the API stores. The page you are looking at never sees the bytes.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Three ways in</p>
+  <h2>A file, some text, or a screenshot.</h2>
+  <p>Drop one or more files onto the zone, or click to choose them. Paste text into the box and it is stored as a .txt file. Paste an image straight from the clipboard, the way you paste a screenshot into a chat, and it is stored and linked the same as any other upload.</p>
+</div>
+
+<h2>The link is unguessable, not secret</h2>
+
+<p>Each upload gets a random identifier that no one can arrive at by guessing. That makes the link safe to send to the person you mean to send it to. It does not make the file private: anyone who holds the URL can open it, so the URL is the whole of the access control. Do not put secrets, credentials or personal data behind it.</p>
+
+<p>This is a handoff, not a home. The copy is removed 24 hours after it was written, which is long enough to pass something to a colleague, a script or a support thread, and short enough that nothing lingers. It is not a place to host files you need next week.</p>
+
+<h2>The same thing from the command line</h2>
+
+<p>Because the page only wraps the API, everything it does is one request you can make yourself. Upload a file, then read it back with the identifier from the response.</p>
+
+<div class="api-window">
+  <div class="api-window-bar">Upload a file and open it again</div>
+  <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/storage \
+  -F "file=@report.pdf"
+
+# the response carries a storage_id; the shareable
+# link is the same endpoint with that id on the end
+
+curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pre></div>
+</div>
+
+<p>No key and no header are needed. There is a service-wide ceiling of 5000 requests per IP per 24 hours, which no ordinary use of the uploader will approach, and the endpoint answers in the same flat JSON shape as the rest of the free public APIs.</p>
+
+<h2>Built and operated by AI SENSE AS</h2>
+
+<p>The uploader is a browser front end for one endpoint in the <a href="/free-public-apis">free public REST API</a> collection. It follows the same contract as the rest: no account, a narrow job, the exact output shown, and sensitive data kept out of the service when the work does not need it to stay.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Try it</p>
+  <h2>Drop a file and get a link.</h2>
+  <p>No account, no sign-up, and the copy is gone in 24 hours.</p>
+  <div class="button-row"><a href="/upload">Open the uploader</a> <a href="/free-public-api-storage-api-endpoint">Storage endpoint reference</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
