@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation - no authentication required for any endpoint
 ---
 
@@ -195,7 +195,7 @@ The target URL goes inline in the path. This is a GET, not a POST.
 
 ### Webhook capture - 24h TTL
 
-`POST /webhook_capture` -> `{"ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ...}`
+`POST /webhook_capture` -> `{"status": "pending", "capture_id": "...", "update_url": "...", "read_url": "...", "wait_url": "...", "expire_timestamp": ...}`
 
 Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
 
@@ -214,6 +214,11 @@ Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
   }
 }
 ```
+
+Use `GET /webhook_capture/{capture_id}/wait/{seconds}` to wait from 0 to 25
+seconds for the first request. Add `notify_url` to the create body for one
+completion signal. The first inbound request wins, later retries cannot replace
+it, and request bodies are capped at 256 KB.
 
 ### Webhook action - human-in-the-loop, 24h TTL
 
@@ -242,6 +247,7 @@ for a human decision with no backend of your own.
   "action_id": "9e0e6d3b-...",
   "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../form",
   "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-...",
+  "wait_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../wait/25",
   "expire_timestamp": 1786959912,
   "expire_datetime": "2026-08-17T09:45:12Z"
 }
@@ -268,6 +274,13 @@ Send `form_url` to a human. Poll `GET /webhook_action/{action_id}`:
 types: `radio`, `select`, `text`, `textarea`, `checkbox`. `options` accepts
 plain strings or `{"value": ..., "label": ...}` objects.
 
+Set `respondents` from 2 to 20 for separate one-use bearer links. The create
+response returns `form_urls`. Reads then include `respondents`, `answered`,
+`tally` and `responses`, while status moves through `pending`, `partial` and
+`answered`. Add `notify_url` for one terminal signal. Use
+`GET /webhook_action/{action_id}/wait/{seconds}` to wait for a change for up to
+25 seconds.
+
 `GET /webhook_action/{action_id}/form` returns `text/html` - the only
 non-JSON-by-default endpoint besides the decoders.
 
@@ -290,6 +303,88 @@ Read with `GET /agent_wake/{task_id}`. Cancel with
 `DELETE /agent_wake/{task_id}`. The first webhook completes the task and later
 requests cannot replace the result. The task ID is a bearer link. Keep secrets
 and personal data out of the event body.
+
+Use `GET /agent_wake/{task_id}/wait/{seconds}` to wait from 0 to 25 seconds for
+a terminal state. The response adds `waitedSeconds` and `waitReason`.
+
+---
+
+### Heartbeat - fire one action when check-ins stop
+
+Create with `POST /heartbeat`:
+
+```json
+{
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "on_miss": {
+    "url": "https://example.com/agent-offline",
+    "payload": { "agent": "worker-7" }
+  }
+}
+```
+
+`on_miss` may instead contain `wake_task_id` for an existing, working Agent
+Wake webhook task. The response includes a 64-character `heartbeat_id`,
+`ping_url`, `status_url`, timing fields and `status: "armed"`.
+
+Check in with `POST /heartbeat/{heartbeat_id}/ping`. Read the state
+with `GET /heartbeat/{heartbeat_id}`. A check-in moves the next deadline and
+increments `ping_count`. It never extends the fixed 24-hour expiry.
+
+`expect_every_seconds` accepts 60 to 86400. `grace_seconds` starts at zero,
+and the two values together cannot exceed 86400. The status is `armed`,
+`missed`, `fired` or `expired`. A missed deadline fires once with no retry.
+For a webhook, `delivery.delivered` says whether the target answered with a
+2xx status.
+
+The same operations are available through MCP as `create_heartbeat`,
+`read_heartbeat` and `ping_heartbeat`.
+
+Webhook URLs may use HTTP or HTTPS on port 80 or 443 and must resolve to a
+public address. Private and reserved addresses, redirects, credentials and
+fragments are blocked. Treat the heartbeat ID as a bearer secret. The target
+is removed at terminal state, which stays readable for up to another 24
+hours.
+
+### Lease - one worker wins, later workers reuse the result
+
+Mint a bearer namespace with `POST /lease/namespace` and an empty JSON object.
+Then acquire a readable key:
+
+```json
+// POST /lease or /lease/acquire
+{
+  "namespace": "ns_...",
+  "key": "invoice:2026-09-05",
+  "ttl_seconds": 60,
+  "fingerprint": "charge-order-501"
+}
+```
+
+The first caller gets HTTP 201, `status: "held"`, a secret `owner_token` and
+a monotonic `fencing_token`. Another caller gets HTTP 409 while the lease is
+held. It can use `retry_after_seconds` or the `Retry-After` header. A
+fingerprint mismatch gives `status: "conflict"`.
+
+The winner may call:
+
+- `POST /lease/renew` with namespace, key, owner_token and ttl_seconds
+- `POST /lease/release` with namespace, key and owner_token
+- `POST /lease/complete` with namespace, key, owner_token and result
+
+An invalid or old owner gets HTTP 409 with `status: "lost"`. Completion keeps
+up to 32 KB of JSON. A later acquire with the same key and fingerprint returns
+the completed result with HTTP 200. Secret-shaped result fields are stored as
+`[redacted]`, but secret values under ordinary field names cannot be detected.
+
+`ttl_seconds` defaults to 60 and accepts 1 to 86400. Renewals stop at the
+fixed absolute expiry 24 hours after the first acquisition. Raw namespaces,
+keys, owner tokens and fingerprints are not stored. Without a namespace, the
+key itself must be a high-entropy ASCII value from 32 to 200 characters.
+
+MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
+`release_lease` and `complete_lease` for the same flow.
 
 ---
 
@@ -361,14 +456,20 @@ return numbers; their smallest units stay inside the safe range.
 | `/storage` | POST | `storage_id`, `expire_timestamp` |
 | `/storage/{id}` | GET | the stored body, verbatim |
 | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
-| `/webhook_capture` | POST | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
-| `/webhook_capture/{id}` | GET | `ok`, `capture_id`, `captured_at_*`, `request` |
-| `/webhook_action` | POST | `ok`, `action_id`, `form_url`, `result_url`, `expire_*` |
-| `/webhook_action/{id}` | GET | `ok`, `action_id`, `status`, `response`, timestamps |
-| `/webhook_schedule` | POST | `ok`, `schedule_id`, `status`, `fire_at_timestamp`, `result_url` |
-| `/webhook_schedule/{id}` | GET | `ok`, `schedule_id`, `status`, `attempts`, `http_status` |
+| `/webhook_capture` | POST | `capture_id`, update, read and wait URLs, expiry |
+| `/webhook_capture/{id}` | GET | pending or captured state, optional wait metadata |
+| `/webhook_action` | POST | `action_id`, form URL or URLs, result and wait URLs |
+| `/webhook_action/{id}` | GET | single or group answer state, optional wait metadata |
+| `/webhook_schedule` | POST | one-shot or recurring schedule and result URLs |
+| `/webhook_schedule/{id}` | GET / DELETE | read, wait or cancel schedule state |
 | `/agent_wake` | POST | `taskId`, `status`, `ttlMs`, event URLs in `_meta` |
 | `/agent_wake/{id}` | GET / DELETE | `status`, `result` or cancellation state |
+| `/heartbeat` | POST | `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
+| `/heartbeat/{id}` | GET | status, timing fields, counters and optional `delivery` |
+| `/heartbeat/{id}/ping` | POST | updated status, timing fields and counters |
+| `/lease/namespace` | POST | `namespace`, `entropy_bits` |
+| `/lease`, `/lease/acquire` | POST | status, owner and fencing tokens, expiry fields, optional completed result |
+| `/lease/renew`, `/lease/release`, `/lease/complete` | POST | status, fencing token, expiry fields, optional result |
 | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | `/webhook_action/{id}/form` | GET | `text/html` |
 | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
@@ -390,8 +491,12 @@ return numbers; their smallest units stay inside the safe range.
 
 ## Auto-expiry
 
-`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` - all
-deleted after 24 hours.
+`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
+`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease`
+
+Active state has a 24-hour ceiling. Heartbeat terminal state can remain
+readable for another 24 hours. A Lease renewal cannot move its fixed absolute
+expiry.
 
 ## CORS
 

@@ -159,6 +159,10 @@ export class AISenseAPI {
     return this.#request(path, 'POST', body)
   }
 
+  #delete(path) {
+    return this.#request(path, 'DELETE')
+  }
+
   // ── Time ──────────────────────────────────────────────────────────────────
 
   /**
@@ -406,16 +410,19 @@ export class AISenseAPI {
    * `read_url`, `expire_timestamp`. Point any HTTP client at `update_url`, then
    * read it back with {@link webhookCaptureRead}.
    */
-  webhookCaptureCreate() {
-    return this.#post('/webhook_capture', {})
+  webhookCaptureCreate(notifyUrl) {
+    const body = {}
+    if (notifyUrl !== undefined) body.notify_url = notifyUrl
+    return this.#post('/webhook_capture', body)
   }
 
   /**
    * Read a captured request. Response keys: `ok`, `capture_id`,
    * `captured_at_timestamp`, `captured_at_datetime`, `request`.
    */
-  webhookCaptureRead(captureId) {
-    return this.#get(`/webhook_capture/${captureId}`)
+  webhookCaptureRead(captureId, waitSeconds) {
+    const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
+    return this.#get(`/webhook_capture/${captureId}${suffix}`)
   }
 
   /**
@@ -429,9 +436,15 @@ export class AISenseAPI {
    *
    * Field types: radio, select, text, textarea, checkbox.
    */
-  webhookActionCreate(title, fields, description) {
+  webhookActionCreate(title, fields, description, options = {}) {
+    if (description && typeof description === 'object') {
+      options = description
+      description = undefined
+    }
     const body = { title, fields }
     if (description !== undefined) body.description = description
+    if (options.respondents !== undefined) body.respondents = options.respondents
+    if (options.notifyUrl !== undefined) body.notify_url = options.notifyUrl
     return this.#post('/webhook_action', body)
   }
 
@@ -441,8 +454,96 @@ export class AISenseAPI {
    * `created_at_datetime`, `expire_timestamp`, `expire_datetime`,
    * `answered_at_timestamp`, `answered_at_datetime`, `response`.
    */
-  webhookActionResult(actionId) {
-    return this.#get(`/webhook_action/${actionId}`)
+  webhookActionResult(actionId, waitSeconds) {
+    const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
+    return this.#get(`/webhook_action/${actionId}${suffix}`)
+  }
+
+  /** Create a one-shot or recurring webhook schedule. */
+  webhookScheduleCreate(url, options = {}) {
+    const body = { url }
+    for (const key of ['delay_seconds', 'fire_at', 'payload', 'every']) {
+      if (options[key] !== undefined) body[key] = options[key]
+    }
+    return this.#post('/webhook_schedule', body)
+  }
+
+  /** Read a schedule, or wait up to 25 seconds for a state change. */
+  webhookScheduleRead(scheduleId, waitSeconds) {
+    const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
+    return this.#get(`/webhook_schedule/${scheduleId}${suffix}`)
+  }
+
+  /** Cancel a schedule that has not reached a terminal state. */
+  webhookScheduleCancel(scheduleId) {
+    return this.#delete(`/webhook_schedule/${scheduleId}`)
+  }
+
+  /** Create a durable webhook, human or time Agent Wake task. */
+  agentWakeCreate(eventType, options = {}) {
+    return this.#post('/agent_wake', { event_type: eventType, ...options })
+  }
+
+  /** Read an Agent Wake task, or wait up to 25 seconds for completion. */
+  agentWakeRead(taskId, waitSeconds) {
+    const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
+    return this.#get(`/agent_wake/${taskId}${suffix}`)
+  }
+
+  /** Cancel a waiting Agent Wake task. */
+  agentWakeCancel(taskId) {
+    return this.#delete(`/agent_wake/${taskId}`)
+  }
+
+  /** Create a Heartbeat that fires once when check-ins stop. */
+  heartbeatCreate(expectEverySeconds, onMiss, graceSeconds = 0) {
+    return this.#post('/heartbeat', {
+      expect_every_seconds: expectEverySeconds,
+      grace_seconds: graceSeconds,
+      on_miss: onMiss,
+    })
+  }
+
+  /** Read Heartbeat state. */
+  heartbeatRead(heartbeatId) {
+    return this.#get(`/heartbeat/${heartbeatId}`)
+  }
+
+  /** Check in with a Heartbeat. */
+  heartbeatPing(heartbeatId) {
+    return this.#post(`/heartbeat/${heartbeatId}/ping`, {})
+  }
+
+  /** Mint a bearer namespace for readable lease keys. */
+  leaseCreateNamespace() {
+    return this.#post('/lease/namespace', {})
+  }
+
+  /** Acquire a lease. The returned owner token is required for owner actions. */
+  leaseAcquire(options) {
+    return this.#post('/lease/acquire', options)
+  }
+
+  leaseRenew(namespace, key, ownerToken, ttlSeconds) {
+    return this.#post('/lease/renew', {
+      namespace,
+      key,
+      owner_token: ownerToken,
+      ttl_seconds: ttlSeconds,
+    })
+  }
+
+  leaseRelease(namespace, key, ownerToken) {
+    return this.#post('/lease/release', { namespace, key, owner_token: ownerToken })
+  }
+
+  leaseComplete(namespace, key, ownerToken, result) {
+    return this.#post('/lease/complete', {
+      namespace,
+      key,
+      owner_token: ownerToken,
+      result,
+    })
   }
 
   // ── Crypto ────────────────────────────────────────────────────────────────

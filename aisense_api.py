@@ -143,6 +143,9 @@ class AISenseAPI:
     def _post(self, path: str, payload: Any) -> dict:
         return self._request(path, "POST", payload)
 
+    def _delete(self, path: str) -> dict:
+        return self._request(path, "DELETE")
+
     # ── Time ──────────────────────────────────────────────────────────────────
 
     def get_datetime(self, offset: Optional[str] = None) -> dict:
@@ -356,24 +359,35 @@ class AISenseAPI:
         """
         return self._get(f"/url_shortener/{url}")
 
-    def webhook_capture_create(self) -> dict:
+    def webhook_capture_create(self, notify_url: Optional[str] = None) -> dict:
         """Open a capture session.
 
         Response keys: ``ok``, ``capture_id``, ``update_url``, ``read_url``,
         ``expire_timestamp``. Point any HTTP client at ``update_url``, then read
         it back with :meth:`webhook_capture_read`.
         """
-        return self._post("/webhook_capture", {})
+        body = {}
+        if notify_url is not None:
+            body["notify_url"] = notify_url
+        return self._post("/webhook_capture", body)
 
-    def webhook_capture_read(self, capture_id: str) -> dict:
+    def webhook_capture_read(self, capture_id: str, wait_seconds: Optional[int] = None) -> dict:
         """Read a captured request.
 
         Response keys: ``ok``, ``capture_id``, ``captured_at_timestamp``,
         ``captured_at_datetime``, ``request``.
         """
-        return self._get(f"/webhook_capture/{capture_id}")
+        suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
+        return self._get(f"/webhook_capture/{capture_id}{suffix}")
 
-    def webhook_action_create(self, title: str, fields: list, description: Optional[str] = None) -> dict:
+    def webhook_action_create(
+        self,
+        title: str,
+        fields: list,
+        description: Optional[str] = None,
+        respondents: Optional[int] = None,
+        notify_url: Optional[str] = None,
+    ) -> dict:
         """Create a human-in-the-loop action form.
 
         Response keys: ``ok``, ``action_id``, ``form_url``, ``result_url``,
@@ -392,9 +406,13 @@ class AISenseAPI:
         body: dict = {"title": title, "fields": fields}
         if description is not None:
             body["description"] = description
+        if respondents is not None:
+            body["respondents"] = respondents
+        if notify_url is not None:
+            body["notify_url"] = notify_url
         return self._post("/webhook_action", body)
 
-    def webhook_action_result(self, action_id: str) -> dict:
+    def webhook_action_result(self, action_id: str, wait_seconds: Optional[int] = None) -> dict:
         """Poll for the answer to an action.
 
         Response keys: ``ok``, ``action_id``, ``status`` (``"pending"`` or
@@ -402,7 +420,117 @@ class AISenseAPI:
         ``expire_timestamp``, ``expire_datetime``, ``answered_at_timestamp``,
         ``answered_at_datetime``, ``response``.
         """
-        return self._get(f"/webhook_action/{action_id}")
+        suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
+        return self._get(f"/webhook_action/{action_id}{suffix}")
+
+    def webhook_schedule_create(
+        self,
+        url: str,
+        *,
+        delay_seconds: Optional[int] = None,
+        fire_at: Optional[int] = None,
+        payload: Any = None,
+        every: Optional[int] = None,
+    ) -> dict:
+        """Create a one-shot or recurring webhook schedule."""
+        body: dict = {"url": url}
+        if delay_seconds is not None:
+            body["delay_seconds"] = delay_seconds
+        if fire_at is not None:
+            body["fire_at"] = fire_at
+        if payload is not None:
+            body["payload"] = payload
+        if every is not None:
+            body["every"] = every
+        return self._post("/webhook_schedule", body)
+
+    def webhook_schedule_read(self, schedule_id: str, wait_seconds: Optional[int] = None) -> dict:
+        """Read a schedule, or wait up to 25 seconds for a state change."""
+        suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
+        return self._get(f"/webhook_schedule/{schedule_id}{suffix}")
+
+    def webhook_schedule_cancel(self, schedule_id: str) -> dict:
+        """Cancel a schedule that has not reached a terminal state."""
+        return self._delete(f"/webhook_schedule/{schedule_id}")
+
+    def agent_wake_create(self, event_type: str, **options: Any) -> dict:
+        """Create a durable webhook, human or time Agent Wake task."""
+        return self._post("/agent_wake", {"event_type": event_type, **options})
+
+    def agent_wake_read(self, task_id: str, wait_seconds: Optional[int] = None) -> dict:
+        """Read an Agent Wake task, or wait up to 25 seconds for completion."""
+        suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
+        return self._get(f"/agent_wake/{task_id}{suffix}")
+
+    def agent_wake_cancel(self, task_id: str) -> dict:
+        """Cancel a waiting Agent Wake task."""
+        return self._delete(f"/agent_wake/{task_id}")
+
+    def heartbeat_create(
+        self,
+        expect_every_seconds: int,
+        on_miss: dict,
+        grace_seconds: int = 0,
+    ) -> dict:
+        """Create a Heartbeat that fires once when check-ins stop."""
+        return self._post(
+            "/heartbeat",
+            {
+                "expect_every_seconds": expect_every_seconds,
+                "grace_seconds": grace_seconds,
+                "on_miss": on_miss,
+            },
+        )
+
+    def heartbeat_read(self, heartbeat_id: str) -> dict:
+        """Read Heartbeat state."""
+        return self._get(f"/heartbeat/{heartbeat_id}")
+
+    def heartbeat_ping(self, heartbeat_id: str) -> dict:
+        """Check in with a Heartbeat."""
+        return self._post(f"/heartbeat/{heartbeat_id}/ping", {})
+
+    def lease_create_namespace(self) -> dict:
+        """Mint a bearer namespace for readable lease keys."""
+        return self._post("/lease/namespace", {})
+
+    def lease_acquire(self, **options: Any) -> dict:
+        """Acquire a lease. The returned owner token is needed for owner actions."""
+        return self._post("/lease/acquire", options)
+
+    def lease_renew(
+        self,
+        namespace: str,
+        key: str,
+        owner_token: str,
+        ttl_seconds: int,
+    ) -> dict:
+        return self._post(
+            "/lease/renew",
+            {
+                "namespace": namespace,
+                "key": key,
+                "owner_token": owner_token,
+                "ttl_seconds": ttl_seconds,
+            },
+        )
+
+    def lease_release(self, namespace: str, key: str, owner_token: str) -> dict:
+        return self._post(
+            "/lease/release",
+            {"namespace": namespace, "key": key, "owner_token": owner_token},
+        )
+
+    def lease_complete(self, namespace: str, key: str, owner_token: str, result: Any) -> dict:
+        return self._post(
+            "/lease/complete",
+            {
+                "namespace": namespace,
+                "key": key,
+                "owner_token": owner_token,
+                "result": result,
+            },
+        )
 
     # ── Crypto ────────────────────────────────────────────────────────────────
 

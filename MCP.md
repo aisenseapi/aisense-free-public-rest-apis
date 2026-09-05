@@ -1,7 +1,7 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to ten workflow tools and one read-only product resource
-at the AI SENSE remote MCP endpoint.
+Connect an AI agent to eighteen workflow tools and two read-only resources at
+the AI SENSE remote MCP endpoint.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
@@ -40,6 +40,14 @@ proxy these tools.
 | `create_human_approval` | Creates a hosted approval form for a person |
 | `read_human_approval` | Checks the form status and reads the answer |
 | `create_agent_wake` | Creates a durable MCP task for a webhook, human response or time event |
+| `create_heartbeat` | Creates a 24-hour deadline monitor with one on-miss action |
+| `read_heartbeat` | Reads a Heartbeat monitor by its bearer ID |
+| `ping_heartbeat` | Records a check-in without extending the fixed lifetime |
+| `create_lease_namespace` | Creates a private namespace for short Lease keys |
+| `acquire_lease` | Claims work and returns an owner token and fencing token |
+| `renew_lease` | Extends a held Lease within its fixed lifetime |
+| `release_lease` | Releases a held Lease for another worker |
+| `complete_lease` | Stores a small reusable result for the same work identity |
 
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
@@ -49,9 +57,10 @@ job in an agent workflow.
 | URI | What it contains |
 |-----|------------------|
 | `https://aisense.no/verifyum` | Public product information for Verifyum, including the local file-processing boundary and current anchoring status |
+| `skill://com.aisenseapi/free-public-tools` | A compact agent guide to the public tools, safety limits and workflow patterns |
 
-Call `resources/list` to discover the resource. Call `resources/read` with the
-URI above to read it as Markdown. The resource is informational and does not
+Call `resources/list` to discover both resources. Call `resources/read` with a
+URI above to read it as Markdown. The resources are informational and do not
 accept a file.
 
 Verifyum processes the original file locally in the browser or another local
@@ -137,17 +146,56 @@ Call `create_human_approval` with:
 ```
 
 The result contains a `form_url` for the reviewer and a `result_url` for other
-systems. The MCP client can call `read_human_approval` with the returned
-`action_id`. Its status changes from `pending` to `answered` after submission.
+systems. Set `respondents` from 2 to 20 to create a separate bearer link for
+each person. Group status moves from `pending` to `partial`, then `answered`.
+The result includes the answer count, individual responses and a decision
+tally. The server stores only hashes of group form tokens.
+
+Add `notify_url` when another public HTTP service should receive a small signal
+after the final answer. The signal contains the action ID, status, result URL
+and group counts. It does not contain the answers. The target is checked for
+private and reserved addresses before it is queued and again before delivery.
+
+`read_human_approval` accepts `wait_seconds` from 0 to 25. It returns when the
+state changes, the action finishes or the wait ends.
 
 ## Webhook capture example
 
 Call `create_webhook_capture`. Send the returned `update_url` to the service
 that emits the webhook. Then call `read_webhook_capture` with the returned
-`capture_id`.
+`capture_id`. The read tool accepts `wait_seconds` from 0 to 25.
+
+`create_webhook_capture` accepts an optional `notify_url`. After the first
+request is captured, that public URL receives a small signal with the capture
+ID and result URL. The captured method, headers and body are not copied into
+the signal. Delivery has one transport retry.
 
 The result includes the HTTP method, request URI, headers, client IP and body.
 JSON is returned as JSON. Text stays as text. Other bytes are Base64 encoded.
+The first request wins. A sender retry returns the stored first request and
+cannot replace it or create a second notification.
+
+## Heartbeat and Lease
+
+Heartbeat is a short-lived dead-man switch. `create_heartbeat` sets the
+expected check-in interval, a grace period and one on-miss action. The action
+can call a public webhook or wake an active Agent Wake webhook task. Each
+`ping_heartbeat` moves the next deadline. It never extends the absolute
+24-hour lifetime. A missed action is attempted once.
+
+The Heartbeat ID is a 256-bit bearer secret used for both status and ping. The
+public result names the action type but does not return its target or payload.
+There is no Heartbeat listing tool.
+
+Lease prevents several agents from performing the same unit of work. The
+first `acquire_lease` call receives an owner token and a monotonic fencing
+token. Other callers receive `held` while the lease is active. A fingerprint
+can bind the key to one exact kind of work.
+
+Use `complete_lease` to store a reusable JSON result up to 32 KB. A later
+acquire for the same namespace, key and fingerprint returns that result.
+Renewal stays inside the original 24-hour lifetime. Raw keys, namespaces,
+owner tokens and fingerprints are not stored. There is no Lease listing tool.
 
 ## Agent Wake and MCP Tasks
 
@@ -314,8 +362,9 @@ pricing promise.
 
 ## Data and security
 
-- Temporary data, capture records, short links, approval forms and Agent Wake tasks expire after 24 hours.
+- Temporary data, capture records, short links, approval forms, Agent Wake tasks, Heartbeats and Leases have fixed short lifetimes.
 - The IDs and URLs are unguessable capability links. Share them with the intended recipient.
+- Group approval links, Heartbeat IDs, Lease namespaces and owner tokens are bearer secrets.
 - Do not store passwords, private keys, health data or long-lived confidential data.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.

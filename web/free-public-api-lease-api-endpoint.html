@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Lease API Endpoint - Agent Lock and Idempotency | AI SENSE</title>
+<meta name="description" content="Coordinate agents and workers with a free lease API. Get one winner, monotonic fencing tokens and reusable completed results with a fixed 24-hour lifetime.">
+<link rel="canonical" href="https://aisense.no/free-public-api-lease-api-endpoint">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Lease API Endpoint"><meta property="og:description" content="Give one agent temporary ownership of a key and let later workers reuse its completed result."><meta property="og:url" content="https://aisense.no/free-public-api-lease-api-endpoint"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Lease API Endpoint","description":"Coordinate anonymous workers with owner tokens, fencing tokens and reusable completed results.","url":"https://aisense.no/free-public-api-lease-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Lease API Endpoint","item":"https://aisense.no/free-public-api-lease-api-endpoint"}]},{"@type":"WebPage","name":"Free Lease API Endpoint","url":"https://aisense.no/free-public-api-lease-api-endpoint","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Lease API Endpoint</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Agents - Coordination</p><h1 id="page-title">Free Lease API Endpoint</h1><p class="lede">Let one agent or worker own a shared key for a short time. Later callers can wait, take over with a higher fence or reuse the completed result.</p><ul class="badges"><li>No API key</li><li>1s to 24h</li><li>Fencing tokens</li><li>Reusable results</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Acquire and finish</p><p class="sig"><span class="method post">POST</span><span class="path">/lease</span></p><p class="sig"><span class="method post">POST</span><span class="path">/lease/renew</span></p><p class="sig"><span class="method post">POST</span><span class="path">/lease/complete</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="namespace"><h2>Mint a private namespace</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/lease/namespace \
+  -H "Content-Type: application/json" \
+  -d '{}'</code></pre><pre><code>{
+  "ok": true,
+  "namespace": "ns_XbO8a6V9e5dMWYqghfPV3ykHTNpR3oZ0fQJm4l7K2nE",
+  "entropy_bits": 256
+}</code></pre><p>The namespace is a bearer secret with 256 random bits. Keep it in your own job state. AI SENSE cannot list or recover it for you.</p><p>A namespace lets you use readable keys such as <code>invoice:2026-09-05</code>. Without one, the key itself must be a high-entropy ASCII value from 32 to 200 characters.</p></section>
+<section id="acquire"><h2>Acquire a lease</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/lease \
+  -H "Content-Type: application/json" \
+  -d '{
+    "namespace": "ns_XbO8a6V9e5dMWYqghfPV3ykHTNpR3oZ0fQJm4l7K2nE",
+    "key": "invoice:2026-09-05",
+    "ttl_seconds": 60,
+    "fingerprint": "charge-order-501"
+  }'</code></pre><pre><code>{
+  "ok": true,
+  "status": "held",
+  "owner_token": "own_lCzWFx9BTqNkKlQJYu8jXdDX7n8h4xTJsU5BzPq3yLk",
+  "ttl_seconds": 60,
+  "fencing_token": 184,
+  "lease_expires_at_timestamp": 1788602460,
+  "lease_expires_at": "2026-09-05T10:01:00Z",
+  "absolute_expires_at_timestamp": 1788688800,
+  "absolute_expires_at": "2026-09-06T10:00:00Z"
+}</code></pre><p><code>POST /lease/acquire</code> is an explicit alias for <code>POST /lease</code>. The first acquisition returns HTTP 201. <code>ttl_seconds</code> defaults to 60 and accepts integers from 1 to 86400.</p></section>
+<section id="contention"><h2>Handle another worker</h2><p>A second acquisition while the lease is active returns HTTP 409. It does not expose the owner token.</p><pre><code>{
+  "ok": false,
+  "status": "held",
+  "error": "Lease is held",
+  "retry_after_seconds": 43,
+  "fencing_token": 184,
+  "lease_expires_at": "2026-09-05T10:01:00Z",
+  "absolute_expires_at": "2026-09-06T10:00:00Z"
+}</code></pre><p>The response also sets the HTTP <code>Retry-After</code> header. Wait that long or do other work. When the lease expires or is released, another caller can acquire it and receives a higher fencing token.</p></section>
+<section id="fencing"><h2>Use the fencing token</h2><p>A lease alone cannot stop a paused worker from waking after its ownership ended. Send <code>fencing_token</code> with writes to the protected system. That system should remember the highest value and reject any older one.</p><ol class="workflow-steps"><li><strong>Worker A gets fence 184</strong><p>It starts work and then pauses.</p></li><li><strong>The lease expires</strong><p>Worker B acquires the same key and gets fence 185.</p></li><li><strong>Worker A wakes up</strong><p>The protected system rejects its write because 184 is older than 185.</p></li></ol></section>
+<section id="actions"><h2>Renew, release or complete</h2><p>Each mutation needs the original namespace, key and secret owner token.</p><pre><code>POST /lease/renew
+{ "namespace": "ns_...", "key": "invoice:2026-09-05",
+  "owner_token": "own_...", "ttl_seconds": 120 }
+
+POST /lease/release
+{ "namespace": "ns_...", "key": "invoice:2026-09-05",
+  "owner_token": "own_..." }
+
+POST /lease/complete
+{ "namespace": "ns_...", "key": "invoice:2026-09-05",
+  "owner_token": "own_...", "result": { "receipt_id": 4817 } }</code></pre><div class="table-wrap field-table"><table><thead><tr><th>Action</th><th>Result</th></tr></thead><tbody><tr><td><code>renew</code></td><td>Moves the short lease expiry and keeps the same fencing token.</td></tr><tr><td><code>release</code></td><td>Ends ownership and makes the key available at once.</td></tr><tr><td><code>complete</code></td><td>Stores a reusable JSON result and removes the owner secret.</td></tr></tbody></table></div><p>An old, invalid or expired owner receives HTTP 409 with <code>status: "lost"</code>. It cannot renew, release or complete a newer lease.</p><p>MCP clients use <code>create_lease_namespace</code>, <code>acquire_lease</code>, <code>renew_lease</code>, <code>release_lease</code> and <code>complete_lease</code> for the same flow.</p></section>
+<section id="idempotency"><h2>Reuse completed work</h2><p>Acquire the same namespace, key and fingerprint after completion. The service returns HTTP 200 with <code>status: "completed"</code> and the saved result. It does not issue another owner token.</p><pre><code>{
+  "ok": true,
+  "status": "completed",
+  "completed_at": "2026-09-05T10:00:38Z",
+  "result": { "receipt_id": 4817 },
+  "fencing_token": 184,
+  "absolute_expires_at": "2026-09-06T10:00:00Z"
+}</code></pre><p>Use <code>fingerprint</code> to bind a key to its input. Reusing the key with another fingerprint returns HTTP 409 and <code>status: "conflict"</code>. This catches accidental idempotency-key reuse before the old 24-hour lifecycle ends.</p></section>
+<section id="lifetime"><h2>The 24-hour boundary</h2><p>The first acquisition starts a fixed 24-hour lifecycle. Short leases may be renewed many times, but no renewal can move <code>absolute_expires_at</code>. Near that boundary the returned <code>ttl_seconds</code> is reduced to the time left.</p><p>An acquisition after the absolute expiry starts a fresh lifecycle and receives a new, higher fencing token. Old state is removed by an hourly cleanup.</p></section>
+<section id="data"><h2>Data and secrets</h2><div class="api-note warning-note"><p>Treat the namespace, key, fingerprint and owner token as secrets. Anyone who knows the values used to identify the work can test the lease or read a completed result.</p></div><p>Raw namespaces, keys, owner tokens and fingerprints are not written to disk. The service stores SHA-256 hashes, timing state, the fencing token and an optional completed result.</p><p>A completed result may be at most 32 KB as JSON. Fields named like <code>authorization</code>, <code>password</code>, <code>secret</code>, <code>token</code>, <code>private_key</code> or <code>api_key</code> are replaced with <code>[redacted]</code> before storage. A secret inside an ordinary field value cannot be identified safely. Keep secrets and personal data out of results.</p></section>
+<section id="use-cases"><h2>Useful flows</h2><div class="use-case-grid"><article><h3>Duplicate agent runs</h3><p>Let one worker perform the job while the others wait or reuse its result.</p></article><article><h3>Webhook idempotency</h3><p>Bind an incoming event ID to a fingerprint and return the first completed result.</p></article><article><h3>Scheduled jobs</h3><p>Prevent two temporary workers from processing the same item at once.</p></article><article><h3>External writes</h3><p>Use fencing tokens to stop a stale owner from overwriting newer work.</p></article></div></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/free-public-api-heartbeat-api-endpoint">Heartbeat API<span>Alert when the current worker stops</span></a><a href="/free-public-api-agent-wake-api-endpoint">Agent Wake API<span>Resume a waiting agent after an event</span></a><a href="/free-public-api-storage-api-endpoint">Storage API<span>Share temporary content by bearer ID</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API<span>Inspect an incoming request</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#namespace">Namespace</a></li><li><a href="#acquire">Acquire</a></li><li><a href="#contention">Contention</a></li><li><a href="#fencing">Fencing</a></li><li><a href="#actions">Owner actions</a></li><li><a href="#idempotency">Result reuse</a></li><li><a href="#lifetime">Lifetime</a></li><li><a href="#data">Data</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>

@@ -95,7 +95,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 1 September 2026.</small></p>
+  <p><small>Last updated 5 September 2026.</small></p>
 </div>
 
 <h2 id="controller">Who is responsible</h2>
@@ -115,8 +115,8 @@
 <h3>Rate limiting</h3>
 <p>We count requests per IP address to enforce the published limit of 5000 per 24 hours. The counter is stored against the address.</p>
 
-<h3>What you send to the storage endpoints</h3>
-<p>Five endpoint groups exist to hold data briefly, and they hold the event or content you give them:</p>
+<h3>What temporary endpoints store</h3>
+<p>Eight endpoint groups hold temporary state or content:</p>
 <div class="table-wrap">
 <table>
 <thead><tr><th scope="col">Endpoint</th><th scope="col">What is stored</th></tr></thead>
@@ -125,11 +125,15 @@
 <tr><td><code>/url_shortener</code></td><td>The address you asked us to shorten</td></tr>
 <tr><td><code>/webhook_capture</code></td><td>The complete inbound request, <strong>including all headers</strong> and the sender's IP</td></tr>
 <tr><td><code>/webhook_action</code></td><td>The form you defined and the answer someone submitted to it</td></tr>
+<tr><td><code>/webhook_schedule</code></td><td>The target URL, delivery time, JSON payload and delivery result</td></tr>
 <tr><td><code>/agent_wake</code></td><td>Task state and the webhook, human answer or time result. Standard credential headers on webhooks are redacted</td></tr>
+<tr><td><code>/heartbeat</code></td><td>Check-in timing, the webhook URL and optional payload, or an Agent Wake task ID. The target is removed when the monitor becomes terminal</td></tr>
+<tr><td><code>/lease</code></td><td>Hashed lease identity and owner data, timing, fencing token and an optional completed result. Raw namespaces, keys, owner tokens and fingerprints are not stored</td></tr>
 </tbody>
 </table>
 </div>
 <p><strong>Webhook Capture deserves particular attention.</strong> It records every header a caller sends, and services that post to webhooks routinely include authorisation tokens and signatures in those headers. If you point a third-party service at a capture URL, its credentials will sit in our storage for 24 hours. That is the endpoint working as intended, but you should know it before you use it.</p>
+<p>Lease replaces values under secret-shaped field names such as <code>authorization</code>, <code>password</code>, <code>token</code> and <code>api_key</code> with <code>[redacted]</code> before storage. It cannot detect a secret placed under an ordinary field name. Keep credentials and personal data out of Lease results and Heartbeat payloads.</p>
 
 <h2 id="not">What we do not do</h2>
 <p>No cookies from the API. No analytics, no advertising, no fingerprinting, no profiling, no automated decision-making. We do not sell or rent anything to anyone. We do not attempt to identify who you are, and without accounts we generally cannot.</p>
@@ -140,17 +144,20 @@
 <table>
 <thead><tr><th scope="col">Data</th><th scope="col">Kept for</th></tr></thead>
 <tbody>
-<tr><td>Storage, URL shortener, webhook capture, webhook action, Agent Wake</td><td>24 hours, then it expires</td></tr>
+<tr><td>Storage, URL shortener, webhook capture, webhook action, Agent Wake</td><td>Up to 24 hours</td></tr>
+<tr><td>Webhook Schedule</td><td>Scheduled for up to 24 hours. The final result can remain readable for another 24 hours</td></tr>
+<tr><td>Heartbeat</td><td>Armed for no more than 24 hours. Terminal timing and delivery state can remain readable for another 24 hours</td></tr>
+<tr><td>Lease</td><td>Until the fixed absolute expiry 24 hours after the first acquisition. Renewals do not extend it</td></tr>
 <tr><td>Rate limit counters</td><td>Rolling 24 hours</td></tr>
 <tr><td>Server access logs</td><td>14 days</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>
 </tbody>
 </table>
 </div>
-<p>The 24-hour expiry means the data becomes unreachable - no request will return it. Purging of the underlying storage happens on the same schedule as the log rotation above.</p>
+<p>Once the stated readable period ends, the data becomes unreachable through the API. Cleanup runs on a schedule, so removal of the underlying file can happen after the stated API expiry.</p>
 
 <h2 id="where">Where data goes</h2>
-<p>Four endpoints have to ask someone else a question in order to answer yours. Only the value you supplied is passed on:</p>
+<p>Some endpoints contact another service or a destination you selected. Only the value needed for that call is sent:</p>
 <div class="table-wrap">
 <table>
 <thead><tr><th scope="col">If you call</th><th scope="col">We ask</th><th scope="col">And send</th></tr></thead>
@@ -159,10 +166,12 @@
 <tr><td><code>/solana/balance/{address}</code></td><td>api.mainnet-beta.solana.com</td><td>The wallet address</td></tr>
 <tr><td><code>/ethereum/balance/{address}</code></td><td>ethereum-rpc.publicnode.com</td><td>The wallet address</td></tr>
 <tr><td><code>/url_shortener/{url}</code></td><td>307.fi</td><td>The address being shortened</td></tr>
+<tr><td><code>/webhook_schedule</code></td><td>The public webhook URL you supplied</td><td>Your JSON payload and the schedule ID</td></tr>
+<tr><td><code>/heartbeat</code> with a webhook action</td><td>The public webhook URL you supplied</td><td>The heartbeat miss event and your optional JSON payload</td></tr>
 </tbody>
 </table>
 </div>
-<p>These are the only third parties involved. Nothing else leaves our servers.</p>
+<p>No other free REST endpoint sends your supplied content to a fixed third party. An Agent Wake heartbeat action stays inside AI SENSE.</p>
 
 <h2 id="cors">Calls from other websites</h2>
 <p>Our API responses permit cross-origin requests from any website, which is what makes the endpoints usable directly from browser JavaScript. A consequence worth stating plainly: if a site you visit calls our API from your browser, your IP address reaches us and is logged, even though you never visited us. We have no way to know which site that was, and we do not receive a referrer for it.</p>
@@ -176,7 +185,7 @@
 <p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
 
 <h2 id="security">Security</h2>
-<p>All traffic is served over HTTPS. The service holds no credentials belonging to you, because it issues none. Data stored through the temporary endpoints is addressed by a random UUID that only you receive - treat that identifier as a secret, since anyone holding it can retrieve what you stored.</p>
+<p>All traffic is served over HTTPS. The service holds no account credentials because it issues none. Temporary data is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Treat these values as secrets. Anyone holding the right value can read the associated public state or result.</p>
 
 <h2 id="changes">Changes</h2>
 <p>When the service changes, this page changes with it. The date at the top is the last time it was checked against what the code actually does.</p>

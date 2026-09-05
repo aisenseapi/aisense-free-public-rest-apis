@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.aisenseapi/free-public-tools",
   "title": "AI SENSE Free Public Tools",
-  "description": "Ten public workflow tools with durable Agent Wake tasks and a read-only Verifyum product resource.",
+  "description": "Eighteen public workflow tools for Agent Wake tasks, heartbeats, leases, approvals, webhooks and temporary data, plus two read-only resources.",
   "repository": {
     "url": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
     "source": "github"
   },
-  "version": "1.4.0",
+  "version": "1.6.0",
   "remotes": [
     {
       "type": "streamable-http",
