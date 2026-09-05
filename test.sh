@@ -340,6 +340,91 @@ else
 fi
 echo ""
 
+# Heartbeat uses a waiting Agent Wake task as its miss action. This keeps the
+# smoke test inside the AI SENSE service and avoids sending a delayed request
+# to someone else's webhook.
+echo -e "${YELLOW}Heartbeat REST flow${NC}"
+request POST "$BASE/agent_wake" '{"event_type":"webhook","timeout_seconds":900}'
+HEARTBEAT_WAKE_ID=$(echo "$BODY" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
+if [ "$STATUS" = "201" ] && [ -n "$HEARTBEAT_WAKE_ID" ]; then
+  HEARTBEAT_CREATED=0
+  request POST "$BASE/heartbeat" "{\"expect_every_seconds\":60,\"grace_seconds\":0,\"on_miss\":{\"wake_task_id\":\"$HEARTBEAT_WAKE_ID\"}}"
+  HEARTBEAT_ID=$(echo "$BODY" | grep -oE '"heartbeat_id":"[0-9a-f]{64}"' | cut -d'"' -f4)
+  if [ "$STATUS" = "201" ] && [ -n "$HEARTBEAT_ID" ] && [[ "$BODY" == *'"status":"armed"'* ]]; then
+    HEARTBEAT_CREATED=1
+    ok "Heartbeat (create)"
+    has_value "Heartbeat (ping)" POST "$BASE/heartbeat/$HEARTBEAT_ID/ping" '"ping_count":1' '{}'
+    has_value "Heartbeat (read)" GET "$BASE/heartbeat/$HEARTBEAT_ID" '"status":"armed"'
+    has_value "Heartbeat (fixed lifetime exposed)" GET "$BASE/heartbeat/$HEARTBEAT_ID" '"expires_at_timestamp"'
+  else
+    bad "Heartbeat (create)" "expected HTTP 201, armed state and 64-char ID, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  if [ "$HEARTBEAT_CREATED" = "0" ]; then
+    curl -s -m 15 -o /dev/null -X DELETE "$BASE/agent_wake/$HEARTBEAT_WAKE_ID"
+  fi
+else
+  bad "Heartbeat setup task" "expected HTTP 201 and an Agent Wake task ID, got $STATUS: $(echo "$BODY" | head -c 140)"
+fi
+request POST "$BASE/heartbeat" '{"expect_every_seconds":300,"grace_seconds":60,"on_miss":{"url":"http://127.0.0.1/hook"}}'
+[ "$STATUS" = "400" ] && ok "Heartbeat refuses loopback target" || bad "Heartbeat loopback guard" "expected 400, got $STATUS"
+echo ""
+
+# Lease covers namespace creation, contention, renewal, completion, result
+# reuse and explicit release without waiting for a TTL.
+echo -e "${YELLOW}Lease REST flow${NC}"
+request POST "$BASE/lease/namespace" '{}'
+LEASE_NAMESPACE=$(echo "$BODY" | grep -oE '"namespace":"ns_[A-Za-z0-9_-]{43}"' | cut -d'"' -f4)
+if [ "$STATUS" = "201" ] && [ -n "$LEASE_NAMESPACE" ]; then
+  ok "Lease (namespace)"
+  LEASE_KEY="smoke-$(date +%s)-$$"
+  LEASE_FINGERPRINT="work-$LEASE_KEY"
+  LEASE_CLAIM="{\"namespace\":\"$LEASE_NAMESPACE\",\"key\":\"$LEASE_KEY\",\"ttl_seconds\":120,\"fingerprint\":\"$LEASE_FINGERPRINT\"}"
+  request POST "$BASE/lease" "$LEASE_CLAIM"
+  LEASE_OWNER=$(echo "$BODY" | grep -oE '"owner_token":"own_[A-Za-z0-9_-]{43}"' | cut -d'"' -f4)
+  if [ "$STATUS" = "201" ] && [ -n "$LEASE_OWNER" ] && [[ "$BODY" == *'"fencing_token":'* ]]; then
+    ok "Lease (acquire)"
+
+    request POST "$BASE/lease/acquire" "$LEASE_CLAIM"
+    [ "$STATUS" = "409" ] && [[ "$BODY" == *'"status":"held"'* ]] \
+      && ok "Lease (contention)" \
+      || bad "Lease (contention)" "expected HTTP 409 and held state, got $STATUS: $(echo "$BODY" | head -c 140)"
+
+    request POST "$BASE/lease/renew" "{\"namespace\":\"$LEASE_NAMESPACE\",\"key\":\"$LEASE_KEY\",\"owner_token\":\"$LEASE_OWNER\",\"ttl_seconds\":180}"
+    [ "$STATUS" = "200" ] && [[ "$BODY" == *'"ttl_seconds":180'* ]] \
+      && ok "Lease (renew)" \
+      || bad "Lease (renew)" "expected HTTP 200 and ttl_seconds 180, got $STATUS: $(echo "$BODY" | head -c 140)"
+
+    LEASE_RESULT="lease-result-$LEASE_KEY"
+    request POST "$BASE/lease/complete" "{\"namespace\":\"$LEASE_NAMESPACE\",\"key\":\"$LEASE_KEY\",\"owner_token\":\"$LEASE_OWNER\",\"result\":{\"marker\":\"$LEASE_RESULT\",\"authorization\":\"must-not-survive\"}}"
+    [ "$STATUS" = "200" ] && [[ "$BODY" == *'"status":"completed"'* ]] && [[ "$BODY" == *'"authorization":"[redacted]"'* ]] \
+      && ok "Lease (complete and redact)" \
+      || bad "Lease (complete)" "expected completed state with redaction, got $STATUS: $(echo "$BODY" | head -c 140)"
+
+    request POST "$BASE/lease/acquire" "$LEASE_CLAIM"
+    [ "$STATUS" = "200" ] && [[ "$BODY" == *"$LEASE_RESULT"* ]] \
+      && ok "Lease (reuse completed result)" \
+      || bad "Lease (reuse)" "expected HTTP 200 and saved result, got $STATUS: $(echo "$BODY" | head -c 140)"
+  else
+    bad "Lease (acquire)" "expected HTTP 201, owner token and fence, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  LEASE_RELEASE_KEY="release-$LEASE_KEY"
+  request POST "$BASE/lease/acquire" "{\"namespace\":\"$LEASE_NAMESPACE\",\"key\":\"$LEASE_RELEASE_KEY\",\"ttl_seconds\":120}"
+  LEASE_RELEASE_OWNER=$(echo "$BODY" | grep -oE '"owner_token":"own_[A-Za-z0-9_-]{43}"' | cut -d'"' -f4)
+  if [ "$STATUS" = "201" ] && [ -n "$LEASE_RELEASE_OWNER" ]; then
+    request POST "$BASE/lease/release" "{\"namespace\":\"$LEASE_NAMESPACE\",\"key\":\"$LEASE_RELEASE_KEY\",\"owner_token\":\"$LEASE_RELEASE_OWNER\"}"
+    [ "$STATUS" = "200" ] && [[ "$BODY" == *'"status":"released"'* ]] \
+      && ok "Lease (release)" \
+      || bad "Lease (release)" "expected HTTP 200 and released state, got $STATUS: $(echo "$BODY" | head -c 140)"
+  else
+    bad "Lease (release setup)" "expected a second acquired lease, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+else
+  bad "Lease (namespace)" "expected HTTP 201 and a namespace, got $STATUS: $(echo "$BODY" | head -c 140)"
+fi
+echo ""
+
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
 has_key   "Solana Wallet"   GET "$BASE/solana/generate_new_wallet"   "public_address"
@@ -464,15 +549,23 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Ten tools, exactly. MCP.md and web/free-public-mcp-server.html both say
-# ten, so a new tool must land in all three places in the same commit.
+# Eighteen tools, exactly. The MCP guide and public web page must agree with
+# this number whenever the public tool surface changes.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 10 ]; then
-  ok "MCP tools/list (exactly 10 tools)"
+if [ "$MCP_TOOLS" -eq 18 ]; then
+  ok "MCP tools/list (exactly 18 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 10 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 18 - update MCP.md and the web page together with this number"
 fi
+mcp_expect "MCP lists create_heartbeat" '"name":"create_heartbeat"'
+mcp_expect "MCP lists read_heartbeat" '"name":"read_heartbeat"'
+mcp_expect "MCP lists ping_heartbeat" '"name":"ping_heartbeat"'
+mcp_expect "MCP lists create_lease_namespace" '"name":"create_lease_namespace"'
+mcp_expect "MCP lists acquire_lease" '"name":"acquire_lease"'
+mcp_expect "MCP lists renew_lease" '"name":"renew_lease"'
+mcp_expect "MCP lists release_lease" '"name":"release_lease"'
+mcp_expect "MCP lists complete_lease" '"name":"complete_lease"'
 
 mcp_post '{"jsonrpc":"2.0","id":20,"method":"resources/list","params":{}}' '2025-11-25'
 mcp_expect "MCP resources/list publishes Verifyum" 'https://aisense.no/verifyum'

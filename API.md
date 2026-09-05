@@ -585,12 +585,17 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 
 **Create:** `POST /webhook_capture`
 
+The JSON body may be empty. Add `notify_url` when you want one completion
+signal sent to a public HTTP or HTTPS URL after the first request arrives.
+
 ```json
 {
   "ok": true,
   "capture_id": "6f8c9e52-3f2c-4e73-9d3b-8d6c3f6d1c91",
+  "status": "pending",
   "update_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-.../update",
   "read_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-...",
+  "wait_url": "https://aisenseapi.com/services/v1/webhook_capture/6f8c9e52-.../wait/25",
   "expire_timestamp": 1772893200
 }
 ```
@@ -598,6 +603,10 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 **Send:** any HTTP method to `update_url`.
 
 **Read:** `GET /webhook_capture/{capture_id}`
+
+**Wait:** `GET /webhook_capture/{capture_id}/wait/{seconds}` where `seconds`
+is 0 to 25. The response returns early when the first request is captured and
+adds `waited_seconds` and `wait_reason`.
 
 ```json
 {
@@ -615,6 +624,11 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 }
 ```
 
+The first request to `update_url` wins. Later retries return the stored first
+request and cannot replace it or send a second completion signal. Captured
+bodies are capped at 256 KB. An unknown ID returns HTTP 404. An expired capture
+returns HTTP 410.
+
 ---
 
 ### Webhook Action - 24h TTL
@@ -629,6 +643,7 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 {
   "title": "Approval required",
   "description": "Please review and approve this request.",
+  "notify_url": "https://example.com/action-ready",
   "fields": [
     {
       "type": "radio",
@@ -650,6 +665,7 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
   "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
   "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../form",
   "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-...",
+  "wait_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../wait/25",
   "expire_timestamp": 1786959912,
   "expire_datetime": "2026-08-17T09:45:12Z"
 }
@@ -658,6 +674,10 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 **Open the form:** `GET /webhook_action/{action_id}/form` - returns `text/html`.
 
 **Poll:** `GET /webhook_action/{action_id}`
+
+**Wait:** `GET /webhook_action/{action_id}/wait/{seconds}` where `seconds` is
+0 to 25. The response adds `waited_seconds` and `wait_reason`. A group wait
+returns when any new answer changes the state.
 
 ```json
 // Before submission
@@ -684,13 +704,24 @@ objects. Field types: `radio`, `select`, `text`, `textarea`, `checkbox`.
 }
 ```
 
+Set `respondents` to an integer from 2 to 20 to create separate one-use bearer
+links for a group. The create response then returns `form_urls` and no
+`form_url`. The group status moves from `pending` to `partial` and then
+`answered`. Reads include `respondents`, `answered`, `tally` and `responses`.
+The tally counts values from the field named `decision`. Only hashes of the
+individual bearer tokens are stored.
+
+When `notify_url` is present, the service sends one small signal after a single
+answer or the last group answer. The signal names the action, status and result
+URL. It does not contain submitted answers. Create bodies are capped at 64 KB,
+with at most 20 fields and 50 options per field.
+
 ---
 
 ### Webhook Schedule - 24h TTL
 
-The timer an agent does not have. POST a URL and a payload with either
-`delay_seconds` or a `fire_at` unix timestamp, and the service POSTs the payload
-to that URL at that time, with one retry on transport failure.
+POST a URL and a payload with either `delay_seconds` or a `fire_at` Unix
+timestamp. Add `every` from 60 to 86400 seconds for a recurring job.
 
 The horizon is **one minute to 24 hours** - this is a 24-hour service, and the
 scheduler is no exception. The result stays readable for 24 hours after the
@@ -716,11 +747,17 @@ minutes and treat anything finer as noise.
   "fire_at_timestamp": 1786990000,
   "fire_at_datetime": "2026-08-17T15:21:37+00:00",
   "result_url": "https://aisenseapi.com/services/v1/webhook_schedule/1f1d7b8b-...",
+  "wait_url": "https://aisenseapi.com/services/v1/webhook_schedule/1f1d7b8b-.../wait/25",
   "expire_timestamp": 1787076400
 }
 ```
 
 **Poll:** `GET /webhook_schedule/{schedule_id}`
+
+**Wait:** `GET /webhook_schedule/{schedule_id}/wait/{seconds}` where `seconds`
+is 0 to 25.
+
+**Cancel:** `DELETE /webhook_schedule/{schedule_id}` while it is active.
 
 ```json
 {
@@ -734,10 +771,16 @@ minutes and treat anything finer as noise.
 }
 ```
 
-`status` moves `scheduled` -> `fired` (the target answered with any HTTP status,
-recorded in `http_status`) or `failed` (no response after the retry).
+One-shot status may be `scheduled`, `retry`, `fired`, `failed` or `cancelled`.
+`fired` means the target answered with some HTTP status, recorded in
+`http_status`. It does not mean that the target returned 2xx.
 **`fired` means a delivery was attempted, not that it succeeded** - a target that
 answers 500 is still `fired` with `http_status: 500`.
+
+A recurring job stays on its original time grid. Missed slots are counted and
+skipped rather than delivered late. It normally ends as `completed` after its
+fixed 24-hour window. Three consecutive transport failures stop it. A creator
+address can cause at most 1440 delivery attempts per 24 hours.
 
 The target must be an `http`/`https` URL on port 80 or 443 that resolves to a
 **public** address. Private, loopback, link-local and reserved ranges are
@@ -803,6 +846,10 @@ redacted before storage.
 
 **Read:** `GET /agent_wake/{task_id}`
 
+**Wait:** `GET /agent_wake/{task_id}/wait/{seconds}` where `seconds` is 0 to
+25. It returns early at a terminal state and adds `waitedSeconds` and
+`waitReason`.
+
 The status is `working`, `input_required`, `completed`, `failed` or `cancelled`.
 A completed response includes `result`. A human task includes a `formUrl` and a
 URL mode elicitation while it waits. A time task becomes complete on the first
@@ -813,6 +860,180 @@ read after its wake time.
 Task IDs are bearer links and there is no list operation. Anyone holding a task
 URL can read its result. Do not send secrets, credentials, personal data or
 anything that needs more than 24 hours of retention.
+
+---
+
+### Heartbeat - alert when check-ins stop
+
+Heartbeat watches a short-lived process that should keep checking in. Create a
+monitor with an expected interval, a grace period and one action to run if the
+deadline is missed. The monitor has a fixed 24-hour lifetime.
+
+**Create:** `POST /heartbeat`
+
+```json
+{
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "on_miss": {
+    "url": "https://example.com/agent-offline",
+    "payload": { "agent": "worker-7" }
+  }
+}
+```
+
+Use an existing, waiting Agent Wake webhook task instead of an outbound URL:
+
+```json
+{
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "on_miss": { "wake_task_id": "2eb1a08d-759f-4af9-8caa-8b02b7ca17ba" }
+}
+```
+
+The Agent Wake task must exist, use `event_type: "webhook"` and still be in
+the `working` state.
+
+```json
+{
+  "ok": true,
+  "heartbeat_id": "58c85e3e8f739edcb73530d14316f2bfae9ae11bf85374b17e4c9ab75bbec5f1",
+  "status": "armed",
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "expires_at_datetime": "2026-09-06T10:00:00Z",
+  "next_expected_at_datetime": "2026-09-05T10:05:00Z",
+  "miss_due_at_datetime": "2026-09-05T10:06:00Z",
+  "ping_count": 0,
+  "misses": 0,
+  "late": false,
+  "on_miss": { "type": "webhook" },
+  "ping_url": "https://aisenseapi.com/services/v1/heartbeat/58c85e3e.../ping",
+  "status_url": "https://aisenseapi.com/services/v1/heartbeat/58c85e3e..."
+}
+```
+
+`expect_every_seconds` must be an integer from 60 to 86400.
+`grace_seconds` must be zero or more. Their sum cannot exceed 86400.
+An optional webhook payload may be at most 32 KB as JSON.
+
+**Check in:** `POST /heartbeat/{heartbeat_id}/ping`
+
+Each accepted check-in updates `last_ping_at_*`, `next_expected_at_*` and
+`miss_due_at_*`, and increases `ping_count`. It does not move
+`expires_at_*`. A late, missed or expired heartbeat returns HTTP 409 when
+pinged.
+
+**Read:** `GET /heartbeat/{heartbeat_id}`
+
+The status is `armed`, `missed`, `fired` or `expired`. The worker checks once
+a minute. When a deadline is missed it claims the action before delivery and
+never retries it, so the same miss is not sent twice. `fired` means that a
+delivery was attempted. Read `delivery.delivered` and `delivery.http_status`
+to see whether a webhook accepted it. A failure before an attempt leaves the
+status as `missed` with an honest delivery error.
+
+Webhook targets must use HTTP or HTTPS on port 80 or 443 and resolve to a
+public address. Credentials and fragments are refused. DNS is checked again
+at delivery, the connection is pinned to the checked address, redirects are
+disabled and private, loopback, link-local and reserved ranges are blocked.
+
+The 64-character heartbeat ID is a bearer secret. There is no list operation.
+The target URL, payload or Agent Wake task ID is removed when the monitor
+becomes terminal. Its terminal status remains readable for up to another 24
+hours.
+
+---
+
+### Lease - coordinate workers and reuse completed results
+
+Lease gives several workers one anonymous coordination point. The first
+worker to acquire a key gets an owner token and a monotonically increasing
+fencing token. Other workers receive HTTP 409 while that lease is held.
+
+For short readable keys, mint a private namespace first:
+
+```http
+POST /lease/namespace
+Content-Type: application/json
+
+{}
+```
+
+```json
+{
+  "ok": true,
+  "namespace": "ns_XbO8a6V9e5dMWYqghfPV3ykHTNpR3oZ0fQJm4l7K2nE",
+  "entropy_bits": 256
+}
+```
+
+Treat the namespace as a bearer secret. Without a namespace, `key` itself
+must be a high-entropy ASCII value from 32 to 200 characters.
+
+**Acquire:** `POST /lease` or `POST /lease/acquire`
+
+```json
+{
+  "namespace": "ns_XbO8a6V9e5dMWYqghfPV3ykHTNpR3oZ0fQJm4l7K2nE",
+  "key": "invoice:2026-09-05",
+  "ttl_seconds": 60,
+  "fingerprint": "charge-order-501"
+}
+```
+
+```json
+{
+  "ok": true,
+  "status": "held",
+  "owner_token": "own_lCzWFx9BTqNkKlQJYu8jXdDX7n8h4xTJsU5BzPq3yLk",
+  "ttl_seconds": 60,
+  "fencing_token": 184,
+  "lease_expires_at_timestamp": 1788602460,
+  "lease_expires_at": "2026-09-05T10:01:00Z",
+  "absolute_expires_at_timestamp": 1788688800,
+  "absolute_expires_at": "2026-09-06T10:00:00Z"
+}
+```
+
+`ttl_seconds` is optional, defaults to 60 and accepts 1 to 86400. A held
+lease returns HTTP 409, `status: "held"`, `retry_after_seconds` and a matching
+`Retry-After` header. A different fingerprint on the same key returns HTTP
+409 with `status: "conflict"`. Use a stable fingerprint when the key must
+represent the same input or job.
+
+The owner can change the lease with these POST endpoints:
+
+```json
+// POST /lease/renew
+{ "namespace": "ns_...", "key": "invoice:2026-09-05", "owner_token": "own_...", "ttl_seconds": 120 }
+
+// POST /lease/release
+{ "namespace": "ns_...", "key": "invoice:2026-09-05", "owner_token": "own_..." }
+
+// POST /lease/complete
+{ "namespace": "ns_...", "key": "invoice:2026-09-05", "owner_token": "own_...", "result": { "receipt_id": 4817 } }
+```
+
+Renew keeps the same fencing token. Release makes the key available at once.
+Complete stores up to 32 KB of JSON and changes the status to `completed`.
+The next acquire with the same key and fingerprint returns HTTP 200 with that
+result and no owner token. Fields with names such as `authorization`,
+`password`, `secret`, `token`, `private_key` and `api_key` are replaced with
+`[redacted]` before a result is stored. Secrets hidden inside ordinary values
+cannot be detected, so keep them out of the result.
+
+An invalid, expired or old owner token receives HTTP 409 with
+`status: "lost"`. Send the fencing token to any protected system and reject
+writes carrying an older value. This closes the gap where a paused worker
+wakes after its lease has been taken over.
+
+Every key lifecycle has a fixed 24-hour absolute expiry. Renewing a lease
+cannot extend that boundary. A new acquisition after it starts a new
+lifecycle with a higher fencing token. Raw keys, namespaces, owner tokens and
+fingerprints are not written to disk. Their hashes and the optional completed
+result remain until the absolute expiry.
 
 ---
 
@@ -942,11 +1163,23 @@ numbers; their smallest units stay well inside the safe range.
 | `/webhook_action` (create) | `ok`, `action_id`, `form_url`, `result_url`, `expire_timestamp`, `expire_datetime` |
 | `/webhook_schedule` (create) | `ok`, `schedule_id`, `status`, `fire_at_timestamp`, `result_url`, `expire_timestamp` |
 | `/webhook_schedule/{id}` (poll) | `ok`, `schedule_id`, `status`, `attempts`, `http_status`, `response_excerpt` |
+| `/agent_wake` (create) | `taskId`, `status`, `ttlMs`, event URLs in `_meta` |
+| `/agent_wake/{id}` (read or cancel) | `status`, `result` or cancellation state |
+| `/heartbeat` (create) | `ok`, `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
+| `/heartbeat/{id}` (read or ping) | `status`, timing fields, `ping_count`, `misses`, `late`, `delivery` when terminal |
+| `/lease/namespace` | `ok`, `namespace`, `entropy_bits` |
+| `/lease` or `/lease/acquire` | `status`, `owner_token` for the winner, `fencing_token`, expiry fields, completed `result` when reused |
+| `/lease/renew`, `/lease/release`, `/lease/complete` | `status`, `fencing_token`, expiry fields, optional `result` |
 | `/validate/{type}` | `type`, `valid`, plus per-check fields (`checksum_ok`, `luhn_ok`, ...) |
 
 ### TTL - deleted automatically after 24 hours
 
-`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action`
+`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
+`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease`
+
+Heartbeat terminal records can remain readable for another 24 hours after the
+monitor fires, misses or expires. Lease records use a fixed 24-hour absolute
+lifecycle that renewals cannot extend.
 
 ### Rate limit
 

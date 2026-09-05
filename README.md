@@ -9,13 +9,16 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-AI agents can connect directly to ten AI SENSE workflow tools at:
+AI agents can connect directly to 18 AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
-The AI SENSE MCP server covers Agent Wake tasks, human approval, webhook
-capture, temporary storage, URL shortening, time and UUIDs. It needs no account
-or API key. See
+The AI SENSE MCP server covers Heartbeat, Lease, Agent Wake tasks, human
+approval, webhook capture, temporary storage, URL shortening, time and UUIDs.
+It needs no account or API key. Heartbeat uses `create_heartbeat`,
+`read_heartbeat` and `ping_heartbeat`. Lease uses
+`create_lease_namespace`, `acquire_lease`, `renew_lease`, `release_lease` and
+`complete_lease`. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
 Verifyum has its own dedicated MCP endpoint at
@@ -118,6 +121,73 @@ returns HTTP 429 in the same flat error shape as everything else.
 
 ## The high-value endpoints
 
+### Heartbeat - know when a worker stops checking in
+
+Create a monitor with an expected check-in interval, a grace period and one
+action for a missed deadline. The action can POST to a public webhook or wake
+an existing Agent Wake webhook task.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/heartbeat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expect_every_seconds": 300,
+    "grace_seconds": 60,
+    "on_miss": {
+      "url": "https://example.com/agent-offline",
+      "payload": { "agent": "worker-7" }
+    }
+  }'
+```
+
+The response gives you an unguessable `heartbeat_id`, `ping_url` and
+`status_url`. Call the ping URL with POST after each successful cycle.
+Each ping moves the expected deadline. It does not move the fixed 24-hour
+expiry. A missed deadline fires once, with no retry.
+
+MCP clients can use `create_heartbeat`, `read_heartbeat` and
+`ping_heartbeat` for the same state.
+
+Webhook destinations are checked for SSRF at creation and delivery. Private
+and reserved addresses, URL credentials, fragments and redirects are blocked.
+See [`API.md`](API.md) for the states and response fields.
+
+---
+
+### Lease - one winner for shared agent work
+
+Lease coordinates workers without an account. Mint a private namespace, then
+claim a key for a short period:
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/lease/namespace \
+  -H "Content-Type: application/json" -d '{}'
+
+curl -X POST https://aisenseapi.com/services/v1/lease \
+  -H "Content-Type: application/json" \
+  -d '{
+    "namespace": "ns_...",
+    "key": "invoice:2026-09-05",
+    "ttl_seconds": 60,
+    "fingerprint": "charge-order-501"
+  }'
+```
+
+The winner receives an `owner_token` and a monotonic `fencing_token`. A second
+worker receives HTTP 409 while the lease is held. The owner can renew, release
+or complete the lease with a JSON result. Later callers with the same key and
+fingerprint can reuse that completed result.
+
+The lease has a fixed absolute expiry 24 hours after its first acquisition.
+Renewals cannot extend it. Raw keys, namespaces, owner tokens and fingerprints
+are not stored. See [`API.md`](API.md) for the full acquire and completion
+flow.
+
+The matching MCP tools are `create_lease_namespace`, `acquire_lease`,
+`renew_lease`, `release_lease` and `complete_lease`.
+
+---
+
 ### Agent Wake - resume after an outside event
 
 Create one task that waits for a webhook, a human answer or a chosen time. MCP
@@ -133,6 +203,9 @@ that URL completes the task. Human tasks create a hosted form. Time tasks
 complete on the first read after the selected timestamp. Each task expires in
 60 seconds to 24 hours.
 
+REST clients can wait for a terminal state with
+`GET /agent_wake/{task_id}/wait/{seconds}`. The final value accepts 0 to 25.
+
 See [`MCP.md`](MCP.md) for the task flow and [`API.md`](API.md) for REST calls.
 
 ---
@@ -146,9 +219,9 @@ zero backend setup.
 **How it works:**
 
 1. `POST` a form definition (radio buttons, dropdowns, text fields, checkboxes)
-2. Get back a `form_url` and a `result_url`
+2. Get back a `form_url`, `result_url` and `wait_url`
 3. Send the `form_url` to a human via email or Slack
-4. Poll `result_url` until `status` changes from `pending` to `answered`
+4. Read `result_url`, or use `wait_url` to wait up to 25 seconds
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/webhook_action \
@@ -177,6 +250,7 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_action \
   "action_id": "9e0e6d3b-1a45-44c5-9e0b-92f5f3bdb2f1",
   "form_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../form",
   "result_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-...",
+  "wait_url": "https://aisenseapi.com/services/v1/webhook_action/9e0e6d3b-.../wait/25",
   "expire_timestamp": 1786959912,
   "expire_datetime": "2026-08-17T09:45:12Z"
 }
@@ -193,6 +267,11 @@ Field types: `radio`, `select`, `text`, `textarea`, `checkbox`. `options`
 accepts plain strings or `{"value": ..., "label": ...}` objects. Expires after
 24 hours.
 
+Add `respondents` from 2 to 20 for separate one-use form links. The result then
+moves through `pending`, `partial` and `answered`, with answer counts, a tally
+and individual responses. Add `notify_url` when you want one completion signal
+that points back to the result without copying the answers.
+
 ---
 
 ### Webhook Capture - inspect any inbound HTTP request
@@ -204,13 +283,13 @@ query parameters, IP, and parsed body. No ngrok, no local tunnel, no server.
 ```bash
 # 1. Create a session
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
-# -> { "ok": true, "capture_id": "...", "update_url": "...", "read_url": "...", "expire_timestamp": ... }
+# -> { "status": "pending", "capture_id": "...", "update_url": "...", "read_url": "...", "wait_url": "..." }
 
 # 2. Point your webhook sender at update_url, with any HTTP method
 curl -X POST {update_url} -H "Content-Type: application/json" -d '{"event":"payment.created"}'
 
-# 3. Read it back
-curl https://aisenseapi.com/services/v1/webhook_capture/{capture_id}
+# 3. Wait up to 25 seconds for the first request
+curl https://aisenseapi.com/services/v1/webhook_capture/{capture_id}/wait/25
 ```
 
 ```json
@@ -230,6 +309,10 @@ curl https://aisenseapi.com/services/v1/webhook_capture/{capture_id}
 ```
 
 Expires after 24 hours.
+
+The first inbound request wins and later retries cannot replace it. Captured
+bodies are capped at 256 KB. The create body may contain `notify_url` for one
+completion signal.
 
 ---
 
@@ -548,9 +631,16 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts` |
 | Web | `/storage` | POST / GET | `storage_id`, `expire_timestamp` |
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
-| Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url` |
-| Web | `/webhook_action` | POST / GET | `action_id`, `form_url`, `result_url` |
-| Web | `/webhook_schedule` | POST / GET | `schedule_id`, `status`, `attempts`, `http_status` |
+| Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url`, `wait_url` |
+| Web | `/webhook_action` | POST / GET | `action_id`, form URL or URLs, `result_url`, `wait_url` |
+| Web | `/webhook_schedule` | POST / GET / DELETE | one-shot or recurring status, counts and result |
+| Web | `/agent_wake` | POST / GET / DELETE | `taskId`, `status`, `result`, wait support |
+| Web | `/heartbeat` | POST | `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
+| Web | `/heartbeat/{id}` | GET | status, timing fields, counters, optional `delivery` |
+| Web | `/heartbeat/{id}/ping` | POST | updated timing fields and counters |
+| Web | `/lease/namespace` | POST | `namespace`, `entropy_bits` |
+| Web | `/lease`, `/lease/acquire` | POST | status, owner and fencing tokens, expiry fields, optional result |
+| Web | `/lease/renew`, `/lease/release`, `/lease/complete` | POST | status, fencing token, expiry fields, optional result |
 | Web | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | Crypto | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
 | Crypto | `/solana/balance/{address}` | GET | `wallet`, `balance_sol`, `balance_lamports` |
@@ -564,7 +654,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 ## Notes
 
 - POST endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads
-- Storage, URL Shortener, Webhook Capture, Webhook Action and Agent Wake auto-expire after 24 hours
+- Storage, URL Shortener, Webhook Capture, Webhook Action, Webhook Schedule, Agent Wake, Heartbeat and Lease have a 24-hour active lifetime or absolute lifecycle
+- Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
 - Rate limit: 5000 requests per IP per 24 hours
 

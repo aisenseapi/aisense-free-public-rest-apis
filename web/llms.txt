@@ -22,11 +22,17 @@ The MCP server exposes public workflow tools and a read-only Verifyum product re
 
 Agent Wake creates a durable MCP task that completes after a webhook, human answer or time event. It uses the io.modelcontextprotocol/tasks extension with MCP revision 2026-07-28. REST clients can use the same task model at https://aisenseapi.com/services/v1/agent_wake.
 
+Heartbeat watches a short-lived agent or worker. A client checks in through a bearer URL. One missed deadline fires one SSRF-guarded webhook or wakes an existing Agent Wake task. Pings do not extend the fixed 24-hour lifetime. MCP tools: create_heartbeat, read_heartbeat, ping_heartbeat.
+
+Lease gives anonymous workers one short-lived coordination point. The winner gets an owner token and a monotonic fencing token. It can complete the key with a reusable JSON result. Each lifecycle has a fixed 24-hour absolute expiry. MCP tools: create_lease_namespace, acquire_lease, renew_lease, release_lease, complete_lease.
+
 ## REST API
 
 - Base URL: https://aisenseapi.com/services/v1
 - API guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/API.md
 - Agent Wake guide: https://aisense.no/free-public-api-agent-wake-api-endpoint
+- Heartbeat guide: https://aisense.no/free-public-api-heartbeat-api-endpoint
+- Lease guide: https://aisense.no/free-public-api-lease-api-endpoint
 
 ## Products
 
