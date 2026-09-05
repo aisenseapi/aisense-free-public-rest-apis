@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
 license: Public documentation - no authentication required for any endpoint
 ---
 
@@ -309,6 +309,94 @@ a terminal state. The response adds `waitedSeconds` and `waitReason`.
 
 ---
 
+### Agent Inbox - a disposable mail address, 24h maximum
+
+Reach for this when the next step needs an email address the agent controls: a
+verification code, a confirmation link, a sign-up mail. Prefer it over asking
+the user for a real address for a throwaway flow. Create and read are the whole
+surface, so it is for mail arriving at the agent, and it is not a mailbox for
+anything that has to outlive the day.
+
+`POST /inbox` takes no arguments and returns the inbox once:
+
+```json
+{
+  "ok": true,
+  "inbox_id": "a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "read_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "wait_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7/wait/25",
+  "expire_timestamp": 1800086400
+}
+```
+
+**Two identifiers come back and only one of them is a secret.** The `slug` is
+the seven characters `[a-z0-9]` inside the address. It is public by
+construction: it travels in mail headers, bounces and sender logs. Knowing it
+lets anyone send mail to the inbox. It never lets anyone read the inbox, and it
+never appears in a URL. The `inbox_id` is a UUID and the only credential that
+reads the inbox. Treat it as a bearer secret, because anyone holding it reads
+the mail, and it is returned once, at creation. Guessing the address does not
+read the inbox. A wrong `inbox_id` and a missing inbox both answer 404, never
+403, so the two are indistinguishable.
+
+Read with `GET /inbox/{inbox_id}`:
+
+```json
+{
+  "ok": true,
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "received": 1,
+  "truncated": false,
+  "messages": [
+    {
+      "from": "noreply@example.com",
+      "subject": "Your verification code",
+      "date": "2027-01-15T08:00:00Z",
+      "text": "Your code is 481516. Confirm at https://example.com/confirm/abc",
+      "codes": [ "481516" ],
+      "links": [ "https://example.com/confirm/abc" ]
+    }
+  ],
+  "created_at_timestamp": 1800000000,
+  "expire_timestamp": 1800086400
+}
+```
+
+The read response does **not** contain `inbox_id`. The credential is never
+echoed back. `GET /inbox/{inbox_id}/wait/{seconds}` waits from 0 to 25 seconds
+for a new message and adds `waited_seconds` and `wait_reason` to the same
+object.
+
+`codes` are standalone 4 to 8 digit numbers. `links` are public http(s) links
+only; private-IP and localhost links are dropped. `date` is the time the
+service received the message, not the sender's `Date` header, because that
+header is sender controlled.
+
+`truncated` is true once a message has been refused, by the message count or
+by the total size. A full inbox **refuses new mail
+rather than evicting old mail**, so a truncated inbox with no code means the
+message was turned away, not lost or still on its way. The flag is in the long
+poll signature too, so a waiter is woken when the cap refuses its message
+instead of waiting out the timeout.
+
+Attachments, raw MIME, arbitrary headers, scripts, styles, private-IP links and
+localhost links are stripped before storage. Only the sender address, subject,
+received time, cleaned text, codes and public links are kept.
+
+Limits: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB per
+inbox in total, 50 inboxes per client per UTC day and 5000 active inboxes
+service wide. The 24-hour lifetime is fixed and cannot be extended, so read the
+code well inside it.
+
+MCP exposes `create_agent_inbox` and `read_agent_inbox`. `read_agent_inbox`
+takes `inbox_id` (uuid, required) and `wait_seconds` (integer 0 to 25, default
+0).
+
+---
+
 ### Heartbeat - fire one action when check-ins stop
 
 Create with `POST /heartbeat`:
@@ -464,6 +552,8 @@ return numbers; their smallest units stay inside the safe range.
 | `/webhook_schedule/{id}` | GET / DELETE | read, wait or cancel schedule state |
 | `/agent_wake` | POST | `taskId`, `status`, `ttlMs`, event URLs in `_meta` |
 | `/agent_wake/{id}` | GET / DELETE | `status`, `result` or cancellation state |
+| `/inbox` | POST | `inbox_id`, `slug`, `address`, `read_url`, `wait_url`, `expire_timestamp` |
+| `/inbox/{inbox_id}` | GET | `slug`, `address`, `received`, `truncated`, `messages`, timing fields |
 | `/heartbeat` | POST | `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
 | `/heartbeat/{id}` | GET | status, timing fields, counters and optional `delivery` |
 | `/heartbeat/{id}/ping` | POST | updated status, timing fields and counters |
@@ -492,7 +582,7 @@ return numbers; their smallest units stay inside the safe range.
 ## Auto-expiry
 
 `/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
-`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease`
+`/agent_wake` | `/webhook_schedule` | `/inbox` | `/heartbeat` | `/lease`
 
 Active state has a 24-hour ceiling. Heartbeat terminal state can remain
 readable for another 24 hours. A Lease renewal cannot move its fixed absolute

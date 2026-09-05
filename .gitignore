@@ -32,3 +32,7 @@ openapi.yaml
 # deliberate step as openapi.yaml above: git add -f AGENTS.md
 AGENTS.md
 AGENT_CONTEXT.md
+
+# Byte-compiled Python from running the client library or its syntax check.
+__pycache__/
+*.pyc

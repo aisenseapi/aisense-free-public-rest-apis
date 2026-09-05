@@ -546,6 +546,53 @@ export class AISenseAPI {
     })
   }
 
+  /**
+   * Create a disposable mail inbox for a verification code, a confirmation link
+   * or a sign-up mail. Takes no arguments. Response keys: `ok`, `inbox_id`,
+   * `slug`, `address`, `read_url`, `wait_url`, `expire_timestamp`.
+   *
+   * The two identifiers are not interchangeable. `slug` is the seven characters
+   * `[a-z0-9]` inside `address`, and it is public by construction: it travels in
+   * mail headers, bounces and sender logs. Knowing it lets anyone send mail to
+   * the inbox, and nothing else; it never appears in a URL. `inbox_id` is the
+   * only credential that reads the inbox. It is a bearer secret, anyone holding
+   * it reads the mail, and it is returned once, here. Guessing the address does
+   * not read the inbox. A wrong `inbox_id` and a missing inbox both answer 404,
+   * never 403, so the two cannot be told apart.
+   *
+   * Caps: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB
+   * per inbox, 50 inboxes per client per UTC day, 5000 active inboxes service
+   * wide. The 24 hour lifetime is fixed and cannot be extended.
+   */
+  agentInboxCreate() {
+    return this.#post('/inbox', {})
+  }
+
+  /**
+   * Read an inbox, or wait up to 25 seconds for it to change. Response keys:
+   * `ok`, `slug`, `address`, `received`, `truncated`, `messages`,
+   * `created_at_timestamp`, `expire_timestamp`. The wait form adds
+   * `waited_seconds` and `wait_reason`. `inbox_id` is not echoed back; the
+   * credential never travels in a response.
+   *
+   * Each entry in `messages` has `from`, `subject`, `date`, `text`, `codes` and
+   * `links`. `date` is when the service received the message, not the sender's
+   * Date header, because that header is sender controlled. `codes` are
+   * standalone 4 to 8 digit numbers. `links` are public http(s) links only:
+   * private-IP and localhost links are dropped. Attachments, raw MIME,
+   * arbitrary headers, scripts and styles are stripped before storage.
+   *
+   * `truncated` reports that the inbox refused mail. A full inbox refuses new
+   * messages rather than evicting old ones, so without the flag a waiter would
+   * see a full inbox, no code and no reason. It is part of the long poll
+   * signature, which wakes a waiter when the cap refuses its message instead of
+   * making it wait out the timeout.
+   */
+  agentInboxRead(inboxId, waitSeconds) {
+    const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
+    return this.#get(`/inbox/${inboxId}${suffix}`)
+  }
+
   // ── Crypto ────────────────────────────────────────────────────────────────
 
   /**
