@@ -863,6 +863,127 @@ anything that needs more than 24 hours of retention.
 
 ---
 
+### Agent Inbox - receive a verification mail, up to 24h
+
+Agent Inbox gives an agent a disposable mail address of its own, to receive a
+verification code, a confirmation link or a sign-up mail. No account and no
+API key. An inbox lasts at most 24 hours, and that lifetime is fixed and not
+extendable.
+
+**Create:** `POST /inbox`
+
+The route takes no arguments and needs no request body. A create answers
+HTTP 201.
+
+```
+POST /inbox
+```
+
+```json
+{
+  "ok": true,
+  "inbox_id": "a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "read_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "wait_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7/wait/25",
+  "expire_timestamp": 1800086400
+}
+```
+
+**Two identifiers come back, and only one of them is a secret.** The `slug` is
+seven characters from `a-z0-9` and it appears in the address. It is public by
+construction: it travels in mail headers, bounces and sender logs. Knowing it
+lets anyone send mail to the inbox, and nothing more. It never reads the inbox
+and it never appears in a URL. The `inbox_id` is a UUID and is the only
+credential that reads the inbox. It is a bearer secret, returned once at
+creation, and anyone holding it reads the mail. So guessing the address does
+not read the inbox. A wrong `inbox_id` and an inbox that never existed both
+answer HTTP 404 and never 403, which leaves the two indistinguishable.
+
+**Read:** `GET /inbox/{inbox_id}`
+
+```json
+{
+  "ok": true,
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "received": 1,
+  "truncated": false,
+  "messages": [
+    {
+      "from": "noreply@example.com",
+      "subject": "Your verification code",
+      "date": "2027-01-15T08:00:00Z",
+      "text": "Your code is 481516. Confirm at https://example.com/confirm/abc",
+      "codes": [ "481516" ],
+      "links": [ "https://example.com/confirm/abc" ]
+    }
+  ],
+  "created_at_timestamp": 1800000000,
+  "expire_timestamp": 1800086400
+}
+```
+
+The read response does not contain `inbox_id`. The credential is never echoed
+back.
+
+`date` is the time the service received the message, not the sender's `Date`
+header, because that header is sender controlled. `codes` are standalone 4 to 8
+digit numbers. `links` are public http and https links only; private-IP and
+localhost links are dropped.
+
+**Wait:** `GET /inbox/{inbox_id}/wait/{seconds}` where `seconds` is 0 to 25.
+It returns the same object with `waited_seconds` and `wait_reason` added.
+
+`truncated` is worth knowing about. A full inbox refuses new mail rather than
+evicting old mail, so the message you are waiting for can be turned away while
+everything that arrived earlier is still sitting there. Nothing else in the
+response would tell you: the count is simply at its cap. `truncated` is what
+says a message was refused. It is in the long poll signature too, so a waiter
+is woken when the cap turns its message away instead of waiting out the
+timeout.
+
+**Worked example.** Create the inbox and keep both values.
+
+```
+POST /inbox
+-> address    aisense+ztjqt7n@aisenseapi.com
+   inbox_id   a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7
+```
+
+Give `address` to the site or person that has to send the mail, and keep
+`inbox_id` to yourself. Then hold one connection open until the mail lands.
+
+```
+GET /inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7/wait/25
+```
+
+The call returns as soon as a message arrives. Take the code from the parsed
+field rather than parsing `text` yourself.
+
+```
+messages[0].codes[0]   -> "481516"
+messages[0].links[0]   -> "https://example.com/confirm/abc"
+```
+
+If the call returns with `received` still 0, repeat it until the mail arrives
+or `expire_timestamp` passes.
+
+Limits, all fixed: 20 messages per inbox, 64 KiB of cleaned text per message,
+256 KiB of cleaned text per inbox in total, 50 inboxes per client per UTC day
+and 5000 active inboxes service wide.
+
+Attachments, raw MIME, arbitrary headers, scripts, styles, private-IP links and
+localhost links are stripped before storage. Only the sender address, subject,
+received time, cleaned text, codes and public links are kept.
+
+The `inbox_id` is a bearer secret. Anyone holding it reads every message in the
+inbox, so do not use the address for anything that needs a real mailbox, and do
+not expect any of it to survive the 24 hours.
+
+---
+
 ### Heartbeat - alert when check-ins stop
 
 Heartbeat watches a short-lived process that should keep checking in. Create a
@@ -1165,6 +1286,8 @@ numbers; their smallest units stay well inside the safe range.
 | `/webhook_schedule/{id}` (poll) | `ok`, `schedule_id`, `status`, `attempts`, `http_status`, `response_excerpt` |
 | `/agent_wake` (create) | `taskId`, `status`, `ttlMs`, event URLs in `_meta` |
 | `/agent_wake/{id}` (read or cancel) | `status`, `result` or cancellation state |
+| `/inbox` (create) | `ok`, `inbox_id`, `slug`, `address`, `read_url`, `wait_url`, `expire_timestamp` |
+| `/inbox/{id}` (read or wait) | `ok`, `slug`, `address`, `received`, `truncated`, `messages`, `created_at_timestamp`, `expire_timestamp` |
 | `/heartbeat` (create) | `ok`, `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
 | `/heartbeat/{id}` (read or ping) | `status`, timing fields, `ping_count`, `misses`, `late`, `delivery` when terminal |
 | `/lease/namespace` | `ok`, `namespace`, `entropy_bits` |
@@ -1175,7 +1298,7 @@ numbers; their smallest units stay well inside the safe range.
 ### TTL - deleted automatically after 24 hours
 
 `/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
-`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease`
+`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease` | `/inbox`
 
 Heartbeat terminal records can remain readable for another 24 hours after the
 monitor fires, misses or expires. Lease records use a fixed 24-hour absolute

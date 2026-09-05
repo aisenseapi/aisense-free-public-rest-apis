@@ -9,16 +9,17 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-AI agents can connect directly to 18 AI SENSE workflow tools at:
+AI agents can connect directly to 20 AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
-The AI SENSE MCP server covers Heartbeat, Lease, Agent Wake tasks, human
-approval, webhook capture, temporary storage, URL shortening, time and UUIDs.
-It needs no account or API key. Heartbeat uses `create_heartbeat`,
-`read_heartbeat` and `ping_heartbeat`. Lease uses
+The AI SENSE MCP server covers Heartbeat, Lease, Agent Wake tasks, Agent
+Inbox, human approval, webhook capture, temporary storage, URL shortening,
+time and UUIDs. It needs no account or API key. Heartbeat uses
+`create_heartbeat`, `read_heartbeat` and `ping_heartbeat`. Lease uses
 `create_lease_namespace`, `acquire_lease`, `renew_lease`, `release_lease` and
-`complete_lease`. See
+`complete_lease`. Agent Inbox uses `create_agent_inbox` and
+`read_agent_inbox`. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
 Verifyum has its own dedicated MCP endpoint at
@@ -313,6 +314,94 @@ Expires after 24 hours.
 The first inbound request wins and later retries cannot replace it. Captured
 bodies are capped at 256 KB. The create body may contain `notify_url` for one
 completion signal.
+
+---
+
+### Agent Inbox - a disposable mail address the agent owns
+
+For the step where something has to arrive by email: a verification code, a
+confirmation link, a sign-up mail. Create an inbox, hand out the address, read
+the mail back as cleaned text. No account, no API key, and it lasts at most 24
+hours.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/inbox
+```
+
+```json
+{
+  "ok": true,
+  "inbox_id": "a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "read_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7",
+  "wait_url": "https://aisenseapi.com/services/v1/inbox/a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7/wait/25",
+  "expire_timestamp": 1800086400
+}
+```
+
+**Two identifiers come back, and they are not interchangeable.** The `slug` is
+the seven characters inside the address. It is public by construction: it
+travels in mail headers, bounces and sender logs. Knowing it lets anyone send
+mail to the inbox. It never lets anyone read the inbox, and it never appears
+in a URL. The `inbox_id` is a UUID and the only credential that reads. Anyone
+holding it reads the mail, and it is returned once, at creation. Guessing the
+address does not read the inbox. A wrong `inbox_id` and a missing inbox both
+answer 404, never 403, so the two are indistinguishable.
+
+Read the mail, or wait up to 25 seconds for it:
+
+```bash
+curl https://aisenseapi.com/services/v1/inbox/{inbox_id}
+curl https://aisenseapi.com/services/v1/inbox/{inbox_id}/wait/25
+```
+
+```json
+{
+  "ok": true,
+  "slug": "ztjqt7n",
+  "address": "aisense+ztjqt7n@aisenseapi.com",
+  "received": 1,
+  "truncated": false,
+  "messages": [
+    {
+      "from": "noreply@example.com",
+      "subject": "Your verification code",
+      "date": "2027-01-15T08:00:00Z",
+      "text": "Your code is 481516. Confirm at https://example.com/confirm/abc",
+      "codes": [ "481516" ],
+      "links": [ "https://example.com/confirm/abc" ]
+    }
+  ],
+  "created_at_timestamp": 1800000000,
+  "expire_timestamp": 1800086400
+}
+```
+
+The read response does not contain `inbox_id`. The credential is never echoed
+back. The wait form adds `waited_seconds` and `wait_reason` to the same object.
+
+`codes` are standalone 4 to 8 digit numbers. `links` are public http(s) links
+only; private-IP and localhost links are dropped. `date` is the time the
+service received the message, not the sender's `Date` header, because that
+header is sender controlled.
+
+`truncated` says a message was refused, whether the inbox hit the message
+count or the total size. A full inbox refuses new mail rather than
+evicting old mail, so without the flag an agent waiting for a code would see a
+full inbox, no code and no reason. It is in the long poll signature too, so a
+waiter is woken when the cap refuses its message instead of waiting out the
+timeout.
+
+Attachments, raw MIME, arbitrary headers, scripts, styles, private-IP links and
+localhost links are stripped before storage. Only the sender address, subject,
+received time, cleaned text, codes and public links are kept.
+
+Limits: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB per
+inbox in total, 50 inboxes per client per UTC day and 5000 active inboxes
+service wide. The 24-hour lifetime is fixed and cannot be extended.
+
+MCP clients use `create_agent_inbox` and `read_agent_inbox`.
 
 ---
 
@@ -635,6 +724,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/webhook_action` | POST / GET | `action_id`, form URL or URLs, `result_url`, `wait_url` |
 | Web | `/webhook_schedule` | POST / GET / DELETE | one-shot or recurring status, counts and result |
 | Web | `/agent_wake` | POST / GET / DELETE | `taskId`, `status`, `result`, wait support |
+| Web | `/inbox` | POST | `inbox_id`, `slug`, `address`, `read_url`, `wait_url`, `expire_timestamp` |
+| Web | `/inbox/{inbox_id}` | GET | `slug`, `address`, `received`, `truncated`, `messages`, timing fields |
 | Web | `/heartbeat` | POST | `heartbeat_id`, `status`, timing fields, `ping_url`, `status_url` |
 | Web | `/heartbeat/{id}` | GET | status, timing fields, counters, optional `delivery` |
 | Web | `/heartbeat/{id}/ping` | POST | updated timing fields and counters |
@@ -654,7 +745,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 ## Notes
 
 - POST endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads
-- Storage, URL Shortener, Webhook Capture, Webhook Action, Webhook Schedule, Agent Wake, Heartbeat and Lease have a 24-hour active lifetime or absolute lifecycle
+- Storage, URL Shortener, Webhook Capture, Webhook Action, Webhook Schedule, Agent Wake, Agent Inbox, Heartbeat and Lease have a 24-hour active lifetime or absolute lifecycle
 - Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
 - Rate limit: 5000 requests per IP per 24 hours

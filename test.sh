@@ -425,6 +425,85 @@ else
 fi
 echo ""
 
+# Agent Inbox is a disposable mail inbox an agent creates for itself, lasting
+# at most 24 hours.
+#
+# NOTE: this whole section, and the MCP tool count further down, run against
+# live production and will FAIL until the Agent Inbox release is deployed
+# there. That is expected on a checkout that is ahead of the service; it is
+# not a regression in this file.
+#
+# The property worth testing is the split between the two identifiers. The
+# slug is public by construction, because it travels in mail headers, bounces
+# and sender logs, so it must never read the mail. The inbox_id is the only
+# credential that reads, and it is returned once, at creation.
+echo -e "${YELLOW}Agent Inbox REST flow${NC}"
+request POST "$BASE/inbox" '{}'
+INBOX_ID=$(echo "$BODY" | grep -oE '"inbox_id":"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"' | cut -d'"' -f4)
+INBOX_SLUG=$(echo "$BODY" | grep -oE '"slug":"[a-z0-9]{7}"' | cut -d'"' -f4)
+if [ "$STATUS" = "201" ] && [ -n "$INBOX_ID" ] && [ -n "$INBOX_SLUG" ]; then
+  ok "Agent Inbox (create)"
+
+  # The mail address carries the seven character slug, never the credential.
+  INBOX_ADDRESS="aisense+$INBOX_SLUG@aisenseapi.com"
+  case "$BODY" in
+    *"\"address\":\"$INBOX_ADDRESS\""*) ok "Agent Inbox (address matches the slug)" ;;
+    *) bad "Agent Inbox (address)" "expected \"address\":\"$INBOX_ADDRESS\" in: $(echo "$BODY" | head -c 140)" ;;
+  esac
+
+  # A fresh inbox reports no mail and an untruncated state. truncated is the
+  # difference between an agent knowing the cap refused a message and an agent
+  # waiting out a timeout for a code that was never stored.
+  request GET "$BASE/inbox/$INBOX_ID"
+  if [ "$STATUS" = "200" ] && [[ "$BODY" == *'"received":0'* ]] && [[ "$BODY" == *'"truncated":false'* ]] && [[ "$BODY" == *'"messages":[]'* ]]; then
+    ok "Agent Inbox (read a fresh inbox)"
+  else
+    bad "Agent Inbox (read)" "expected HTTP 200 with received 0, truncated false and an empty list, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  # The read response must not echo the credential back, so a logged or shared
+  # response cannot be replayed against the inbox.
+  case "$BODY" in
+    *"$INBOX_ID"*) bad "Agent Inbox (credential never echoed)" "the inbox_id came back in the read response" ;;
+    *) ok "Agent Inbox (credential never echoed)" ;;
+  esac
+
+  # The one that matters most: knowing the address does not read the mail.
+  # Pinned to 404 rather than "anything but 200", so that a 500 or a gateway
+  # error cannot score this green. A test that passes on a broken service is
+  # worse than no test on the assertion the whole design rests on.
+  request GET "$BASE/inbox/$INBOX_SLUG"
+  if [ "$STATUS" = "404" ] && [[ "$BODY" != *"$INBOX_ADDRESS"* ]]; then
+    ok "Agent Inbox (the public slug does not read the inbox)"
+  else
+    bad "Agent Inbox (slug read)" "expected 404 and no address, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  # A wrong inbox_id and an inbox that never existed answer the same 404. A 403
+  # here would confirm to a prober that the inbox exists.
+  request GET "$BASE/inbox/00000000-0000-4000-8000-000000000000"
+  [ "$STATUS" = "404" ] && ok "Agent Inbox (unknown inbox_id -> 404)" || bad "Agent Inbox (unknown inbox_id)" "expected 404 and never 403, got $STATUS"
+
+  # The long poll is bounded at 25 seconds. This asks for 1 so the suite stays
+  # quick; the upper bound itself is proved by the rejection below.
+  request GET "$BASE/inbox/$INBOX_ID/wait/1"
+  if [ "$STATUS" = "200" ] && [[ "$BODY" == *'"waited_seconds"'* ]] && [[ "$BODY" == *'"wait_reason"'* ]]; then
+    ok "Agent Inbox (wait accepts a bounded value)"
+  else
+    bad "Agent Inbox (wait)" "expected HTTP 200 with waited_seconds and wait_reason, got $STATUS: $(echo "$BODY" | head -c 140)"
+  fi
+
+  # 404, not 400, and not the 200 the sibling long-poll routes answer. Those
+  # clamp an out-of-range value; this endpoint matches the wait segment against
+  # 0 to 25 and treats anything else as a path it does not serve. Measured on
+  # production: /webhook_capture/{id}/wait/26 and /wait/99 both answer 200.
+  request GET "$BASE/inbox/$INBOX_ID/wait/26"
+  [ "$STATUS" = "404" ] && ok "Agent Inbox (wait above 25 seconds is not a route)" || bad "Agent Inbox (wait bounds)" "expected 404, got $STATUS"
+else
+  bad "Agent Inbox (create)" "expected HTTP 201, a UUID inbox_id and a seven character slug, got $STATUS: $(echo "$BODY" | head -c 140)"
+fi
+echo ""
+
 # ── CRYPTO ───────────────────────────────────────────────────
 echo -e "${YELLOW}🪙  Crypto${NC}"
 has_key   "Solana Wallet"   GET "$BASE/solana/generate_new_wallet"   "public_address"
@@ -549,14 +628,16 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Eighteen tools, exactly. The MCP guide and public web page must agree with
-# this number whenever the public tool surface changes.
+# Twenty tools, exactly. The MCP guide and public web page must agree with
+# this number whenever the public tool surface changes. It was eighteen until
+# create_agent_inbox and read_agent_inbox joined the surface, so this counts
+# 20 against a service that has not been deployed yet.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 18 ]; then
-  ok "MCP tools/list (exactly 18 tools)"
+if [ "$MCP_TOOLS" -eq 20 ]; then
+  ok "MCP tools/list (exactly 20 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 18 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 20 - update MCP.md and the web page together with this number"
 fi
 mcp_expect "MCP lists create_heartbeat" '"name":"create_heartbeat"'
 mcp_expect "MCP lists read_heartbeat" '"name":"read_heartbeat"'
@@ -566,6 +647,8 @@ mcp_expect "MCP lists acquire_lease" '"name":"acquire_lease"'
 mcp_expect "MCP lists renew_lease" '"name":"renew_lease"'
 mcp_expect "MCP lists release_lease" '"name":"release_lease"'
 mcp_expect "MCP lists complete_lease" '"name":"complete_lease"'
+mcp_expect "MCP lists create_agent_inbox" '"name":"create_agent_inbox"'
+mcp_expect "MCP lists read_agent_inbox" '"name":"read_agent_inbox"'
 
 mcp_post '{"jsonrpc":"2.0","id":20,"method":"resources/list","params":{}}' '2025-11-25'
 mcp_expect "MCP resources/list publishes Verifyum" 'https://aisense.no/verifyum'

@@ -659,6 +659,29 @@
   {
     "type": "function",
     "function": {
+      "name": "agent_inbox_create",
+      "description": "Create a disposable mail inbox that lasts at most 24 hours. Takes no arguments. Returns {\"ok\", \"inbox_id\", \"slug\", \"address\", \"read_url\", \"wait_url\", \"expire_timestamp\"}. The slug is seven characters of a-z0-9 and appears in the address, so it is public by construction: knowing it lets anyone send mail to the inbox and never lets anyone read it. The inbox_id is a UUID, is returned once, and is the only credential that reads the mail. The lifetime is fixed and not extendable. POST /inbox",
+      "parameters": { "type": "object", "properties": {}, "required": [] }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "agent_inbox_read",
+      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means the inbox is full and is refusing new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason; it returns when a message arrives, when a message is refused because the inbox is full, or when the wait ends. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "inbox_id": { "type": "string", "description": "The inbox_id UUID from agent_inbox_create. Bearer secret." },
+          "wait_seconds": { "type": "integer", "minimum": 0, "maximum": 25, "description": "Seconds to long poll. Defaults to 0." }
+        },
+        "required": ["inbox_id"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "validate",
       "description": "Validate a business number by arithmetic - nothing is looked up in any register, so valid means well-formed with a correct check digit, not that it exists. Returns {\"type\", \"valid\", ...per-check fields}. An invalid value is a result with valid false, not an error. The card number is never echoed back. POST /validate/{type}",
       "parameters": {

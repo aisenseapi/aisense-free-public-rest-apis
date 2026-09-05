@@ -1,6 +1,6 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to eighteen workflow tools and two read-only resources at
+Connect an AI agent to twenty workflow tools and two read-only resources at
 the AI SENSE remote MCP endpoint.
 
 **Server URL:** `https://aisenseapi.com/mcp`
@@ -48,6 +48,8 @@ proxy these tools.
 | `renew_lease` | Extends a held Lease within its fixed lifetime |
 | `release_lease` | Releases a held Lease for another worker |
 | `complete_lease` | Stores a small reusable result for the same work identity |
+| `create_agent_inbox` | Creates a disposable mail inbox that lasts at most 24 hours |
+| `read_agent_inbox` | Reads the received mail, extracted codes and public links |
 
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
@@ -247,6 +249,58 @@ credential headers are redacted before the request is stored. The body may
 still contain sensitive data, so keep secrets and personal data out of the
 public service.
 
+## Agent Inbox
+
+`create_agent_inbox` takes no arguments. It returns a disposable mail address
+an agent can use to receive a verification code, a confirmation link or a
+sign-up mail. The inbox lasts at most 24 hours. The lifetime is fixed and is
+not extendable.
+
+Creation returns two identifiers with different jobs:
+
+- `slug` is seven characters from `a-z0-9` and appears in the mail address. It
+  is public by construction, because it travels in mail headers, bounces and
+  sender logs. Knowing it lets anyone send mail to the inbox. It never reads
+  the inbox and it never appears in a URL.
+- `inbox_id` is a UUID and is the only credential that reads the inbox. It is
+  a bearer secret, returned once, at creation.
+
+Guessing the address does not read the inbox. A wrong `inbox_id` and a missing
+inbox both answer 404, never 403, so the two cases are indistinguishable.
+
+`read_agent_inbox` accepts `inbox_id` and `wait_seconds` from 0 to 25. The wait
+defaults to 0. The long poll returns when a message arrives, when the inbox
+refuses a message because it is full, or when the wait ends. It adds
+`waited_seconds` and `wait_reason` to the result.
+
+The result contains the slug, the address, the message count, a `truncated`
+flag and the messages. It does not contain `inbox_id`. The credential is never
+echoed back.
+
+Each message has the sender address, subject, received time, cleaned text,
+`codes` and `links`. The `date` field is the time the service received the
+message, not the sender's `Date` header, because that header is sender
+controlled. `codes` are standalone 4 to 8 digit numbers. `links` are public
+http and https links only. Private-IP links and localhost links are dropped.
+
+A full inbox refuses new mail rather than evicting old mail. `truncated`
+reports that state, so an agent waiting for a code sees the reason instead of
+a quiet inbox. The flag is part of the long poll signature, so a waiter is
+woken when the cap refuses its message instead of waiting out the timeout.
+
+Attachments, raw MIME, arbitrary headers, scripts and styles are stripped
+before storage. Only the sender address, subject, received time, cleaned text,
+codes and public links are kept.
+
+| Limit | Value |
+|-------|-------|
+| Messages per inbox | 20 |
+| Cleaned text per message | 64 KiB |
+| Cleaned text per inbox | 256 KiB |
+| Inboxes per client per UTC day | 50 |
+| Active inboxes service wide | 5000 |
+| Lifetime | 24 hours, fixed |
+
 ## Separate Verifyum MCP endpoint
 
 MCP is an additional way to reach Verifyum. The browser flow, public HTTP API
@@ -362,9 +416,10 @@ pricing promise.
 
 ## Data and security
 
-- Temporary data, capture records, short links, approval forms, Agent Wake tasks, Heartbeats and Leases have fixed short lifetimes.
+- Temporary data, capture records, short links, approval forms, Agent Wake tasks, Heartbeats, Leases and Agent Inboxes have fixed short lifetimes.
 - The IDs and URLs are unguessable capability links. Share them with the intended recipient.
-- Group approval links, Heartbeat IDs, Lease namespaces and owner tokens are bearer secrets.
+- Group approval links, Heartbeat IDs, Lease namespaces, owner tokens and inbox IDs are bearer secrets.
+- An Agent Inbox address is public by construction. The inbox ID is the only credential that reads the mail, so share the address and keep the ID.
 - Do not store passwords, private keys, health data or long-lived confidential data.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.
