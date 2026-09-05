@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Heartbeat API Endpoint - Agent Liveness Monitor | AI SENSE</title>
+<meta name="description" content="Monitor an agent or worker with a free heartbeat API. Check in by URL and fire one SSRF-guarded webhook or Agent Wake task when the deadline is missed.">
+<link rel="canonical" href="https://aisense.no/free-public-api-heartbeat-api-endpoint">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Heartbeat API Endpoint"><meta property="og:description" content="Watch short-lived agents and workers. Fire one action when expected check-ins stop."><meta property="og:url" content="https://aisense.no/free-public-api-heartbeat-api-endpoint"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Heartbeat API Endpoint","description":"Create a 24-hour heartbeat monitor that fires one webhook or Agent Wake task when check-ins stop.","url":"https://aisense.no/free-public-api-heartbeat-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Heartbeat API Endpoint","item":"https://aisense.no/free-public-api-heartbeat-api-endpoint"}]},{"@type":"WebPage","name":"Free Heartbeat API Endpoint","url":"https://aisense.no/free-public-api-heartbeat-api-endpoint","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Heartbeat API Endpoint</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Agents - Liveness monitoring</p><h1 id="page-title">Free Heartbeat API Endpoint</h1><p class="lede">Give an agent or worker one check-in URL. If it stops calling in, AI SENSE fires one webhook or wakes an Agent Wake task. No account or API key is needed.</p><ul class="badges"><li>No API key</li><li>24h maximum</li><li>One miss action</li><li>SSRF-guarded</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Create, ping and read</p><p class="sig"><span class="method post">POST</span><span class="path">/heartbeat</span></p><p class="sig"><span class="method post">POST</span><span class="path">/heartbeat/{id}/ping</span></p><p class="sig"><span class="method">GET</span><span class="path">/heartbeat/{id}</span></p><code>https://aisenseapi.com/services/v1</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="quick-start"><h2>Create a heartbeat</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/heartbeat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expect_every_seconds": 300,
+    "grace_seconds": 60,
+    "on_miss": {
+      "url": "https://example.com/agent-offline",
+      "payload": { "agent": "worker-7" }
+    }
+  }'</code></pre><pre><code>{
+  "ok": true,
+  "heartbeat_id": "58c85e3e8f739edcb73530d14316f2bfae9ae11bf85374b17e4c9ab75bbec5f1",
+  "status": "armed",
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "next_expected_at_datetime": "2026-09-05T10:05:00Z",
+  "miss_due_at_datetime": "2026-09-05T10:06:00Z",
+  "expires_at_datetime": "2026-09-06T10:00:00Z",
+  "ping_count": 0,
+  "misses": 0,
+  "late": false,
+  "on_miss": { "type": "webhook" },
+  "ping_url": "https://aisenseapi.com/services/v1/heartbeat/58c85e3e.../ping",
+  "status_url": "https://aisenseapi.com/services/v1/heartbeat/58c85e3e..."
+}</code></pre><p>Keep the full <code>heartbeat_id</code> or the returned URLs. The identifier has 256 random bits and works as a bearer secret. There is no list call that can recover it.</p></section>
+<section id="check-in"><h2>Check in after successful work</h2><pre><code>curl -X POST https://aisenseapi.com/services/v1/heartbeat/{heartbeat_id}/ping</code></pre><p>The ping path accepts POST. Each accepted call sets <code>last_ping_at</code> to now, moves <code>next_expected_at</code> forward by the configured interval and increases <code>ping_count</code>. The grace period begins after that next expected time.</p><p>GET never changes a heartbeat. This prevents link scanners and prefetchers from keeping a stopped process alive.</p><p>The fixed <code>expires_at</code> value never moves. A monitor cannot be kept alive beyond 24 hours by sending more pings. Create a new monitor when a new 24-hour window starts.</p></section>
+<section id="actions"><h2>Choose one miss action</h2><div class="table-wrap field-table"><table><thead><tr><th>on_miss field</th><th>What happens</th><th>Limit</th></tr></thead><tbody><tr><td><code>url</code></td><td>AI SENSE sends a JSON POST to a public webhook.</td><td>Optional payload, maximum 32 KB as JSON</td></tr><tr><td><code>wake_task_id</code></td><td>AI SENSE completes an existing Agent Wake webhook task.</td><td>The task must exist and still be working</td></tr></tbody></table></div><p>Send exactly one of these fields. A payload is valid only with a webhook URL.</p><pre><code>{
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "on_miss": {
+    "wake_task_id": "2eb1a08d-759f-4af9-8caa-8b02b7ca17ba"
+  }
+}</code></pre></section>
+<section id="event"><h2>The missed event</h2><p>A webhook receives a body with the monitor identity and the actual miss time. Your optional payload is included under <code>payload</code>.</p><pre><code>{
+  "event": "heartbeat.missed",
+  "heartbeat_id": "58c85e3e8f739edcb73530d14316f2bfae9ae11bf85374b17e4c9ab75bbec5f1",
+  "last_ping_at_timestamp": 1788602400,
+  "last_ping_at_datetime": "2026-09-05T10:00:00Z",
+  "missed_at_timestamp": 1788602764,
+  "missed_at_datetime": "2026-09-05T10:06:04Z",
+  "expect_every_seconds": 300,
+  "grace_seconds": 60,
+  "payload": { "agent": "worker-7" }
+}</code></pre><p>The request also carries <code>User-Agent: AISENSE-Heartbeat/1.0</code> and <code>X-AISENSE-Heartbeat-Id</code>.</p></section>
+<section id="timing"><h2>Timing and states</h2><p><code>expect_every_seconds</code> must be an integer from 60 to 86400. <code>grace_seconds</code> may be zero. Their sum cannot exceed 86400. The deadline worker runs once a minute, so allow minute-level scheduling variation.</p><div class="table-wrap field-table"><table><thead><tr><th>Status</th><th>Meaning</th></tr></thead><tbody><tr><td><code>armed</code></td><td>The monitor can accept a check-in.</td></tr><tr><td><code>missed</code></td><td>The deadline passed and the action failed before an attempt, or delivery is being claimed.</td></tr><tr><td><code>fired</code></td><td>The miss action was attempted. Check <code>delivery.delivered</code> for success.</td></tr><tr><td><code>expired</code></td><td>The fixed lifetime ended without a miss that fell inside the lifetime.</td></tr></tbody></table></div><p>The miss action is claimed before network delivery and is never retried. That prevents duplicate alerts. A process failure after the claim can lose the alert, so use another layer when at-least-once delivery is required.</p></section>
+<section id="read"><h2>Read the status</h2><pre><code>curl https://aisenseapi.com/services/v1/heartbeat/{heartbeat_id}</code></pre><p>A terminal result can include <code>terminal_at</code>, <code>missed_at</code> and <code>delivery</code>. For a webhook, <code>delivery.delivered: true</code> means the target answered with a 2xx status. <code>fired</code> alone means only that an attempt happened.</p><p>Pinging a terminal monitor returns HTTP 409. An unknown or removed identifier returns HTTP 404.</p><p>MCP clients use <code>create_heartbeat</code>, <code>read_heartbeat</code> and <code>ping_heartbeat</code> for the same state.</p></section>
+<section id="security"><h2>Outbound request safety</h2><div class="api-note warning-note"><p>Do not put secrets or personal data in the payload. Anyone with the heartbeat URL can read its status.</p></div><p>Webhook targets may use HTTP or HTTPS on port 80 or 443. Credentials and fragments in the URL are refused. The host must resolve to a public address. AI SENSE checks DNS again at delivery, pins the request to the checked address, follows no redirects and blocks private, loopback, link-local and reserved ranges.</p><p>The service stores timing state and the selected target while the monitor is armed. The target URL, payload or Agent Wake ID is removed when the monitor becomes terminal. The terminal record stays readable for up to another 24 hours, then is removed.</p></section>
+<section id="use-cases"><h2>Useful flows</h2><div class="use-case-grid"><article><h3>Agent run</h3><p>Ping after each completed cycle. Wake a supervisor task when cycles stop.</p></article><article><h3>Queue worker</h3><p>Send one alert when a consumer stops making progress.</p></article><article><h3>Short batch</h3><p>Watch a job that should report every few minutes during a 24-hour window.</p></article><article><h3>Temporary service</h3><p>Monitor an ephemeral process without installing a permanent monitoring stack.</p></article></div></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/free-public-api-agent-wake-api-endpoint">Agent Wake API<span>Resume a waiting task after the miss</span></a><a href="/free-public-api-lease-api-endpoint">Lease API<span>Give one worker temporary ownership</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook Schedule API<span>Send one callback at a chosen time</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API<span>Inspect the event that arrived</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Create</a></li><li><a href="#check-in">Check in</a></li><li><a href="#actions">Miss actions</a></li><li><a href="#event">Event body</a></li><li><a href="#timing">Timing and states</a></li><li><a href="#read">Read status</a></li><li><a href="#security">Safety</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>

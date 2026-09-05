@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-09-01</lastmod></url>
-  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-09-01</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-09-01</lastmod></url>
+  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-09-05</lastmod></url>
   <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-heartbeat-api-endpoint</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-lease-api-endpoint</loc><lastmod>2026-09-05</lastmod></url>
   <url><loc>https://aisense.no/custom-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/make-your-data-available-for-ai</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-09-04</lastmod></url>
@@ -16,8 +18,8 @@
   <url><loc>https://aisense.no/contact-us</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/upload</loc><lastmod>2026-08-21</lastmod></url>
   <url><loc>https://aisense.no/free-qr-code-decoder-api</loc><lastmod>2026-08-21</lastmod></url>
-  <url><loc>https://aisense.no/terms</loc><lastmod>2026-09-01</lastmod></url>
-  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-09-01</lastmod></url>
+  <url><loc>https://aisense.no/terms</loc><lastmod>2026-09-05</lastmod></url>
+  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-09-05</lastmod></url>
   <url><loc>https://aisense.no/tokenizer-cost-study</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/smart-beehive-monitoring-system</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-08-20</lastmod></url>

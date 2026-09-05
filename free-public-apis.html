@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Free public REST APIs - AISENSE - FREE PUBLIC API SERVICES</title>
-<meta name="description" content="Free public REST APIs with no API key and no sign-up: datetime, timestamp, UUID, random numbers and passwords, Base64/Base58/Base32, JWT, QR codes, MD5/SHA hashing, IP geolocation, temporary storage, URL shortening, webhook capture and human-in-the-loop webhook actions, plus Solana, Bitcoin and Ethereum wallets. Verified request and response formats for every endpoint.">
+<meta name="description" content="Free public REST APIs with no API key and no sign-up: heartbeat monitoring, anonymous leases, Agent Wake, webhooks, storage, time, UUID, encoding, hashing, QR codes, IP tools and crypto lookups.">
 <link rel="canonical" href="https://aisense.no/free-public-apis">
 
 <meta property="og:type" content="website">
@@ -44,7 +44,7 @@
     {
       "@type": "WebAPI",
       "name": "AI SENSE Free Public REST APIs",
-      "description": "Utility REST endpoints for time, randomness, encoding, hashing, web lookups, webhooks and crypto wallets. No authentication.",
+      "description": "Utility REST endpoints for heartbeat monitoring, anonymous leases, agent workflows, time, encoding, hashing, web lookups and crypto wallets. No authentication.",
       "documentation": "https://aisense.no/free-public-apis",
       "termsOfService": "https://aisense.no/terms",
       "provider": { "@type": "Organization", "name": "AI SENSE AS" }
@@ -95,7 +95,7 @@
 
 <section class="callout" aria-labelledby="mcp-server-heading">
   <h2 id="mcp-server-heading">Connecting an AI agent?</h2>
-  <p>Use the free remote MCP server at <code>https://aisenseapi.com/mcp</code>. It gives an agent ten workflow tools, including durable Agent Wake tasks.</p>
+  <p>Use the free remote MCP server at <code>https://aisenseapi.com/mcp</code>. It gives an agent 18 workflow tools, including Heartbeat, Lease and durable Agent Wake tasks.</p>
   <p>For Verifyum alone, connect directly to <code>https://api.verifyum.com/mcp</code>. It needs no account or API key, and file hashing stays on the agent's machine.</p>
   <p><a href="/free-public-mcp-server">See the MCP tool list and client examples</a>.</p>
 </section>
@@ -125,9 +125,11 @@
   <h2 id="api-guides-heading">Detailed API guides</h2>
   <p>Each guide includes request formats, response fields, curl examples and common errors.</p>
   <div class="related-api-grid">
+    <a href="/free-public-api-heartbeat-api-endpoint"><strong>Heartbeat API</strong><span>Alert once when an agent stops checking in.</span></a>
+    <a href="/free-public-api-lease-api-endpoint"><strong>Lease API</strong><span>Give one worker a lock and reuse its result.</span></a>
     <a href="/free-public-api-agent-wake-api-endpoint"><strong>Agent Wake API</strong><span>Resume after a webhook, human answer or time.</span></a>
-    <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive and inspect webhooks for 24 hours.</span></a>
-    <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Pause a workflow for a human answer.</span></a>
+    <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive, wait for and inspect one webhook.</span></a>
+    <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Ask one person or a group for answers.</span></a>
     <a href="/free-public-api-storage-api-endpoint"><strong>Temporary Storage API</strong><span>Store JSON, text or files for 24 hours.</span></a>
     <a href="/free-public-api-url-shortener-api-endpoint"><strong>URL Shortener API</strong><span>Create short links that expire after 24 hours.</span></a>
     <a href="/free-public-api-ip-reverse-lookup-api-endpoint"><strong>IP Reverse Lookup API</strong><span>Look up country, location and timezone data.</span></a>
@@ -520,7 +522,7 @@ Response: {"result": 42}</code></pre>
 <article class="endpoint">
 <h3><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_capture</span> - <span class="method">GET</span> <span class="path">/webhook_capture/{capture_id}</span></p>
-<p>Create a capture session, get a unique URL, point any external service at it - Stripe, GitHub, Shopify - and read back the full inbound request: method, headers, query parameters, client IP and parsed body. No ngrok, no local tunnel, no server. Expires after 24 hours.</p>
+<p>Create a capture session, point a sender at its unique URL and read back the first inbound request. The result includes method, headers, client IP and parsed body. Wait for up to 25 seconds or ask for one completion signal. No tunnel or server is needed. Expires after 24 hours.</p>
 <pre><code># 1. create
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 { "ok": true, "capture_id": "6f8c9e52-...", "update_url": ".../update", "read_url": "...", "expire_timestamp": ... }
@@ -544,8 +546,8 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 <article class="endpoint">
 <h3><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_action</span> - <span class="method">GET</span> <span class="path">/webhook_action/{action_id}</span></p>
-<p>Human-in-the-loop for automated pipelines. When a process needs a person to decide before it continues, this handles the whole pattern with no backend of your own: post a form definition, send the resulting <code>form_url</code> to a human, and poll <code>result_url</code> until <code>status</code> becomes <code>answered</code>.</p>
-<p>Field types are <code>radio</code>, <code>select</code>, <code>text</code>, <code>textarea</code> and <code>checkbox</code>. <code>options</code> accepts plain strings or <code>{"value": ..., "label": ...}</code> objects. Expires after 24 hours.</p>
+<p>Post a form definition and send the returned link to one person. Set <code>respondents</code> from 2 to 20 for separate one-use links and an aggregate result. Read immediately, wait for up to 25 seconds or add <code>notify_url</code> for one completion signal.</p>
+<p>Field types are <code>radio</code>, <code>select</code>, <code>text</code>, <code>textarea</code> and <code>checkbox</code>. Group status moves through pending, partial and answered. Expires after 24 hours.</p>
 <pre><code>{
   "title": "Approve deployment to production?",
   "fields": [
@@ -567,7 +569,7 @@ curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 <article class="endpoint">
 <h3><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook Schedule REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_schedule</span> - <span class="method">GET</span> <span class="path">/webhook_schedule/{schedule_id}</span></p>
-<p>The timer an agent does not have. POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>, and the payload is delivered at that time with one retry. The horizon is one minute to 24 hours, and delivery lands on the next whole minute after the job falls due rather than at the exact second. The target must resolve to a public address; private, loopback and reserved ranges are refused at creation and again at delivery, and redirects are never followed. <a href="/free-public-api-webhook-schedule-api-endpoint">Full details</a>.</p>
+<p>POST a URL and payload with <code>delay_seconds</code> or <code>fire_at</code>. Add <code>every</code> for a recurring job. Read, wait for or cancel it through the returned bearer URL. Delivery runs once a minute. Public-address checks run at creation and delivery, and redirects are not followed. <a href="/free-public-api-webhook-schedule-api-endpoint">Full details</a>.</p>
 <pre><code>POST /webhook_schedule   { "url": "https://example.com/hook", "delay_seconds": 1200, "payload": { "job": 42 } }
   ->  { "ok": true, "schedule_id": "1f1d7b8b-...", "status": "scheduled", "result_url": "..." }
 
@@ -578,13 +580,41 @@ GET  /webhook_schedule/{id}
 <article class="endpoint">
 <h3><a href="/free-public-api-agent-wake-api-endpoint">Agent Wake REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/agent_wake</span> - <span class="method">GET</span> <span class="path">/agent_wake/{task_id}</span></p>
-<p>Create one durable wait state for a webhook, a person or a time. The first matching event completes the task. The same task model is available through the MCP Tasks extension, so an agent can stop polling separate capture and approval tools and resume from one result.</p>
+<p>Create one durable wait state for a webhook, a person or a time. The first matching event completes the task. REST clients may wait up to 25 seconds for a terminal result, and MCP clients use the Tasks extension.</p>
 <pre><code>POST /agent_wake   { "event_type": "webhook", "timeout_seconds": 3600 }
   ->  { "resultType": "task", "taskId": "2eb1a08d-...", "status": "working",
         "_meta": { "com.aisenseapi/agentWake": { "wakeUrl": ".../wake" } } }
 
 GET  /agent_wake/{task_id}
   ->  { "resultType": "complete", "status": "completed", "result": { ... } }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-heartbeat-api-endpoint">Heartbeat REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/heartbeat</span> - <span class="method post">POST</span> <span class="path">/heartbeat/{heartbeat_id}/ping</span></p>
+<p>Watch a process that should check in on a fixed rhythm. The first missed deadline fires one public webhook or wakes an Agent Wake task. A ping moves the next expected time but never moves the fixed 24-hour expiry.</p>
+<pre><code>POST /heartbeat
+{ "expect_every_seconds": 300, "grace_seconds": 60,
+  "on_miss": { "url": "https://example.com/agent-offline",
+               "payload": { "agent": "worker-7" } } }
+
+POST /heartbeat/{heartbeat_id}/ping
+  -> { "status": "armed", "ping_count": 1, "next_expected_at_datetime": "..." }</code></pre>
+<p>The heartbeat ID is a bearer secret. Webhook destinations are checked for SSRF at creation and again at delivery. Miss actions run once with no retry. <a href="/free-public-api-heartbeat-api-endpoint">Read the Heartbeat guide</a>.</p>
+</article>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-lease-api-endpoint">Lease REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/lease</span> - <span class="method post">POST</span> <span class="path">/lease/complete</span></p>
+<p>Let one worker claim a shared key. The winner receives an owner token and a monotonic fencing token. Other workers get HTTP 409 while it is held. A completed JSON result can be returned to later callers with the same key and fingerprint.</p>
+<pre><code>POST /lease/namespace   {}
+  -> { "namespace": "ns_...", "entropy_bits": 256 }
+
+POST /lease
+{ "namespace": "ns_...", "key": "invoice:2026-09-05",
+  "ttl_seconds": 60, "fingerprint": "charge-order-501" }
+  -> { "status": "held", "owner_token": "own_...", "fencing_token": 184 }</code></pre>
+<p>A lease can be renewed, released or completed. The absolute lifecycle ends 24 hours after its first acquisition and cannot be extended. <a href="/free-public-api-lease-api-endpoint">Read the Lease guide</a>.</p>
 </article>
 </section>
 
@@ -684,14 +714,14 @@ response = client.chat.completions.create(
 <h3>Time</h3>
 <div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 with an offset</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
 <h3>Web</h3>
-<div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a><a href="/free-public-api-agent-wake-api-endpoint">Free Agent Wake API Endpoint<span>Resume after an outside event</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a><a href="/free-public-api-agent-wake-api-endpoint">Free Agent Wake API Endpoint<span>Resume after an outside event</span></a><a href="/free-public-api-heartbeat-api-endpoint">Free Heartbeat API Endpoint<span>Fire once when check-ins stop</span></a><a href="/free-public-api-lease-api-endpoint">Free Lease API Endpoint<span>Coordinate workers with fencing</span></a></div>
 <h3>Crypto</h3>
 <div class="related-api-grid"><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Free Bitcoin Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-bitcoin-balance-api-endpoint">Free Bitcoin Balance API Endpoint<span>BTC and satoshis</span></a><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Free Ethereum Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-ethereum-balance-api-endpoint">Free Ethereum Balance API Endpoint<span>Strings, not numbers</span></a><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Free Solana Wallet API Endpoint<span>Test key pair, never real funds</span></a><a href="/free-public-api-solana-balance-api-endpoint">Free Solana Balance API Endpoint<span>SOL and lamports</span></a></div>
 </section>
 
 <section id="summary" aria-labelledby="summary-heading">
 <h2 id="summary-heading">All endpoints</h2>
-<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Storage, URL Shortener, Webhook Capture, Webhook Action and Agent Wake all expire after 24 hours.</p>
+<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Temporary active state has a 24-hour ceiling. Heartbeat terminal state can remain readable for another 24 hours.</p>
 
 <div class="table-wrap">
 <table>
@@ -735,13 +765,15 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
-<tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET</td><td><code>schedule_id</code>, <code>status</code>, <code>attempts</code>, <code>http_status</code></td></tr>
+<tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET / DELETE</td><td>one-shot or recurring state, wait support, delivery counts</td></tr>
 <tr><td>Web</td><td><code>/agent_wake</code></td><td>POST / GET / DELETE</td><td><code>taskId</code>, <code>status</code>, <code>result</code></td></tr>
+<tr><td>Web</td><td><code>/heartbeat</code></td><td>POST / GET</td><td><code>heartbeat_id</code>, <code>status</code>, timing fields, <code>ping_count</code>, <code>delivery</code></td></tr>
+<tr><td>Web</td><td><code>/lease</code></td><td>POST</td><td><code>status</code>, <code>owner_token</code>, <code>fencing_token</code>, expiry fields, <code>result</code></td></tr>
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
-<tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td><code>capture_id</code>, <code>update_url</code>, <code>read_url</code></td></tr>
-<tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td><code>action_id</code>, <code>form_url</code>, <code>result_url</code></td></tr>
+<tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td>pending or captured state, update, read and wait URLs</td></tr>
+<tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td>single or group forms, result and wait URLs</td></tr>
 <tr><td>Crypto</td><td><code>/solana/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>public_address</code></td></tr>
 <tr><td>Crypto</td><td><code>/solana/balance/{address}</code></td><td>GET</td><td><code>balance_sol</code>, <code>balance_lamports</code></td></tr>
 <tr><td>Crypto</td><td><code>/bitcoin/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>private_key_wif</code>, <code>public_address</code></td></tr>
