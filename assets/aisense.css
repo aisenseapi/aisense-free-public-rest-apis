@@ -985,3 +985,126 @@ td code { white-space: nowrap; }
   html { scroll-behavior: auto; }
   .button, .card-link span, .text-link span { transition: none; }
 }
+
+
+/* ---------------------------------------------------------------------------
+ * Primary navigation: inline on desktop, a dropdown on narrow screens.
+ *
+ * Seven links do not fit a phone. They used to become a horizontally scrolling
+ * strip with the scrollbar hidden, so five of the seven sat off screen with
+ * nothing on the page to suggest they existed.
+ *
+ * A checkbox and label rather than details and summary, and rather than a
+ * script. details was tried first and does not work here: it contributes none
+ * of its children's width to its own content box, so at desktop widths the nav
+ * measured zero and the links stacked into a column in the right margin.
+ * Measured at 1280px. A plain div has no such behaviour and accepts
+ * display:contents, which keeps the links as direct flex children of .site-nav
+ * on desktop and leaves the old layout exactly as it was.
+ * ------------------------------------------------------------------------- */
+.site-menu-toggle,
+.site-menu-button { display: none; }
+.site-menu-links { display: contents; }
+
+@media (max-width: 640px) {
+  /* The scroll strip is no longer wanted now the links live in a panel. */
+  .site-nav {
+    position: relative;
+    overflow: visible;
+    padding: 0 18px 0 0;
+    flex-wrap: nowrap;
+  }
+
+  /*
+   * Moved out of sight rather than display:none, because a checkbox that is
+   * not rendered is not focusable, and the keyboard path runs through it.
+   */
+  .site-menu-toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .site-menu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: auto;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .site-menu-toggle:focus-visible + .site-menu-button {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
+
+  .site-menu-bars,
+  .site-menu-bars::before,
+  .site-menu-bars::after {
+    display: block;
+    width: 17px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+  }
+
+  .site-menu-bars { position: relative; }
+
+  .site-menu-bars::before,
+  .site-menu-bars::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    transition: transform 0.15s ease, top 0.15s ease;
+  }
+
+  .site-menu-bars::before { top: -6px; }
+  .site-menu-bars::after  { top: 6px; }
+
+  /* Open turns the three bars into a close cross. */
+  .site-menu-toggle:checked + .site-menu-button .site-menu-bars { background: transparent; }
+  .site-menu-toggle:checked + .site-menu-button .site-menu-bars::before { top: 0; transform: rotate(45deg); }
+  .site-menu-toggle:checked + .site-menu-button .site-menu-bars::after  { top: 0; transform: rotate(-45deg); }
+
+  .site-menu-links { display: none; }
+
+  .site-menu-toggle:checked ~ .site-menu-links {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 18px;
+    top: calc(100% + 11px);
+    min-width: 236px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    box-shadow: 0 14px 32px rgba(16, 24, 40, 0.16);
+    z-index: 60;
+  }
+
+  .site-menu-toggle:checked ~ .site-menu-links a {
+    padding: 12px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+
+  .site-menu-toggle:checked ~ .site-menu-links a[aria-current="page"] { background: #eef4ff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-menu-bars::before,
+  .site-menu-bars::after { transition: none; }
+}
