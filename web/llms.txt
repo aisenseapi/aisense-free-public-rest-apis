@@ -28,6 +28,14 @@ Lease gives anonymous workers one short-lived coordination point. The winner get
 
 Agent Inbox gives an agent a disposable email address for up to 24 hours, so it can receive a verification code, a confirmation link or a sign-up mail. Creation returns two identifiers with different powers. The seven-character slug appears in the address and is public: it allows sending mail to the inbox and never reads it. The inbox_id is a UUID, is returned once and is the only credential that reads the inbox, so treat it as a bearer secret. A wrong inbox_id and a missing inbox both answer 404. Attachments, raw MIME, arbitrary headers, scripts, styles and private or localhost links are stripped before storage. MCP tools: create_agent_inbox, read_agent_inbox.
 
+## A2A
+
+- Endpoint: https://aisenseapi.com/a2a
+- Agent card: https://aisenseapi.com/.well-known/agent-card.json
+- Guide: https://aisense.no/free-public-a2a-agent-endpoint
+
+Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON-RPC 2.0 over HTTP POST with no account or API key. It offers four task-shaped skills and nothing else: agent-wake, human-approval, agent-inbox and webhook-capture. The remaining tools stay on REST and MCP, where their schemas are published in band, so MCP remains the richer surface. A2A skills are not addressable: there is no skill id on the wire and no input schema on a skill, so the caller names the skill in a message part carrying structured data, as {"skill": "agent-wake", "arguments": {}}. That convention belongs to this service, not to the protocol, and a message without that data part is refused because the agent has no language model. SendMessage, GetTask, ListTasks and CancelTask are implemented; agent-wake answers with a Task, the other three answer with a Message carrying the created resource. Streaming methods and the extended card answer -32004 and push notification configuration answers -32003, which is the conforming behaviour for capabilities the card declares false. ListTasks always returns an empty page because the service authenticates nobody and task ids are the only credential there is.
+
 ## REST API
 
 - Base URL: https://aisenseapi.com/services/v1

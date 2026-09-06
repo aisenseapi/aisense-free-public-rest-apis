@@ -5,8 +5,11 @@
 > **Cost:** Free
 > **Rate limit:** 5000 requests per IP per 24 hours
 
-AI agents can also use the remote MCP server at `https://aisenseapi.com/mcp`.
-See [`MCP.md`](MCP.md) for its tool list and client examples.
+This document is the REST reference. The same service answers on two further
+protocols: the remote MCP server at `https://aisenseapi.com/mcp`, and Agent2Agent
+at `https://aisenseapi.com/a2a`. See [`MCP.md`](MCP.md) for the MCP tool list and
+client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the four
+task-shaped skills that protocol carries.
 
 Every response shape below was verified against production. The response key is
 almost never `data` or `result` - it is usually named after the endpoint
@@ -24,6 +27,7 @@ guess it.
 - [Hash](#hash)
 - [Web](#web)
 - [Crypto](#crypto)
+- [Agent2Agent (A2A)](#agent2agent-a2a)
 - [Common Conventions](#common-conventions)
 
 ---
@@ -1231,6 +1235,180 @@ Ethereum returns its two balance fields as **strings**. Wei routinely exceeds
 `2^53`, which is the largest integer a JSON number survives in a JavaScript
 client, so a number here would be silently wrong. Bitcoin and Solana return
 numbers; their smallest units stay well inside the safe range.
+
+---
+
+## Agent2Agent (A2A)
+
+A2A is a protocol for handing work to another agent and following it to
+completion. MCP is the protocol for exposing tools. Almost everything on this
+page is a tool, so only four capabilities are offered over A2A: the ones where a
+long-lived, resumable, human-in-the-loop task is the interesting object, and
+where MCP needed an extension to express what A2A has in core.
+
+**MCP is the richer surface.** It carries all twenty tools with an input and an
+output schema for each, published in band. A2A carries four skills, and the
+other tools are not reachable through it. Hashing, encoding, UUIDs, time and the
+rest stay on REST and MCP. Reach for A2A when your client already speaks it or
+when you want the task lifecycle; reach for MCP when you want the tools.
+
+**Endpoint:** `POST https://aisenseapi.com/a2a`. JSON-RPC 2.0, protocol revision
+`1.0` (specification v1.0.1). No account and no API key, same as everything else
+here. Bodies are capped at 256 KB. A protocol error is still HTTP 200 with the
+error inside the JSON-RPC envelope; only the transport refuses with a status of
+its own, 405 for any method other than POST and 413 for an oversized body.
+Batches work. A notification, meaning a request with no `id`, is answered with
+HTTP 204 and no body.
+
+**Agent card:** `GET https://aisenseapi.com/.well-known/agent-card.json`. A plain
+GET rather than a JSON-RPC method, because the protocol has no method for
+fetching the public card. It is cacheable for an hour and carries an ETag. The
+endpoint address lives in `supportedInterfaces`, not in a top-level `url`, and
+`capabilities` declares `streaming: false`, `pushNotifications: false` and
+`extendedAgentCard: false`.
+
+### Naming a skill is a convention here, not a standard field
+
+A2A skills are not addressable. There is no skill id anywhere on the wire and no
+`inputSchema` on a skill, so nothing in the protocol says which of the advertised
+skills a message is asking for. Look for a standard field and you will not find
+one. This service reads the skill from a part carrying structured data:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "m1",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "data": {
+            "skill": "agent-wake",
+            "arguments": { "event_type": "webhook", "timeout_seconds": 3600 }
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  }
+}
+```
+
+That shape is documented here and nowhere in the specification. A message with
+no such data part is refused with `-32602`: this agent has no language model and
+does not interpret free text. An unknown skill id is refused with `-32602` too.
+`arguments` are the arguments of the matching MCP tool, checked by the same code,
+so bounds and refusals are identical on both surfaces.
+
+### The four skills
+
+| Skill id | Creates | Answers with |
+|----------|---------|--------------|
+| `agent-wake` | a durable wait for a webhook, a person or a chosen time | a Task |
+| `human-approval` | a hosted decision form, for one person or up to 20 | a Message |
+| `agent-inbox` | a disposable mail address | a Message |
+| `webhook-capture` | a URL that records the first request sent to it | a Message |
+
+Each lasts at most 24 hours, the same limit as everywhere else on this service.
+
+`agent-wake` answers with an A2A Task:
+
+```json
+{
+  "id": "c450a722-cfff-4e81-955b-a4baa566a458",
+  "contextId": "c450a722-cfff-4e81-955b-a4baa566a458",
+  "status": { "state": "TASK_STATE_WORKING", "timestamp": "2026-09-06T17:11:18Z" }
+}
+```
+
+The states are `TASK_STATE_WORKING`, `TASK_STATE_INPUT_REQUIRED`,
+`TASK_STATE_COMPLETED`, `TASK_STATE_FAILED` and `TASK_STATE_CANCELED`. Note the
+single L in `CANCELED`; the REST status for the same task is spelled `cancelled`.
+An interrupted task puts the thing a person has to act on, such as a form URL, in
+`status.update`.
+
+The other three answer with a Message carrying the created resource:
+
+```json
+{
+  "messageId": "msg-57925ef67c5f0f8e",
+  "role": "ROLE_AGENT",
+  "parts": [
+    {
+      "data": {
+        "ok": true,
+        "action_id": "f959a9b7-6f92-4f09-8e60-98d452f723b6",
+        "status": "pending",
+        "form_url": "https://aisenseapi.com/services/v1/webhook_action/f959a9b7-.../form",
+        "result_url": "https://aisenseapi.com/services/v1/webhook_action/f959a9b7-...",
+        "wait_url": "https://aisenseapi.com/services/v1/webhook_action/f959a9b7-.../wait/25"
+      },
+      "mediaType": "application/json"
+    }
+  ]
+}
+```
+
+Those three create the resource and stop there. Reading a captured request, the
+mail in an inbox or a submitted form is not an A2A operation: follow the
+`read_url`, `result_url` and `wait_url` in the reply, which are the REST
+endpoints documented above, or call the matching MCP tool.
+
+### Methods
+
+Method names are PascalCase, not the slash names from revision 0.x.
+
+| Method | Result |
+|--------|--------|
+| `SendMessage` | implemented |
+| `GetTask` | implemented |
+| `CancelTask` | implemented |
+| `ListTasks` | implemented, always an empty page |
+| `SendStreamingMessage`, `SubscribeToTask` | `-32004` |
+| `CreateTaskPushNotificationConfig`, `GetTaskPushNotificationConfig`, `ListTaskPushNotificationConfigs`, `DeleteTaskPushNotificationConfig` | `-32003` |
+| `GetExtendedAgentCard` | `-32004` |
+
+The declined methods are not gaps. Once a card declares a capability false,
+returning these errors is the conforming behaviour the specification asks for.
+**The two families use different codes and are not interchangeable:** streaming
+and the extended card answer `-32004`, push notification configuration answers
+`-32003`. A client that folds them into one error reports the wrong cause.
+
+`GetTask` and `CancelTask` take the task id in `params.id`, and `params.taskId`
+is accepted as well. They address Agent Wake tasks, the only task store this
+service has. `CancelTask` returns the task in its new state.
+
+**`ListTasks` always returns an empty page.**
+
+```json
+{ "tasks": [], "nextPageToken": "", "pageSize": 50, "totalSize": 0 }
+```
+
+The specification requires every operation to scope its results to the
+authenticated caller. This service authenticates nobody, so there is no principal
+to scope to, and a global list would hand every caller every task id. Those ids
+are the only credential there is. An empty page is the conservative reading, not
+an unfinished feature. Keep your own task ids.
+
+### Error codes
+
+| Code | Meaning |
+|------|---------|
+| `-32700` | Parse error. The body was not JSON. |
+| `-32600` | Invalid Request. `jsonrpc` was not `"2.0"`, or the envelope was unusable. |
+| `-32601` | Method not found. |
+| `-32602` | Invalid params. No data part naming a skill, an unknown skill id, a missing task id, or arguments the underlying tool refused. |
+| `-32001` | Task not found. |
+| `-32003` | Push notification configuration is not supported. |
+| `-32004` | Streaming, or the extended card, is not supported. |
+| `-32603` | Internal error. |
+
+A wrong task id and a task that never existed both answer `-32001`, with the same
+message. Nothing distinguishes them, because the id is the credential and telling
+them apart would turn the endpoint into a lookup oracle for task ids.
 
 ---
 
