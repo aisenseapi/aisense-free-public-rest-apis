@@ -493,12 +493,11 @@ if [ "$STATUS" = "201" ] && [ -n "$INBOX_ID" ] && [ -n "$INBOX_SLUG" ]; then
     bad "Agent Inbox (wait)" "expected HTTP 200 with waited_seconds and wait_reason, got $STATUS: $(echo "$BODY" | head -c 140)"
   fi
 
-  # 404, not 400, and not the 200 the sibling long-poll routes answer. Those
-  # clamp an out-of-range value; this endpoint matches the wait segment against
-  # 0 to 25 and treats anything else as a path it does not serve. Measured on
-  # production: /webhook_capture/{id}/wait/26 and /wait/99 both answer 200.
+  # 200, like the four sibling wait routes. An out-of-range value is clamped to
+  # 25 rather than refused. This route used to answer 404 instead, which read as
+  # a bad credential to anyone who had used /webhook_capture/{id}/wait/60 first.
   request GET "$BASE/inbox/$INBOX_ID/wait/26"
-  [ "$STATUS" = "404" ] && ok "Agent Inbox (wait above 25 seconds is not a route)" || bad "Agent Inbox (wait bounds)" "expected 404, got $STATUS"
+  [ "$STATUS" = "200" ] && ok "Agent Inbox (wait above 25 seconds is clamped, not refused)" || bad "Agent Inbox (wait bounds)" "expected 200, got $STATUS"
 else
   bad "Agent Inbox (create)" "expected HTTP 201, a UUID inbox_id and a seven character slug, got $STATUS: $(echo "$BODY" | head -c 140)"
 fi
