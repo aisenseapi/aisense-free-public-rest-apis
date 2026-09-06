@@ -935,14 +935,17 @@ localhost links are dropped.
 
 **Wait:** `GET /inbox/{inbox_id}/wait/{seconds}` where `seconds` is 0 to 25.
 It returns the same object with `waited_seconds` and `wait_reason` added.
+Anything outside 0 to 25 does not match this route and returns HTTP 404. The
+other wait routes on this surface clamp a larger value to 25 instead.
 
 `truncated` is worth knowing about. A full inbox refuses new mail rather than
 evicting old mail, so the message you are waiting for can be turned away while
-everything that arrived earlier is still sitting there. Nothing else in the
-response would tell you: the count is simply at its cap. `truncated` is what
-says a message was refused. It is in the long poll signature too, so a waiter
-is woken when the cap turns its message away instead of waiting out the
-timeout.
+everything that arrived earlier is still sitting there. Either cap does it, the
+20 message limit or the 256 KiB total. Nothing else in the response would tell
+you, since a refused message simply never appears. `truncated` is what says one
+was refused. The long poll watches the flag as well as the count, so a refusal
+ends the wait rather than leaving you to sit out the full duration for a message
+that is never coming.
 
 **Worked example.** Create the inbox and keep both values.
 
@@ -968,7 +971,8 @@ messages[0].links[0]   -> "https://example.com/confirm/abc"
 ```
 
 If the call returns with `received` still 0, repeat it until the mail arrives
-or `expire_timestamp` passes.
+or `expire_timestamp` passes. A read after that answers HTTP 410, and HTTP 404
+once the expired record has been pruned.
 
 Limits, all fixed: 20 messages per inbox, 64 KiB of cleaned text per message,
 256 KiB of cleaned text per inbox in total, 50 inboxes per client per UTC day

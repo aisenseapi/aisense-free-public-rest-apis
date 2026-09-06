@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>The Address Is Public. The Mailbox Is Not. - AI SENSE</title>
-<meta name="description" content="Agent Inbox gives an AI agent a disposable mail address that lasts up to 24 hours. The address is public and the read key is not, because mail systems copy an address everywhere they can.">
+<meta name="description" content="Agent Inbox gives an AI agent a disposable mail address that lasts up to 24 hours. The address is public and the credential that reads it is not, because mail systems copy an address everywhere they can.">
 <link rel="canonical" href="https://aisense.no/the-address-is-public">
 
 <meta property="og:type" content="article">
@@ -25,7 +25,7 @@
     {
       "@type": "TechArticle",
       "headline": "The Address Is Public. The Mailbox Is Not.",
-      "description": "Agent Inbox gives an AI agent a disposable mail address for up to 24 hours, with the public address and the private read key kept as two separate values.",
+      "description": "Agent Inbox gives an AI agent a disposable mail address for up to 24 hours, with the public address and the secret that reads the mail kept as two separate values.",
       "url": "https://aisense.no/the-address-is-public",
       "datePublished": "2026-09-06",
       "inLanguage": "en",
@@ -64,7 +64,7 @@
 
 <h2>The constraint nobody gets to design around</h2>
 
-<p>The obvious way to build this is one random identifier that serves as both the address and the key. It is one value to pass around, one thing to store, and it works on the first try. It is also wrong, and the reason is worth stating plainly.</p>
+<p>The obvious way to build this is one random identifier that is both the address and the credential that reads it. It is one value to pass around, one thing to store, and it works on the first try. It is also wrong, and the reason is worth stating plainly.</p>
 
 <p>An address is copied by every system it touches. It goes into the To and Delivered-To headers. It appears in bounce messages that travel back through servers you have no relationship with. It lands in the sender's logs, their analytics, their support tickets, their spam filter's training data. None of that is under your control, and none of it is a secret store. An address is public the moment you use it for the one thing an address is for.</p>
 
@@ -76,34 +76,34 @@
 
 <h2>Two values, two different powers</h2>
 
-<p>So an inbox has two identifiers, and they are not interchangeable. The address carries a seven-character slug, which looks like <code>aisense+ztjqt7n@aisenseapi.com</code>. That part is public by construction. Knowing it lets anyone send mail to the inbox, which is exactly what an address is meant to allow.</p>
+<p>So an inbox has two identifiers, and they are not interchangeable. The address carries a seven-character slug, so the whole of it looks like <code>aisense+ztjqt7n@aisenseapi.com</code>. That part is public by construction. Knowing it lets anyone send mail to the inbox, which is exactly what an address is meant to allow.</p>
 
-<p>Reading takes a separate value, a UUID returned once when the inbox is created. It is the only thing that opens the mail. It never appears in the address, never travels in a mail header, and is never echoed back in a response. A read answers with the slug, not the key.</p>
+<p>Reading takes a separate value, a UUID returned once when the inbox is created. It is the only thing that reads the mail. It never appears in the address, never travels in a mail header, and a read never hands it back: the response carries the slug instead.</p>
 
-<p>One consequence is worth spelling out. A wrong key and an inbox that never existed give the same answer, a plain 404. Nothing anywhere returns a 403, because a 403 would confirm that something is there to find. The status code tells an attacker nothing they did not already know.</p>
+<p>One consequence is worth spelling out. A wrong credential and an inbox that never existed give the same answer, a plain 404. No inbox call returns a 403, because a 403 would confirm that something is there to find. The status code tells an attacker nothing they did not already know.</p>
 
 <h2>A full inbox refuses mail. It does not forget.</h2>
 
 <p>An inbox holds twenty messages. When it reaches that, the natural instinct is to drop the oldest to make room, and that instinct is wrong too. An agent waiting on a code usually cares about a message that already arrived. Quietly discarding it to make space for a newsletter is the worst possible trade.</p>
 
-<p>So a full inbox turns the new message away and keeps everything it already has. That creates a second problem, which is that from the outside a refusal looks like nothing happening at all: the count sits at its cap and the message you wanted never shows up. Every read therefore carries a <code>truncated</code> flag saying a message was refused. It is part of the long-poll signature too, so an agent waiting for mail is woken when the cap turns its message away, instead of sitting there until the timeout.</p>
+<p>So a full inbox turns the new message away and keeps everything it already has. That creates a second problem, which is that from the outside a refusal looks like nothing happening at all: the count sits at its cap and the message you wanted never shows up. Every read therefore carries a <code>truncated</code> flag, true once a message has been refused, and a wait that ends with nothing new carries it as well. An agent that comes back empty gets a reason rather than a blank count.</p>
 
 <h2>What actually gets stored</h2>
 
-<p>Mail is untrusted input, and an inbox that hands raw messages to an agent is a delivery mechanism for whatever a stranger felt like sending. What survives is the sender address, the subject, the time we received it, the cleaned text, any standalone four to eight digit codes, and public links. Attachments, raw MIME, arbitrary headers, scripts, styles and links pointing at private or local addresses are all removed before anything is stored.</p>
+<p>Mail is untrusted input, and an inbox that hands raw messages to an agent is a delivery mechanism for whatever a stranger felt like sending. What survives is the sender address, the subject, the time we received it, the cleaned text, any standalone four to eight digit codes, and public links. Attachments, raw MIME, arbitrary headers, scripts and styles are removed before anything is stored, and a link pointing at a private or local address never reaches the extracted list.</p>
 
 <p>The received time is our own, not the <code>Date</code> header, for the same reason: that header is written by the sender.</p>
 
 <h2>Free, and deliberately short-lived</h2>
 
-<p>No account, no API key, no sign-up. An inbox lives at most 24 hours and that limit is fixed rather than extendable, because a disposable address that quietly becomes permanent is no longer disposable. Reach it over REST at <code>POST /services/v1/inbox</code>, or through the <a href="/free-public-mcp-server">free MCP server</a> as <code>create_agent_inbox</code> and <code>read_agent_inbox</code>, which brings that endpoint to twenty tools.</p>
+<p>No account, no API key, no sign-up. An inbox lives at most 24 hours and that limit is fixed rather than extendable, because a disposable address that quietly becomes permanent is no longer disposable. Reach it over REST at <code>POST /services/v1/inbox</code>, or through the <a href="/free-public-mcp-server">free MCP server</a> as <code>create_agent_inbox</code> and <code>read_agent_inbox</code>, which take that server to twenty tools.</p>
 
 <p>It is a verification-code inbox and a sign-up mailbox for automated work. It is not a mail account, and it is not somewhere to send anything you would mind another person reading.</p>
 
 <div class="article-cta">
   <p class="eyebrow">Try it</p>
   <h2>Give your agent an address it can throw away.</h2>
-  <p>One call returns the address and the key. No account, no API key, no setup.</p>
+  <p>One call returns the address and the credential that reads it. No account, no API key, no setup.</p>
   <div class="button-row"><a href="/free-public-api-agent-inbox-api-endpoint">Read the Agent Inbox guide</a> <a href="/free-public-mcp-server">Use it over MCP</a></div>
 </div>
 </div>

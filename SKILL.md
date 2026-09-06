@@ -23,10 +23,12 @@ or `result` wrapper. `/md5_hash` returns `md5_hash`. `/ping` returns `ping`.
 `timestamp`. Never guess - the table at the bottom lists every key.
 
 **2. Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
-2026-08-17: 400 caller mistake, 404 unknown id or endpoint, 429 rate limit,
-500 our failure, 502/504 upstream. Branch on either the status or the `error`
-key - both are trustworthy, and a path matching no route is a plain 404 in the
-same shape.
+2026-08-17: 400 caller mistake, 404 unknown id or endpoint, 410 an id that
+existed and has expired (Webhook Capture, Webhook Action and Agent Inbox, which
+turn into a plain 404 once the expired record is swept), 429 rate limit, 500
+our failure, 502/504 upstream. Branch on either the status or the `error` key -
+both are trustworthy, and a path matching no route is a plain 404 in the same
+shape.
 
 **3. Not everything is JSON.** `base64_decode`, `base58_decode` and
 `base32_decode` return `application/octet-stream` unless you send
@@ -368,7 +370,9 @@ Read with `GET /inbox/{inbox_id}`:
 The read response does **not** contain `inbox_id`. The credential is never
 echoed back. `GET /inbox/{inbox_id}/wait/{seconds}` waits from 0 to 25 seconds
 for a new message and adds `waited_seconds` and `wait_reason` to the same
-object.
+object. Only a plain 0 to 25 matches that route. The other wait routes clamp a
+larger number to 25; this one does not, so `/wait/30` answers 404 and means the
+path, not the inbox.
 
 `codes` are standalone 4 to 8 digit numbers. `links` are public http(s) links
 only; private-IP and localhost links are dropped. `date` is the time the
@@ -378,9 +382,9 @@ header is sender controlled.
 `truncated` is true once a message has been refused, by the message count or
 by the total size. A full inbox **refuses new mail
 rather than evicting old mail**, so a truncated inbox with no code means the
-message was turned away, not lost or still on its way. The flag is in the long
-poll signature too, so a waiter is woken when the cap refuses its message
-instead of waiting out the timeout.
+message was turned away, not lost or still on its way. Both waits, the REST
+`/wait/{seconds}` route and the MCP `read_agent_inbox`, watch the flag as well
+as the count, so a refusal returns at once instead of running out the clock.
 
 Attachments, raw MIME, arbitrary headers, scripts, styles, private-IP links and
 localhost links are stripped before storage. Only the sender address, subject,
@@ -420,9 +424,11 @@ Check in with `POST /heartbeat/{heartbeat_id}/ping`. Read the state
 with `GET /heartbeat/{heartbeat_id}`. A check-in moves the next deadline and
 increments `ping_count`. It never extends the fixed 24-hour expiry.
 
-`expect_every_seconds` accepts 60 to 86400. `grace_seconds` starts at zero,
-and the two values together cannot exceed 86400. The status is `armed`,
-`missed`, `fired` or `expired`. A missed deadline fires once with no retry.
+All three of `expect_every_seconds`, `grace_seconds` and `on_miss` are
+required; omitting any one is a 400. `expect_every_seconds` accepts 60 to
+86400, `grace_seconds` starts at zero, and the two values together cannot
+exceed 86400. The status is `armed`, `missed`, `fired` or `expired`. A missed
+deadline fires once with no retry.
 For a webhook, `delivery.delivered` says whether the target answered with a
 2xx status.
 

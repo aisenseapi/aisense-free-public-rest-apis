@@ -1,8 +1,10 @@
 /**
- * aisense-api.js — JavaScript client for the AI SENSE AS Free Public REST APIs
+ * aisense-api.js: JavaScript client for the AI SENSE AS Free Public REST APIs
  * https://aisenseapi.com
  *
- * Works in Node.js (18+) and all modern browsers. No dependencies — native fetch.
+ * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
+ * There is no account and nothing to send with a request beyond the path and,
+ * for POST endpoints, the body.
  *
  * Usage (ESM):
  *   import { AISenseAPI } from './aisense-api.js'
@@ -11,29 +13,33 @@
  *   console.log((await api.hashSHA256('Hello')).sha256_hash)
  *
  * Every method resolves to the parsed JSON response, and each JSDoc block names
- * the exact response key. The upstream API is not consistent about naming —
- * /md5_hash returns `md5_hash`, /ping returns `ping`, /random_color returns
- * `random_color` — so do not guess the key.
+ * the exact response key. The upstream API is not consistent about naming.
+ * /md5_hash returns `md5_hash`, /ping returns `ping` and /random_color returns
+ * `random_color`, so do not guess the key.
  *
- * Two endpoints answer with raw bytes instead of JSON (base64Decode and
- * base32Decode); those resolve to a string when the payload is valid UTF-8 and
- * to a Uint8Array otherwise.
+ * Three endpoints answer with raw bytes instead of JSON (base64Decode,
+ * base58Decode and base32Decode); those resolve to a string when the payload is
+ * valid UTF-8 and to a Uint8Array otherwise.
  *
- * Known upstream bugs, verified against production:
- *   - /base58_decode always fails with "Invalid Base32 input." — it cannot
- *     decode the output of /base58_encode. base58Decode() rejects until fixed.
- *   - /qrcode_encode prepends a PHP warning to its JSON body. This client
- *     strips it and records it in `lastServerNotice`.
- *   - /ethereum/balance returns "Failed to retrieve balance data."
- *   - Unknown paths return HTTP 200 with a debug echo instead of 404. This
- *     client detects that and rejects with a clear message.
+ * Failures arrive as `{"error": "message"}` with a real HTTP status, and this
+ * client rejects with an AISenseAPIError carrying both.
+ *
+ * Older deployments answered differently, and this client still handles two of
+ * those shapes so that the same code works against either:
+ *   - a plain-text warning line in front of a JSON body, which it strips and
+ *     records in `lastServerNotice`;
+ *   - an unknown path answering HTTP 200 with a debug echo instead of a 404,
+ *     which it turns into a clear rejection.
+ * Neither shape appeared when this client was last checked against production,
+ * on 2026-09-06.
  */
 
 const BASE_URL = 'https://aisenseapi.com/services/v1'
 
-// Unknown paths do not 404 — they return HTTP 200 with a body shaped like
+// An unknown path answers a real 404 with the usual `{"error": ...}` body.
+// Older deployments answered HTTP 200 with a body shaped like
 //   ["<your-ip>",1786873281]["\/services\/v1\/random","1","random"]
-// Detecting it turns a confusing JSON parse error into a clear message.
+// Detecting that turns a confusing JSON parse error into a clear message.
 const DEBUG_ECHO = /^\[".*?",\d+\]\["/
 
 export class AISenseAPIError extends Error {
@@ -49,8 +55,9 @@ export class AISenseAPI {
   constructor(baseUrl = BASE_URL) {
     this.baseUrl = baseUrl.replace(/\/$/, '')
     /**
-     * Set when the server prepends a PHP warning to a JSON response
-     * (currently /qrcode_encode). Null when the last call was clean.
+     * Set when the server prepends a plain-text warning line to a JSON
+     * response, which an older deployment of /qrcode_encode did. Null when the
+     * last call was clean, which is every call against production today.
      * @type {string|null}
      */
     this.lastServerNotice = null
@@ -73,8 +80,9 @@ export class AISenseAPI {
 
     if (DEBUG_ECHO.test(text)) {
       throw new AISenseAPIError(
-        `${method} ${path} is not a known endpoint — the API answered with its ` +
-          `debug echo instead of a 404. Check the path against API.md.`,
+        `${method} ${path} is not a known endpoint. The API answered with the ` +
+          `debug echo an older deployment sent instead of a 404. Check the ` +
+          `path against API.md.`,
         { status: res.status, body: text.slice(0, 200) }
       )
     }
@@ -169,8 +177,8 @@ export class AISenseAPI {
    * Current datetime in ISO 8601. Response key: `datetime`.
    *
    * `offset` must be a four-digit UTC offset such as `'+0200'`, `'-0530'` or
-   * `'0100'`. Hour-only values like `'1'` are NOT accepted by the API and
-   * resolve to an unknown path.
+   * `'0100'`. Hour-only values like `'1'` are NOT accepted by the API: they
+   * form a path that matches no route, so they answer 404.
    */
   getDatetime(offset) {
     return this.#get(offset !== undefined ? `/datetime/${offset}` : '/datetime')
@@ -188,7 +196,7 @@ export class AISenseAPI {
 
   /**
    * All timezones, optionally filtered by a four-digit offset (`'+0200'`).
-   * Response key: `timezones` — a list of `{ timezone, offset }` objects, not
+   * Response key: `timezones`, a list of `{ timezone, offset }` objects, not
    * a list of strings.
    */
   getTimezones(offset) {
@@ -205,7 +213,7 @@ export class AISenseAPI {
   /**
    * Random integer. Response keys: `random_number` and `range`.
    *
-   * No arguments defaults to 1–6. A single argument is treated by the API as
+   * No arguments defaults to 1 to 6. A single argument is treated by the API as
    * the upper bound, with the lower bound fixed at 1.
    */
   getRandomNumber(from, to) {
@@ -244,12 +252,17 @@ export class AISenseAPI {
   /**
    * Decode Base64, resolving to a string (UTF-8) or a Uint8Array.
    *
-   * This client deliberately sends no `Accept` header, which makes the endpoint
-   * answer with `application/octet-stream` — the decoded bytes and nothing else.
-   * Send `Accept: application/json` instead and the same endpoint wraps the
-   * result as `{ type: 'json'|'binary', decoded_data }`, base64-re-encoding the
-   * payload in the binary case. Raw is the more useful default; use the JSON
-   * form when you need the type tag.
+   * This client sends no `Accept` of its own, so the endpoint answers with
+   * `application/octet-stream`: the decoded bytes and nothing else. Send
+   * `Accept: application/json` instead and the same endpoint wraps the result
+   * as `{ type, decoded_data }`. `type` is `'json'` when the decoded bytes
+   * themselves parse as JSON, and `'binary'` otherwise, which adds
+   * `encoding: 'base64'` and re-encodes `decoded_data`. Plain text that is not
+   * JSON therefore comes back tagged `'binary'`. Raw is the more useful
+   * default; use the JSON form when you need the tag.
+   *
+   * /base64_decode is the only decoder that reads `Accept`. Its Base58 and
+   * Base32 siblings always answer raw bytes.
    */
   base64Decode(data) {
     return this.#requestBinary('/base64_decode', { data })
@@ -261,12 +274,12 @@ export class AISenseAPI {
   }
 
   /**
-   * Decode Base58.
+   * Decode Base58. Answers with raw bytes, not JSON, and ignores `Accept`.
    *
-   * BROKEN UPSTREAM: the server validates the input with its Base32 decoder and
-   * rejects everything with "Invalid Base32 input." — including strings produced
-   * by {@link base58Encode}. This rejects with AISenseAPIError until the server
-   * is fixed. Kept here so the bug stays visible.
+   * This endpoint used to validate its input with the Base32 decoder and reject
+   * everything with "Invalid Base32 input.", including strings produced by
+   * {@link base58Encode}. It round-trips against {@link base58Encode} as of
+   * 2026-09-06; bad input now answers 400 with "Invalid Base58 input."
    */
   base58Decode(data) {
     return this.#requestBinary('/base58_decode', { data })
@@ -277,7 +290,7 @@ export class AISenseAPI {
     return this.#post('/base32_encode', { data })
   }
 
-  /** Decode Base32. Answers with raw bytes, not JSON — see {@link base64Decode}. */
+  /** Decode Base32. Answers with raw bytes, not JSON, and ignores `Accept`. */
   base32Decode(data) {
     return this.#requestBinary('/base32_decode', { data })
   }
@@ -285,9 +298,10 @@ export class AISenseAPI {
   /**
    * Encode a payload into an HS256 JWT. Response key: `jwt`.
    *
-   * The API requires `data` to be a *string*. An object is serialised to JSON
-   * here; passing an object straight through returns
-   * "Invalid data provided. Expected a string."
+   * The API takes `data` as either a JSON object or a string containing JSON,
+   * and both produce the same token. An object is serialised here so the
+   * behaviour is the same whichever deployment answers. An empty `data` or an
+   * empty `secret` answers 400.
    */
   jwtEncode(payload, secret) {
     const data = typeof payload === 'string' ? payload : JSON.stringify(payload)
@@ -302,11 +316,8 @@ export class AISenseAPI {
   /**
    * Generate a QR code. Response keys: `qrcode_image` (Base64 PNG) and `image_type`.
    *
-   * The request field is `payload`, not `data`.
-   *
-   * The server currently prepends a PHP warning to the JSON body because it
-   * cannot write a temp file. This client strips it; inspect `lastServerNotice`
-   * to see whether it fired.
+   * The request field is `payload`. `data` is accepted as well, so the QR pair
+   * is no longer the one endpoint with a field name of its own.
    */
   qrcodeEncode(payload) {
     return this.#post('/qrcode_encode', { payload })
@@ -314,7 +325,8 @@ export class AISenseAPI {
 
   /**
    * Decode a Base64-encoded QR code image. Response key: `qrcode_content`.
-   * The request field is `payload`, not `data`.
+   * The request field is `payload`, and `data` is accepted as well. Anything
+   * the decoder cannot read as a QR code answers 400.
    */
   qrcodeDecode(imageBase64) {
     return this.#post('/qrcode_decode', { payload: imageBase64 })
@@ -342,7 +354,7 @@ export class AISenseAPI {
     return this.#post('/sha512_hash', { data })
   }
 
-  /** CRC32 checksum. Response key: `crc32_checksum` — an integer, not a hex string. */
+  /** CRC32 checksum. Response key: `crc32_checksum`, an integer, not a hex string. */
   crc32Checksum(data) {
     return this.#post('/crc32_checksum', { data })
   }
@@ -383,10 +395,11 @@ export class AISenseAPI {
   }
 
   /**
-   * Store data for 24 hours. Response keys: `storage_id` and `expire_timestamp`.
+   * Store data for 24 hours. Response keys: `storage_id`, `expire_timestamp`
+   * and `expire_datetime`.
    *
    * The request body is stored verbatim, so whatever you pass here is exactly
-   * what {@link storageGet} gives back — no `data` wrapper is added or removed.
+   * what {@link storageGet} gives back. No `data` wrapper is added or removed.
    */
   storageSet(data) {
     return this.#post('/storage', data)
@@ -398,17 +411,19 @@ export class AISenseAPI {
   }
 
   /**
-   * Shorten a URL for 24 hours. Response keys: `short_url` and `expire_timestamp`.
-   * This is a GET with the target URL inline in the path — not a POST.
+   * Shorten a URL for 24 hours. Response keys: `short_url`, `expire_timestamp`
+   * and `expire_datetime`. This is a GET with the target URL inline in the
+   * path, not a POST.
    */
   shortenURL(url) {
     return this.#get(`/url_shortener/${url}`)
   }
 
   /**
-   * Open a capture session. Response keys: `ok`, `capture_id`, `update_url`,
-   * `read_url`, `expire_timestamp`. Point any HTTP client at `update_url`, then
-   * read it back with {@link webhookCaptureRead}.
+   * Create a URL that records the next request sent to it. Response keys: `ok`,
+   * `capture_id`, `status`, `update_url`, `read_url`, `wait_url`,
+   * `expire_timestamp`, `expire_datetime`. Point any HTTP client at
+   * `update_url`, then read it back with {@link webhookCaptureRead}.
    */
   webhookCaptureCreate(notifyUrl) {
     const body = {}
@@ -417,8 +432,12 @@ export class AISenseAPI {
   }
 
   /**
-   * Read a captured request. Response keys: `ok`, `capture_id`,
-   * `captured_at_timestamp`, `captured_at_datetime`, `request`.
+   * Read a captured request. Response keys: `ok`, `capture_id`, `status`
+   * (`'pending'` or `'captured'`), `created_at_timestamp`,
+   * `created_at_datetime`, `expire_timestamp`, `expire_datetime`. Once
+   * something has arrived it also carries `captured_at_timestamp`,
+   * `captured_at_datetime` and `request`. Branch on `status`, not on the
+   * presence of `request`.
    */
   webhookCaptureRead(captureId, waitSeconds) {
     const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
@@ -427,7 +446,12 @@ export class AISenseAPI {
 
   /**
    * Create a human-in-the-loop action form. Response keys: `ok`, `action_id`,
-   * `form_url`, `result_url`, `expire_timestamp`, `expire_datetime`.
+   * `form_url`, `result_url`, `wait_url`, `expire_timestamp`,
+   * `expire_datetime`.
+   *
+   * With `respondents` above 1 the shape changes: there is no `form_url`, and
+   * `form_urls` carries one link per respondent, alongside `respondents`,
+   * `answered`, `tally` and `responses`. Hand each respondent their own link.
    *
    * `options` accepts either plain strings or `{ value, label }` objects:
    *
@@ -450,9 +474,13 @@ export class AISenseAPI {
 
   /**
    * Poll for the answer to an action. Response keys: `ok`, `action_id`,
-   * `status` (`'pending'` or `'answered'`), `created_at_timestamp`,
-   * `created_at_datetime`, `expire_timestamp`, `expire_datetime`,
-   * `answered_at_timestamp`, `answered_at_datetime`, `response`.
+   * `status`, `created_at_timestamp`, `created_at_datetime`,
+   * `expire_timestamp`, `expire_datetime`, `answered_at_timestamp`,
+   * `answered_at_datetime`, `response`.
+   *
+   * `status` is `'pending'`, `'answered'`, or `'partial'` when an action with
+   * several respondents has some answers but not all. A multi-respondent action
+   * also returns `respondents`, `answered`, `tally` and `responses`.
    */
   webhookActionResult(actionId, waitSeconds) {
     const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
@@ -558,11 +586,17 @@ export class AISenseAPI {
    * only credential that reads the inbox. It is a bearer secret, anyone holding
    * it reads the mail, and it is returned once, here. Guessing the address does
    * not read the inbox. A wrong `inbox_id` and a missing inbox both answer 404,
-   * never 403, so the two cannot be told apart.
+   * and nothing here answers 403, so the two cannot be told apart. An inbox
+   * that has passed its expiry answers 410 until the pruner removes it, and
+   * 404 after that.
    *
    * Caps: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB
    * per inbox, 50 inboxes per client per UTC day, 5000 active inboxes service
    * wide. The 24 hour lifetime is fixed and cannot be extended.
+   *
+   * The routes are POST /inbox, GET /inbox/{inbox_id} and
+   * GET /inbox/{inbox_id}/wait/{0..25}. A wait outside 0 to 25 answers 404,
+   * which is where this differs from the other long poll routes.
    */
   agentInboxCreate() {
     return this.#post('/inbox', {})
@@ -582,11 +616,16 @@ export class AISenseAPI {
    * private-IP and localhost links are dropped. Attachments, raw MIME,
    * arbitrary headers, scripts and styles are stripped before storage.
    *
-   * `truncated` reports that the inbox refused mail. A full inbox refuses new
-   * messages rather than evicting old ones, so without the flag a waiter would
-   * see a full inbox, no code and no reason. It is part of the long poll
-   * signature, which wakes a waiter when the cap refuses its message instead of
-   * making it wait out the timeout.
+   * `truncated` is true once at least one message has been refused, either by
+   * the 20 message cap or by the 256 KiB total. A full inbox refuses new mail
+   * rather than evicting old mail, so without the flag a reader would see a
+   * full inbox, no code and no reason. It carries no count, and it says nothing
+   * about text cut short inside a message at the 64 KiB per-message cap, which
+   * the parser does silently.
+   *
+   * The wait watches `truncated` as well as `received`, so a message the cap
+   * turns away ends the wait instead of leaving the caller to run out the
+   * clock on one that will never arrive.
    */
   agentInboxRead(inboxId, waitSeconds) {
     const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
@@ -597,7 +636,8 @@ export class AISenseAPI {
 
   /**
    * New Solana wallet. Response keys: `private_key`, `public_address`.
-   * FOR DEVELOPMENT ONLY — never fund a wallet generated over a public API.
+   * FOR DEVELOPMENT ONLY. Do not fund a wallet whose private key was generated
+   * on a server and sent back over the wire.
    */
   generateSolanaWallet() {
     return this.#get('/solana/generate_new_wallet')
@@ -630,10 +670,10 @@ export class AISenseAPI {
   }
 
   /**
-   * Ethereum balance.
+   * Ethereum balance. Response keys: `wallet`, `balance_eth`, `balance_wei`.
    *
-   * BROKEN UPSTREAM: currently answers "Failed to retrieve balance data." for
-   * every address, so this rejects with AISenseAPIError.
+   * This used to answer "Failed to retrieve balance data." for every address.
+   * It returns a balance as of 2026-09-06.
    */
   ethereumBalance(address) {
     return this.#get(`/ethereum/balance/${address}`)
@@ -641,10 +681,11 @@ export class AISenseAPI {
 }
 
 /**
- * Split a leading PHP warning off a JSON body.
+ * Split a leading plain-text warning line off a JSON body.
  *
- * /qrcode_encode emits a `Warning: file_put_contents(...)` line before its JSON
- * because the QR library cannot write its temp file.
+ * An older deployment of /qrcode_encode emitted one in front of its JSON.
+ * Production does not, so this is a guard for callers pointed at an older
+ * deployment rather than a workaround for current behaviour.
  */
 function stripServerNotice(text) {
   const trimmed = text.trimStart()
@@ -698,16 +739,19 @@ console.log('Retrieved:', await api.storageGet(stored.storage_id))
 // Crypto (dev only)
 console.log((await api.generateEthereumWallet()).public_address)
 
-// Known upstream bugs
+// Base58, which used to reject its own encoder's output
+const { base58_encoded_data } = await api.base58Encode('Hello')
+console.log('Base58:', base58_encoded_data, '->', await api.base58Decode(base58_encoded_data))
+
+// An unknown path rejects with the server's own error message
 try {
-  const { base58_encoded_data } = await api.base58Encode('Hello')
-  await api.base58Decode(base58_encoded_data)
+  await api.getDatetime('1')
 } catch (err) {
-  console.log('base58Decode still broken:', err.message)
+  console.log(err.message)
 }
 
 await api.qrcodeEncode('https://aisenseapi.com/')
 if (api.lastServerNotice) {
-  console.log('qrcodeEncode still leaking a PHP warning:', api.lastServerNotice.slice(0, 80), '...')
+  console.log('Server sent a warning line before its JSON:', api.lastServerNotice.slice(0, 80), '...')
 }
 */
