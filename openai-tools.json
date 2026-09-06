@@ -100,11 +100,11 @@
     "type": "function",
     "function": {
       "name": "get_password",
-      "description": "Random password including punctuation, 12 characters by default. Returns {\"password\": \"jFehS]AKGx9wl[jp\", \"password_length\": 16}. GET /password[/{length}]",
+      "description": "Random password including punctuation, 12 characters by default. Returns {\"password\": \"jFehS]AKGx9wl[jp\", \"password_length\": 16}. A length outside 6 to 128 returns HTTP 400. GET /password[/{length}]",
       "parameters": {
         "type": "object",
         "properties": {
-          "length": { "type": "integer", "description": "Password length. Defaults to 12." }
+          "length": { "type": "integer", "minimum": 6, "maximum": 128, "description": "Password length, 6 to 128. Defaults to 12." }
         },
         "required": []
       }
@@ -603,7 +603,7 @@
     "type": "function",
     "function": {
       "name": "webhook_schedule_result",
-      "description": "Check a scheduled webhook. Returns {\"status\": \"scheduled\"|\"fired\"|\"failed\", \"attempts\", \"http_status\", \"response_excerpt\"}. \"fired\" means a delivery was attempted and the target answered with some HTTP status, recorded in http_status - not that it returned 2xx. Readable for 24 hours after the final attempt. GET /webhook_schedule/{schedule_id}",
+      "description": "Check a scheduled webhook. Returns {\"status\": \"scheduled\"|\"retry\"|\"fired\"|\"failed\"|\"cancelled\", \"attempts\", \"http_status\", \"response_excerpt\"}. \"retry\" means the first attempt did not land and the second is still to come, so keep polling. \"fired\" means a delivery was attempted and the target answered with some HTTP status, recorded in http_status - not that it returned 2xx. Readable for 24 hours after the final attempt. GET /webhook_schedule/{schedule_id}",
       "parameters": {
         "type": "object",
         "properties": { "schedule_id": { "type": "string", "description": "The schedule_id from webhook_schedule_create." } },
@@ -668,7 +668,7 @@
     "type": "function",
     "function": {
       "name": "agent_inbox_read",
-      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means the inbox is full and is refusing new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason; it returns when a message arrives, when a message is refused because the inbox is full, or when the wait ends. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
+      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means at least one message was refused, by the 20 message cap or by the 256 KiB total across the inbox; an inbox at a cap refuses new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason; it returns when a message arrives or when the wait ends. A refusal does not end this wait, so read truncated on whatever comes back. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {

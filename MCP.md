@@ -54,7 +54,7 @@ proxy these tools.
 The tool list is deliberately small. Each tool has a clear schema and a direct
 job in an agent workflow.
 
-## Available resource
+## Available resources
 
 | URI | What it contains |
 |-----|------------------|
@@ -189,10 +189,13 @@ The Heartbeat ID is a 256-bit bearer secret used for both status and ping. The
 public result names the action type but does not return its target or payload.
 There is no Heartbeat listing tool.
 
-Lease prevents several agents from performing the same unit of work. The
-first `acquire_lease` call receives an owner token and a monotonic fencing
-token. Other callers receive `held` while the lease is active. A fingerprint
-can bind the key to one exact kind of work.
+Lease gives several agents one coordination point for the same unit of work.
+The first `acquire_lease` call receives an owner token and a monotonic fencing
+token. Other callers receive `held` while the lease is active. Holding a lease
+cannot stop a paused worker from waking up and acting, which is what the
+fencing token is for: send it to the protected system and have that system
+reject writes carrying an older value. A fingerprint can bind the key to one
+exact kind of work.
 
 Use `complete_lease` to store a reusable JSON result up to 32 KB. A later
 acquire for the same namespace, key and fingerprint returns that result.
@@ -269,13 +272,13 @@ Guessing the address does not read the inbox. A wrong `inbox_id` and a missing
 inbox both answer 404, never 403, so the two cases are indistinguishable.
 
 `read_agent_inbox` accepts `inbox_id` and `wait_seconds` from 0 to 25. The wait
-defaults to 0. The long poll returns when a message arrives, when the inbox
-refuses a message because it is full, or when the wait ends. It adds
+defaults to 0. The long poll returns when a message arrives, when a refused
+message first turns `truncated` true, or when the wait ends. It adds
 `waited_seconds` and `wait_reason` to the result.
 
 The result contains the slug, the address, the message count, a `truncated`
-flag and the messages. It does not contain `inbox_id`. The credential is never
-echoed back.
+flag, the messages and the creation and expiry timestamps. It does not contain
+`inbox_id`. The credential is never echoed back.
 
 Each message has the sender address, subject, received time, cleaned text,
 `codes` and `links`. The `date` field is the time the service received the
@@ -283,10 +286,11 @@ message, not the sender's `Date` header, because that header is sender
 controlled. `codes` are standalone 4 to 8 digit numbers. `links` are public
 http and https links only. Private-IP links and localhost links are dropped.
 
-A full inbox refuses new mail rather than evicting old mail. `truncated`
-reports that state, so an agent waiting for a code sees the reason instead of
-a quiet inbox. The flag is part of the long poll signature, so a waiter is
-woken when the cap refuses its message instead of waiting out the timeout.
+An inbox that has hit a cap refuses new mail rather than evicting old mail.
+`truncated` turns true once a message has been refused, by the 20 message cap
+or by the 256 KiB total, so an agent waiting for a code sees the reason
+instead of a quiet inbox. The flag is part of the long poll signature, so the first refusal
+wakes a waiter instead of leaving it to time out.
 
 Attachments, raw MIME, arbitrary headers, scripts and styles are stripped
 before storage. Only the sender address, subject, received time, cleaned text,
@@ -428,9 +432,10 @@ pricing promise.
 - Verifyum anchor input is public and permanent. The source file and private proof data stay local.
 - MCP logs contain the JSON-RPC method and tool name, not tool arguments or results.
 
-The endpoint is public because the tools operate on short-lived public data and
-do not access a user account. Authentication can be added later for private or
-account-bound tools.
+The endpoint is public because the tools create short-lived records that are
+not bound to a user account. What a record holds is reached by the bearer
+secret or capability link its create call returned, not by the endpoint being
+open. Authentication can be added later for private or account-bound tools.
 
 ## Protocol errors
 

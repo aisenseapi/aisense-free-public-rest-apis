@@ -1,8 +1,10 @@
 """
-aisense_api.py — Python client for the AI SENSE AS Free Public REST APIs
+aisense_api.py: Python client for the AI SENSE AS Free Public REST APIs
 https://aisenseapi.com
 
-No dependencies beyond the standard library (uses urllib).
+No dependencies beyond the standard library (uses urllib). There is no account
+and nothing to send with a request beyond the path and, for POST endpoints, the
+body.
 
 Usage:
     from aisense_api import AISenseAPI
@@ -12,22 +14,24 @@ Usage:
 
 Every method returns the parsed JSON response as a dict, and each docstring
 names the exact response key. The upstream API is not consistent about
-naming — /md5_hash returns "md5_hash", /ping returns "ping", /random_color
-returns "random_color" — so do not guess the key.
+naming. /md5_hash returns "md5_hash", /ping returns "ping" and /random_color
+returns "random_color", so do not guess the key.
 
-Two endpoints return raw bytes instead of JSON (base64_decode and
-base32_decode). Those methods return str when the payload is valid UTF-8,
+Three endpoints return raw bytes instead of JSON (base64_decode, base58_decode
+and base32_decode). Those methods return str when the payload is valid UTF-8,
 and bytes otherwise.
 
-Known upstream bugs, verified against production:
-  * /base58_decode always fails with "Invalid Base32 input." — it cannot
-    decode the output of /base58_encode. base58_decode() raises
-    AISenseAPIError until the server is fixed.
-  * /qrcode_encode prepends a PHP warning to its JSON body. This client
-    strips it and records it in `last_server_notice`.
-  * /ethereum/balance returns "Failed to retrieve balance data."
-  * Unknown paths return HTTP 200 with a debug echo instead of 404. This
-    client detects that and raises AISenseAPIError.
+Failures arrive as {"error": "message"} with a real HTTP status, and this client
+raises AISenseAPIError carrying both.
+
+Older deployments answered differently, and this client still handles two of
+those shapes so that the same code works against either:
+  * a plain-text warning line in front of a JSON body, which it strips and
+    records in `last_server_notice`;
+  * an unknown path answering HTTP 200 with a debug echo instead of a 404,
+    which it turns into a clear AISenseAPIError.
+Neither shape appeared when this client was last checked against production, on
+2026-09-06.
 """
 
 import json
@@ -37,9 +41,10 @@ from typing import Any, Optional, Union
 
 BASE_URL = "https://aisenseapi.com/services/v1"
 
-# Unknown paths do not 404 — they return HTTP 200 with a body shaped like
+# An unknown path answers a real 404 with the usual {"error": ...} body.
+# Older deployments answered HTTP 200 with a body shaped like
 #   ["<your-ip>",1786873281]["\/services\/v1\/random","1","random"]
-# Detecting it turns a confusing JSON parse error into a clear message.
+# Detecting that turns a confusing JSON parse error into a clear message.
 _DEBUG_ECHO_PREFIX = '["'
 _DEBUG_ECHO_MARKER = '"]["'
 
@@ -57,8 +62,9 @@ class AISenseAPI:
     def __init__(self, base_url: str = BASE_URL, timeout: int = 10):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-        #: Set when the server prepends a PHP warning to a JSON response
-        #: (currently /qrcode_encode). None when the last call was clean.
+        #: Set when the server prepends a plain-text warning line to a JSON
+        #: response, which an older deployment of /qrcode_encode did. None when
+        #: the last call was clean, which is every call against production today.
         self.last_server_notice: Optional[str] = None
 
     # ── Internal helpers ──────────────────────────────────────────────────────
@@ -76,7 +82,7 @@ class AISenseAPI:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 return resp.status, resp.headers.get("Content-Type", ""), resp.read()
         except urllib.error.HTTPError as err:
-            # The API returns 400 with a JSON error body for some endpoints —
+            # The API returns a JSON error body with the failing status, so
             # read it rather than letting urllib swallow the reason.
             return err.code, err.headers.get("Content-Type", ""), err.read()
 
@@ -86,8 +92,9 @@ class AISenseAPI:
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
             raise AISenseAPIError(
-                f"{method} {path} is not a known endpoint — the API answered with its "
-                f"debug echo instead of a 404. Check the path against API.md.",
+                f"{method} {path} is not a known endpoint. The API answered with the "
+                f"debug echo an older deployment sent instead of a 404. Check the "
+                f"path against API.md.",
                 status=status,
                 body=text[:200],
             )
@@ -153,7 +160,8 @@ class AISenseAPI:
 
         ``offset`` must be a four-digit UTC offset such as ``"+0200"``,
         ``"-0530"`` or ``"0100"``. Hour-only values like ``"1"`` are NOT
-        accepted by the API and resolve to an unknown path.
+        accepted by the API: they form a path that matches no route, so they
+        answer 404.
         """
         path = f"/datetime/{offset}" if offset is not None else "/datetime"
         return self._get(path)
@@ -169,7 +177,7 @@ class AISenseAPI:
     def get_timezones(self, offset: Optional[str] = None) -> dict:
         """All timezones, optionally filtered by a four-digit offset (``"+0200"``).
 
-        Response key: ``timezones`` — a list of ``{"timezone": ..., "offset": ...}``
+        Response key: ``timezones``, a list of ``{"timezone": ..., "offset": ...}``
         objects, not a list of strings.
         """
         path = f"/timezones/{offset}" if offset is not None else "/timezones"
@@ -184,7 +192,7 @@ class AISenseAPI:
     def get_random_number(self, from_: Optional[int] = None, to: Optional[int] = None) -> dict:
         """Random integer. Response keys: ``random_number`` and ``range``.
 
-        No arguments defaults to 1–6. A single argument is treated by the API
+        No arguments defaults to 1 to 6. A single argument is treated by the API
         as the upper bound, with the lower bound fixed at 1.
         """
         if from_ is None:
@@ -224,12 +232,18 @@ class AISenseAPI:
     def base64_decode(self, data: str) -> Union[str, bytes]:
         """Decode Base64, returning the payload directly as ``str`` or ``bytes``.
 
-        This client deliberately sends no ``Accept`` header, which makes the
-        endpoint answer with ``application/octet-stream`` — the decoded bytes
-        and nothing else. Send ``Accept: application/json`` instead and the same
-        endpoint wraps the result as ``{"type": "json"|"binary", "decoded_data": ...}``,
-        base64-re-encoding the payload in the binary case. Raw is the more
-        useful default; use the JSON form when you need the type tag.
+        This client sends no ``Accept`` of its own, so the endpoint answers with
+        ``application/octet-stream``: the decoded bytes and nothing else. Send
+        ``Accept: application/json`` instead and the same endpoint wraps the
+        result as ``{"type": ..., "decoded_data": ...}``. ``type`` is ``"json"``
+        when the decoded bytes themselves parse as JSON, and ``"binary"``
+        otherwise, which adds ``"encoding": "base64"`` and re-encodes
+        ``decoded_data``. Plain text that is not JSON therefore comes back
+        tagged ``"binary"``. Raw is the more useful default; use the JSON form
+        when you need the tag.
+
+        /base64_decode is the only decoder that reads ``Accept``. Its Base58 and
+        Base32 siblings always answer raw bytes.
         """
         return self._request_binary("/base64_decode", {"data": data})
 
@@ -238,12 +252,13 @@ class AISenseAPI:
         return self._post("/base58_encode", {"data": data})
 
     def base58_decode(self, data: str) -> Union[str, bytes]:
-        """Decode Base58.
+        """Decode Base58. Answers with raw bytes, not JSON, and ignores ``Accept``.
 
-        BROKEN UPSTREAM: the server validates the input with its Base32 decoder
-        and rejects everything with "Invalid Base32 input." — including strings
-        produced by :meth:`base58_encode`. This will raise ``AISenseAPIError``
-        until the server is fixed. Kept here so the bug stays visible.
+        This endpoint used to validate its input with the Base32 decoder and
+        reject everything with "Invalid Base32 input.", including strings
+        produced by :meth:`base58_encode`. It round-trips against
+        :meth:`base58_encode` as of 2026-09-06; bad input now answers 400 with
+        "Invalid Base58 input."
         """
         return self._request_binary("/base58_decode", {"data": data})
 
@@ -252,15 +267,16 @@ class AISenseAPI:
         return self._post("/base32_encode", {"data": data})
 
     def base32_decode(self, data: str) -> Union[str, bytes]:
-        """Decode Base32. Answers with raw bytes, not JSON — see :meth:`base64_decode`."""
+        """Decode Base32. Answers with raw bytes, not JSON, and ignores ``Accept``."""
         return self._request_binary("/base32_decode", {"data": data})
 
     def jwt_encode(self, payload: Union[dict, str], secret: str) -> dict:
         """Encode a payload into an HS256 JWT. Response key: ``jwt``.
 
-        The API requires ``data`` to be a *string*. A dict is serialised to
-        JSON here; passing a dict straight through returns
-        "Invalid data provided. Expected a string."
+        The API takes ``data`` as either a JSON object or a string containing
+        JSON, and both produce the same token. A dict is serialised here so the
+        behaviour is the same whichever deployment answers. An empty ``data`` or
+        an empty ``secret`` answers 400.
         """
         data = payload if isinstance(payload, str) else json.dumps(payload)
         return self._post("/jwt_encode", {"data": data, "secret": secret})
@@ -272,18 +288,16 @@ class AISenseAPI:
     def qrcode_encode(self, payload: str) -> dict:
         """Generate a QR code. Response keys: ``qrcode_image`` (Base64 PNG) and ``image_type``.
 
-        The request field is ``payload``, not ``data``.
-
-        The server currently prepends a PHP warning to the JSON body because it
-        cannot write a temp file. This client strips it; inspect
-        ``last_server_notice`` to see whether it fired.
+        The request field is ``payload``. ``data`` is accepted as well, so the
+        QR pair is no longer the one endpoint with a field name of its own.
         """
         return self._post("/qrcode_encode", {"payload": payload})
 
     def qrcode_decode(self, image_base64: str) -> dict:
         """Decode a Base64-encoded QR code image. Response key: ``qrcode_content``.
 
-        The request field is ``payload``, not ``data``.
+        The request field is ``payload``, and ``data`` is accepted as well.
+        Anything the decoder cannot read as a QR code answers 400.
         """
         return self._post("/qrcode_decode", {"payload": image_base64})
 
@@ -306,7 +320,7 @@ class AISenseAPI:
         return self._post("/sha512_hash", {"data": data})
 
     def crc32_checksum(self, data: str) -> dict:
-        """CRC32 checksum. Response key: ``crc32_checksum`` — an integer, not a hex string."""
+        """CRC32 checksum. Response key: ``crc32_checksum``, an integer, not a hex string."""
         return self._post("/crc32_checksum", {"data": data})
 
     # ── Web ───────────────────────────────────────────────────────────────────
@@ -340,10 +354,13 @@ class AISenseAPI:
         return self._get(f"/domain_ip_lookup/{domain}")
 
     def storage_set(self, data: Any) -> dict:
-        """Store data for 24 hours. Response keys: ``storage_id`` and ``expire_timestamp``.
+        """Store data for 24 hours.
+
+        Response keys: ``storage_id``, ``expire_timestamp`` and
+        ``expire_datetime``.
 
         The request body is stored verbatim, so whatever you pass here is
-        exactly what :meth:`storage_get` gives back — no ``data`` wrapper is
+        exactly what :meth:`storage_get` gives back. No ``data`` wrapper is
         added or removed.
         """
         return self._post("/storage", data)
@@ -353,18 +370,21 @@ class AISenseAPI:
         return self._get(f"/storage/{storage_id}")
 
     def shorten_url(self, url: str) -> dict:
-        """Shorten a URL for 24 hours. Response keys: ``short_url`` and ``expire_timestamp``.
+        """Shorten a URL for 24 hours.
 
-        This is a GET with the target URL inline in the path — not a POST.
+        Response keys: ``short_url``, ``expire_timestamp`` and
+        ``expire_datetime``. This is a GET with the target URL inline in the
+        path, not a POST.
         """
         return self._get(f"/url_shortener/{url}")
 
     def webhook_capture_create(self, notify_url: Optional[str] = None) -> dict:
-        """Open a capture session.
+        """Create a URL that records the next request sent to it.
 
-        Response keys: ``ok``, ``capture_id``, ``update_url``, ``read_url``,
-        ``expire_timestamp``. Point any HTTP client at ``update_url``, then read
-        it back with :meth:`webhook_capture_read`.
+        Response keys: ``ok``, ``capture_id``, ``status``, ``update_url``,
+        ``read_url``, ``wait_url``, ``expire_timestamp``, ``expire_datetime``.
+        Point any HTTP client at ``update_url``, then read it back with
+        :meth:`webhook_capture_read`.
         """
         body = {}
         if notify_url is not None:
@@ -374,8 +394,11 @@ class AISenseAPI:
     def webhook_capture_read(self, capture_id: str, wait_seconds: Optional[int] = None) -> dict:
         """Read a captured request.
 
-        Response keys: ``ok``, ``capture_id``, ``captured_at_timestamp``,
-        ``captured_at_datetime``, ``request``.
+        Response keys: ``ok``, ``capture_id``, ``status`` (``"pending"`` or
+        ``"captured"``), ``created_at_timestamp``, ``created_at_datetime``,
+        ``expire_timestamp``, ``expire_datetime``. Once something has arrived it
+        also carries ``captured_at_timestamp``, ``captured_at_datetime`` and
+        ``request``. Branch on ``status``, not on the presence of ``request``.
         """
         suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
         return self._get(f"/webhook_capture/{capture_id}{suffix}")
@@ -391,9 +414,14 @@ class AISenseAPI:
         """Create a human-in-the-loop action form.
 
         Response keys: ``ok``, ``action_id``, ``form_url``, ``result_url``,
-        ``expire_timestamp``, ``expire_datetime``.
+        ``wait_url``, ``expire_timestamp``, ``expire_datetime``.
 
-        ``fields`` example — ``options`` accepts either plain strings or
+        With ``respondents`` above 1 the shape changes: there is no
+        ``form_url``, and ``form_urls`` carries one link per respondent,
+        alongside ``respondents``, ``answered``, ``tally`` and ``responses``.
+        Hand each respondent their own link.
+
+        ``fields`` example, where ``options`` accepts either plain strings or
         ``{"value": ..., "label": ...}`` objects::
 
             [{"type": "radio", "name": "decision", "label": "Approve?",
@@ -415,10 +443,15 @@ class AISenseAPI:
     def webhook_action_result(self, action_id: str, wait_seconds: Optional[int] = None) -> dict:
         """Poll for the answer to an action.
 
-        Response keys: ``ok``, ``action_id``, ``status`` (``"pending"`` or
-        ``"answered"``), ``created_at_timestamp``, ``created_at_datetime``,
+        Response keys: ``ok``, ``action_id``, ``status``,
+        ``created_at_timestamp``, ``created_at_datetime``,
         ``expire_timestamp``, ``expire_datetime``, ``answered_at_timestamp``,
         ``answered_at_datetime``, ``response``.
+
+        ``status`` is ``"pending"``, ``"answered"``, or ``"partial"`` when an
+        action with several respondents has some answers but not all. A
+        multi-respondent action also returns ``respondents``, ``answered``,
+        ``tally`` and ``responses``.
         """
         suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
         return self._get(f"/webhook_action/{action_id}{suffix}")
@@ -546,12 +579,18 @@ class AISenseAPI:
         never appears in a URL. ``inbox_id`` is the only credential that reads
         the inbox. It is a bearer secret, anyone holding it reads the mail, and
         it is returned once, here. Guessing the address does not read the inbox.
-        A wrong ``inbox_id`` and a missing inbox both answer 404, never 403, so
-        the two cannot be told apart.
+        A wrong ``inbox_id`` and a missing inbox both answer 404, and nothing
+        here answers 403, so the two cannot be told apart. An inbox that has
+        passed its expiry answers 410 until the pruner removes it, and 404 after
+        that.
 
         Caps: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB
         per inbox, 50 inboxes per client per UTC day, 5000 active inboxes
         service wide. The 24 hour lifetime is fixed and cannot be extended.
+
+        The routes are POST /inbox, GET /inbox/{inbox_id} and
+        GET /inbox/{inbox_id}/wait/{0..25}. A wait outside 0 to 25 answers 404,
+        which is where this differs from the other long poll routes.
         """
         return self._post("/inbox", {})
 
@@ -572,11 +611,16 @@ class AISenseAPI:
         Attachments, raw MIME, arbitrary headers, scripts and styles are
         stripped before storage.
 
-        ``truncated`` reports that the inbox refused mail. A full inbox refuses
-        new messages rather than evicting old ones, so without the flag a waiter
-        would see a full inbox, no code and no reason. It is part of the long
-        poll signature, which wakes a waiter when the cap refuses its message
-        instead of making it wait out the timeout.
+        ``truncated`` is true once at least one message has been refused, either
+        by the 20 message cap or by the 256 KiB total. A full inbox refuses new
+        mail rather than evicting old mail, so without the flag a reader would
+        see a full inbox, no code and no reason. It carries no count, and it
+        says nothing about text cut short inside a message at the 64 KiB
+        per-message cap, which the parser does silently.
+
+        The wait watches ``truncated`` as well as ``received``, so a message
+        the cap turns away ends the wait instead of leaving the caller to run
+        out the clock on one that will never arrive.
         """
         suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
         return self._get(f"/inbox/{inbox_id}{suffix}")
@@ -586,7 +630,8 @@ class AISenseAPI:
     def generate_solana_wallet(self) -> dict:
         """New Solana wallet. Response keys: ``private_key``, ``public_address``.
 
-        FOR DEVELOPMENT ONLY — never fund a wallet generated over a public API.
+        FOR DEVELOPMENT ONLY. Do not fund a wallet whose private key was
+        generated on a server and sent back over the wire.
         """
         return self._get("/solana/generate_new_wallet")
 
@@ -615,17 +660,20 @@ class AISenseAPI:
     def ethereum_balance(self, address: str) -> dict:
         """Ethereum balance.
 
-        BROKEN UPSTREAM: currently answers "Failed to retrieve balance data."
-        for every address, so this raises ``AISenseAPIError``.
+        Response keys: ``wallet``, ``balance_eth``, ``balance_wei``.
+
+        This used to answer "Failed to retrieve balance data." for every
+        address. It returns a balance as of 2026-09-06.
         """
         return self._get(f"/ethereum/balance/{address}")
 
 
 def _strip_server_notice(text: str):
-    """Split a leading PHP warning off a JSON body.
+    """Split a leading plain-text warning line off a JSON body.
 
-    /qrcode_encode emits a ``Warning: file_put_contents(...)`` line before its
-    JSON because the QR library cannot write its temp file. Returns
+    An older deployment of /qrcode_encode emitted one in front of its JSON.
+    Production does not, so this is a guard for callers pointed at an older
+    deployment rather than a workaround for current behaviour. Returns
     ``(json_text, notice_or_None)``.
     """
     stripped = text.lstrip()
@@ -677,12 +725,16 @@ if __name__ == "__main__":
     print("\n=== Crypto (dev only) ===")
     print(api.generate_ethereum_wallet()["public_address"])
 
-    print("\n=== Known upstream bugs ===")
+    print("\n=== Base58, which used to reject its own encoder's output ===")
+    encoded_58 = api.base58_encode("Hello")["base58_encoded_data"]
+    print(encoded_58, "->", api.base58_decode(encoded_58))
+
+    print("\n=== An unknown path raises with the server's own message ===")
     try:
-        api.base58_decode(api.base58_encode("Hello")["base58_encoded_data"])
+        api.get_datetime(offset="1")
     except AISenseAPIError as err:
-        print("base58_decode still broken:", err)
+        print(err)
 
     api.qrcode_encode("https://aisenseapi.com/")
     if api.last_server_notice:
-        print("qrcode_encode still leaking a PHP warning:", api.last_server_notice[:80], "...")
+        print("Server sent a warning line before its JSON:", api.last_server_notice[:80], "...")

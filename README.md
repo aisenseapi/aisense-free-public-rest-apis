@@ -110,10 +110,11 @@ There is no generic `data` or `result` wrapper. Do not guess the key -
 [`API.md`](API.md) lists every one.
 
 **Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
-2026-08-17: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate
-limit, 500 our failure, 502/504 an upstream. Branch on the status or on the
-`error` key - both are trustworthy, and every error body kept its exact
-wording through the change, so older clients keep working.
+2026-08-17: 400 is your mistake, 404 an unknown id or endpoint, 410 a capture,
+action or inbox that existed and has expired, 429 the rate limit, 500 our
+failure, 502/504 an upstream. Branch on the status or on the `error` key - both
+are trustworthy, and every error body kept its exact wording through the
+change, so older clients keep working.
 
 **There is a rate limit: 5000 requests per IP per 24 hours.** Exceeding it
 returns HTTP 429 in the same flat error shape as everything else.
@@ -277,12 +278,12 @@ that points back to the result without copying the answers.
 
 ### Webhook Capture - inspect any inbound HTTP request
 
-Create a capture session, get a unique URL, point any external service at it
+Create a capture, get a unique URL, point any external service at it
 (Stripe, GitHub, Shopify), and read back the full request - method, headers,
 query parameters, IP, and parsed body. No ngrok, no local tunnel, no server.
 
 ```bash
-# 1. Create a session
+# 1. Create a capture
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 # -> { "status": "pending", "capture_id": "...", "update_url": "...", "read_url": "...", "wait_url": "..." }
 
@@ -317,7 +318,7 @@ completion signal.
 
 ---
 
-### Agent Inbox - a disposable mail address the agent owns
+### Agent Inbox - a disposable mail address the agent controls
 
 For the step where something has to arrive by email: a verification code, a
 confirmation link, a sign-up mail. Create an inbox, hand out the address, read
@@ -380,6 +381,8 @@ curl https://aisenseapi.com/services/v1/inbox/{inbox_id}/wait/25
 
 The read response does not contain `inbox_id`. The credential is never echoed
 back. The wait form adds `waited_seconds` and `wait_reason` to the same object.
+Only a plain 0 to 25 matches the wait route. The other wait routes clamp a
+larger number to 25; this one does not, so `/wait/30` answers 404.
 
 `codes` are standalone 4 to 8 digit numbers. `links` are public http(s) links
 only; private-IP and localhost links are dropped. `date` is the time the
@@ -389,9 +392,8 @@ header is sender controlled.
 `truncated` says a message was refused, whether the inbox hit the message
 count or the total size. A full inbox refuses new mail rather than
 evicting old mail, so without the flag an agent waiting for a code would see a
-full inbox, no code and no reason. It is in the long poll signature too, so a
-waiter is woken when the cap refuses its message instead of waiting out the
-timeout.
+full inbox, no code and no reason. The wait watches the flag as well as the
+count, so a refusal ends it instead of leaving the caller to time out.
 
 Attachments, raw MIME, arbitrary headers, scripts, styles, private-IP links and
 localhost links are stripped before storage. Only the sender address, subject,
@@ -401,7 +403,8 @@ Limits: 20 messages per inbox, 64 KiB of cleaned text per message, 256 KiB per
 inbox in total, 50 inboxes per client per UTC day and 5000 active inboxes
 service wide. The 24-hour lifetime is fixed and cannot be extended.
 
-MCP clients use `create_agent_inbox` and `read_agent_inbox`.
+MCP clients use `create_agent_inbox` and `read_agent_inbox`, whose wait watches
+`truncated` as well and returns as soon as the cap refuses a message.
 
 ---
 
@@ -667,12 +670,12 @@ it will use these APIs as tools automatically.
 | [`aisense-api.js`](aisense-api.js) | JavaScript ESM client |
 | [`openai-tools.json`](openai-tools.json) | Tool definitions for any LLM with function calling |
 | [`SKILL.md`](SKILL.md) | Claude skill file |
-| [`test.sh`](test.sh) | Asserts on response bodies; exits `1` on failure (CI-friendly) |
+| [`test.sh`](test.sh) | Asserts on response bodies and statuses; exits `1` on failure (CI-friendly) |
 | [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
 
-`test.sh` checks response contents, not status codes. Since this API answers 200
-for most failures, a status-code-only suite would pass against a completely
-broken endpoint.
+`test.sh` asserts on response bodies as well as status codes. Bodies are the
+part that matters most: a status-code-only suite passes an endpoint that
+answers 200 with the wrong response key.
 
 ---
 

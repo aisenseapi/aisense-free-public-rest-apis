@@ -126,7 +126,7 @@
   <p>Each guide includes request formats, response fields, curl examples and common errors.</p>
   <div class="related-api-grid">
     <a href="/free-public-api-heartbeat-api-endpoint"><strong>Heartbeat API</strong><span>Alert once when an agent stops checking in.</span></a>
-    <a href="/free-public-api-lease-api-endpoint"><strong>Lease API</strong><span>Give one worker a lock and reuse its result.</span></a>
+    <a href="/free-public-api-lease-api-endpoint"><strong>Lease API</strong><span>Let one worker own a key and reuse its result.</span></a>
     <a href="/free-public-api-agent-wake-api-endpoint"><strong>Agent Wake API</strong><span>Resume after a webhook, human answer or time.</span></a>
     <a href="/free-public-api-agent-inbox-api-endpoint"><strong>Agent Inbox API</strong><span>Read mail sent to a disposable address.</span></a>
     <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive, wait for and inspect one webhook.</span></a>
@@ -150,7 +150,7 @@
     <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
 
     <dt>Errors are <code>{"error": "message"}</code> with a real HTTP status.</dt>
-    <dd>One rule across the whole surface: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate limit, 500 our failure, 502 and 504 an upstream. Branch on the status or on the <code>error</code> key - both are trustworthy, and a path matching no route is a plain 404 in the same shape.</dd>
+    <dd>The same shape everywhere, with conventional statuses: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate limit, 500 our failure, 502 and 504 an upstream. The stateful endpoints add three more: 409 while a lease is held, 410 once a capture, action or inbox has expired, and 503 when a store is full or briefly unavailable. Branch on the status or on the <code>error</code> key - both are trustworthy, and a path matching no route is a plain 404 in the same shape.</dd>
 
     <dt>Not everything is JSON.</dt>
     <dd>The three decoders return <code>application/octet-stream</code> unless you send <code>Accept: application/json</code>.</dd>
@@ -500,7 +500,7 @@ Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.co
 <article class="endpoint">
 <h3><a href="/free-public-api-storage-api-endpoint">Storage REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/storage</span> - <span class="method">GET</span> <span class="path">/storage/{storage_id}</span></p>
-<p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere - another machine, a later pipeline step, a different agent call. No database and no credentials.</p>
+<p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere - another machine, a later pipeline step, a different agent call. No database to set up and no sign-up. The <code>storage_id</code> is the only thing that reads the item, so treat its URL as a capability link and send it only to the intended recipient.</p>
 <p>The body is stored <strong>verbatim</strong>: whatever you send is exactly what comes back, with no wrapper added or removed. Everything expires after 24 hours.</p>
 <pre><code>curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" -d '{"result": 42}'
@@ -629,7 +629,7 @@ POST /lease
 GET  /inbox/{inbox_id}
   -> { "received": 1, "truncated": false,
        "messages": [ { "from": "...", "codes": ["481516"], "links": ["..."] } ] }</code></pre>
-<p>The slug in the address is public and only lets someone send mail. The <code>inbox_id</code> is a bearer secret and is the only value that reads the inbox. A wrong ID and a missing inbox both answer 404. <a href="/free-public-api-agent-inbox-api-endpoint">Read the Agent Inbox guide</a>.</p>
+<p>The slug in the address is public and only lets someone send mail. The <code>inbox_id</code> is a bearer secret and is the only value that reads the inbox. A wrong ID and a missing inbox both answer 404. A read can wait up to 25 seconds for the next message. A full inbox, at 20 messages or 256 KiB, refuses new mail and keeps the old, which is what <code>truncated</code> reports. <a href="/free-public-api-agent-inbox-api-endpoint">Read the Agent Inbox guide</a>.</p>
 </article>
 </section>
 
