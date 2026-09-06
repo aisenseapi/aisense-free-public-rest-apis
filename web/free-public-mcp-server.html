@@ -115,6 +115,58 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
 }</code></pre><p><code>read_human_approval</code> accepts <code>wait_seconds</code> from 0 to 25. Group status moves from <code>pending</code> to <code>partial</code>, then <code>answered</code>. The optional notification is a small signal without answers.</p><p><a href="/free-public-api-webhook-action-api-endpoint">Read the Webhook Action API guide</a> for the underlying form format.</p></section>
 <section id="webhooks"><h2>Give an agent a webhook inbox</h2><p><code>create_webhook_capture</code> returns a unique update URL. Send that URL to the system that emits the webhook. The first request wins. A retry cannot replace it.</p><p><code>read_webhook_capture</code> accepts <code>wait_seconds</code> from 0 to 25. An optional <code>notify_url</code> receives a small completion signal without the captured headers or body. The target is checked for private addresses again at delivery time.</p><p>The result includes the method, URI, headers, client IP and body. JSON stays structured. Text stays readable. Other bytes are Base64 encoded.</p><p><a href="/free-public-api-webhook-capture-api-endpoint">Read the Webhook Capture API guide</a> for request examples.</p></section>
 <section id="protocol"><h2>Protocol support</h2><p>The endpoint supports MCP revision <code>2026-07-28</code>. It also accepts revisions <code>2025-11-25</code>, <code>2025-06-18</code> and <code>2025-03-26</code> for existing clients.</p><div class="api-note"><p>The transport uses HTTP POST and JSON-RPC 2.0. The server does not issue session IDs. Each request carries its own protocol version and capabilities.</p></div><p>Current clients use <code>server/discover</code>. Older clients use <code>initialize</code>. Agent Wake requires the current revision and Tasks extension.</p></section>
+<section id="a2a"><h2>Reach the tasks over A2A</h2><p>Agent2Agent is a third protocol beside REST and MCP. The endpoint is <code>https://aisenseapi.com/a2a</code>. It speaks JSON-RPC 2.0 over HTTP POST at protocol revision <code>1.0</code>, and it needs no account and no API key. The agent card is a plain GET at <code>https://aisenseapi.com/.well-known/agent-card.json</code>.</p><p>A2A is a protocol for delegating work to another agent. MCP is the protocol for exposing tools. Most of this service is tools, so MCP remains the richer surface: all twenty tools and their schemas live there, and the other sixteen are not reachable over A2A. Four are task shaped, and those four are what the card advertises.</p><div class="table-wrap field-table"><table><thead><tr><th>Skill</th><th>What it creates</th></tr></thead><tbody>
+<tr><td>agent-wake</td><td>Durable task that stays open for a webhook, a human answer or a time event</td></tr>
+<tr><td>human-approval</td><td>Hosted form for one person or a group of up to twenty</td></tr>
+<tr><td>agent-inbox</td><td>Disposable mail address that lives at most 24 hours</td></tr>
+<tr><td>webhook-capture</td><td>URL that captures the first request sent to it</td></tr>
+</tbody></table></div><p>These four are the ones where the interesting object is long lived, resumable and often waiting on a person. A2A carries that in core with <code>Task</code> and <code>TASK_STATE_INPUT_REQUIRED</code>, where MCP needed an extension to say the same thing. Hashing, encoding, UUIDs and time gain nothing from a task lifecycle, so they stay on REST and MCP where their schemas are published in band.</p><h3>Name the skill in the message</h3><p>A2A skills are not addressable. There is no skill id anywhere on the wire and no <code>inputSchema</code> on a skill, so a reader looking for a standard field will not find one. The caller names the skill inside the message instead, in a part carrying structured data. That convention belongs to this service and not to the protocol.</p><pre><code>curl -X POST https://aisenseapi.com/a2a \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "SendMessage",
+    "params": {
+      "message": {
+        "messageId": "m1",
+        "role": "ROLE_USER",
+        "parts": [
+          {
+            "data": {
+              "skill": "agent-wake",
+              "arguments": { "event_type": "time", "delay_seconds": 600 }
+            },
+            "mediaType": "application/json"
+          }
+        ]
+      }
+    }
+  }'</code></pre><div class="api-note"><p>This agent has no language model and does not interpret free text. A message that carries no data part naming a skill is refused with <code>-32602</code>, and so is a skill id the card does not list.</p></div><h3>What comes back</h3><p><code>agent-wake</code> answers with a Task. The states are <code>TASK_STATE_WORKING</code>, <code>TASK_STATE_INPUT_REQUIRED</code>, <code>TASK_STATE_COMPLETED</code>, <code>TASK_STATE_FAILED</code> and <code>TASK_STATE_CANCELED</code>, which the protocol spells with one L.</p><pre><code>{
+  "id": "6ae6b883-0635-432c-85ea-5c9b407a3c78",
+  "contextId": "6ae6b883-0635-432c-85ea-5c9b407a3c78",
+  "status": { "state": "TASK_STATE_WORKING", "timestamp": "2026-09-06T17:11:28Z" }
+}</code></pre><p>The other three answer with a Message carrying the created resource in a data part, because the resource exists the moment the call returns.</p><pre><code>{
+  "messageId": "msg-73eae10c66e2710d",
+  "role": "ROLE_AGENT",
+  "parts": [
+    {
+      "data": { "capture_id": "3fa43b29-...", "update_url": "https://aisenseapi.com/services/v1/webhook_capture/3fa43b29-.../update" },
+      "mediaType": "application/json"
+    }
+  ]
+}</code></pre><p><code>GetTask</code> and <code>CancelTask</code> address Agent Wake tasks by id, because that is the only task store this service has. A capture, approval or inbox id is not a task id and is read back over REST or MCP with the URLs the reply already gave you.</p><h3>Methods</h3><div class="table-wrap field-table"><table><thead><tr><th>Method</th><th>Answer</th></tr></thead><tbody>
+<tr><td>SendMessage</td><td>Implemented</td></tr>
+<tr><td>GetTask</td><td>Implemented</td></tr>
+<tr><td>CancelTask</td><td>Implemented</td></tr>
+<tr><td>ListTasks</td><td>Implemented, always an empty page</td></tr>
+<tr><td>SendStreamingMessage</td><td><code>-32004</code> UnsupportedOperationError</td></tr>
+<tr><td>SubscribeToTask</td><td><code>-32004</code> UnsupportedOperationError</td></tr>
+<tr><td>GetExtendedAgentCard</td><td><code>-32004</code> UnsupportedOperationError</td></tr>
+<tr><td>CreateTaskPushNotificationConfig</td><td><code>-32003</code> PushNotificationNotSupportedError</td></tr>
+<tr><td>GetTaskPushNotificationConfig</td><td><code>-32003</code> PushNotificationNotSupportedError</td></tr>
+<tr><td>ListTaskPushNotificationConfigs</td><td><code>-32003</code> PushNotificationNotSupportedError</td></tr>
+<tr><td>DeleteTaskPushNotificationConfig</td><td><code>-32003</code> PushNotificationNotSupportedError</td></tr>
+</tbody></table></div><p>The card declares <code>streaming</code> false and <code>pushNotifications</code> false. Returning these errors is the conforming behaviour once a capability is declared false, not a gap in the implementation. The two families use different codes, so keep them apart in your client: streaming and the extended card are <code>-32004</code>, push notification configuration is <code>-32003</code>. Poll <code>GetTask</code> where you would have subscribed.</p><p>An unknown method is <code>-32601</code>, a request that is not <code>"jsonrpc": "2.0"</code> is <code>-32600</code>, malformed parameters are <code>-32602</code> and an unknown task is <code>-32001</code>.</p><h3>Why the task list is empty</h3><pre><code>{ "tasks": [], "nextPageToken": "", "pageSize": 50, "totalSize": 0 }</code></pre><p>The specification requires every operation to scope its results to the authenticated caller. This service authenticates nobody, so there is no principal to scope to, and a global list would hand every caller every task id. Those ids are the only credential there is. An empty page leaks nothing, so <code>ListTasks</code> always returns one. Keep the id from <code>SendMessage</code>.</p><p>For the same reason, a wrong task id and a task that never existed both answer <code>-32001</code>. Nothing distinguishes them, because telling them apart would turn the endpoint into a lookup oracle for ids that are meant to be secret.</p></section>
 <section id="limits"><h2>Limits and data</h2><ul><li>5000 MCP and REST requests per IP per 24 hours</li><li>Separate, lower Verifyum anchor limits protect the public service and Solana wallet</li><li>256 KB maximum MCP request body and Agent Wake webhook body</li><li>Fixed short lifetimes for stored data, short links, captures, approvals, Agent Wake tasks, Heartbeats and Leases</li><li>Browser origins are checked against an allowlist</li></ul><p>Temporary IDs and URLs are unguessable capability links. Group approval links, Heartbeat IDs, Lease namespaces, owner tokens and inbox IDs are bearer secrets. Send them only to the intended recipient. Do not use the public service for passwords, private keys, health data or material that needs long-term retention.</p><p>MCP logs contain the JSON-RPC method and tool name. Tool arguments, task IDs and results are not logged.</p></section>
 <section id="direct"><h2>Call the protocol directly</h2><pre><code>curl -X POST https://aisenseapi.com/mcp \
   -H "Content-Type: application/json" \
@@ -132,7 +184,7 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
     }
   }'</code></pre><p>The complete protocol notes and tool schemas are in the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/MCP.md">public GitHub documentation</a>.</p></section>
 <section id="related"><h2>Related documentation</h2><div class="related-api-grid"><a href="/free-public-api-agent-wake-api-endpoint">Agent Wake API<span>Durable event tasks over REST and MCP</span></a><a href="/free-public-apis">Free Public REST APIs<span>Use more than 40 endpoints directly</span></a><a href="/free-public-api-webhook-action-api-endpoint">Webhook Action API<span>Create richer forms with custom fields</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API<span>Inspect incoming HTTP requests</span></a></div></section>
-</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Workflow tools</a></li><li><a href="#agent-wake">Agent Wake</a></li><li><a href="#heartbeat">Heartbeat</a></li><li><a href="#lease">Lease</a></li><li><a href="#agent-inbox">Agent Inbox</a></li><li><a href="#verifyum-tools">Verifyum tools</a></li><li><a href="#resources">Resources</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#limits">Limits</a></li></ul></aside></div>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#start">Connect</a></li><li><a href="#openai">OpenAI</a></li><li><a href="#tools">Workflow tools</a></li><li><a href="#agent-wake">Agent Wake</a></li><li><a href="#heartbeat">Heartbeat</a></li><li><a href="#lease">Lease</a></li><li><a href="#agent-inbox">Agent Inbox</a></li><li><a href="#verifyum-tools">Verifyum tools</a></li><li><a href="#resources">Resources</a></li><li><a href="#approval">Human approval</a></li><li><a href="#webhooks">Webhooks</a></li><li><a href="#protocol">Protocol</a></li><li><a href="#a2a">A2A</a></li><li><a href="#limits">Limits</a></li></ul></aside></div>
 </main>
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom APIs. Copyright 2026 AI SENSE AS</p></div></footer>
 </body>

@@ -305,6 +305,140 @@ codes and public links are kept.
 | Active inboxes service wide | 5000 |
 | Lifetime | 24 hours, fixed |
 
+## Agent2Agent, a third protocol
+
+A2A runs beside this endpoint at its own URL. It is a smaller surface, not a
+second copy of the tool list.
+
+```text
+POST https://aisenseapi.com/a2a
+GET  https://aisenseapi.com/.well-known/agent-card.json
+```
+
+The endpoint speaks JSON-RPC 2.0 and A2A protocol revision `1.0`, from
+specification v1.0.1. The agent card is a plain GET, because the protocol has
+no method for fetching it. No account, API key or token is needed, the same as
+here.
+
+A2A is a protocol for one agent to delegate work to another. MCP is the
+protocol for exposing tools. Most of this service is tools, so only four
+capabilities are offered over A2A:
+
+| A2A skill | Same capability on this endpoint |
+|-----------|----------------------------------|
+| `agent-wake` | `create_agent_wake` |
+| `human-approval` | `create_human_approval` |
+| `agent-inbox` | `create_agent_inbox` |
+| `webhook-capture` | `create_webhook_capture` |
+
+Those four are the cases where the interesting object is a long-lived,
+resumable, human-in-the-loop task. A2A carries that in core, while MCP needed
+the `io.modelcontextprotocol/tasks` extension to say the same thing. Each skill
+calls the tool in the right-hand column, so arguments, bounds and refusals are
+identical on the two surfaces.
+
+Everything else stays here and on the REST API. The other sixteen tools in the
+table above are not reachable over A2A, and neither are the REST-only
+utilities: hashing, encoding, JWT, QR codes, validation and the wallets. The
+schemas of the tools are published in band by `tools/list`, and a task
+lifecycle would add nothing to a hash or a UUID. **MCP is the richer surface.
+An agent that wants the utilities should use this endpoint.** A2A has no read
+skills either. It creates a record, and `read_human_approval`,
+`read_agent_inbox` and `read_webhook_capture` here, or the REST routes in
+[`API.md`](API.md), read it back.
+
+A2A skills are not addressable. The card gives each skill an `id`, but no
+request field in the protocol carries one, and a skill has no `inputSchema`, so
+the card can describe a skill without saying how to call it. This service
+therefore takes the name inside the message, in a part carrying structured
+data:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "caller-generated",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "data": {
+            "skill": "agent-wake",
+            "arguments": { "event_type": "webhook", "timeout_seconds": 3600 }
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  }
+}
+```
+
+`arguments` are the fields of the matching tool. The convention is this
+service's own and not something A2A defines, so a reader looking for a standard
+field will not find one. A message with no such data part is refused with
+`-32602`. The agent has no language model and does not interpret free text.
+
+`SendMessage`, `GetTask`, `ListTasks` and `CancelTask` are implemented.
+`SendStreamingMessage` and `SubscribeToTask` answer `-32004`, and the four
+`TaskPushNotificationConfig` methods answer `-32003`. The card declares
+`streaming` false and `pushNotifications` false, and returning those errors is
+the conforming behaviour once a capability is declared false rather than a gap.
+The two families keep different codes on purpose. `GetExtendedAgentCard` also
+answers `-32004`. An unknown method is `-32601`, a request that does not say
+`"jsonrpc": "2.0"` is `-32600`, and a bad or missing argument is `-32602`
+carrying the tool's own message instead of the `isError` tool result MCP
+returns.
+
+`agent-wake` answers with a Task:
+
+```json
+{
+  "id": "...",
+  "contextId": "...",
+  "status": {
+    "state": "TASK_STATE_WORKING",
+    "timestamp": "2026-09-06T16:44:45Z"
+  }
+}
+```
+
+The states are `TASK_STATE_WORKING`, `TASK_STATE_INPUT_REQUIRED`,
+`TASK_STATE_COMPLETED`, `TASK_STATE_FAILED` and `TASK_STATE_CANCELED`, spelled
+with one L. `GetTask` and `CancelTask` address a task by this `id`. The Task
+carries the ID, a context ID and the state, and not the wake URL or the form
+URL, so create the task through MCP or REST when the caller needs one of those.
+
+The other three skills answer with a Message whose data part is the created
+record, the same JSON the matching tool returns:
+
+```json
+{
+  "messageId": "msg-...",
+  "role": "ROLE_AGENT",
+  "parts": [ { "data": { "ok": true }, "mediaType": "application/json" } ]
+}
+```
+
+`ListTasks` always returns an empty page:
+
+```json
+{ "tasks": [], "nextPageToken": "", "pageSize": 50, "totalSize": 0 }
+```
+
+The specification requires every operation to scope results to the
+authenticated caller. This service authenticates nobody, so there is no
+principal to scope to, and a global list would hand every caller every task ID.
+Those IDs are the only credential there is. For the same reason a wrong task ID
+and a task that never existed both answer `-32001` with nothing to tell them
+apart, because a difference would make the endpoint a lookup oracle.
+
+A request with no `id` is a notification and gets HTTP 204 with no body. A
+batch array is accepted and answers with the replies its non-notification
+entries produce.
+
 ## Separate Verifyum MCP endpoint
 
 MCP is an additional way to reach Verifyum. The browser flow, public HTTP API
@@ -462,4 +596,5 @@ missing. Unknown task IDs return `-32602`.
 
 - Website: [aisense.no/free-public-mcp-server](https://aisense.no/free-public-mcp-server)
 - REST API reference: [`API.md`](API.md)
+- A2A agent card: [aisenseapi.com/.well-known/agent-card.json](https://aisenseapi.com/.well-known/agent-card.json)
 - Source and tests: [github.com/aisenseapi/aisense-free-public-rest-apis](https://github.com/aisenseapi/aisense-free-public-rest-apis)

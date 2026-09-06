@@ -482,6 +482,137 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 
 ---
 
+## Agent2Agent - a third protocol with four of these capabilities
+
+Everything above is REST. The same service is also on MCP at
+`https://aisenseapi.com/mcp`, as twenty tools, each with a schema published in
+band by `tools/list`.
+
+A third protocol runs at its own URL:
+
+```text
+POST https://aisenseapi.com/a2a
+GET  https://aisenseapi.com/.well-known/agent-card.json
+```
+
+It speaks JSON-RPC 2.0 and A2A protocol revision `1.0`, from specification
+v1.0.1. The card is a plain GET, because the protocol has no method for
+fetching it. No account and no API key, the same as the rest of the service.
+
+**Reach for A2A only when you are already an A2A client, or when the agent
+delegating to you is one.** A2A is a protocol for handing work to another
+agent, and its Task object earns its place when the work is long-lived,
+resumable or waiting on a person. MCP is the richer of the two agent surfaces
+and stays the default: it carries all twenty tools with their schemas, while
+A2A carries four skills. If you want a hash, a UUID, a timestamp, a short link
+or any other utility here, use REST or MCP. A2A cannot reach them.
+
+Four skills, and they are the same capabilities you already have, not extra
+ones:
+
+| A2A skill | MCP tool | REST |
+|-----------|----------|------|
+| `agent-wake` | `create_agent_wake` | `POST /agent_wake` |
+| `human-approval` | `create_human_approval` | `POST /webhook_action` |
+| `agent-inbox` | `create_agent_inbox` | `POST /inbox` |
+| `webhook-capture` | `create_webhook_capture` | `POST /webhook_capture` |
+
+Each skill runs the same code as its MCP tool, so the arguments, the bounds and
+the refusals are identical. There is no read skill. A2A creates the record;
+`GetTask` reads an Agent Wake task, and the other three are read with the MCP
+read tool or the REST route above.
+
+**Name the skill inside the message.** A2A skills are not addressable: the card
+gives each skill an `id`, but no request field in the protocol carries one, and
+a skill has no input schema. So this service takes the name from a part
+carrying structured data. That convention is this service's own, not something
+the protocol defines, which is why looking for a standard field will not turn
+one up.
+
+```json
+// POST https://aisenseapi.com/a2a
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "SendMessage",
+  "params": {
+    "message": {
+      "messageId": "your-own-id",
+      "role": "ROLE_USER",
+      "parts": [
+        {
+          "data": {
+            "skill": "human-approval",
+            "arguments": {
+              "title": "Approve deployment?",
+              "options": ["Approve", "Reject"]
+            }
+          },
+          "mediaType": "application/json"
+        }
+      ]
+    }
+  }
+}
+```
+
+`arguments` are the fields of the matching MCP tool. A message with no such
+data part is refused with `-32602`. This agent has no language model and will
+not read intent out of free text. A bad or missing argument is also `-32602`,
+carrying the same message the tool would give.
+
+`agent-wake` answers with a Task, and `GetTask` and `CancelTask` address it by
+`id`:
+
+```json
+{
+  "id": "...",
+  "contextId": "...",
+  "status": {
+    "state": "TASK_STATE_WORKING",
+    "timestamp": "2026-09-06T16:44:45Z"
+  }
+}
+```
+
+States are `TASK_STATE_WORKING`, `TASK_STATE_INPUT_REQUIRED`,
+`TASK_STATE_COMPLETED`, `TASK_STATE_FAILED` and `TASK_STATE_CANCELED`, with one
+L. The Task carries the ID, a context ID and the state, and nothing more, so
+create the task over REST or MCP when you need the wake URL or the form URL.
+
+The other three answer with a Message whose data part is the record the create
+call returns, the same JSON as the REST response for that endpoint:
+
+```json
+{
+  "messageId": "msg-...",
+  "role": "ROLE_AGENT",
+  "parts": [ { "data": { "ok": true }, "mediaType": "application/json" } ]
+}
+```
+
+`SendMessage`, `GetTask`, `ListTasks` and `CancelTask` are implemented. The
+card declares `streaming` and `pushNotifications` false, so
+`SendStreamingMessage` and `SubscribeToTask` answer `-32004` and the four
+`TaskPushNotificationConfig` methods answer `-32003`. Those are different
+families with different codes, and both are the conforming answer once a
+capability is declared false. `GetExtendedAgentCard` answers `-32004` too. Poll
+`GetTask` instead of subscribing.
+
+`ListTasks` always returns an empty page:
+
+```json
+{ "tasks": [], "nextPageToken": "", "pageSize": 50, "totalSize": 0 }
+```
+
+The specification scopes every operation to the authenticated caller, this
+service authenticates nobody, and a global list would hand every caller every
+task ID, which is the only credential a task has. For the same reason a wrong
+ID and an ID that never existed both answer `-32001` and look identical, so do
+not read anything into which one you got.
+
+---
+
 ## Crypto
 
 > Wallet generation is for **development and testing only**. A private key

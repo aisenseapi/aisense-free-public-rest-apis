@@ -60,6 +60,32 @@ settings.
 
 ---
 
+## Free public Agent2Agent (A2A) endpoint
+
+Agents that speak Agent2Agent can reach four of these capabilities at:
+
+`https://aisenseapi.com/a2a`
+
+JSON-RPC 2.0, protocol revision 1.0, no account and no API key. The agent card
+is a plain GET at `https://aisenseapi.com/.well-known/agent-card.json`.
+
+A2A is the protocol for delegating work to another agent. MCP is the protocol
+for exposing tools. Most of this service is tools, so only the four task-shaped
+capabilities are offered over A2A: `agent-wake`, `human-approval`,
+`agent-inbox` and `webhook-capture`. The other tools are not reachable through
+it, and MCP stays the richer surface with all twenty tools and their schemas.
+
+A2A puts no skill id on the wire, so the caller names the skill in a data part
+of the message, as `{"skill": "agent-wake", "arguments": { ... }}`. That is a
+convention this service documents, not a field the protocol defines, and a
+message without it is refused. The card declares `streaming` and
+`pushNotifications` false, so those methods answer `-32004` and `-32003`.
+`ListTasks` returns an empty page, because nobody is authenticated and a task ID
+is the only credential there is. See [`API.md`](API.md#agent2agent-a2a) for the
+skills, task states, response shapes and error codes.
+
+---
+
 ## SpeedUp (.su) - token cost, measured properly
 
 Every serialization format marketed for LLM input ships a token-saving claim
@@ -194,7 +220,9 @@ The matching MCP tools are `create_lease_namespace`, `acquire_lease`,
 
 Create one task that waits for a webhook, a human answer or a chosen time. MCP
 clients use the current Tasks extension and poll `tasks/get`. REST clients use
-`POST /agent_wake` and the returned status URL.
+`POST /agent_wake` and the returned status URL. A2A clients name the
+`agent-wake` skill and poll `GetTask`, which is the one skill that answers with
+an A2A Task rather than a Message.
 
 ```json
 { "event_type": "webhook", "timeout_seconds": 3600 }
@@ -208,7 +236,8 @@ complete on the first read after the selected timestamp. Each task expires in
 REST clients can wait for a terminal state with
 `GET /agent_wake/{task_id}/wait/{seconds}`. The final value accepts 0 to 25.
 
-See [`MCP.md`](MCP.md) for the task flow and [`API.md`](API.md) for REST calls.
+See [`MCP.md`](MCP.md) for the task flow, and [`API.md`](API.md) for the REST
+calls and the [A2A skill](API.md#agent2agent-a2a).
 
 ---
 
@@ -274,6 +303,10 @@ moves through `pending`, `partial` and `answered`, with answer counts, a tally
 and individual responses. Add `notify_url` when you want one completion signal
 that points back to the result without copying the answers.
 
+MCP clients use `create_human_approval` and `read_human_approval`. A2A clients
+name the `human-approval` skill, which creates the form and returns its URLs;
+reading the answer stays on REST or MCP.
+
 ---
 
 ### Webhook Capture - inspect any inbound HTTP request
@@ -315,6 +348,10 @@ Expires after 24 hours.
 The first inbound request wins and later retries cannot replace it. Captured
 bodies are capped at 256 KB. The create body may contain `notify_url` for one
 completion signal.
+
+MCP clients use `create_webhook_capture` and `read_webhook_capture`. A2A clients
+name the `webhook-capture` skill, which creates the capture and returns its URLs;
+reading the request stays on REST or MCP.
 
 ---
 
@@ -404,7 +441,9 @@ inbox in total, 50 inboxes per client per UTC day and 5000 active inboxes
 service wide. The 24-hour lifetime is fixed and cannot be extended.
 
 MCP clients use `create_agent_inbox` and `read_agent_inbox`, whose wait watches
-`truncated` as well and returns as soon as the cap refuses a message.
+`truncated` as well and returns as soon as the cap refuses a message. A2A
+clients name the `agent-inbox` skill, which creates the inbox and returns its
+address and URLs; reading the mail stays on REST or MCP.
 
 ---
 
