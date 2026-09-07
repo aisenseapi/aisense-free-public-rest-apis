@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>We Read 55 Agent Cards Before Publishing Ours - AI SENSE</title>
+<meta name="description" content="Before publishing an A2A agent card we measured what is actually out there: 370 registry entries, 60 live domains, and what the specification says about skills. The findings decided the scope of our card.">
+<link rel="canonical" href="https://aisense.no/we-read-55-agent-cards">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="We Read 55 Agent Cards Before Publishing Ours">
+<meta property="og:description" content="What live A2A agent cards actually declare, why registries serve stale copies, and why skills are not addressable. Measured, not assumed.">
+<meta property="og:url" content="https://aisense.no/we-read-55-agent-cards">
+<meta property="article:published_time" content="2026-09-06">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "We Read 55 Agent Cards Before Publishing Ours",
+      "description": "A measurement of live A2A agent cards and the specification behind them, and how it decided the scope of the AI SENSE card.",
+      "url": "https://aisense.no/we-read-55-agent-cards",
+      "datePublished": "2026-09-06",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "We read 55 agent cards", "item": "https://aisense.no/we-read-55-agent-cards" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">We read 55 agent cards</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Research note - 6 September 2026</p>
+  <h1>We Read 55 Agent Cards Before Publishing Ours</h1>
+  <p class="article-deck">Our access log showed eight requests a day for a file we did not have. Before writing one, we measured what the file means in practice: what live cards declare, what the registries that collect them actually serve, and what the specification says a card commits you to.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">Agent2Agent is a protocol for one agent to delegate work to another. An agent advertises itself with a JSON card at a well-known path, and clients that find the card send it tasks. We now publish one at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. This note is about what we learned on the way there, and why the card describes four capabilities and not twenty.</p>
+
+<h2>What the specification actually says</h2>
+
+<p>The current revision is 1.0.1, released in May 2026. The documentation site still shows 1.0.0 on its banner. Most tutorials describe 0.3 or earlier, and three things changed that they get wrong.</p>
+
+<p>The method names moved to PascalCase. <code>SendMessage</code>, <code>GetTask</code>, <code>ListTasks</code> and <code>CancelTask</code> replaced the slash-separated names of 0.x. There is no method for fetching the public card in any revision; it is a plain HTTP GET. And the well-known path moved from <code>agent.json</code> to <code>agent-card.json</code> in revision 0.3, and is now registered with IANA.</p>
+
+<p>Streaming and push notifications are capability flags. Declare them false and the specification requires the matching methods to answer a defined error. Returning that error is the conforming behaviour, not a gap. The two families use different error codes, and merging them would be wrong in a way no client reports back.</p>
+
+<h2>Skills are not addressable</h2>
+
+<p>This is the finding that decided our scope, and we found it nowhere else.</p>
+
+<p>A card lists skills. Each has an id, a name, a description and tags. What it does not have is a way to be called. There is no skill id anywhere on the wire: not on <code>SendMessage</code>, not on a message, not on a task. Searching the full specification for a skill identifier field returns nothing. The protocol's own comment on the field calls a skill largely a descriptive concept.</p>
+
+<p>So a skill is an advertisement, and the receiving agent is expected to read a free-form message and decide what to do. That works when the receiver has a language model. Ours does not. It can accept a strictly shaped request under a convention we document, and any client able to follow that convention could equally use our REST or MCP surface, both of which publish real schemas in band.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">The consequence</p>
+  <h2>Twenty tools as twenty skills would produce twenty paragraphs and no callable operations.</h2>
+  <p>A2A earns its place only where the interesting object is a long-lived task that a person may need to act on. For everything else, MCP already says it better.</p>
+</div>
+
+<h2>What is actually out there</h2>
+
+<p>We pulled the full corpus of one public registry, 370 entries, and then went to the sources ourselves: a read-only GET of the well-known path on 60 distinct domains from that corpus. The two views disagree, and the disagreement is the interesting part.</p>
+
+<div class="table-wrap field-table"><table><thead><tr><th>Measured</th><th>Registry copy</th><th>At the source</th></tr></thead><tbody>
+<tr><td>Cards that parse</td><td>369 of 370</td><td>55 of 60</td></tr>
+<tr><td>Use the 1.0 <code>supportedInterfaces</code> field</td><td>0 of 369</td><td>39 of 55</td></tr>
+<tr><td>Declare <code>streaming: false</code></td><td></td><td>49 of 55</td></tr>
+<tr><td>Declare <code>pushNotifications: false</code></td><td></td><td>52 of 55</td></tr>
+<tr><td>Publish both the 1.0 and the 0.3 shape</td><td></td><td>14 of 55</td></tr>
+<tr><td>Publish only the 0.3 shape</td><td></td><td>16 of 55</td></tr>
+</tbody></table></div>
+
+<p>The registry served every card in the legacy shape, including the ones whose sources had moved to 1.0. Registries are not a reliable mirror of what agents publish, and anything that reasons about the ecosystem from a registry dump is reasoning about a normalised cache.</p>
+
+<p>The capability numbers settled two of our design questions. Declaring neither streaming nor push is what roughly nine in ten live cards do. And the 0.3 shape is still common enough that we serve it at the old path as well, built from the same skills so the two cannot describe different agents.</p>
+
+<h2>The skills people actually publish</h2>
+
+<p>Across the 55 live cards there were 413 skills. They are overwhelmingly API-shaped: render a document, send an email, look up a record, run a compliance check. Forty of the 55 cards accept JSON input. On the specification's own terms most of these are tools, not reasoning peers, and the specification's own companion text says tools belong to MCP.</p>
+
+<p>So a utility provider publishing a card is unusual on paper and ordinary in practice. That cuts both ways. It means we are not the odd one out. It also means the ecosystem is not the peer-delegation network the protocol describes, and a card should not be expected to bring traffic.</p>
+
+<h2>Nobody measures whether cards get called</h2>
+
+<p>Every directory we found measures reachability: does the well-known path answer, does the card parse. One directory publishes its own funnel and reports that about one valid card in ten answers a JSON-RPC request at all. That is their figure, not ours. None of them, ours included, has a measurement of a card leading to real inbound work.</p>
+
+<p>The eight daily requests that started this were not demand either. The user agents named themselves: two directory crawlers, one of which documents that it runs every six hours and sources candidates from certificate transparency logs. A domain that renews a TLS certificate gets probed whether or not it has ever published a card.</p>
+
+<h2>What we published</h2>
+
+<p>Four skills, the ones where a task is the natural object: waking on an outside event, asking a person to decide, receiving email at a disposable address, and capturing one inbound request. Streaming and push declared false. One protocol binding. The card went live last, after every advertised skill answered, and a gate refuses to pass unless that stays true.</p>
+
+<p>The other sixteen tools are not reachable over A2A. They live on REST and MCP, where their schemas are published in the request itself. The <a href="/free-public-a2a-agent-endpoint">endpoint guide</a> has the details, including the convention for naming a skill inside a message, which is ours and not the protocol's.</p>
+
+<h2>What would change our mind</h2>
+
+<p>A named client, a framework's agent runtime rather than a directory, shown to discover cards at call time and route work by skill tag. That would make breadth of skills pay, and we would revisit the twenty. We looked and did not find one.</p>
+
+<p>The other direction is also open. If the eight daily hits stay a single crawler on a six-hour cycle with no retries, the card buys presence and nothing more, and we will say so here.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">The card</p>
+  <h2>Read it, or read the guide behind it.</h2>
+  <p>No account, no API key. Four task-shaped skills over JSON-RPC.</p>
+  <div class="button-row"><a href="/free-public-a2a-agent-endpoint">Agent2Agent endpoint guide</a> <a href="https://aisenseapi.com/.well-known/agent-card.json">The agent card</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
