@@ -9,7 +9,7 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-72 pages. The 49 endpoint pages share one naming pattern and are collapsed
+73 pages. The 49 endpoint pages share one naming pattern and are collapsed
 into a single row here; each one is listed individually in `sitemap.xml`.
 
 | File | URL |
