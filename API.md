@@ -939,8 +939,8 @@ localhost links are dropped.
 
 **Wait:** `GET /inbox/{inbox_id}/wait/{seconds}` where `seconds` is 0 to 25.
 It returns the same object with `waited_seconds` and `wait_reason` added.
-Anything outside 0 to 25 does not match this route and returns HTTP 404. The
-other wait routes on this surface clamp a larger value to 25 instead.
+A value above 25 is clamped to 25, the same as every other wait route on this
+surface.
 
 `truncated` is worth knowing about. A full inbox refuses new mail rather than
 evicting old mail, so the message you are waiting for can be turned away while

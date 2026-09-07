@@ -370,9 +370,7 @@ Read with `GET /inbox/{inbox_id}`:
 The read response does **not** contain `inbox_id`. The credential is never
 echoed back. `GET /inbox/{inbox_id}/wait/{seconds}` waits from 0 to 25 seconds
 for a new message and adds `waited_seconds` and `wait_reason` to the same
-object. Only a plain 0 to 25 matches that route. The other wait routes clamp a
-larger number to 25; this one does not, so `/wait/30` answers 404 and means the
-path, not the inbox.
+object. A value above 25 is clamped to 25, the same as every other wait route.
 
 `codes` are standalone 4 to 8 digit numbers. `links` are public http(s) links
 only; private-IP and localhost links are dropped. `date` is the time the
