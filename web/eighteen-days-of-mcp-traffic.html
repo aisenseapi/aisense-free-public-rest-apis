@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>We Logged Every Visit to Our MCP Server for Eighteen Days - AI SENSE</title>
+<meta name="description" content="Over eighteen days, 1.13 percent of outside traffic to our public MCP server was somebody calling a tool. Six named monitoring services accounted for more than half of everything else, and none of them called anything.">
+<link rel="canonical" href="https://aisense.no/eighteen-days-of-mcp-traffic">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="We Logged Every Visit to Our MCP Server for Eighteen Days">
+<meta property="og:description" content="What the MCP monitoring industry looks like from inside a server that it watches. Measured, with everything we had to subtract shown.">
+<meta property="og:url" content="https://aisense.no/eighteen-days-of-mcp-traffic">
+<meta property="article:published_time" content="2026-09-08">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "We Logged Every Visit to Our MCP Server for Eighteen Days",
+      "description": "A measurement of who connects to a live public MCP server, how much of it is monitoring, and how little of it is use.",
+      "url": "https://aisense.no/eighteen-days-of-mcp-traffic",
+      "datePublished": "2026-09-08",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Eighteen days of MCP traffic", "item": "https://aisense.no/eighteen-days-of-mcp-traffic" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Eighteen days of MCP traffic</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Research note - 8 September 2026</p>
+  <h1>We Logged Every Visit to Our MCP Server for Eighteen Days</h1>
+  <p class="article-deck">Directories publish how many MCP servers answer. None of them publishes how many get used, because from the outside that cannot be seen. We run one, so we can see it. Over eighteen days, 1.13 percent of the traffic arriving from outside was somebody calling a tool.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">In an earlier note we read 55 live agent cards before publishing our own, and found that every directory measures reachability and nobody measures whether a card leads to work. This is the same question from the opposite side. We are the server being checked, and the log tells us who arrives, what they ask for, and whether anything happens next.</p>
+
+<h2>The measurement only a server can make</h2>
+
+<p>Consider what each party can see. A crawler visits many servers and learns whether each one answers; it cannot see who else visited, and it cannot see whether real clients ever call. A registry sees submissions, not traffic. A client platform sees its own calls to many servers. The operator of a server sees every party that connects and whether any of them used anything.</p>
+
+<p>That last position is the only one from which the ratio between being watched and being used is measurable at all. What follows is one server over eighteen days, from 20 August to 7 September 2026.</p>
+
+<h2>What arrived</h2>
+
+<div class="table-wrap field-table"><table><thead><tr><th>Measured</th><th>Eighteen days</th></tr></thead><tbody>
+<tr><td>Requests logged</td><td>27,093</td></tr>
+<tr><td>Requests from outside our own addresses</td><td>26,763</td></tr>
+<tr><td>Tool calls, all sources</td><td>460</td></tr>
+<tr><td>Tool calls from outside, naming a tool we offer</td><td>302</td></tr>
+<tr><td>Share of outside traffic that was a tool call</td><td>1.13%</td></tr>
+<tr><td>Median day</td><td>0.23%</td></tr>
+</tbody></table></div>
+
+<p>The median day is the number we would quote first. On a typical day roughly one request in 430 was somebody using something. The period figure is higher than the median because two days out of eighteen carried bursts, and a mean across days of very different sizes hides that.</p>
+
+<p>The shape of a single day makes it concrete. On 8 September the server answered 485 <code>initialize</code> requests, completed 408 handshakes, served 438 <code>tools/list</code> responses, and received 32 <code>tools/call</code>. Connections are plentiful and cheap. What follows a connection is rare.</p>
+
+<h2>The monitors keep their word</h2>
+
+<p>This was the finding we did not expect, and it is a good-news finding.</p>
+
+<p>An industry of MCP monitoring services has formed, and it is well behaved. The services identify themselves in the User-Agent, most of them carry a contact URL, and several state their purpose in plain words. Six of them were large enough to appear in our fifteen busiest clients.</p>
+
+<div class="table-wrap field-table"><table><thead><tr><th>Service</th><th>Requests</th><th>Days seen</th><th>Tool calls</th></tr></thead><tbody>
+<tr><td>SentinelOracle</td><td>8,485</td><td>17</td><td>0</td></tr>
+<tr><td>mcpbeat</td><td>5,067</td><td>18</td><td>0</td></tr>
+<tr><td>zevruna-monitor</td><td>1,525</td><td>14</td><td>0</td></tr>
+<tr><td>MCPScoringEngine</td><td>276</td><td>18</td><td>0</td></tr>
+<tr><td>agent-tools.cloud-crawler</td><td>222</td><td>10</td><td>0</td></tr>
+<tr><td>ProofBench</td><td>211</td><td>18</td><td>0</td></tr>
+</tbody></table></div>
+
+<p>Those six alone are 15,786 of 27,093 requests, which is 58 percent of everything the server answered in eighteen days, with no tool calls between them. Smaller ones sit below the cut, so the true monitoring share is higher than 58 percent.</p>
+
+<p>Several go further than being identifiable. One writes <code>liveness-only, never invokes tools</code> into its User-Agent. Across the period, 88 separate service-days carried a declaration of that kind. On all 88, the service called nothing. Not one broke its word.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">The finding</p>
+  <h2>Eighty-eight promises not to call anything, and eighty-eight kept.</h2>
+  <p>A surveillance layer grew around MCP servers before the clients did, and it polices itself.</p>
+</div>
+
+<h2>Real use is small, and very concentrated</h2>
+
+<p>The 302 genuine tool calls are not spread across a user base. One client, a Java 25 HTTP client, made 132 of them in a single day. That is 44 percent of three weeks of use inside 24 hours, and the day it happened is the 8.96 percent spike in our daily figures.</p>
+
+<p>What remains is a thin, steady trickle from a handful of returning integrations.</p>
+
+<div class="table-wrap field-table"><table><thead><tr><th>Client</th><th>Tool calls</th><th>Days seen</th></tr></thead><tbody>
+<tr><td>Java-http-client/25.0.2</td><td>132</td><td>1</td></tr>
+<tr><td>Go-http-client/2.0</td><td>28</td><td>16</td></tr>
+<tr><td>python-httpx/0.28.1</td><td>23</td><td>17</td></tr>
+<tr><td>node</td><td>21</td><td>18</td></tr>
+<tr><td>No user agent given</td><td>17</td><td>18</td></tr>
+</tbody></table></div>
+
+<p>The tools they reach for are the small ones: the current time, a UUID, a short link. Named agent platforms appear, Microsoft Copilot Studio among them, but as single calls rather than as traffic.</p>
+
+<h2>What we subtracted, and why</h2>
+
+<p>The first number this measurement produced was 15.57 percent. It was wrong four separate ways, and each correction is worth stating, because anyone measuring their own server will meet all four.</p>
+
+<p><strong>Our own traffic.</strong> 330 requests and 134 tool calls came from our own address. Among them, <code>curl/7.88.1</code> appeared in the client listing with 113 tool calls, which would have made us the second busiest caller of our own server. The other was <code>claude-code</code>, a string a real Claude Desktop user would also send, so User-Agent could not separate us from a genuine client and the address could. Both sides of the ratio now drop the same traffic.</p>
+
+<p><strong>Scanners.</strong> 24 calls named a tool the server does not offer, such as one asking for <code>__verifymcp_auth_probe_265dac185c04244f__</code>. Those are probes testing whether the server accepts an undefined name. They belong in the connection funnel and not in a count of people using something.</p>
+
+<p><strong>One load test.</strong> On 4 September a single client made 12,872 requests and 5,734 tool calls, which is 93 percent of every tool call in nineteen days. Left in, it moved the headline from about 1 percent to 15.57 and left the median untouched. It is excluded here and named rather than quietly dropped.</p>
+
+<p><strong>One day we cannot read.</strong> On 20 August, 202 of 496 requests carried no User-Agent, because our own logger did not record it yet. That day shows 3.63 percent, the second highest of the period, and the split behind it means nothing. It stays in the totals and carries a warning.</p>
+
+<h2>What we are not claiming</h2>
+
+<p>This is one server. It says what arrives at ours, not what arrives at MCP servers in general, and the crawlers that found us did so partly because we are in a public registry, which biases who shows up.</p>
+
+<p>Eighteen days is short. Three hundred and two tool calls is a small number to build percentages on, and a single busy client moves it a long way, as the Java client did.</p>
+
+<p>We also cannot see intent. A monitor that never calls a tool may be exactly as valuable as it claims to be, keeping a directory honest about which servers still answer. Nothing here says the monitoring layer is waste. It says it is most of the traffic.</p>
+
+<h2>What would change our mind</h2>
+
+<p>A named agent runtime, rather than a directory, discovering servers at call time and routing real work by capability. We have not seen one. If tool calls start arriving from a framework's user agent on many days rather than from four HTTP clients, that is the signal, and we will publish it here.</p>
+
+<p>The measurement continues. One record is written per day and the raw logs are kept for two years, so the same questions can be asked again with a longer window, and asked differently if these definitions turn out to be wrong.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">The server</p>
+  <h2>Twenty tools, no account, no API key.</h2>
+  <p>If you would rather be one of the 302 than one of the 15,786, it is open.</p>
+  <div class="button-row"><a href="/free-public-mcp-server">Free MCP server</a> <a href="/we-read-55-agent-cards">We read 55 agent cards</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
