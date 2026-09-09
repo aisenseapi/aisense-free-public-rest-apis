@@ -73,7 +73,7 @@ settings.
 
 ## Free public Agent2Agent (A2A) endpoint
 
-Agents that speak Agent2Agent can reach four of these capabilities at:
+Agents that speak Agent2Agent can reach five of these capabilities at:
 
 `https://aisenseapi.com/a2a`
 
@@ -81,7 +81,7 @@ JSON-RPC 2.0, protocol revision 1.0, no account and no API key. The agent card
 is a plain GET at `https://aisenseapi.com/.well-known/agent-card.json`.
 
 A2A is the protocol for delegating work to another agent. MCP is the protocol
-for exposing tools. Most of this service is tools, so only the four task-shaped
+for exposing tools. Most of this service is tools, so only the five task-shaped
 capabilities are offered over A2A: `agent-wake`, `human-approval`,
 `agent-inbox` and `webhook-capture`. The other tools are not reachable through
 it. MCP stays the richer workflow surface with its own tool schemas. Queue

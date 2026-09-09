@@ -103,7 +103,7 @@
 <section class="callout" aria-labelledby="a2a-heading">
   <h2 id="a2a-heading">Delegating work to another agent?</h2>
   <p>Agent2Agent revision 1.0 answers at <code>https://aisenseapi.com/a2a</code> over JSON-RPC 2.0, with the agent card at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. No account, no API key.</p>
-  <p>A2A carries the four task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code> and <code>webhook-capture</code>. Other endpoints remain on REST. MCP exposes a selected set of workflow tools with schemas returned by discovery. Queue has REST and MCP interfaces, but no A2A skill.</p>
+  <p>A2A carries the five task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code>, <code>webhook-capture</code> and <code>agent-queue</code>. Other endpoints remain on REST. MCP exposes a selected set of workflow tools with schemas returned by discovery. Queue is reachable on all three surfaces; its read and worker operations stay on REST and MCP.</p>
   <p>A2A skills carry no id on the wire and no input schema, so the caller names one inside the message, in a part carrying structured data: <code>{"skill": "agent-wake", "arguments": {}}</code>. That is a convention this service documents rather than something the protocol defines, and an agent with no language model refuses a message without it.</p>
   <p><a href="/free-public-a2a-agent-endpoint">See the A2A skills, methods and response shapes</a>.</p>
 </section>

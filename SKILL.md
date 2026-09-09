@@ -528,7 +528,7 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 
 ---
 
-## Agent2Agent - a third protocol with four of these capabilities
+## Agent2Agent - a third protocol with five of these capabilities
 
 Everything above is REST. The same service is also on MCP at
 `https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
@@ -549,12 +549,12 @@ fetching it. No account and no API key, the same as the rest of the service.
 delegating to you is one.** A2A is a protocol for handing work to another
 agent, and its Task object earns its place when the work is long-lived,
 resumable or waiting on a person. MCP is the richer of the two agent surfaces
-and exposes workflow tools with schemas, while A2A carries four creation skills.
+and exposes workflow tools with schemas, while A2A carries five creation skills.
 REST exposes the utility catalog. Time, UUIDs and short links also have MCP
 tools, but hashing, encoding, QR and wallet operations are REST-only. Queue
 has REST and MCP interfaces, not an A2A skill.
 
-Four skills, and they are the same capabilities you already have, not extra
+Five skills, and they are the same capabilities you already have, not extra
 ones:
 
 | A2A skill | MCP tool | REST |
@@ -640,7 +640,7 @@ call returns, the same JSON as the REST response for that endpoint:
 
 `SendMessage`, `GetTask`, `ListTasks` and `CancelTask` are implemented. The
 card declares `streaming` and `pushNotifications` false, so
-`SendStreamingMessage` and `SubscribeToTask` answer `-32004` and the four
+`SendStreamingMessage` and `SubscribeToTask` answer `-32004` and the five
 `TaskPushNotificationConfig` methods answer `-32003`. Those are different
 families with different codes, and both are the conforming answer once a
 capability is declared false. `GetExtendedAgentCard` answers `-32004` too. Poll

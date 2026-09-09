@@ -8,7 +8,7 @@
 This document is the REST reference. The same service answers on two further
 protocols: the remote MCP server at `https://aisenseapi.com/mcp`, and Agent2Agent
 at `https://aisenseapi.com/a2a`. See [`MCP.md`](MCP.md) for the MCP tool list and
-client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the four
+client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the five
 task-shaped skills that protocol carries.
 
 This reference combines source-checked contracts with dated production checks.
@@ -1392,12 +1392,12 @@ numbers; their smallest units stay well inside the safe range.
 
 A2A is a protocol for handing work to another agent and following it to
 completion. MCP is the protocol for exposing tools. Almost everything on this
-page is a tool, so only four capabilities are offered over A2A: the ones where a
+page is a tool, so only five capabilities are offered over A2A: the ones where a
 long-lived, resumable, human-in-the-loop task is the interesting object, and
 where MCP needed an extension to express what A2A has in core.
 
 **MCP is the broader workflow surface.** It publishes schemas through tool
-discovery. A2A carries four creation skills and does not expose Queue. REST
+discovery. A2A carries five creation skills, Queue among them. REST
 carries the full utility catalog. Only selected capabilities, including time
 and UUIDs, also have MCP tools. Hashing, encoding, QR and wallet operations
 remain REST-only. See `MCP.md` for the source and deployed tool counts.
@@ -1453,7 +1453,7 @@ does not interpret free text. An unknown skill id is refused with `-32602` too.
 `arguments` are the arguments of the matching MCP tool, checked by the same code,
 so bounds and refusals are identical on both surfaces.
 
-### The four skills
+### The five skills
 
 | Skill id | Creates | Answers with |
 |----------|---------|--------------|
@@ -1461,6 +1461,7 @@ so bounds and refusals are identical on both surfaces.
 | `human-approval` | a hosted decision form, for one person or up to 20 | a Message |
 | `agent-inbox` | a disposable mail address | a Message |
 | `webhook-capture` | a URL that records the first request sent to it | a Message |
+| `agent-queue` | a shared pull queue with read, write and worker tokens | a Message |
 
 Each lasts at most 24 hours, the same limit as everywhere else on this service.
 
