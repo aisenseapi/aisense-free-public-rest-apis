@@ -10,7 +10,11 @@ license: MIT
 No account or API key. Queue operations require the role token issued at creation. Hosted by AI SENSE AS, Oslo.
 
 This guide combines source-checked contracts with dated production observations.
-Queue deployment has not been verified. Check server discovery before use.
+Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
+
+Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
+[AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
+retry decisions.
 
 ---
 
@@ -41,8 +45,8 @@ flat error shape.
 
 ## Agent Queue
 
-Queue is documented for the implementation in this checkout. Check server
-availability before use. Production deployment has not been verified.
+Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
+Check server discovery if connecting to a different installation.
 
 Create with `POST /queue` and `{}`. Save the returned `queue_id` and separate
 `read_token`, `write_token`, `worker_token`. Tokens are issued only at creation.
@@ -528,8 +532,7 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 
 Everything above is REST. The same service is also on MCP at
 `https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
-version contains 28 tools. Production had 20 when checked on 9 September 2026.
-The eight Queue tools are pending deployment verification.
+version contains 28 tools, matching production discovery on 9 September 2026.
 
 A third protocol runs at its own URL:
 
@@ -549,7 +552,7 @@ resumable or waiting on a person. MCP is the richer of the two agent surfaces
 and exposes workflow tools with schemas, while A2A carries four creation skills.
 REST exposes the utility catalog. Time, UUIDs and short links also have MCP
 tools, but hashing, encoding, QR and wallet operations are REST-only. Queue
-has REST and MCP interfaces in this source version, not an A2A skill.
+has REST and MCP interfaces, not an A2A skill.
 
 Four skills, and they are the same capabilities you already have, not extra
 ones:

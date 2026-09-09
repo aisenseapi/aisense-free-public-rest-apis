@@ -12,8 +12,8 @@ client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the four
 task-shaped skills that protocol carries.
 
 This reference combines source-checked contracts with dated production checks.
-Agent Queue describes the source implementation and is pending deployment
-verification. The response key is
+Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
+The response key is
 almost never `data` or `result` - it is usually named after the endpoint
 (`/md5_hash` returns `md5_hash`, `/random_color` returns `random_color`). Do not
 guess it.
@@ -1204,8 +1204,8 @@ confirmed but the checksum still can. An unknown `{type}` returns HTTP 400.
 ### Agent Queue - temporary work for multiple workers
 
 Agent Queue lets a producer enqueue JSON jobs and workers claim them for a short
-visibility window. This section describes the implementation in this checkout.
-Production deployment has not been verified.
+visibility window. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
+See [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for an executable workflow.
 
 **Create:** `POST /queue` with no parameters (an empty JSON object is accepted).
 HTTP 201 returns:
@@ -1319,10 +1319,17 @@ past that timestamp. Expired state becomes unavailable and is cleaned up.
 | `413` | Payload exceeds 16 KiB, enqueue request exceeds 32 KiB, or another request body exceeds 1 KiB |
 | `415` | A nonempty POST body did not use `application/json` |
 | `429` | Queue creation quota or shared request limit reached |
-| `503` | Storage or queue lock unavailable. Retry with a delay |
+| `503` | Storage or queue lock unavailable. Stop after an uncertain claim response. Use bounded backoff only for repeat-safe operations |
 
 Queue errors use `{"error":"message"}`. Ordinary reads and successful empty
 claims return HTTP 200. Preflight requests use `OPTIONS` and return HTTP 204.
+
+A lost, malformed or 503 claim reply can follow a successful reservation. Do
+not blindly claim again when its receipt is unknown. Creation replies can
+also be uncertain, and creation-only tokens cannot be recovered. Reads, an
+enqueue with the same key and unchanged payload, and an acknowledgement with
+the same winning receipt can be repeated within their lifetime. See the
+[quickstart retry table](AGENT-QUICKSTART.md#handle-retries-deliberately).
 
 - At most 100 distinct jobs over the entire queue lifetime. Completed and
   failed jobs still count. Idempotent enqueue retries do not add a job.

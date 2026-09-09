@@ -1,11 +1,18 @@
 # AI SENSE Free Public MCP Server
 
-This source version contains 28 workflow tools and two read-only resources for
-the AI SENSE remote MCP endpoint. A production check on 9 September 2026 found
-20 tools. The eight Agent Queue tools are pending deployment verification.
-Use `tools/list` to check the server you connect to.
+Production MCP discovery returned 28 workflow tools and two read-only resources
+on 9 September 2026. The deployed Queue REST smoke test passed 21 checks.
+Use `tools/list` to inspect the server you connect to.
+
+Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
+[AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
+retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
+
+The official MCP Registry lists `com.aisenseapi/free-public-tools` version
+`1.8.0` as active, verified on 9 September 2026. This is the server release
+version, separate from the agent guide resource version.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per 24 hours. This limit is shared with the public REST API and A2A.
@@ -61,20 +68,9 @@ proxy these tools.
 | `ack_agent_queue_job` | Marks a currently claimed job completed |
 | `release_agent_queue_job` | Makes a claimed job available for another attempt |
 | `renew_agent_queue_job` | Extends claim visibility within the queue's original expiry |
-| `create_agent_queue` | None | None |
-| `read_agent_queue` | `queue_id`, `read_token` | None |
-| `enqueue_agent_queue_job` | `queue_id`, `write_token`, `job_key`, `payload` | None |
-| `read_agent_queue_job` | `queue_id`, `job_id`, `read_token` | None |
-| `claim_agent_queue_job` | `queue_id`, `worker_token` | `visibility_timeout` |
-| `ack_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
-| `release_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
-| `renew_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | `visibility_timeout` |
 
 Each MCP tool has a schema returned by discovery. The REST function-calling
 catalog is a separate integration surface, not a copy of this list.
-
-The eight Queue tools describe the source implementation. Their presence in
-this table is not a claim that they are deployed.
 
 ## Available resources
 
@@ -86,6 +82,12 @@ this table is not a claim that they are deployed.
 Call `resources/list` to discover both resources. Call `resources/read` with a
 URI above to read it as Markdown. The resources are informational and do not
 accept a file.
+
+The refreshed canonical guide is [AGENT-GUIDE.md](AGENT-GUIDE.md). The initial
+resource read after the Queue deployment on 9 September 2026 still returned
+the older 18-tool guide. Deployment of the refreshed embedded copy requires a
+separate `resources/read` check. Use the repository guide until that check
+confirms the Queue and Inbox sections.
 
 Verifyum processes the original file locally in the browser or another local
 process. The remote MCP server accepts only a completed commitment and

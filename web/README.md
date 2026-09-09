@@ -163,9 +163,9 @@ the production tool list changes.
 
 `free-public-apis.html` is maintained alongside [`../API.md`](../API.md).
 Check both against the current implementation when request or response formats
-change. Keep dated live checks distinct from source-only features. Queue is
-pending deployment verification until server discovery and smoke tests confirm
-it. No generator for this page is included in this repository.
+change. Keep dated live checks distinct from source-only features. Queue REST checks
+and 28-tool discovery were verified on 9 September 2026. The refreshed embedded
+agent guide still requires its own deployment and resource-read verification. No generator for this page is included in this repository.
 
 `../test.sh` exercises production endpoints and can create temporary state.
 Run it only when those live calls are in scope. Offline checks include
