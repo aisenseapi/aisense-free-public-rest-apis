@@ -9,14 +9,14 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-73 pages. The 49 endpoint pages share one naming pattern and are collapsed
-into a single row here; each one is listed individually in `sitemap.xml`.
+82 HTML pages. The 54 endpoint pages share one naming pattern and are
+collapsed into a single row here. Each one is listed in `sitemap.xml`.
 
 | File | URL |
 |------|-----|
 | `index.html` | `/` |
-| `free-public-apis.html` | `/free-public-apis` - generated from [`../API.md`](../API.md), see Editing |
-| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 49 of them, each at its matching URL |
+| `free-public-apis.html` | `/free-public-apis` - maintained alongside [`../API.md`](../API.md), see Editing |
+| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 54 of them, each at its matching URL |
 | `free-qr-code-decoder-api.html` | `/free-qr-code-decoder-api` - browser tool for the QR decode endpoint |
 | `free-public-mcp-server.html` | `/free-public-mcp-server` |
 | `hashing-apis.html` | `/hashing-apis` |
@@ -51,7 +51,7 @@ without this README, on a history of its own -
 `git merge-base --is-ancestor origin/website origin/main` answers no.
 
 So every change here needs a second commit on `website` before it reaches the
-live site. There is no publish script; the two sides are kept in step by hand,
+live site. There is no publish script in this repository. The two sides are kept in step by hand,
 with the same commit message on each. Pushing a fix to `main` alone changes
 nothing on aisense.no, and the symptom is indistinguishable from a failed
 deploy - you pull on the web host, the HTML is unchanged, and the search goes
@@ -149,12 +149,11 @@ makes the file inert with no warning anywhere - it is present, readable, and
 has no effect, which is a genuinely confusing failure to diagnose. After
 changing a vhost, run `apachectl configtest` before `apachectl graceful`.
 
-The redirects matter: the site was rebuilt from a WordPress install that
-published one page per endpoint at `/free-public-api-<name>-api-endpoint`.
-Those 36 URLs plus the feed, category, author and embed paths are all still in
-search indexes, and each one 301s to the page that now covers its content.
-Verify after any server change - `curl -sI https://aisense.no/free-public-api-storage-api-endpoint`
-must answer 301, not 404.
+The original `/free-public-api-<name>-api-endpoint` URLs are served directly.
+Short aliases such as `/temporary-storage-api` redirect to those canonical
+pages. Feed, category, author and embed redirects are also defined in
+`.htaccess`. After a server change, check that the canonical Storage page
+returns 200 and its short alias returns 301.
 
 ## Editing
 
@@ -162,16 +161,15 @@ must answer 301, not 404.
 protocol notes and tool list live in [`../MCP.md`](../MCP.md). Update both when
 the production tool list changes.
 
-`free-public-apis.html` is generated from [`../API.md`](../API.md), which is the
-verified source of truth for every request and response format - each one was
-checked against the live service. **Change `API.md` first, then reflect it
-here.** Letting the page drift from `API.md` recreates exactly the problem this
-repository was cleaned up to fix: documentation describing an API that does not
-exist.
+`free-public-apis.html` is maintained alongside [`../API.md`](../API.md).
+Check both against the current implementation when request or response formats
+change. Keep dated live checks distinct from source-only features. Queue is
+pending deployment verification until server discovery and smoke tests confirm
+it. No generator for this page is included in this repository.
 
-`../test.sh` asserts the documented formats against production, so a drift
-between `API.md` and reality shows up as a test failure rather than as a
-confused user.
+`../test.sh` exercises production endpoints and can create temporary state.
+Run it only when those live calls are in scope. Offline checks include
+`php tools/check-text.php` and `php tools/check-web-content-stats.php`.
 
 ## Known gaps
 
@@ -195,12 +193,11 @@ basis asserted for logging IP addresses, whether the liability limitation
 survives Norwegian law, and whether a data processing agreement is needed with
 the four named third parties.
 
-They also state retention periods that depend on
-`tools/logrotate-aisense.conf` from the service repository being installed on
-the API host. That is done - `deploy.sh` syncs the unit on every deploy and
-reports it, last confirmed 2026-08-19 - so the retention numbers are now true.
-If the rotation is ever removed, the honest answer becomes "until the host
-reboots" and the privacy page is wrong again.
+Their factual retention statements must track the service archive, pruning
+and summary code, not only `tools/logrotate-aisense.conf`. Current source
+keeps temporary raw logs for 14 days, compressed archives for approximately
+24 months, and MCP daily summaries without an automatic expiry. Deployment
+configuration must be checked before describing those policies as installed.
 
 Both pages describe the service. When the service changes, they have to change
 with it, or they become promises nobody is keeping.

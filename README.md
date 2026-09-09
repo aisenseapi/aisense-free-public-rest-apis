@@ -9,7 +9,7 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-AI agents can connect directly to 20 AI SENSE workflow tools at:
+A production check on 9 September 2026 found 20 AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
@@ -21,6 +21,10 @@ time and UUIDs. It needs no account or API key. Heartbeat uses
 `complete_lease`. Agent Inbox uses `create_agent_inbox` and
 `read_agent_inbox`. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
+
+This source version adds eight Agent Queue tools, for 28 tools in total.
+Queue deployment has not been verified. Check `tools/list` before use. Queue
+operations use separate read, write and worker tokens issued at creation.
 
 Verifyum has its own dedicated MCP endpoint at
 `https://api.verifyum.com/mcp`. It exposes the three Verifyum proof operations
@@ -73,7 +77,8 @@ A2A is the protocol for delegating work to another agent. MCP is the protocol
 for exposing tools. Most of this service is tools, so only the four task-shaped
 capabilities are offered over A2A: `agent-wake`, `human-approval`,
 `agent-inbox` and `webhook-capture`. The other tools are not reachable through
-it, and MCP stays the richer surface with all twenty tools and their schemas.
+it. MCP stays the richer workflow surface with its own tool schemas. Queue
+is available through REST and MCP in this source version, not through A2A.
 
 A2A puts no skill id on the wire, so the caller names the skill in a data part
 of the message, as `{"skill": "agent-wake", "arguments": { ... }}`. That is a
@@ -128,19 +133,20 @@ The collection covers two tiers of usefulness:
 ## Three things to know before you write a client
 
 These are service-wide and they decide how your error handling has to look.
-Every response shape in this repo was verified against production.
+This reference combines source-checked contracts with dated production checks.
+Queue is pending deployment verification.
 
 **The response key is named after the endpoint.** `/md5_hash` returns
 `md5_hash`, `/random_color` returns `random_color`, `/ping` returns `ping`.
 There is no generic `data` or `result` wrapper. Do not guess the key -
 [`API.md`](API.md) lists every one.
 
-**Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
-2026-08-17: 400 is your mistake, 404 an unknown id or endpoint, 410 a capture,
-action or inbox that existed and has expired, 429 the rate limit, 500 our
-failure, 502/504 an upstream. Branch on the status or on the `error` key - both
-are trustworthy, and every error body kept its exact wording through the
-change, so older clients keep working.
+**Errors usually use `{"error": "message"}` with a non-2xx HTTP status.**
+Check both the status and the `error` field. The legacy wallet-generation
+handlers can return an error object with HTTP 200. Workflow endpoints use
+non-2xx statuses, including 409 for conflicts and 410 for an expired record
+that has not yet been removed. Once removed, the same ID returns 404. Unknown
+routes also return 404. Consult each endpoint for its additional errors.
 
 **There is a rate limit: 5000 requests per IP per 24 hours.** Exceeding it
 returns HTTP 429 in the same flat error shape as everything else.
@@ -213,6 +219,51 @@ flow.
 
 The matching MCP tools are `create_lease_namespace`, `acquire_lease`,
 `renew_lease`, `release_lease` and `complete_lease`.
+
+---
+
+### Agent Queue - share temporary work
+
+Agent Queue gives producers and workers a shared queue for small JSON jobs.
+This describes the implementation in this checkout. Deployment has not been
+verified.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/queue \
+  -H "Content-Type: application/json" -d '{}'
+
+curl -X POST https://aisenseapi.com/services/v1/queue/QUEUE_ID/jobs \
+  -H "Authorization: Bearer WRITE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"job_key":"report:42","payload":{"report_id":42}}'
+
+curl -X POST https://aisenseapi.com/services/v1/queue/QUEUE_ID/claim \
+  -H "Authorization: Bearer WORKER_TOKEN" \
+  -H "Content-Type: application/json" -d '{"visibility_timeout":60}'
+```
+
+Replace the uppercase placeholders with creation response values. Keep the
+three tokens: they are issued only once. A claim returns one job with a secret
+`receipt`, or `job: null` when empty. The worker performs the work, then posts
+`{"receipt":"RECEIPT"}` to `/queue/QUEUE_ID/jobs/JOB_ID/ack` using its worker
+token. It can release or renew an active claim with the same receipt. Observers
+read queue counts and individual jobs with the read token. Credentials belong
+in headers, never in URLs.
+
+The queue and every job expire exactly 24 hours after queue creation. Enqueue,
+claims, renewals and completion never extend that deadline. Limits are 100
+distinct jobs over the queue lifetime, 16 KiB of encoded JSON per job, five
+claim attempts, and 20 new queues per client IP per 24 hours. Visibility is
+30 to 900 seconds, default 60. Repeating a job key and payload returns the
+existing job. A changed payload conflicts.
+
+Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. Make external
+actions idempotent. The service holds
+the queue state and does not run jobs, fetch URLs or send callbacks.
+
+See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-workers),
+[eight MCP tools](MCP.md#agent-queue) and
+[website guide](web/free-public-api-agent-queue-api-endpoint.html).
 
 ---
 
@@ -645,6 +696,9 @@ survives in a JavaScript client.
 
 ---
 
+The bundled JavaScript and Python clients do not yet wrap Agent Queue. Use
+the raw HTTP examples above or the eight MCP tools for Queue operations.
+
 ## Quick start by language
 
 **curl**
@@ -701,12 +755,13 @@ it will use these APIs as tools automatically.
 
 | File | Purpose |
 |------|---------|
-| [`API.md`](API.md) | Full endpoint reference - the verified source of truth |
+| [`API.md`](API.md) | Endpoint contracts, source checks and dated production observations |
+| [`queue-openapi.json`](queue-openapi.json) | Standalone OpenAPI contract for Agent Queue |
 | [`MCP.md`](MCP.md) | Remote MCP server, tool list and client examples |
 | [`server.json`](server.json) | Metadata for the official MCP Registry |
 | [`aisense_api.py`](aisense_api.py) | Python client (standard library only) |
 | [`aisense-api.js`](aisense-api.js) | JavaScript ESM client |
-| [`openai-tools.json`](openai-tools.json) | Tool definitions for any LLM with function calling |
+| [`openai-tools.json`](openai-tools.json) | REST function-calling catalog, separate from the MCP tool list |
 | [`SKILL.md`](SKILL.md) | Claude skill file |
 | [`test.sh`](test.sh) | Asserts on response bodies and statuses; exits `1` on failure (CI-friendly) |
 | [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
@@ -773,8 +828,11 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/lease/namespace` | POST | `namespace`, `entropy_bits` |
 | Web | `/lease`, `/lease/acquire` | POST | status, owner and fencing tokens, expiry fields, optional result |
 | Web | `/lease/renew`, `/lease/release`, `/lease/complete` | POST | status, fencing token, expiry fields, optional result |
+| Web | `/queue` | POST | `queue_id`, role tokens, counts and fixed expiry |
+| Web | `/queue/{id}` | GET | `queue_id`, counts and timing |
+| Web | `/queue/{id}/jobs`, `/queue/{id}/claim`, job operations | POST / GET | `job`, with a receipt only on claim |
 | Web | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
-| Crypto | `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
+| Crypto | `/solana/generate_new_wallet` | GET | `private_key`, `private_key_base58`, `public_address` |
 | Crypto | `/solana/balance/{address}` | GET | `wallet`, `balance_sol`, `balance_lamports` |
 | Crypto | `/bitcoin/generate_new_wallet` | GET | `private_key`, `private_key_wif`, `public_address` |
 | Crypto | `/bitcoin/balance/{address}` | GET | `wallet`, `final_balance_btc`, `final_balance_sats` |
@@ -785,8 +843,10 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 
 ## Notes
 
-- POST endpoints accept JSON, plain text (`Content-Type: text/plain`), or file uploads
-- Storage, URL Shortener, Webhook Capture, Webhook Action, Webhook Schedule, Agent Wake, Agent Inbox, Heartbeat and Lease have a 24-hour active lifetime or absolute lifecycle
+- Input formats vary by endpoint. Utility transforms accept several formats, while Queue and other structured workflow endpoints require JSON
+- Storage, URL Shortener, Webhook Capture, Webhook Action, Webhook Schedule, Agent Wake, Agent Inbox, Heartbeat, Lease and Queue have a 24-hour active lifetime or absolute lifecycle
+- Queue jobs, including completed and failed jobs, share the fixed queue expiry. Activity never extends it
+- Webhook Schedule keeps its final result for up to another 24 hours
 - Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
 - Rate limit: 5000 requests per IP per 24 hours

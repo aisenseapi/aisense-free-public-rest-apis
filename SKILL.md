@@ -1,15 +1,16 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, authenticated services, or operations requiring persistent storage beyond 24 hours."
-license: Public documentation - no authentication required for any endpoint
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
+license: MIT
 ---
 
 # Free Public REST APIs - AI SENSE AS
 
 **Base URL:** `https://aisenseapi.com/services/v1`
-No authentication. No sign-up. Hosted by AI SENSE AS, Oslo.
+No account or API key. Queue operations require the role token issued at creation. Hosted by AI SENSE AS, Oslo.
 
-Every shape below was verified against production.
+This guide combines source-checked contracts with dated production observations.
+Queue deployment has not been verified. Check server discovery before use.
 
 ---
 
@@ -22,13 +23,12 @@ or `result` wrapper. `/md5_hash` returns `md5_hash`. `/ping` returns `ping`.
 `/random_color` returns `random_color`. `/health` returns `microtimestamp`, not
 `timestamp`. Never guess - the table at the bottom lists every key.
 
-**2. Errors are `{"error": "message"}` with a real HTTP status.** Uniform since
-2026-08-17: 400 caller mistake, 404 unknown id or endpoint, 410 an id that
-existed and has expired (Webhook Capture, Webhook Action and Agent Inbox, which
-turn into a plain 404 once the expired record is swept), 429 rate limit, 500
-our failure, 502/504 upstream. Branch on either the status or the `error` key -
-both are trustworthy, and a path matching no route is a plain 404 in the same
-shape.
+**2. Errors usually use `{"error": "message"}` with a non-2xx HTTP status.**
+Check both the status and the `error` field. The legacy wallet-generation
+handlers can return an error object with HTTP 200. Workflow endpoints use
+non-2xx statuses, including 409 for conflicts and 410 for an expired record
+that has not yet been removed. Once removed, the same ID returns 404. Unknown
+routes also return 404. Consult each endpoint for its additional errors.
 
 **3. Not everything is JSON.** `base64_decode`, `base58_decode` and
 `base32_decode` return `application/octet-stream` unless you send
@@ -38,6 +38,50 @@ shape.
 flat error shape.
 
 ---
+
+## Agent Queue
+
+Queue is documented for the implementation in this checkout. Check server
+availability before use. Production deployment has not been verified.
+
+Create with `POST /queue` and `{}`. Save the returned `queue_id` and separate
+`read_token`, `write_token`, `worker_token`. Tokens are issued only at creation.
+IDs are 32 lowercase hex characters. Tokens and receipts are 64 lowercase hex.
+Every later REST operation requires `Authorization: Bearer TOKEN` with its
+role token. Never put credentials in URLs. MCP tools take tokens as arguments.
+
+| REST operation | Token | Body |
+| --- | --- | --- |
+| `GET /queue/{id}` | Read | None. Returns timing and `counts` |
+| `POST /queue/{id}/jobs` | Write | `job_key`, `payload` |
+| `GET /queue/{id}/jobs/{job_id}` | Read | None. Returns `job` |
+| `POST /queue/{id}/claim` | Worker | Optional `visibility_timeout` |
+| `POST /queue/{id}/jobs/{job_id}/ack` | Worker | `receipt` |
+| `POST /queue/{id}/jobs/{job_id}/release` | Worker | `receipt` |
+| `POST /queue/{id}/jobs/{job_id}/renew` | Worker | `receipt`, optional `visibility_timeout` |
+
+Keys match `^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$`. Payload is any JSON value
+up to 16384 encoded bytes, including `null`. Same key and payload returns the
+existing job with `deduplicated: true`. Changing that payload returns HTTP 409.
+Claims return `job: null` when empty, otherwise a job with its secret `receipt`.
+The receipt is disclosed only on claim and is needed for ack, release or renew.
+Stale receipts fail with 409. Successful ack can be repeated with its receipt.
+Ack takes no result. Visibility accepts integer seconds 30..900, default 60.
+
+All queue state, including payloads, completed/failed jobs and deduplication
+entries, expires exactly 24 hours after queue creation. Nothing extends the
+returned `expire_timestamp`. There is no TTL parameter. Limits: 100 lifetime
+jobs, five claim attempts per job, 20 new queues per client IP per 24 hours.
+Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. External
+actions must be idempotent. The queue
+does not execute jobs, fetch URLs or send callbacks. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Keep secrets and sensitive personal data out of them.
+
+MCP tools: `create_agent_queue`, `read_agent_queue`, `enqueue_agent_queue_job`,
+`read_agent_queue_job`, `claim_agent_queue_job`, `ack_agent_queue_job`,
+`release_agent_queue_job`, `renew_agent_queue_job`. Use `queue_id` in each
+non-create call, plus the matching token name above. Job-specific calls need
+`job_id`. See `MCP.md#agent-queue` for full arguments and
+`API.md#agent-queue---temporary-work-for-multiple-workers` for response shapes.
 
 ## Time
 
@@ -483,8 +527,9 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 ## Agent2Agent - a third protocol with four of these capabilities
 
 Everything above is REST. The same service is also on MCP at
-`https://aisenseapi.com/mcp`, as twenty tools, each with a schema published in
-band by `tools/list`.
+`https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
+version contains 28 tools. Production had 20 when checked on 9 September 2026.
+The eight Queue tools are pending deployment verification.
 
 A third protocol runs at its own URL:
 
@@ -501,9 +546,10 @@ fetching it. No account and no API key, the same as the rest of the service.
 delegating to you is one.** A2A is a protocol for handing work to another
 agent, and its Task object earns its place when the work is long-lived,
 resumable or waiting on a person. MCP is the richer of the two agent surfaces
-and stays the default: it carries all twenty tools with their schemas, while
-A2A carries four skills. If you want a hash, a UUID, a timestamp, a short link
-or any other utility here, use REST or MCP. A2A cannot reach them.
+and exposes workflow tools with schemas, while A2A carries four creation skills.
+REST exposes the utility catalog. Time, UUIDs and short links also have MCP
+tools, but hashing, encoding, QR and wallet operations are REST-only. Queue
+has REST and MCP interfaces in this source version, not an A2A skill.
 
 Four skills, and they are the same capabilities you already have, not extra
 ones:
@@ -619,15 +665,16 @@ not read anything into which one you got.
 
 | Endpoint | Returns |
 |----------|---------|
-| `GET /solana/generate_new_wallet` | `{"private_key", "public_address"}` |
+| `GET /solana/generate_new_wallet` | `{"private_key", "private_key_base58", "public_address"}` |
 | `GET /bitcoin/generate_new_wallet` | `{"private_key", "private_key_wif", "public_address"}` |
 | `GET /ethereum/generate_new_wallet` | `{"private_key", "public_address"}` |
 | `GET /solana/balance/{address}` | `{"wallet", "balance_sol", "balance_lamports"}` |
 | `GET /bitcoin/balance/{address}` | `{"wallet", "final_balance_btc", "final_balance_sats"}` |
 | `GET /ethereum/balance/{address}` | `{"wallet", "balance_eth", "balance_wei"}` |
 
-Bitcoin returns `public_address`, not `address`. Solana has no
-`private_key_base58` field.
+Bitcoin returns `public_address`, not `address`. Solana returns both
+`private_key` as a JSON-array string and `private_key_base58` as a Base58
+encoding of the same 64-byte keypair.
 
 Ethereum returns both balances as **strings**:
 `{"balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061"}`.
@@ -695,9 +742,12 @@ return numbers; their smallest units stay inside the safe range.
 | `/lease/namespace` | POST | `namespace`, `entropy_bits` |
 | `/lease`, `/lease/acquire` | POST | status, owner and fencing tokens, expiry fields, optional completed result |
 | `/lease/renew`, `/lease/release`, `/lease/complete` | POST | status, fencing token, expiry fields, optional result |
+| `/queue` | POST | `ok`, `queue_id`, creation and expiry timestamps, `counts`, three role tokens |
+| `/queue/{id}` | GET | `ok`, `queue_id`, creation and expiry timestamps, `counts` |
+| Queue enqueue, job read, claim, ack, release and renew | POST / GET | `ok`, `queue_id`, `expire_timestamp`, `job`. Enqueue adds `deduplicated`. Claim alone returns a receipt |
 | `/validate/{type}` | POST | `type`, `valid`, per-check fields |
 | `/webhook_action/{id}/form` | GET | `text/html` |
-| `/solana/generate_new_wallet` | GET | `private_key`, `public_address` |
+| `/solana/generate_new_wallet` | GET | `private_key`, `private_key_base58`, `public_address` |
 | `/bitcoin/generate_new_wallet` | GET | `private_key`, `private_key_wif`, `public_address` |
 | `/ethereum/generate_new_wallet` | GET | `private_key`, `public_address` |
 | `/solana/balance/{address}` | GET | `wallet`, `balance_sol`, `balance_lamports` |
@@ -708,6 +758,10 @@ return numbers; their smallest units stay inside the safe range.
 
 ## Input formats for POST endpoints
 
+Check the endpoint before choosing a format. The table summarizes utility
+inputs. Queue and structured workflow operations require their documented
+JSON fields and do not accept arbitrary plain text or uploads.
+
 | Format | Content-Type | Notes |
 |--------|-------------|-------|
 | JSON | `application/json` | Field is `data` for most, `payload` for QR |
@@ -717,11 +771,12 @@ return numbers; their smallest units stay inside the safe range.
 ## Auto-expiry
 
 `/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
-`/agent_wake` | `/webhook_schedule` | `/inbox` | `/heartbeat` | `/lease`
+`/agent_wake` | `/webhook_schedule` | `/inbox` | `/heartbeat` | `/lease` | `/queue`
 
-Active state has a 24-hour ceiling. Heartbeat terminal state can remain
-readable for another 24 hours. A Lease renewal cannot move its fixed absolute
-expiry.
+Active state has a 24-hour ceiling. Heartbeat terminal state and Webhook
+Schedule results can remain readable for another 24 hours. Lease renewal
+cannot move its fixed absolute expiry. All Queue jobs and deduplication state
+expire with the queue, 24 hours after queue creation.
 
 ## CORS
 

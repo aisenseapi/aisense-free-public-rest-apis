@@ -1,7 +1,7 @@
 # Free Public REST APIs - AI SENSE AS
 
 > **Base URL:** `https://aisenseapi.com/services/v1`
-> **Authentication:** None
+> **Authentication:** No account or API key. Queue operations require role-specific bearer tokens
 > **Cost:** Free
 > **Rate limit:** 5000 requests per IP per 24 hours
 
@@ -11,7 +11,9 @@ at `https://aisenseapi.com/a2a`. See [`MCP.md`](MCP.md) for the MCP tool list an
 client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the four
 task-shaped skills that protocol carries.
 
-Every response shape below was verified against production. The response key is
+This reference combines source-checked contracts with dated production checks.
+Agent Queue describes the source implementation and is pending deployment
+verification. The response key is
 almost never `data` or `result` - it is usually named after the endpoint
 (`/md5_hash` returns `md5_hash`, `/random_color` returns `random_color`). Do not
 guess it.
@@ -26,6 +28,7 @@ guess it.
 - [Transform](#transform)
 - [Hash](#hash)
 - [Web](#web)
+- [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
 - [Crypto](#crypto)
 - [Agent2Agent (A2A)](#agent2agent-a2a)
 - [Common Conventions](#common-conventions)
@@ -36,15 +39,12 @@ guess it.
 
 Two service-wide behaviours matter more than any single endpoint.
 
-**Errors are `{"error": "message"}` with a real HTTP status.** One rule across
-the whole surface, uniform since 2026-08-17: 400 is your mistake, 404 is an
-unknown id or endpoint, 429 is the rate limit, 500 is our failure, 502 and 504
-are an upstream refusing or timing out. Branch on the status or on the `error`
-key - both are trustworthy, and the body shape is the same everywhere. A path
-that matches no route is a plain 404 with the same error shape. (Before
-2026-08-17 most failures arrived as HTTP 200 and unknown paths returned an
-unparseable debug echo; clients written against that era keep working, since
-every error body is unchanged.)
+**Errors usually use `{"error": "message"}` with a non-2xx HTTP status.**
+Check both the status and the `error` field. The legacy wallet-generation
+handlers can return an error object with HTTP 200. Workflow endpoints use
+non-2xx statuses, including 409 for conflicts and 410 for an expired record
+that has not yet been removed. Once removed, the same ID returns 404. Unknown
+routes also return 404. Consult each endpoint for its additional errors.
 
 **Not everything is JSON.** `base64_decode`, `base58_decode` and `base32_decode`
 answer with `application/octet-stream` unless you send `Accept: application/json`.
@@ -1201,6 +1201,148 @@ confirmed but the checksum still can. An unknown `{type}` returns HTTP 400.
 
 ---
 
+### Agent Queue - temporary work for multiple workers
+
+Agent Queue lets a producer enqueue JSON jobs and workers claim them for a short
+visibility window. This section describes the implementation in this checkout.
+Production deployment has not been verified.
+
+**Create:** `POST /queue` with no parameters (an empty JSON object is accepted).
+HTTP 201 returns:
+
+```json
+{
+  "ok": true,
+  "queue_id": "0123456789abcdef0123456789abcdef",
+  "created_at_timestamp": 1788948000,
+  "expire_timestamp": 1789034400,
+  "read_token": "<64 lowercase hex characters>",
+  "write_token": "<64 lowercase hex characters>",
+  "worker_token": "<64 lowercase hex characters>",
+  "counts": { "pending": 0, "claimed": 0, "completed": 0, "failed": 0, "total": 0 }
+}
+```
+
+Values above are placeholders. Save all three tokens from this response: they
+are issued only at creation. Queue and job IDs are 32 lowercase hex characters.
+Tokens and claim receipts are 64 lowercase hex characters. The queue ID is not
+a credential. Each later REST request requires `Authorization: Bearer TOKEN`
+with the token for that operation. Never put credentials in paths or query strings.
+
+| Method and path | Bearer token | JSON body |
+| --- | --- | --- |
+| `GET /queue/{queue_id}` | `read_token` | None |
+| `POST /queue/{queue_id}/jobs` | `write_token` | `job_key`, `payload` |
+| `GET /queue/{queue_id}/jobs/{job_id}` | `read_token` | None |
+| `POST /queue/{queue_id}/claim` | `worker_token` | Optional `visibility_timeout` |
+| `POST /queue/{queue_id}/jobs/{job_id}/ack` | `worker_token` | `receipt` |
+| `POST /queue/{queue_id}/jobs/{job_id}/release` | `worker_token` | `receipt` |
+| `POST /queue/{queue_id}/jobs/{job_id}/renew` | `worker_token` | `receipt`, optional `visibility_timeout` |
+
+**Enqueue:** A producer submits a stable key and a JSON value. The key must
+match `^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$`. Payload may be any JSON value,
+including `null`, up to 16 KiB (16384 bytes) when encoded.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/queue/QUEUE_ID/jobs \
+  -H "Authorization: Bearer WRITE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"job_key":"report:42","payload":{"report_id":42}}'
+```
+
+Replace uppercase placeholders with the creation response values. A new job
+returns HTTP 201 and `deduplicated: false`. Sending the same key and payload
+again returns the existing job with HTTP 200 and `deduplicated: true`. Changing
+the payload for that key returns HTTP 409. Deduplication lasts until the queue
+expires, including completed and failed jobs.
+
+**Claim:** `POST /queue/{queue_id}/claim` accepts an integer
+`visibility_timeout` from 30 to 900 seconds, default 60. When no job is
+available, it returns HTTP 200 with `job: null`. Otherwise it returns:
+
+```json
+{
+  "ok": true,
+  "queue_id": "0123456789abcdef0123456789abcdef",
+  "expire_timestamp": 1789034400,
+  "job": {
+    "job_id": "abcdef0123456789abcdef0123456789",
+    "job_key": "report:42",
+    "payload": { "report_id": 42 },
+    "status": "claimed",
+    "attempts": 1,
+    "created_at_timestamp": 1788948000,
+    "expire_timestamp": 1789034400,
+    "claimed_until_timestamp": 1788948060,
+    "receipt": "<64 lowercase hex characters>"
+  }
+}
+```
+
+The receipt identifies this claim attempt and appears only in the claim
+response. Retain it until the attempt finishes. Job reads, enqueue, ack,
+release and renew return the same job envelope without a receipt. A queue
+read returns creation and expiry timestamps and the five counts above, without
+tokens or a job listing.
+
+**Finish or retry:** Send `{"receipt":"RECEIPT"}` with the worker token to
+`ack` after the work succeeds, or to `release` to make it available again.
+`renew` accepts the same receipt and an optional `visibility_timeout` and
+extends the current visibility window within the queue lifetime. It does not
+create another claim attempt. No result or callback URL is accepted by ack.
+
+An expired or superseded receipt returns HTTP 409. Repeating a successful ack
+with its receipt is idempotent. Job states are `pending`, `claimed`,
+`completed` and `failed`. A claim increments `attempts`. An unacknowledged job
+becomes available when its visibility window ends. After five unsuccessful
+attempts it becomes `failed` and cannot be claimed again.
+
+Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. A worker can finish an external action and lose its claim before ack,
+so another worker may repeat the action. Make side effects idempotent using
+the job key or ID.
+
+**Fixed lifetime and limits:** The queue expires exactly 86400 seconds after
+creation. Every job, completed record, failed record and deduplication entry
+shares that boundary. Enqueue, claim, read, ack, release and renew never move
+`expire_timestamp`. There is no expiry or TTL option. No claim can extend
+past that timestamp. Expired state becomes unavailable and is cleaned up.
+
+| HTTP status | Queue error |
+| --- | --- |
+| `400` | Invalid JSON, fields or values. Query parameters are not accepted |
+| `401` | Missing or malformed Authorization bearer header |
+| `403` | Token is invalid or does not grant the required role |
+| `404` | Unknown queue, job or route. Also returned after expired state is cleaned up |
+| `405` | Wrong method for the route |
+| `409` | Job key conflict, 100-job lifetime capacity reached, or stale claim receipt |
+| `410` | Queue expired and its record has not yet been cleaned up |
+| `413` | Payload exceeds 16 KiB, enqueue request exceeds 32 KiB, or another request body exceeds 1 KiB |
+| `415` | A nonempty POST body did not use `application/json` |
+| `429` | Queue creation quota or shared request limit reached |
+| `503` | Storage or queue lock unavailable. Retry with a delay |
+
+Queue errors use `{"error":"message"}`. Ordinary reads and successful empty
+claims return HTTP 200. Preflight requests use `OPTIONS` and return HTTP 204.
+
+- At most 100 distinct jobs over the entire queue lifetime. Completed and
+  failed jobs still count. Idempotent enqueue retries do not add a job.
+- At most five claim attempts per job and 16 KiB of encoded JSON per payload.
+- At most 20 new queues per client IP per 24 hours, within the shared request limit.
+
+Share the write token with producers, the worker token with workers, and the
+read token with observers. Workers necessarily receive job payloads when
+claiming. Tokens grant capabilities without verifying a person's identity.
+The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Keep credentials and sensitive personal data
+out of them. Queue processing does not fetch payload URLs, execute jobs,
+make callbacks or contact outside services. Your workers perform the work.
+
+The eight MCP equivalents and their argument names are listed in
+[`MCP.md`](MCP.md#agent-queue).
+The standalone machine-readable Queue contract is
+[`queue-openapi.json`](queue-openapi.json). It does not describe other endpoints.
+
+---
+
 ## Crypto
 
 > Wallet generation is for **development and testing only**. A key produced
@@ -1211,12 +1353,13 @@ confirmed but the checksum still can. An unknown `{type}` returns HTTP 400.
 
 | Endpoint | Response keys |
 |----------|---------------|
-| `GET /solana/generate_new_wallet` | `private_key`, `public_address` |
+| `GET /solana/generate_new_wallet` | `private_key`, `private_key_base58`, `public_address` |
 | `GET /bitcoin/generate_new_wallet` | `private_key`, `private_key_wif`, `public_address` |
 | `GET /ethereum/generate_new_wallet` | `private_key`, `public_address` |
 
-Bitcoin returns `public_address`, not `address`. Solana does not return a
-`private_key_base58` field.
+Bitcoin returns `public_address`, not `address`. Solana returns both
+`private_key` as a JSON-array string and `private_key_base58` as a Base58
+encoding of the same 64-byte keypair.
 
 ### Balance lookup
 
@@ -1246,11 +1389,11 @@ page is a tool, so only four capabilities are offered over A2A: the ones where a
 long-lived, resumable, human-in-the-loop task is the interesting object, and
 where MCP needed an extension to express what A2A has in core.
 
-**MCP is the richer surface.** It carries all twenty tools with an input and an
-output schema for each, published in band. A2A carries four skills, and the
-other tools are not reachable through it. Hashing, encoding, UUIDs, time and the
-rest stay on REST and MCP. Reach for A2A when your client already speaks it or
-when you want the task lifecycle; reach for MCP when you want the tools.
+**MCP is the broader workflow surface.** It publishes schemas through tool
+discovery. A2A carries four creation skills and does not expose Queue. REST
+carries the full utility catalog. Only selected capabilities, including time
+and UUIDs, also have MCP tools. Hashing, encoding, QR and wallet operations
+remain REST-only. See `MCP.md` for the source and deployed tool counts.
 
 **Endpoint:** `POST https://aisenseapi.com/a2a`. JSON-RPC 2.0, protocol revision
 `1.0` (specification v1.0.1). No account and no API key, same as everything else
@@ -1416,6 +1559,10 @@ them apart would turn the endpoint into a lookup oracle for task ids.
 
 ### Input formats (POST endpoints)
 
+Formats vary by endpoint. This table summarizes utility inputs, not a promise
+that every endpoint accepts every format. Queue and structured workflow
+operations use JSON with the fields documented in their own sections.
+
 | Format | Content-Type | Notes |
 |--------|-------------|-------|
 | JSON | `application/json` | Field name varies - `data` for most, `payload` for QR |
@@ -1475,18 +1622,30 @@ them apart would turn the endpoint into a lookup oracle for task ids.
 | `/lease/namespace` | `ok`, `namespace`, `entropy_bits` |
 | `/lease` or `/lease/acquire` | `status`, `owner_token` for the winner, `fencing_token`, expiry fields, completed `result` when reused |
 | `/lease/renew`, `/lease/release`, `/lease/complete` | `status`, `fencing_token`, expiry fields, optional `result` |
+| `/queue` (create) | `ok`, `queue_id`, creation and expiry timestamps, `counts`, three role tokens |
+| `/queue/{id}` (read) | `ok`, `queue_id`, creation and expiry timestamps, `counts` |
+| Queue enqueue, job read, claim, ack, release and renew | `ok`, `queue_id`, `expire_timestamp`, `job`. Enqueue adds `deduplicated`. Claim alone returns a receipt |
 | `/validate/{type}` | `type`, `valid`, plus per-check fields (`checksum_ok`, `luhn_ok`, ...) |
 
-### TTL - deleted automatically after 24 hours
+### Active lifetimes and retained results
 
-`/storage` | `/url_shortener` | `/webhook_capture` | `/webhook_action` |
-`/agent_wake` | `/webhook_schedule` | `/heartbeat` | `/lease` | `/inbox`
+Storage, short links, captures, approvals, Agent Wake, Inbox, Heartbeat, Lease
+and Queue have active lifetimes of at most 24 hours. Agent Wake can use a
+shorter timeout. Lease expiry is fixed at first acquisition. Queue expiry is
+fixed at creation and covers all jobs and deduplication state. Activity cannot
+extend either deadline.
 
-Heartbeat terminal records can remain readable for another 24 hours after the
-monitor fires, misses or expires. Lease records use a fixed 24-hour absolute
-lifecycle that renewals cannot extend.
+Webhook Schedule can schedule work within a 24-hour horizon and retain its
+final result for up to another 24 hours. Heartbeat terminal timing and
+delivery records can also remain readable for another 24 hours. API expiry
+and later scheduled physical cleanup are distinct.
 
 ### Rate limit
+
+The shared counter resets at server midnight through the deployed reset job.
+This is a calendar-day budget, not a rolling per-request 24-hour window.
+Queue creation has a separate fixed 24-hour quota window.
+
 
 **5000 requests per IP per 24 hours.** Exceeding it returns HTTP 429 in the
 same flat error shape as everything else:
