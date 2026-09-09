@@ -9,7 +9,7 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-A production check on 9 September 2026 found 20 AI SENSE workflow tools at:
+Production discovery on 9 September 2026 returned 28 AI SENSE workflow tools at:
 
 `https://aisenseapi.com/mcp`
 
@@ -22,9 +22,16 @@ time and UUIDs. It needs no account or API key. Heartbeat uses
 `read_agent_inbox`. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
-This source version adds eight Agent Queue tools, for 28 tools in total.
-Queue deployment has not been verified. Check `tools/list` before use. Queue
-operations use separate read, write and worker tokens issued at creation.
+The eight Agent Queue tools are included in that discovery result. The deployed
+Queue REST smoke test passed 21 checks on 9 September 2026. Queue operations
+use separate read, write and worker tokens issued at creation.
+
+Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
+[AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
+retry decisions.
+
+The official MCP Registry lists `com.aisenseapi/free-public-tools` version
+`1.8.0` as active, verified on 9 September 2026.
 
 Verifyum has its own dedicated MCP endpoint at
 `https://api.verifyum.com/mcp`. It exposes the three Verifyum proof operations
@@ -78,7 +85,7 @@ for exposing tools. Most of this service is tools, so only the four task-shaped
 capabilities are offered over A2A: `agent-wake`, `human-approval`,
 `agent-inbox` and `webhook-capture`. The other tools are not reachable through
 it. MCP stays the richer workflow surface with its own tool schemas. Queue
-is available through REST and MCP in this source version, not through A2A.
+is available through REST and MCP, not through A2A.
 
 A2A puts no skill id on the wire, so the caller names the skill in a data part
 of the message, as `{"skill": "agent-wake", "arguments": { ... }}`. That is a
@@ -134,7 +141,7 @@ The collection covers two tiers of usefulness:
 
 These are service-wide and they decide how your error handling has to look.
 This reference combines source-checked contracts with dated production checks.
-Queue is pending deployment verification.
+Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 
 **The response key is named after the endpoint.** `/md5_hash` returns
 `md5_hash`, `/random_color` returns `random_color`, `/ping` returns `ping`.
@@ -225,8 +232,7 @@ The matching MCP tools are `create_lease_namespace`, `acquire_lease`,
 ### Agent Queue - share temporary work
 
 Agent Queue gives producers and workers a shared queue for small JSON jobs.
-This describes the implementation in this checkout. Deployment has not been
-verified.
+Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/queue \
@@ -758,6 +764,8 @@ it will use these APIs as tools automatically.
 | [`API.md`](API.md) | Endpoint contracts, source checks and dated production observations |
 | [`queue-openapi.json`](queue-openapi.json) | Standalone OpenAPI contract for Agent Queue |
 | [`MCP.md`](MCP.md) | Remote MCP server, tool list and client examples |
+| [`AGENT-GUIDE.md`](AGENT-GUIDE.md) | Canonical compact guide to all 28 workflow tools |
+| [`AGENT-QUICKSTART.md`](AGENT-QUICKSTART.md) | Complete Queue example, worker and retry decisions |
 | [`server.json`](server.json) | Metadata for the official MCP Registry |
 | [`aisense_api.py`](aisense_api.py) | Python client (standard library only) |
 | [`aisense-api.js`](aisense-api.js) | JavaScript ESM client |

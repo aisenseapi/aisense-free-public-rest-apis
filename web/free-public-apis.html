@@ -95,7 +95,7 @@
 
 <section class="callout" aria-labelledby="mcp-server-heading">
   <h2 id="mcp-server-heading">Connecting an AI agent?</h2>
-  <p>The production MCP endpoint at <code>https://aisenseapi.com/mcp</code> exposed 20 workflow tools when checked on 9 September 2026, including Heartbeat, Lease, Agent Inbox and Agent Wake. This source version adds eight Agent Queue tools, for 28 in total. Queue deployment has not been verified.</p>
+  <p>Production discovery at <code>https://aisenseapi.com/mcp</code> returned 28 workflow tools on 9 September 2026, including Agent Queue, Heartbeat, Lease, Agent Inbox and Agent Wake. The deployed Queue REST smoke test passed 21 checks.</p>
   <p>For Verifyum alone, connect directly to <code>https://api.verifyum.com/mcp</code>. It needs no account or API key, and file hashing stays on the agent's machine.</p>
   <p><a href="/free-public-mcp-server">See the MCP tool list and client examples</a>.</p>
 </section>
@@ -103,7 +103,7 @@
 <section class="callout" aria-labelledby="a2a-heading">
   <h2 id="a2a-heading">Delegating work to another agent?</h2>
   <p>Agent2Agent revision 1.0 answers at <code>https://aisenseapi.com/a2a</code> over JSON-RPC 2.0, with the agent card at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. No account, no API key.</p>
-  <p>A2A carries the four task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code> and <code>webhook-capture</code>. Other endpoints remain on REST. MCP exposes a selected set of workflow tools with schemas returned by discovery. Queue has REST and MCP interfaces in this source version, but no A2A skill.</p>
+  <p>A2A carries the four task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code> and <code>webhook-capture</code>. Other endpoints remain on REST. MCP exposes a selected set of workflow tools with schemas returned by discovery. Queue has REST and MCP interfaces, but no A2A skill.</p>
   <p>A2A skills carry no id on the wire and no input schema, so the caller names one inside the message, in a part carrying structured data: <code>{"skill": "agent-wake", "arguments": {}}</code>. That is a convention this service documents rather than something the protocol defines, and an agent with no language model refuses a message without it.</p>
   <p><a href="/free-public-a2a-agent-endpoint">See the A2A skills, methods and response shapes</a>.</p>
 </section>
@@ -136,7 +136,7 @@
     <a href="/free-public-api-heartbeat-api-endpoint"><strong>Heartbeat API</strong><span>Alert once when an agent stops checking in.</span></a>
     <a href="/free-public-api-lease-api-endpoint"><strong>Lease API</strong><span>Let one worker own a key and reuse its result.</span></a>
     <a href="/free-public-api-agent-wake-api-endpoint"><strong>Agent Wake API</strong><span>Resume after a webhook, human answer or time.</span></a>
-    <a href="/free-public-api-agent-queue-api-endpoint"><strong>Agent Queue API</strong><span>Share temporary jobs with workers. Deployment pending.</span></a>
+    <a href="/free-public-api-agent-queue-api-endpoint"><strong>Agent Queue API</strong><span>Share temporary jobs with workers.</span></a>
     <a href="/free-public-api-agent-inbox-api-endpoint"><strong>Agent Inbox API</strong><span>Read mail sent to a disposable address.</span></a>
     <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive, wait for and inspect one webhook.</span></a>
     <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Ask one person or a group for answers.</span></a>
@@ -153,7 +153,7 @@
 
 <section class="callout" aria-labelledby="before-you-start">
   <h2 id="before-you-start">Before you write a client</h2>
-  <p>Three service-wide behaviours decide how your error handling has to look. This page combines source-checked contracts with dated production observations. Queue is pending deployment verification.</p>
+  <p>Three service-wide behaviours decide how your error handling has to look. This page combines source-checked contracts with dated production observations. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.</p>
   <dl>
     <dt>The response key is named after the endpoint.</dt>
     <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
@@ -630,7 +630,7 @@ POST /lease
 <article class="endpoint" id="agent-queue">
 <h3><a href="/free-public-api-agent-queue-api-endpoint">Agent Queue REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/queue</span> - <span class="method post">POST</span> <span class="path">/queue/{id}/claim</span></p>
-<p>Pass JSON jobs from producers to workers with separate read, write and worker tokens. The implementation in this checkout is documented here. Production deployment has not been verified.</p>
+<p>Pass JSON jobs from producers to workers with separate read, write and worker tokens. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.</p>
 <pre><code>POST /queue   {}
   -> queue_id, read_token, write_token, worker_token, expire_timestamp
 
