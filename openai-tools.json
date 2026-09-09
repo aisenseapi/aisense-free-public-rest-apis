@@ -9,7 +9,8 @@
         "properties": {
           "offset": {
             "type": "string",
-            "description": "Four-digit UTC offset with optional sign, e.g. \"+0200\", \"-0530\" or \"0100\". Hour-only values like \"1\" are NOT valid. Omit for UTC."
+            "description": "Four-digit UTC offset with optional sign, e.g. \"+0200\", \"-0530\" or \"0100\". Hour-only values like \"1\" are NOT valid. Omit for UTC.",
+            "pattern": "^[+-]?[0-9]{4}$"
           }
         },
         "required": []
@@ -42,7 +43,8 @@
         "properties": {
           "offset": {
             "type": "string",
-            "description": "Four-digit UTC offset to filter by, e.g. \"+0200\"."
+            "description": "Four-digit UTC offset to filter by, e.g. \"+0200\".",
+            "pattern": "^[+-]?[0-9]{4}$"
           }
         },
         "required": []
@@ -398,19 +400,46 @@
     "type": "function",
     "function": {
       "name": "webhook_capture_create",
-      "description": "Open a webhook capture session. Returns {\"ok\", \"capture_id\", \"update_url\", \"read_url\", \"expire_timestamp\"}. Point any HTTP client at update_url, then read it back with webhook_capture_read. POST /webhook_capture",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "description": "Open a webhook capture session with a fixed 24-hour lifetime. Returns {ok, capture_id, update_url, read_url, wait_url, expire_timestamp, expire_datetime}. The first request to update_url wins. Later captures do not replace it. Keep IDs and URLs secret. Optional notify_url receives a small best-effort signal after capture. POST /webhook_capture",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "notify_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048,
+            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers."
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   {
     "type": "function",
     "function": {
       "name": "webhook_capture_read",
-      "description": "Read a captured request. Returns {\"ok\", \"capture_id\", \"captured_at_timestamp\", \"captured_at_datetime\", \"request\": {method, uri, headers, client_ip, body}}. GET /webhook_capture/{capture_id}",
+      "description": "Read the first captured request, or a pending result until capture. A captured result includes {ok, capture_id, captured_at_timestamp, captured_at_datetime, request: {method, uri, headers, client_ip, body}}. Optional long poll adds waited_seconds and wait_reason. The capture ID is a bearer secret. An expired stored session returns 410, then 404 after cleanup. GET /webhook_capture/{capture_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
-        "properties": { "capture_id": { "type": "string", "description": "The capture_id from webhook_capture_create." } },
-        "required": ["capture_id"]
+        "properties": {
+          "capture_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID that create_webhook_capture returned."
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "default": 0,
+            "description": "Optional long poll in seconds. Zero returns immediately. REST waits above 25 seconds are clamped to 25."
+          }
+        },
+        "required": [
+          "capture_id"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -418,41 +447,115 @@
     "type": "function",
     "function": {
       "name": "webhook_action_create",
-      "description": "Create a human-in-the-loop form. Returns {\"ok\", \"action_id\", \"form_url\", \"result_url\", \"expire_timestamp\", \"expire_datetime\"}. Send form_url to a human, then poll webhook_action_result. POST /webhook_action",
+      "description": "Create a fixed 24-hour human form. Returns {ok, action_id, form_url, result_url, expire_timestamp, expire_datetime}. With respondents > 1, form_urls replaces form_url and contains one private URL per respondent and the result becomes partial until all respond. Send each person only their own form URL. Title and fields may be omitted for a default Approve/Reject form. Optional notify_url receives one small best-effort completion signal. POST /webhook_action",
       "parameters": {
         "type": "object",
         "properties": {
-          "title": { "type": "string", "description": "Title shown on the form." },
-          "description": { "type": "string", "description": "Optional explanatory text." },
+          "title": {
+            "type": "string",
+            "description": "Title shown on the form.",
+            "maxLength": 200,
+            "default": "Choose action"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional explanatory text.",
+            "maxLength": 5000
+          },
           "fields": {
             "type": "array",
             "description": "Form fields.",
             "items": {
               "type": "object",
               "properties": {
-                "type": { "type": "string", "enum": ["radio", "select", "text", "textarea", "checkbox"] },
-                "name": { "type": "string" },
-                "label": { "type": "string" },
-                "required": { "type": "boolean" },
-                "placeholder": { "type": "string" },
-                "max_length": { "type": "integer" },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "radio",
+                    "select",
+                    "text",
+                    "textarea",
+                    "checkbox"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[A-Za-z0-9_]+$"
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "placeholder": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "max_length": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5000,
+                  "default": 1000
+                },
                 "options": {
                   "type": "array",
                   "description": "For radio and select. Accepts plain strings or {value, label} objects.",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "value": { "type": "string" },
-                      "label": { "type": "string" }
-                    }
-                  }
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "label": {
+                            "type": "string",
+                            "maxLength": 200
+                          }
+                        },
+                        "required": [
+                          "value"
+                        ]
+                      }
+                    ]
+                  },
+                  "maxItems": 50
                 }
               },
-              "required": ["type", "name", "label"]
-            }
+              "required": [
+                "type",
+                "name"
+              ]
+            },
+            "maxItems": 20
+          },
+          "respondents": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 1,
+            "description": "Number of independent respondents. Group forms return a form_urls entry for each respondent."
+          },
+          "notify_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048,
+            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers."
           }
         },
-        "required": ["title", "fields"]
+        "required": [],
+        "additionalProperties": false
       }
     }
   },
@@ -460,11 +563,26 @@
     "type": "function",
     "function": {
       "name": "webhook_action_result",
-      "description": "Poll for the answer to an action. Returns {\"ok\", \"action_id\", \"status\": \"pending\"|\"answered\", \"created_at_timestamp\", \"created_at_datetime\", \"expire_timestamp\", \"expire_datetime\", \"answered_at_timestamp\", \"answered_at_datetime\", \"response\"}. GET /webhook_action/{action_id}",
+      "description": "Read a human form result with status pending, partial (group forms) or answered. Single forms return response. Group forms additionally return responses, respondents, answered and tally. The fixed 24-hour expiry never extends on answers. Optional long poll adds waited_seconds and wait_reason and returns on a state change. Keep action_id secret. GET /webhook_action/{action_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
-        "properties": { "action_id": { "type": "string", "description": "The action_id from webhook_action_create." } },
-        "required": ["action_id"]
+        "properties": {
+          "action_id": {
+            "type": "string",
+            "description": "The action_id from webhook_action_create.",
+            "format": "uuid"
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "default": 0,
+            "description": "Optional long poll in seconds. Zero returns immediately. REST waits above 25 seconds are clamped to 25."
+          }
+        },
+        "required": [
+          "action_id"
+        ]
       }
     }
   },
@@ -472,8 +590,12 @@
     "type": "function",
     "function": {
       "name": "generate_solana_wallet",
-      "description": "Generate a Solana wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY - a key produced by a public HTTP endpoint has crossed a network you do not control. Never fund it. GET /solana/generate_new_wallet",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "description": "Generate a Solana wallet. Returns {\"private_key\", \"private_key_base58\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY - a key produced by a public HTTP endpoint has crossed a network you do not control. Never fund it. GET /solana/generate_new_wallet",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -536,10 +658,22 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "data": { "type": "string", "description": "The value to convert: unix seconds, unix milliseconds, ISO 8601, RFC 2822, or \"now\"." },
-          "offset": { "type": "string", "description": "Optional four-digit UTC offset for the datetime output, e.g. \"+0200\" or \"-0530\". Same form as /datetime." }
+          "data": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "description": "The value to convert: unix seconds, unix milliseconds, ISO 8601, RFC 2822, or \"now\"."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Optional four-digit UTC offset for the datetime output, e.g. \"+0200\" or \"-0530\". Same form as /datetime.",
+            "pattern": "^[+-]?[0-9]{4}$"
+          }
         },
-        "required": ["data"]
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -559,14 +693,27 @@
     "type": "function",
     "function": {
       "name": "hash_verify",
-      "description": "Verify data against a hash. The algorithm is recognized from the hash itself: an integer means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
+      "description": "Verify data against a hash. The algorithm is recognized from the hash itself: an integer or non-eight-digit decimal string means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
       "parameters": {
         "type": "object",
         "properties": {
-          "data": { "type": "string", "description": "The data that was hashed." },
-          "hash": { "type": "string", "description": "The expected hash: hex string, or integer crc32 as a string." }
+          "data": {
+            "type": "string",
+            "description": "The data that was hashed.",
+            "minLength": 1
+          },
+          "hash": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "description": "Expected hex digest or integer CRC32 checksum. Decimal strings are accepted except exactly eight digits, which are interpreted as hexadecimal. Use a JSON integer for an ambiguous CRC32."
+          }
         },
-        "required": ["data", "hash"]
+        "required": [
+          "data",
+          "hash"
+        ]
       }
     }
   },
@@ -586,16 +733,62 @@
     "type": "function",
     "function": {
       "name": "webhook_schedule_create",
-      "description": "Schedule a webhook: we POST your payload to a URL at a chosen time, with one retry. The timer an agent lacks. Provide delay_seconds OR fire_at (unix timestamp), between 5 seconds and 24 hours from now. Returns {\"schedule_id\", \"status\": \"scheduled\", \"fire_at_timestamp\", \"result_url\"}. The target must be a public http/https URL on port 80/443; private, loopback and reserved addresses are refused, redirects are never followed. Poll result_url to see the outcome. POST /webhook_schedule",
+      "description": "Schedule a webhook POST once or repeatedly. Provide exactly one of delay_seconds or fire_at, 5 seconds to 24 hours from now. Optional every repeats on the original interval grid until 24 hours after creation. The first recurring fire must be before that cutoff, and missed slots are skipped. One-shot delivery retries once after transport failure. Recurring delivery stops after three consecutive transport failures. Any HTTP response counts as delivered, not only 2xx. Public HTTP(S), ports 80/443 only, no redirects or private/reserved targets. Returns schedule_id, status, fire_at_timestamp, result_url, wait_url and expiry fields, plus every_seconds/end_at_timestamp for recurrence. Results remain for 24 hours after the final attempt (or cancellation), so storage can exceed 24 hours from creation. POST /webhook_schedule",
       "parameters": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "description": "Public http/https URL to POST the payload to." },
-          "delay_seconds": { "type": "integer", "description": "Fire this many seconds from now (5 to 86400)." },
-          "fire_at": { "type": "integer", "description": "Unix timestamp to fire at, as an alternative to delay_seconds." },
-          "payload": { "type": "object", "description": "The JSON body to POST. Up to 32 KB." }
+          "url": {
+            "type": "string",
+            "description": "Public http/https URL to POST the payload to.",
+            "format": "uri",
+            "maxLength": 2048
+          },
+          "delay_seconds": {
+            "type": "integer",
+            "description": "Fire this many seconds from now (5 to 86400).",
+            "minimum": 5,
+            "maximum": 86400
+          },
+          "fire_at": {
+            "type": "integer",
+            "description": "Unix timestamp to fire at, as an alternative to delay_seconds."
+          },
+          "payload": {
+            "description": "JSON body to POST, at most 32768 encoded bytes. Omitted or null becomes an empty object."
+          },
+          "every": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400,
+            "description": "Optional recurring interval in seconds. Runs end 24 hours after creation. Omit for one-shot delivery."
+          }
         },
-        "required": ["url"]
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "delay_seconds"
+            ],
+            "not": {
+              "required": [
+                "fire_at"
+              ]
+            }
+          },
+          {
+            "required": [
+              "fire_at"
+            ],
+            "not": {
+              "required": [
+                "delay_seconds"
+              ]
+            }
+          }
+        ]
       }
     }
   },
@@ -603,11 +796,26 @@
     "type": "function",
     "function": {
       "name": "webhook_schedule_result",
-      "description": "Check a scheduled webhook. Returns {\"status\": \"scheduled\"|\"retry\"|\"fired\"|\"failed\"|\"cancelled\", \"attempts\", \"http_status\", \"response_excerpt\"}. \"retry\" means the first attempt did not land and the second is still to come, so keep polling. \"fired\" means a delivery was attempted and the target answered with some HTTP status, recorded in http_status - not that it returned 2xx. Readable for 24 hours after the final attempt. GET /webhook_schedule/{schedule_id}",
+      "description": "Read a scheduled webhook with status scheduled, retry, fired, failed, blocked, completed or cancelled. Includes attempts and, after delivery, http_status and response_excerpt. An HTTP response of any status counts as delivered. Transport errors may retry. Recurring schedules also include every_seconds, end_at_timestamp, fires, consecutive_failures and missed. Results remain for 24 hours after the final attempt or cancellation. Optional long poll waits for a state change and adds waited_seconds/wait_reason. GET /webhook_schedule/{schedule_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
-        "properties": { "schedule_id": { "type": "string", "description": "The schedule_id from webhook_schedule_create." } },
-        "required": ["schedule_id"]
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "description": "The schedule_id from webhook_schedule_create.",
+            "format": "uuid"
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "default": 0,
+            "description": "Optional long poll in seconds. Zero returns immediately. REST waits above 25 seconds are clamped to 25."
+          }
+        },
+        "required": [
+          "schedule_id"
+        ]
       }
     }
   },
@@ -615,20 +823,69 @@
     "type": "function",
     "function": {
       "name": "agent_wake_create",
-      "description": "Create a durable task that completes after a webhook, human answer or time event. Returns a random taskId, statusUrl and an event-specific wakeUrl, formUrl or wakeAt value. The task expires after timeout_seconds. POST /agent_wake",
+      "description": "Create a durable task that completes after a webhook, human answer or time event. Returns a random taskId, statusUrl and an event-specific wakeUrl, formUrl or wakeAt value. The task expires after timeout_seconds. POST /agent_wake Time events require exactly one of delay_seconds or wake_at within timeout_seconds. Treat the returned task and event URLs as bearer capabilities.",
       "parameters": {
         "type": "object",
         "properties": {
-          "event_type": { "type": "string", "enum": ["webhook", "human", "time"], "description": "The event that completes the task." },
-          "timeout_seconds": { "type": "integer", "minimum": 60, "maximum": 86400, "description": "Task lifetime in seconds. Defaults to 86400." },
-          "delay_seconds": { "type": "integer", "minimum": 1, "description": "For time events. Wake this many seconds from now." },
-          "wake_at": { "type": "integer", "description": "For time events. Unix timestamp to wake at." },
-          "title": { "type": "string", "description": "For human events. The question on the form." },
-          "description": { "type": "string", "description": "For human events. Supporting detail." },
-          "options": { "type": "array", "items": { "type": "string" }, "description": "For human events. Two to ten choices." },
-          "allow_note": { "type": "boolean", "description": "For human events. Allow an optional note." }
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "webhook",
+              "human",
+              "time"
+            ],
+            "description": "The event that completes the task."
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400,
+            "default": 86400,
+            "description": "Maximum task lifetime in seconds."
+          },
+          "delay_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "For time events. Wake this many seconds from now."
+          },
+          "wake_at": {
+            "type": "integer",
+            "description": "For time events. Unix timestamp to wake at."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "For human events. The question shown on the form."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "For human events. Supporting detail shown below the title."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "minItems": 2,
+            "maxItems": 10,
+            "default": [
+              "Approve",
+              "Reject"
+            ],
+            "description": "For human events. The choices on the form."
+          },
+          "allow_note": {
+            "type": "boolean",
+            "default": true,
+            "description": "For human events. Allow an optional note."
+          }
         },
-        "required": ["event_type"]
+        "required": [
+          "event_type"
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -636,11 +893,26 @@
     "type": "function",
     "function": {
       "name": "agent_wake_status",
-      "description": "Read a durable Agent Wake task. Returns working, input_required, completed, failed or cancelled. A completed task includes the event result. GET /agent_wake/{task_id}",
+      "description": "Read a durable Agent Wake task. Returns working, input_required, completed, failed or cancelled. A completed task includes the event result. Optional long poll adds waited_seconds and wait_reason. The task ID is a bearer secret. GET /agent_wake/{task_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
-        "properties": { "task_id": { "type": "string", "description": "The taskId from agent_wake_create." } },
-        "required": ["task_id"]
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The taskId from agent_wake_create.",
+            "format": "uuid"
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "default": 0,
+            "description": "Optional long poll in seconds. Zero returns immediately. REST waits above 25 seconds are clamped to 25."
+          }
+        },
+        "required": [
+          "task_id"
+        ]
       }
     }
   },
@@ -651,8 +923,16 @@
       "description": "Cancel a waiting Agent Wake task. DELETE /agent_wake/{task_id}",
       "parameters": {
         "type": "object",
-        "properties": { "task_id": { "type": "string", "description": "The taskId from agent_wake_create." } },
-        "required": ["task_id"]
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "The taskId from agent_wake_create.",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "task_id"
+        ]
       }
     }
   },
@@ -668,14 +948,25 @@
     "type": "function",
     "function": {
       "name": "agent_inbox_read",
-      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means at least one message was refused, by the 20 message cap or by the 256 KiB total across the inbox; an inbox at a cap refuses new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason; it returns when a message arrives or when the wait ends. A refusal does not end this wait, so read truncated on whatever comes back. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
+      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means at least one message was refused, by the 20 message cap or by the 256 KiB total across the inbox. An inbox at a cap refuses new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason. It returns when received or truncated changes (a new message or the first refused message), or when the wait ends. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {
-          "inbox_id": { "type": "string", "description": "The inbox_id UUID from agent_inbox_create. Bearer secret." },
-          "wait_seconds": { "type": "integer", "minimum": 0, "maximum": 25, "description": "Seconds to long poll. Defaults to 0." }
+          "inbox_id": {
+            "type": "string",
+            "description": "The inbox_id UUID from agent_inbox_create. Bearer secret.",
+            "format": "uuid"
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25,
+            "description": "Seconds to long poll. Defaults to 0."
+          }
         },
-        "required": ["inbox_id"]
+        "required": [
+          "inbox_id"
+        ]
       }
     }
   },
@@ -687,10 +978,579 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "type": { "type": "string", "enum": ["iban", "card", "orgnr", "kontonummer", "phone"], "description": "iban (ISO 13616 mod-97), card (Luhn), orgnr (Norwegian org number MOD11), kontonummer (Norwegian bank account MOD11), phone (E.164 shape)." },
-          "data": { "type": "string", "description": "The value to validate. Spaces, dots and dashes are ignored." }
+          "type": {
+            "type": "string",
+            "enum": [
+              "iban",
+              "card",
+              "orgnr",
+              "kontonummer",
+              "phone"
+            ],
+            "description": "iban (ISO 13616 mod-97), card (Luhn), orgnr (Norwegian org number MOD11), kontonummer (Norwegian bank account MOD11), phone (E.164 shape)."
+          },
+          "data": {
+            "type": "string",
+            "description": "The value to validate. Spaces, dots and dashes are ignored."
+          }
         },
-        "required": ["type", "data"]
+        "required": [
+          "type",
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_passphrase",
+      "description": "Generate a pronounceable hyphenated passphrase with a digit and a symbol. Returns {passphrase, groups, length, entropy_bits}. A passphrase generated by a public service is visible to that service and travels over the network. Use local generation for high-value credentials. GET /passphrase[/{groups}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 12,
+            "default": 4,
+            "description": "Number of pronounceable groups."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "webhook_schedule_cancel",
+      "description": "Cancel a pending or retrying scheduled webhook. Returns the public schedule with status cancelled. Already-terminal schedules return 409. Cancelling does not retract a request already sent or in flight. Results remain for 24 hours after cancellation. Keep schedule_id secret. DELETE /webhook_schedule/{schedule_id}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "schedule_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "heartbeat_create",
+      "description": "Create a deadline monitor for a job, device or agent that should keep checking in. Call ping_heartbeat before the expected interval plus grace period ends. One missed deadline calls a public HTTP or HTTPS webhook or wakes an active Agent Wake webhook task. The monitor lasts at most 24 hours from creation, and pings cannot extend that limit. The returned heartbeat ID and URLs are bearer secrets. No account or API key is required. POST /heartbeat",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "expect_every_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400,
+            "description": "Expected time between check-ins, from 60 seconds to 24 hours."
+          },
+          "grace_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 86400,
+            "description": "Extra time after the expected check-in before the miss action fires. The expected interval plus grace must not exceed 86400 seconds."
+          },
+          "on_miss": {
+            "type": "object",
+            "description": "Exactly one miss target. Use url for a public HTTP or HTTPS webhook on port 80 or 443, or wake_task_id for an active Agent Wake webhook task.",
+            "oneOf": [
+              {
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2048
+                  },
+                  "payload": {
+                    "description": "Optional JSON body, at most 32768 encoded bytes."
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "wake_task_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "wake_task_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "expect_every_seconds",
+          "grace_seconds",
+          "on_miss"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "heartbeat_read",
+      "description": "Read one heartbeat immediately. Use it to inspect whether the monitor is armed, late, fired or expired and to see its next deadline. This does not wait for a state change. The heartbeat ID is a 256-bit bearer secret. No account or API key is required. GET /heartbeat/{heartbeat_id}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "heartbeat_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "The secret heartbeat ID returned by create_heartbeat."
+          }
+        },
+        "required": [
+          "heartbeat_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "heartbeat_ping",
+      "description": "Record a check-in for an armed heartbeat and move its next expected deadline. Use it after successful work or from a liveness loop. A ping does not extend the absolute 24 hour lifetime. The heartbeat ID is a bearer secret. No account or API key is required. POST /heartbeat/{heartbeat_id}/ping",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "heartbeat_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "The secret heartbeat ID returned by create_heartbeat."
+          }
+        },
+        "required": [
+          "heartbeat_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "lease_create_namespace",
+      "description": "Create a random private namespace before several agents coordinate work using short readable keys. The namespace is a bearer secret and is returned once. Share it only with the cooperating agents. This operation stores no lease and needs no authentication. POST /lease/namespace",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "lease_acquire",
+      "description": "Claim one unit of work so concurrent agents do not perform it twice. The first writer receives an owner token and a monotonic fencing token. A later caller receives held, conflict or a reusable completed result. Contention is a normal result. Use a private namespace, or supply a high-entropy unscoped key. No account or API key is required. POST /lease/acquire",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "pattern": "^ns_[A-Za-z0-9_-]{43}$",
+            "description": "Optional 256-bit namespace from create_lease_namespace. Keep it secret."
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Work identity. With a namespace use 1 to 128 URL-safe ASCII characters, starting with a letter or digit. Without one use a caller-generated secret of 32 to 200 ASCII characters from A-Z, a-z, 0-9, dot, underscore, colon, tilde or hyphen, with at least eight distinct characters."
+          },
+          "ttl_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 86400,
+            "default": 60,
+            "description": "Ownership period, capped by the absolute 24 hour lifetime."
+          },
+          "fingerprint": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Optional stable description or digest that binds this key to the same work."
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "lease_renew",
+      "description": "Extend a lease that this caller still owns. Use it before the current TTL ends when work is still running. The owner token is required and must stay secret. Renewal cannot move the absolute 24 hour limit. No account or API key is required. POST /lease/renew",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "pattern": "^ns_[A-Za-z0-9_-]{43}$",
+            "description": "Optional 256-bit namespace from create_lease_namespace. Keep it secret."
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Work identity. With a namespace use 1 to 128 URL-safe ASCII characters, starting with a letter or digit. Without one use a caller-generated secret of 32 to 200 ASCII characters from A-Z, a-z, 0-9, dot, underscore, colon, tilde or hyphen, with at least eight distinct characters."
+          },
+          "owner_token": {
+            "type": "string",
+            "pattern": "^own_[A-Za-z0-9_-]{43}$",
+            "description": "Secret owner token returned by acquire_lease."
+          },
+          "ttl_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 86400,
+            "default": 60
+          }
+        },
+        "required": [
+          "key",
+          "owner_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "lease_release",
+      "description": "Give up a lease before its TTL ends so another agent can acquire the work. Use it when abandoning work without a reusable result. The secret owner token is required. No account or API key is required. POST /lease/release",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "pattern": "^ns_[A-Za-z0-9_-]{43}$",
+            "description": "Optional 256-bit namespace from create_lease_namespace. Keep it secret."
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Work identity. With a namespace use 1 to 128 URL-safe ASCII characters, starting with a letter or digit. Without one use a caller-generated secret of 32 to 200 ASCII characters from A-Z, a-z, 0-9, dot, underscore, colon, tilde or hyphen, with at least eight distinct characters."
+          },
+          "owner_token": {
+            "type": "string",
+            "pattern": "^own_[A-Za-z0-9_-]{43}$",
+            "description": "Secret owner token returned by acquire_lease."
+          }
+        },
+        "required": [
+          "key",
+          "owner_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "lease_complete",
+      "description": "Finish owned work and save a reusable JSON result for later callers with the same identity and fingerprint. The result is limited to 32 KB and secret-shaped fields are redacted. Do not store secrets or personal data. The owner token is required. No account or API key is required. POST /lease/complete",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "pattern": "^ns_[A-Za-z0-9_-]{43}$",
+            "description": "Optional 256-bit namespace from create_lease_namespace. Keep it secret."
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Work identity. With a namespace use 1 to 128 URL-safe ASCII characters, starting with a letter or digit. Without one use a caller-generated secret of 32 to 200 ASCII characters from A-Z, a-z, 0-9, dot, underscore, colon, tilde or hyphen, with at least eight distinct characters."
+          },
+          "owner_token": {
+            "type": "string",
+            "pattern": "^own_[A-Za-z0-9_-]{43}$",
+            "description": "Secret owner token returned by acquire_lease."
+          },
+          "result": {
+            "description": "Reusable JSON value. Maximum encoded size is 32 KB. Do not include secrets."
+          }
+        },
+        "required": [
+          "key",
+          "owner_token",
+          "result"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_agent_queue",
+      "description": "Create a small temporary pull queue for cooperating agents. Its fixed 24 hour lifetime cannot be extended. Returns separate read, write and worker bearer tokens once. Keep them secret and share only the role needed. Maximum 100 jobs over the queue lifetime, 16 KiB per JSON payload, 5 claims per job and 20 queues per client IP in 24 hours. The server does not execute jobs. No account or API key is required. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue. Takes no arguments. Returns queue_id, counts, created_at_timestamp, expire_timestamp and read_token/write_token/worker_token, disclosed only on creation.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_agent_queue",
+      "description": "Read queue metadata and pending, claimed, completed and failed counts using the read token. Does not list payloads, disclose role tokens or extend the fixed expiry. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. GET /queue/{queue_id}. Send read_token as Authorization: Bearer. Never put role tokens in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "read_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "queue_id",
+          "read_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "enqueue_agent_queue_job",
+      "description": "Add a JSON job using the write token and a stable job_key. The same key and payload return the original job. Changing the payload for that key is a conflict. Payloads are limited to 16 KiB encoded JSON and must contain no secrets or personal data. The 100-job lifetime limit includes completed and failed jobs. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs. Send write_token as Authorization: Bearer. JSON body contains job_key and payload only. HTTP201 for a new job, HTTP200 plus deduplicated:true for an identical retry, HTTP409 if its payload changed.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "write_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "job_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$"
+          },
+          "payload": {
+            "description": "Required JSON value, including null. Maximum encoded size: 16384 bytes."
+          }
+        },
+        "required": [
+          "queue_id",
+          "write_token",
+          "job_key",
+          "payload"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_agent_queue_job",
+      "description": "Read one known job, its JSON payload and status using the read token. The active claim receipt and role tokens are never returned by this operation. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. GET /queue/{queue_id}/jobs/{job_id}. Send read_token as Authorization: Bearer. No receipt or tokens are returned.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "read_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "job_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          }
+        },
+        "required": [
+          "queue_id",
+          "job_id",
+          "read_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "claim_agent_queue_job",
+      "description": "Claim the next pending job using the worker token. Returns job:null immediately when no work is available, otherwise a job containing a new secret receipt. Visibility defaults to 60 seconds and accepts 30-900 seconds. Redelivery is possible: make worker side effects idempotent. Jobs fail after 5 unsuccessful claims. No job is executed by the server. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/claim. Send worker_token as Authorization: Bearer. JSON body contains optional visibility_timeout only. Returns job:null when empty or a job with a fresh receipt.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "worker_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "visibility_timeout": {
+            "type": "integer",
+            "minimum": 30,
+            "maximum": 900,
+            "default": 60,
+            "description": "Claim visibility in seconds, capped by the fixed queue expiry."
+          }
+        },
+        "required": [
+          "queue_id",
+          "worker_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "ack_agent_queue_job",
+      "description": "Mark a claimed job completed using the worker token and its current receipt. Repeating acknowledgement with the same winning receipt succeeds. A different, stale or expired claim receipt is a conflict. Completion does not reclaim the lifetime job allowance. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/ack. Send worker_token as Authorization: Bearer. JSON body contains receipt only. A duplicate ack with the winning receipt succeeds. Other stale receipts return 409.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "worker_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "job_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "receipt": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "queue_id",
+          "job_id",
+          "worker_token",
+          "receipt"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "release_agent_queue_job",
+      "description": "Return a claimed job to pending using the worker token and its current receipt. On the fifth claim it becomes failed. The receipt is invalidated. Stale receipts conflict. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/release. Send worker_token as Authorization: Bearer. JSON body contains receipt only.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "worker_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "job_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "receipt": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "queue_id",
+          "job_id",
+          "worker_token",
+          "receipt"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "renew_agent_queue_job",
+      "description": "Move the active claim deadline using the worker token and current receipt. Visibility accepts 30-900 seconds, defaults to 60 seconds and is capped by the original queue expiry. A stale or expired receipt is a conflict. Queue lifetime is never extended. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/renew. Send worker_token as Authorization: Bearer. JSON body contains receipt and optional visibility_timeout only.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "queue_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "worker_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "job_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "receipt": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "visibility_timeout": {
+            "type": "integer",
+            "minimum": 30,
+            "maximum": 900,
+            "default": 60,
+            "description": "Claim visibility in seconds, capped by the fixed queue expiry."
+          }
+        },
+        "required": [
+          "queue_id",
+          "job_id",
+          "worker_token",
+          "receipt"
+        ],
+        "additionalProperties": false
       }
     }
   }

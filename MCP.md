@@ -1,12 +1,15 @@
 # AI SENSE Free Public MCP Server
 
-Connect an AI agent to twenty workflow tools and two read-only resources at
-the AI SENSE remote MCP endpoint.
+This source version contains 28 workflow tools and two read-only resources for
+the AI SENSE remote MCP endpoint. A production check on 9 September 2026 found
+20 tools. The eight Agent Queue tools are pending deployment verification.
+Use `tools/list` to check the server you connect to.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
-IP per 24 hours. This limit is shared with the public REST API.
+IP per 24 hours. This limit is shared with the public REST API and A2A.
+The counter resets at server midnight, not on a rolling per-request window.
 
 Agents that need only Verifyum can connect to its dedicated stateless endpoint:
 
@@ -50,9 +53,28 @@ proxy these tools.
 | `complete_lease` | Stores a small reusable result for the same work identity |
 | `create_agent_inbox` | Creates a disposable mail inbox that lasts at most 24 hours |
 | `read_agent_inbox` | Reads the received mail, extracted codes and public links |
+| `create_agent_queue` | Creates a queue with a fixed 24-hour expiry and separate role tokens |
+| `read_agent_queue` | Reads queue timing and pending, claimed, completed and failed counts |
+| `enqueue_agent_queue_job` | Adds a JSON job using a stable deduplication key |
+| `read_agent_queue_job` | Reads one job's payload, status and attempts |
+| `claim_agent_queue_job` | Claims one available job and returns its receipt |
+| `ack_agent_queue_job` | Marks a currently claimed job completed |
+| `release_agent_queue_job` | Makes a claimed job available for another attempt |
+| `renew_agent_queue_job` | Extends claim visibility within the queue's original expiry |
+| `create_agent_queue` | None | None |
+| `read_agent_queue` | `queue_id`, `read_token` | None |
+| `enqueue_agent_queue_job` | `queue_id`, `write_token`, `job_key`, `payload` | None |
+| `read_agent_queue_job` | `queue_id`, `job_id`, `read_token` | None |
+| `claim_agent_queue_job` | `queue_id`, `worker_token` | `visibility_timeout` |
+| `ack_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
+| `release_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
+| `renew_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | `visibility_timeout` |
 
-The tool list is deliberately small. Each tool has a clear schema and a direct
-job in an agent workflow.
+Each MCP tool has a schema returned by discovery. The REST function-calling
+catalog is a separate integration surface, not a copy of this list.
+
+The eight Queue tools describe the source implementation. Their presence in
+this table is not a claim that they are deployed.
 
 ## Available resources
 
@@ -202,6 +224,66 @@ acquire for the same namespace, key and fingerprint returns that result.
 Renewal stays inside the original 24-hour lifetime. Raw keys, namespaces,
 owner tokens and fingerprints are not stored. There is no Lease listing tool.
 
+## Agent Queue
+
+Create a queue with `create_agent_queue` and `{}`. Keep its `queue_id`,
+`read_token`, `write_token` and `worker_token`. The three 64-character hex
+tokens are issued only by creation. The 32-character queue ID is not a secret
+capability on its own. Queue tool calls supply the appropriate token in their
+arguments, as listed below. REST calls use `Authorization: Bearer TOKEN`.
+Never place these credentials in a URL.
+
+| Tool | Required arguments | Optional arguments |
+| --- | --- | --- |
+| `create_agent_queue` | None | None |
+| `read_agent_queue` | `queue_id`, `read_token` | None |
+| `enqueue_agent_queue_job` | `queue_id`, `write_token`, `job_key`, `payload` | None |
+| `read_agent_queue_job` | `queue_id`, `job_id`, `read_token` | None |
+| `claim_agent_queue_job` | `queue_id`, `worker_token` | `visibility_timeout` |
+| `ack_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
+| `release_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | None |
+| `renew_agent_queue_job` | `queue_id`, `job_id`, `worker_token`, `receipt` | `visibility_timeout` |
+
+Enqueue a job such as `job_key: "report:42"` with
+`payload: {"report_id":42}`. Keys match
+`^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$`. Payload accepts any JSON value up to
+16384 encoded bytes, including `null`. Repeating a key and payload returns the
+existing job with `deduplicated: true`. Reusing the key for different payload
+returns a conflict.
+
+Claim returns `job: null` when nothing is available. Otherwise `job` contains
+the ID, key, payload, status, attempts, timing and a secret `receipt` for this
+claim only. Other operations never disclose a receipt. `visibility_timeout`
+accepts integer seconds from 30 to 900 and defaults to 60. Complete work and
+ack with the receipt, release to retry, or renew while the same claim remains
+valid. A stale receipt fails. A successful ack can be repeated with its
+receipt. Ack does not accept a result.
+
+Queue tool failures set `isError: true` and include `error` and `status_code`
+in the structured result. These status codes describe the Queue operation.
+The MCP transport can still return HTTP 200 for the JSON-RPC tool result.
+
+An unacknowledged job becomes available after visibility expires, until five
+unsuccessful claim attempts change it to `failed`. Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. External
+actions must be idempotent: a worker may lose its claim after an action
+succeeds but before ack.
+
+The queue and all its jobs, deduplication entries, completed records and failed
+records expire exactly 24 hours after creation. No operation extends the
+returned `expire_timestamp`. There is no TTL setting. At most 100 distinct jobs
+can be added over that lifetime, including completed and failed jobs. Creation
+is limited to 20 queues per client IP per 24 hours within the shared limit.
+
+Queue reads return `counts` with `pending`, `claimed`, `completed`, `failed`
+and `total`, without listing jobs. Share the read token with observers, the
+write token with producers, and the worker token with workers. Claiming workers
+receive the payload. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Keep secrets and sensitive
+personal data out of them. The queue never runs code, fetches payload URLs,
+makes callbacks or contacts another service. Your worker does the work.
+
+See [`API.md`](API.md#agent-queue---temporary-work-for-multiple-workers) for
+the REST paths and response envelopes.
+
 ## Agent Wake and MCP Tasks
 
 `create_agent_wake` is available to clients using MCP revision `2026-07-28`
@@ -337,12 +419,11 @@ the `io.modelcontextprotocol/tasks` extension to say the same thing. Each skill
 calls the tool in the right-hand column, so arguments, bounds and refusals are
 identical on the two surfaces.
 
-Everything else stays here and on the REST API. The other sixteen tools in the
-table above are not reachable over A2A, and neither are the REST-only
+The other MCP tools in the table above are not reachable over A2A, and neither are the REST-only
 utilities: hashing, encoding, JWT, QR codes, validation and the wallets. The
 schemas of the tools are published in band by `tools/list`, and a task
-lifecycle would add nothing to a hash or a UUID. **MCP is the richer surface.
-An agent that wants the utilities should use this endpoint.** A2A has no read
+lifecycle would add nothing to a hash or a UUID. **MCP is the broader workflow
+surface. Use REST for utilities that are absent from MCP discovery.** A2A has no read
 skills either. It creates a record, and `read_human_approval`,
 `read_agent_inbox` and `read_webhook_capture` here, or the REST routes in
 [`API.md`](API.md), read it back.
@@ -558,6 +639,7 @@ pricing promise.
 - The IDs and URLs are unguessable capability links. Share them with the intended recipient.
 - Group approval links, Heartbeat IDs, Lease namespaces, owner tokens and inbox IDs are bearer secrets.
 - An Agent Inbox address is public by construction. The inbox ID is the only credential that reads the mail, so share the address and keep the ID.
+- Queue read, write and worker tokens are separate bearer secrets. Receipts identify one claim. All Queue state expires 24 hours after creation.
 - Do not store passwords, private keys, health data or long-lived confidential data.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.
@@ -591,6 +673,9 @@ missing. Unknown task IDs return `-32602`.
 | `415` | Content type is not JSON |
 | `429` | Rate limit exceeded |
 | `503` | Rate limit storage is unavailable |
+
+`openai-tools.json` is a separate REST function-calling catalog. It is not the
+MCP tool list and its function count and names need not match MCP discovery.
 
 ## More documentation
 

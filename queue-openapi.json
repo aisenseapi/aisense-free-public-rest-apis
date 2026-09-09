@@ -1,0 +1,1554 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AI SENSE Agent Queue",
+    "version": "1.0.0",
+    "description": "Agent Queue-only OpenAPI contract for the 1.8.0 source release. This is not a specification of the other API families. Production deployment of Queue has not been verified. Temporary jobs with separate read, write and worker bearer capabilities. The entire queue, jobs and deduplication state expires exactly 86400 seconds after queue creation. Activity never extends expiry. At most 100 lifetime jobs, 16384 encoded payload bytes and five claim attempts. The service does not execute jobs, fetch URLs, make callbacks or contact outside services. Keep external actions idempotent and payloads free of secrets. Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed."
+  },
+  "servers": [
+    {
+      "url": "https://aisenseapi.com/services/v1",
+      "description": "Canonical service host. Verify Queue deployment before use."
+    }
+  ],
+  "paths": {
+    "/queue": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "create_agent_queue",
+        "summary": "Create a queue with a fixed 24-hour lifetime",
+        "description": "No parameters. An empty JSON object is accepted. Issues all three role tokens only once. At most 20 creations per client IP in a fixed 24-hour window starting with its first creation. This is separate from the shared daily request limit. No operation can extend expire_timestamp.",
+        "security": [],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds 1024 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{queue_id}": {
+      "get": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "read_agent_queue",
+        "summary": "Read queue timing and counts",
+        "description": "Reads pending, claimed, completed, failed and total counts. Does not reveal tokens, receipts or list jobs.",
+        "security": [
+          {
+            "QueueReadToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ]
+      }
+    },
+    "/queue/{queue_id}/jobs": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "enqueue_agent_queue_job",
+        "summary": "Enqueue a keyed JSON job",
+        "description": "Same key and payload returns the existing job and deduplicated:true. Changed payload conflicts. Up to 100 distinct lifetime jobs, including completed and failed jobs. All state expires at queue creation plus 86400 seconds.",
+        "security": [
+          {
+            "QueueWriteToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnqueueResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "New job created, deduplicated:false",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnqueueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Job key conflicts with a different payload, or queue capacity reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Encoded payload exceeds 16384 bytes or JSON request exceeds 32768 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnqueueInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{queue_id}/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "read_agent_queue_job",
+        "summary": "Read one job payload and progress",
+        "description": "Returns the job without any claim receipt.",
+        "security": [
+          {
+            "QueueReadToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ]
+      }
+    },
+    "/queue/{queue_id}/claim": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "claim_agent_queue_job",
+        "summary": "Claim an available job",
+        "description": "Returns job:null if nothing is available. Otherwise the job includes a receipt disclosed only in this response. Claim increments attempts. A job can be claimed again after visibility expires or release until five unsuccessful attempts make it failed. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. Side effects must be idempotent.",
+        "security": [
+          {
+            "QueueWorkerToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds 1024 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{queue_id}/jobs/{job_id}/ack": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "ack_agent_queue_job",
+        "summary": "Acknowledge successful work",
+        "description": "Completes the current claim. Repeat ack with the same winning receipt is idempotent. Stale or different receipts conflict. Does not accept a result.",
+        "security": [
+          {
+            "QueueWorkerToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Receipt is stale, expired or does not own the current claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds 1024 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{queue_id}/jobs/{job_id}/release": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "release_agent_queue_job",
+        "summary": "Release a claim for retry",
+        "description": "Makes the job available again if attempts remain, otherwise marks it failed. Requires the current unexpired receipt.",
+        "security": [
+          {
+            "QueueWorkerToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Receipt is stale, expired or does not own the current claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds 1024 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReceiptInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queue/{queue_id}/jobs/{job_id}/renew": {
+      "post": {
+        "tags": [
+          "Agent Queue"
+        ],
+        "operationId": "renew_agent_queue_job",
+        "summary": "Renew the current claim",
+        "description": "Extends the same claim using its current receipt without incrementing attempts. Visibility can never extend beyond the queue expiry.",
+        "security": [
+          {
+            "QueueWorkerToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed Authorization Bearer header",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The supplied token is invalid or does not grant the required role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown queue or job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed for this route",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Receipt is stale, expired or does not own the current claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Queue expired. After its record is cleaned up the response becomes 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds 1024 bytes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "A nonempty body requires Content-Type: application/json",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Creation or shared request limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Queue storage or locking unavailable. Retry after a delay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "queue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenewInput"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "QueueReadToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "64 lowercase hex characters",
+        "description": "The read_token from queue creation. Credentials are accepted only in the Authorization header, never in URLs."
+      },
+      "QueueWriteToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "64 lowercase hex characters",
+        "description": "The write_token from queue creation. Credentials are accepted only in the Authorization header, never in URLs."
+      },
+      "QueueWorkerToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "64 lowercase hex characters",
+        "description": "The worker_token from queue creation. Credentials are accepted only in the Authorization header, never in URLs."
+      }
+    },
+    "schemas": {
+      "QueueId": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{32}$"
+      },
+      "QueueToken": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$",
+        "description": "Secret capability issued only at queue creation. Send as Authorization: Bearer TOKEN in REST, never in a URL."
+      },
+      "ClaimReceipt": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$",
+        "description": "Secret receipt returned only by this job's claim attempt."
+      },
+      "VisibilityTimeout": {
+        "type": "integer",
+        "minimum": 30,
+        "maximum": 900,
+        "default": 60,
+        "description": "Visibility seconds, capped at the queue's fixed expiry."
+      },
+      "JobKey": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "Counts": {
+        "type": "object",
+        "properties": {
+          "pending": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "claimed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "completed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "pending",
+          "claimed",
+          "completed",
+          "failed",
+          "total"
+        ],
+        "additionalProperties": false
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "job_key": {
+            "$ref": "#/components/schemas/JobKey"
+          },
+          "payload": {
+            "description": "Any JSON value, including null, up to 16384 bytes when encoded. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Exclude credentials and sensitive personal data."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "claimed",
+              "completed",
+              "failed"
+            ]
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "created_at_timestamp": {
+            "type": "integer"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "claimed_until_timestamp": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Integer while status is claimed. Null for pending, completed and failed jobs."
+          }
+        },
+        "required": [
+          "job_id",
+          "job_key",
+          "payload",
+          "status",
+          "attempts",
+          "created_at_timestamp",
+          "expire_timestamp",
+          "claimed_until_timestamp"
+        ],
+        "additionalProperties": false
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "ClaimedJob": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "job_key": {
+            "$ref": "#/components/schemas/JobKey"
+          },
+          "payload": {
+            "description": "Any JSON value, including null, up to 16384 bytes when encoded. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Exclude credentials and sensitive personal data."
+          },
+          "status": {
+            "type": "string",
+            "const": "claimed"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "created_at_timestamp": {
+            "type": "integer"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "claimed_until_timestamp": {
+            "type": "integer"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/ClaimReceipt"
+          }
+        },
+        "required": [
+          "job_id",
+          "job_key",
+          "payload",
+          "status",
+          "attempts",
+          "created_at_timestamp",
+          "expire_timestamp",
+          "claimed_until_timestamp",
+          "receipt"
+        ],
+        "additionalProperties": false
+      },
+      "QueueRead": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "queue_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "created_at_timestamp": {
+            "type": "integer"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          }
+        },
+        "required": [
+          "ok",
+          "queue_id",
+          "created_at_timestamp",
+          "expire_timestamp",
+          "counts"
+        ],
+        "additionalProperties": false
+      },
+      "QueueCreated": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "queue_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "created_at_timestamp": {
+            "type": "integer"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "read_token": {
+            "$ref": "#/components/schemas/QueueToken"
+          },
+          "write_token": {
+            "$ref": "#/components/schemas/QueueToken"
+          },
+          "worker_token": {
+            "$ref": "#/components/schemas/QueueToken"
+          }
+        },
+        "required": [
+          "ok",
+          "queue_id",
+          "created_at_timestamp",
+          "expire_timestamp",
+          "counts",
+          "read_token",
+          "write_token",
+          "worker_token"
+        ],
+        "additionalProperties": false
+      },
+      "JobResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "queue_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          }
+        },
+        "required": [
+          "ok",
+          "queue_id",
+          "expire_timestamp",
+          "job"
+        ],
+        "additionalProperties": false
+      },
+      "EnqueueResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "queue_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "job": {
+            "$ref": "#/components/schemas/Job"
+          },
+          "deduplicated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "queue_id",
+          "expire_timestamp",
+          "job",
+          "deduplicated"
+        ],
+        "additionalProperties": false
+      },
+      "ClaimResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true
+          },
+          "queue_id": {
+            "$ref": "#/components/schemas/QueueId"
+          },
+          "expire_timestamp": {
+            "type": "integer"
+          },
+          "job": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ClaimedJob"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ok",
+          "queue_id",
+          "expire_timestamp",
+          "job"
+        ],
+        "additionalProperties": false
+      },
+      "EnqueueInput": {
+        "type": "object",
+        "properties": {
+          "job_key": {
+            "$ref": "#/components/schemas/JobKey"
+          },
+          "payload": {
+            "description": "Any JSON value, including null, up to 16384 bytes when encoded. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Exclude credentials and sensitive personal data."
+          }
+        },
+        "required": [
+          "job_key",
+          "payload"
+        ],
+        "additionalProperties": false
+      },
+      "ClaimInput": {
+        "type": "object",
+        "properties": {
+          "visibility_timeout": {
+            "$ref": "#/components/schemas/VisibilityTimeout"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "ReceiptInput": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/ClaimReceipt"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "additionalProperties": false
+      },
+      "RenewInput": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/ClaimReceipt"
+          },
+          "visibility_timeout": {
+            "$ref": "#/components/schemas/VisibilityTimeout"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -80,7 +80,7 @@
 <div class="hero">
   <h1>Terms of Service</h1>
   <p class="lede">For the free public REST APIs at <code>aisenseapi.com/services/v1</code>. Custom API work is covered by its own written agreement, not by this page.</p>
-  <p><small>Last updated 5 September 2026.</small></p>
+  <p><small>Last updated 9 September 2026.</small></p>
 </div>
 
 <h2 id="what">What you are getting</h2>
@@ -88,8 +88,12 @@
 <p>They are published under the MIT licence together with client libraries and tests at <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a>. That licence covers the code we publish, not the operation of this service.</p>
 
 <h2 id="limits">Limits</h2>
-<p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the window rolls. The limit is a technical control. We may change it.</p>
-<p><strong>Active data has a 24-hour ceiling</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code>, <code>/webhook_action</code>, <code>/agent_wake</code>, <code>/heartbeat</code> and <code>/lease</code>. Agent Wake may use a shorter timeout. A Heartbeat terminal record can remain readable for another 24 hours after its target data has been removed. A Lease has a fixed absolute expiry 24 hours after the first acquisition, and renewals cannot extend it. Webhook Schedule keeps its final result for up to 24 hours after the delivery attempt.</p>
+<p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the shared counter resets at server midnight. This is not a rolling per-request window. The limit is a technical control. We may change it.</p>
+<p><strong>Active data has a 24-hour ceiling</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code>, <code>/webhook_action</code>, <code>/agent_wake</code>, <code>/heartbeat</code>, <code>/lease</code> and <code>/inbox</code>. Agent Wake may use a shorter timeout. A Heartbeat terminal record can remain readable for another 24 hours after its target data has been removed. A Lease has a fixed absolute expiry 24 hours after the first acquisition, and renewals cannot extend it. Webhook Schedule keeps its final result for up to 24 hours after the delivery attempt.</p>
+
+<p>Agent Queue and all associated payloads, deduplication entries, completed jobs and failed jobs expire exactly 24 hours after queue creation. No activity extends that deadline. Each queue accepts up to 100 distinct jobs over its lifetime, 16 KiB of encoded JSON per payload and five claim attempts per job. New queues are limited to 20 per client IP per 24 hours. Queue is documented for the source checkout. Production deployment has not been verified.</p>
+<p>Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. Make external actions idempotent. The service does not execute jobs, fetch payload URLs or send callbacks.</p>
+<p>Queue content also stays yours. Its separate read, write and worker tokens grant access only to their corresponding operations. Workers receive payloads when claiming. Keep these tokens and claim receipts private. A queue ID alone does not authorize access. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization.</p>
 
 <h2 id="not-a-backup">This is not storage you can rely on</h2>
 <div class="warning">
@@ -99,7 +103,7 @@
 <h2 id="no-warranty">No warranty and no service level</h2>
 <p>The service is provided as-is and as-available. We do not promise it will be up, that it will be correct, that it will be fast, or that it will continue to exist. There is no uptime commitment, no support obligation and no notice period. We may change, limit or withdraw any endpoint at any time, including permanently and without warning.</p>
 <p>To the extent Norwegian law allows, AI SENSE AS is not liable for any loss arising from use of these APIs or from their unavailability - including lost data, lost profit, lost business or any indirect or consequential loss. Nothing here limits liability that cannot lawfully be limited.</p>
-<p>If your system would suffer materially from these endpoints being unavailable, do not build on them. Run your own copy: the source is public.</p>
+<p>If your system would suffer materially from these endpoints being unavailable, do not build on them. Choose infrastructure with suitable availability commitments if your workflow needs them. This repository publishes documentation and client libraries, not the complete service backend.</p>
 
 <h2 id="crypto">Wallet generation</h2>
 <div class="warning">
@@ -114,10 +118,10 @@
 
 <h2 id="your-content">Content you send</h2>
 <p>Whatever you post to the storage or webhook endpoints stays yours. We claim no rights in it. We store it for the stated period so that we can hand it back to you, and we do nothing else with it. See the <a href="/privacy">Privacy</a> page for what is recorded and for how long.</p>
-<p>Data stored through these endpoints is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Anyone holding the right value can retrieve the associated state or result, so treat it as a secret. We do not authenticate retrieval beyond it.</p>
+<p>For Storage, Capture, Approval, Schedule, Agent Wake, Heartbeat and Inbox reads, the relevant bearer ID or link authorizes access. Anyone holding that value can read the associated state, so treat it as a secret. Lease and Queue have their own operation-specific access rules. Queue requires the corresponding read, write or worker token, and a queue ID alone grants no access.</p>
 
 <h2 id="third-parties">Third parties</h2>
-<p>Some endpoints contact another service in order to answer you. These include blockchain data providers for balance lookups and a redirect provider for shortened links. Webhook Schedule and Heartbeat can send a request to the public URL you choose. Those services have their own terms and availability, and we make no promises on their behalf. The full list is on the <a href="/privacy">Privacy</a> page.</p>
+<p>Some endpoints contact another service in order to answer you, including blockchain data providers for balance lookups. Short-link creation stores its mapping within this service and does not call a separate redirect provider. Webhook Schedule, Heartbeat and optional Capture or Approval notifications can send requests to public URLs you choose. Agent Inbox receives mail through the configured mail provider. External services have their own terms and availability, and we make no promises on their behalf. The full list is on the <a href="/privacy">Privacy</a> page.</p>
 
 <h2 id="changes">Changes</h2>
 <p>These terms may change. The date at the top is the last revision. Continuing to call the APIs after a change means accepting it, since there is no account through which we could notify you.</p>
