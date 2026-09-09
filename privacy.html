@@ -95,28 +95,31 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 5 September 2026.</small></p>
+  <p><small>Last updated 9 September 2026.</small></p>
 </div>
 
 <h2 id="controller">Who is responsible</h2>
 <p><strong>AI SENSE AS</strong>, Postboks 1202 Vika, 0110 Oslo, Norway. Org.nr NO 922 601 151 MVA. Contact <a href="mailto:support@aisense.no">support@aisense.no</a> for anything on this page.</p>
 
 <h2 id="short">The short version</h2>
-<p>There are no accounts, no API keys and no sign-up, so we hold no name, email address or payment detail for anyone using the free APIs. We set no cookies and run no analytics, advertising or tracking scripts. What we do record is the technical detail of each request, because a public service has to be able to see its own traffic.</p>
+<p>The free APIs do not require account registration or payment details. Content sent through temporary endpoints can still include personal data. Agent Inbox stores sender addresses and cleaned mail content, including any names or addresses in that content. We set no cookies and run no browser analytics, advertising or tracking scripts. What we do record is the technical detail of each request, because a public service has to be able to see its own traffic.</p>
 
 <h2 id="what">What we record</h2>
 
 <h3>Every request</h3>
-<p>One line in a server log: the time, your IP address, the HTTP method, the full path you requested, the protocol, the content type and your browser or client's User-Agent string.</p>
+<p>One line in a server log: the time, your IP address, the HTTP method, the requested path with supported bearer credential segments redacted, the protocol, the content type and your browser or client's User-Agent string.</p>
 <div class="warning">
-  <p><strong>The path includes anything you put in it.</strong> Several endpoints take their input in the URL rather than in a request body - <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
+  <p><strong>URL inputs can still enter the log.</strong> Bearer IDs for Storage, Capture, Approval, Schedule, Agent Wake, Heartbeat and Inbox are redacted in supported paths. Queue credentials belong in the Authorization header and Queue query strings are not logged. Other query strings and ordinary URL inputs can be recorded. Several endpoints take their input in the URL rather than in a request body - <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
 </div>
+
+<h3>MCP request summaries</h3>
+<p>The MCP method log records time, IP address, method, tool name and User-Agent. It does not record tool arguments or results. Daily summaries retain counts by tool and User-Agent, plus a capped list of individual tool-call events containing time, IP address, tool and User-Agent. These are operational traffic records, not an anonymous count.</p>
 
 <h3>Rate limiting</h3>
 <p>We count requests per IP address to enforce the published limit of 5000 per 24 hours. The counter is stored against the address.</p>
 
 <h3>What temporary endpoints store</h3>
-<p>Eight endpoint groups hold temporary state or content:</p>
+<p>The following endpoint groups hold temporary state or content:</p>
 <div class="table-wrap">
 <table>
 <thead><tr><th scope="col">Endpoint</th><th scope="col">What is stored</th></tr></thead>
@@ -128,6 +131,8 @@
 <tr><td><code>/webhook_schedule</code></td><td>The target URL, delivery time, JSON payload and delivery result</td></tr>
 <tr><td><code>/agent_wake</code></td><td>Task state and the webhook, human answer or time result. Standard credential headers on webhooks are redacted</td></tr>
 <tr><td><code>/heartbeat</code></td><td>Check-in timing, the webhook URL and optional payload, or an Agent Wake task ID. The target is removed when the monitor becomes terminal</td></tr>
+<tr><td><code>/inbox</code></td><td>Disposable address, hashed inbox credential, sender address, subject, received time, cleaned message text, extracted codes and public links. Attachments and raw MIME are not kept in the API state</td></tr>
+<tr><td><code>/queue</code></td><td>Jobs, payload content, status, attempts, timing, deduplication keys and hashes of role tokens and claim receipts</td></tr>
 <tr><td><code>/lease</code></td><td>Hashed lease identity and owner data, timing, fencing token and an optional completed result. Raw namespaces, keys, owner tokens and fingerprints are not stored</td></tr>
 </tbody>
 </table>
@@ -135,8 +140,11 @@
 <p><strong>Webhook Capture deserves particular attention.</strong> It records every header a caller sends, and services that post to webhooks routinely include authorisation tokens and signatures in those headers. If you point a third-party service at a capture URL, its credentials will sit in our storage for 24 hours. That is the endpoint working as intended, but you should know it before you use it.</p>
 <p>Lease replaces values under secret-shaped field names such as <code>authorization</code>, <code>password</code>, <code>token</code> and <code>api_key</code> with <code>[redacted]</code> before storage. It cannot detect a secret placed under an ordinary field name. Keep credentials and personal data out of Lease results and Heartbeat payloads.</p>
 
+<p>The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Authorized readers and claiming workers can read the content. Keep credentials and sensitive personal data out of them. Queue processing does not execute payloads, fetch URLs, make callbacks or send content to outside services. This Queue description applies to the implementation in the source checkout. Production deployment has not been verified.</p>
+<p>Agent Queue uses separate read, write and worker bearer tokens issued only at queue creation. A queue ID alone grants no access. REST clients send the required token in the Authorization header, never in a URL. MCP clients pass it as a tool argument. A claim receipt identifies the current attempt and is disclosed only to the claiming worker.</p>
+
 <h2 id="not">What we do not do</h2>
-<p>No cookies from the API. No analytics, no advertising, no fingerprinting, no profiling, no automated decision-making. We do not sell or rent anything to anyone. We do not attempt to identify who you are, and without accounts we generally cannot.</p>
+<p>No cookies from the API. No advertising, browser tracking scripts or automated decisions about access based on personal profiles. Operational request statistics are described above. We do not sell or rent anything to anyone. We do not attempt to identify who you are, and without accounts we generally cannot.</p>
 <p>IP geolocation via <code>/ip_reverse_lookup</code> runs against database files on our own server. The address you look up is not sent anywhere.</p>
 
 <h2 id="retention">How long we keep it</h2>
@@ -148,8 +156,12 @@
 <tr><td>Webhook Schedule</td><td>Scheduled for up to 24 hours. The final result can remain readable for another 24 hours</td></tr>
 <tr><td>Heartbeat</td><td>Armed for no more than 24 hours. Terminal timing and delivery state can remain readable for another 24 hours</td></tr>
 <tr><td>Lease</td><td>Until the fixed absolute expiry 24 hours after the first acquisition. Renewals do not extend it</td></tr>
-<tr><td>Rate limit counters</td><td>Rolling 24 hours</td></tr>
-<tr><td>Server access logs</td><td>14 days</td></tr>
+<tr><td>Agent Inbox API state</td><td>At most 24 hours from creation. Activity does not extend expiry</td></tr>
+<tr><td>Raw Inbox mail at the receiving provider</td><td>Separate mailbox and provider retention. The 24-hour API expiry does not delete this copy, and the default worker does not configure a purge period</td></tr>
+<tr><td>Agent Queue, including completed and failed jobs</td><td>Until the fixed expiry 24 hours after queue creation. Activity does not extend it</td></tr>
+<tr><td>Rate limit counters</td><td>Shared request counters reset at server midnight. Queue creation uses a separate fixed 24-hour window. Inbox creation uses a UTC-day quota</td></tr>
+<tr><td>Raw server access and MCP method logs</td><td>Temporary local copies are pruned after 14 days. Compressed archives are kept for approximately 24 months, with the cleanup threshold set to 744 days</td></tr>
+<tr><td>MCP daily summaries</td><td>No automatic expiry is configured for the daily summary files</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>
 </tbody>
 </table>
@@ -165,12 +177,14 @@
 <tr><td><code>/bitcoin/balance/{address}</code></td><td>blockchain.info</td><td>The wallet address</td></tr>
 <tr><td><code>/solana/balance/{address}</code></td><td>api.mainnet-beta.solana.com</td><td>The wallet address</td></tr>
 <tr><td><code>/ethereum/balance/{address}</code></td><td>ethereum-rpc.publicnode.com</td><td>The wallet address</td></tr>
-<tr><td><code>/url_shortener/{url}</code></td><td>307.fi</td><td>The address being shortened</td></tr>
 <tr><td><code>/webhook_schedule</code></td><td>The public webhook URL you supplied</td><td>Your JSON payload and the schedule ID</td></tr>
+<tr><td>Capture or Approval with <code>notify_url</code></td><td>The public callback URL you supplied</td><td>A completion signal and result URL. The signal does not include captured content or answers</td></tr>
+<tr><td><code>/inbox</code></td><td>The configured Gmail mailbox over IMAP</td><td>Incoming raw mail is received by the provider and read into cleaned API state. The default worker marks messages as seen without deleting them. Permanent deletion of imported mail is optional</td></tr>
 <tr><td><code>/heartbeat</code> with a webhook action</td><td>The public webhook URL you supplied</td><td>The heartbeat miss event and your optional JSON payload</td></tr>
 </tbody>
 </table>
 </div>
+<p>Creating a short link stores the destination mapping within this service and returns a <code>307.fi</code> URL. Creation does not contact the destination or send it to a separate redirect provider.</p>
 <p>No other free REST endpoint sends your supplied content to a fixed third party. An Agent Wake heartbeat action stays inside AI SENSE.</p>
 
 <h2 id="cors">Calls from other websites</h2>

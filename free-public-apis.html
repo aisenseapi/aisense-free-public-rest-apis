@@ -24,7 +24,7 @@
     {
       "@type": "TechArticle",
       "headline": "Free public REST APIs",
-      "description": "Reference documentation for the free public REST APIs provided by AI SENSE AS. No authentication required.",
+      "description": "Reference documentation for the free public REST APIs provided by AI SENSE AS. No account or API key. Queue operations require role tokens.",
       "url": "https://aisense.no/free-public-apis",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
@@ -44,7 +44,7 @@
     {
       "@type": "WebAPI",
       "name": "AI SENSE Free Public REST APIs",
-      "description": "Utility REST endpoints for heartbeat monitoring, anonymous leases, agent workflows, time, encoding, hashing, web lookups and crypto wallets. No authentication.",
+      "description": "REST endpoints for heartbeat monitoring, leases, queues, agent workflows, time, encoding, hashing, web lookups and crypto wallets. No account or API key.",
       "documentation": "https://aisense.no/free-public-apis",
       "termsOfService": "https://aisense.no/terms",
       "provider": { "@type": "Organization", "name": "AI SENSE AS" }
@@ -84,7 +84,7 @@
   <h1>Free Public REST APIs</h1>
   <p class="lede">Utility endpoints for time, randomness, encoding, hashing, web lookups, webhooks and crypto - with no API key, no sign-up and no cost. Drop a URL into curl, Python, JavaScript or an LLM tool definition and it works.</p>
   <ul class="badges">
-    <li>No authentication</li>
+    <li>No account or API key</li>
     <li>No sign-up</li>
     <li>Free</li>
     <li>5000 requests / IP / 24h</li>
@@ -95,7 +95,7 @@
 
 <section class="callout" aria-labelledby="mcp-server-heading">
   <h2 id="mcp-server-heading">Connecting an AI agent?</h2>
-  <p>Use the free remote MCP server at <code>https://aisenseapi.com/mcp</code>. It gives an agent 20 workflow tools, including Heartbeat, Lease, Agent Inbox and durable Agent Wake tasks.</p>
+  <p>The production MCP endpoint at <code>https://aisenseapi.com/mcp</code> exposed 20 workflow tools when checked on 9 September 2026, including Heartbeat, Lease, Agent Inbox and Agent Wake. This source version adds eight Agent Queue tools, for 28 in total. Queue deployment has not been verified.</p>
   <p>For Verifyum alone, connect directly to <code>https://api.verifyum.com/mcp</code>. It needs no account or API key, and file hashing stays on the agent's machine.</p>
   <p><a href="/free-public-mcp-server">See the MCP tool list and client examples</a>.</p>
 </section>
@@ -103,7 +103,7 @@
 <section class="callout" aria-labelledby="a2a-heading">
   <h2 id="a2a-heading">Delegating work to another agent?</h2>
   <p>Agent2Agent revision 1.0 answers at <code>https://aisenseapi.com/a2a</code> over JSON-RPC 2.0, with the agent card at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. No account, no API key.</p>
-  <p>A2A carries the four task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code> and <code>webhook-capture</code>. Hashing, encoding, UUIDs, time and the rest stay on REST and MCP, where their schemas are published in band. MCP is still the richer surface, with all twenty tools.</p>
+  <p>A2A carries the four task-shaped capabilities only: <code>agent-wake</code>, <code>human-approval</code>, <code>agent-inbox</code> and <code>webhook-capture</code>. Other endpoints remain on REST. MCP exposes a selected set of workflow tools with schemas returned by discovery. Queue has REST and MCP interfaces in this source version, but no A2A skill.</p>
   <p>A2A skills carry no id on the wire and no input schema, so the caller names one inside the message, in a part carrying structured data: <code>{"skill": "agent-wake", "arguments": {}}</code>. That is a convention this service documents rather than something the protocol defines, and an agent with no language model refuses a message without it.</p>
   <p><a href="/free-public-a2a-agent-endpoint">See the A2A skills, methods and response shapes</a>.</p>
 </section>
@@ -136,6 +136,7 @@
     <a href="/free-public-api-heartbeat-api-endpoint"><strong>Heartbeat API</strong><span>Alert once when an agent stops checking in.</span></a>
     <a href="/free-public-api-lease-api-endpoint"><strong>Lease API</strong><span>Let one worker own a key and reuse its result.</span></a>
     <a href="/free-public-api-agent-wake-api-endpoint"><strong>Agent Wake API</strong><span>Resume after a webhook, human answer or time.</span></a>
+    <a href="/free-public-api-agent-queue-api-endpoint"><strong>Agent Queue API</strong><span>Share temporary jobs with workers. Deployment pending.</span></a>
     <a href="/free-public-api-agent-inbox-api-endpoint"><strong>Agent Inbox API</strong><span>Read mail sent to a disposable address.</span></a>
     <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive, wait for and inspect one webhook.</span></a>
     <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action API</strong><span>Ask one person or a group for answers.</span></a>
@@ -152,13 +153,13 @@
 
 <section class="callout" aria-labelledby="before-you-start">
   <h2 id="before-you-start">Before you write a client</h2>
-  <p>Three service-wide behaviours decide how your error handling has to look. Every response format on this page was verified by calling the live service.</p>
+  <p>Three service-wide behaviours decide how your error handling has to look. This page combines source-checked contracts with dated production observations. Queue is pending deployment verification.</p>
   <dl>
     <dt>The response key is named after the endpoint.</dt>
     <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
 
-    <dt>Errors are <code>{"error": "message"}</code> with a real HTTP status.</dt>
-    <dd>The same shape everywhere, with conventional statuses: 400 is your mistake, 404 an unknown id or endpoint, 429 the rate limit, 500 our failure, 502 and 504 an upstream. The stateful endpoints add three more: 409 while a lease is held, 410 once a capture, action or inbox has expired, and 503 when a store is full or briefly unavailable. Branch on the status or on the <code>error</code> key - both are trustworthy, and a path matching no route is a plain 404 in the same shape.</dd>
+    <dt>Check both the HTTP status and the <code>error</code> field.</dt>
+    <dd>Errors usually use <code>{"error": "message"}</code> with a non-2xx status. The legacy wallet-generation handlers can return an error object with HTTP 200. Workflow endpoints use non-2xx errors, including 409 for conflicts, 410 for expired records not yet removed, and 503 for temporary storage problems. Unknown or removed records return 404. Each endpoint lists its additional errors.</dd>
 
     <dt>Not everything is JSON.</dt>
     <dd>The three decoders return <code>application/octet-stream</code> unless you send <code>Accept: application/json</code>.</dd>
@@ -626,6 +627,24 @@ POST /lease
 <p>A lease can be renewed, released or completed. The absolute lifecycle ends 24 hours after its first acquisition and cannot be extended. <a href="/free-public-api-lease-api-endpoint">Read the Lease guide</a>.</p>
 </article>
 
+<article class="endpoint" id="agent-queue">
+<h3><a href="/free-public-api-agent-queue-api-endpoint">Agent Queue REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/queue</span> - <span class="method post">POST</span> <span class="path">/queue/{id}/claim</span></p>
+<p>Pass JSON jobs from producers to workers with separate read, write and worker tokens. The implementation in this checkout is documented here. Production deployment has not been verified.</p>
+<pre><code>POST /queue   {}
+  -> queue_id, read_token, write_token, worker_token, expire_timestamp
+
+POST /queue/{queue_id}/jobs
+Authorization: Bearer WRITE_TOKEN
+{ "job_key": "report:42", "payload": { "report_id": 42 } }
+
+POST /queue/{queue_id}/claim
+Authorization: Bearer WORKER_TOKEN
+{ "visibility_timeout": 60 }</code></pre>
+<p>Claim returns a job with a receipt, or <code>job: null</code>. Use the worker token and receipt to acknowledge, release or renew. Observers read counts and jobs with the read token. Credentials belong in headers, never in URLs.</p>
+<p>The queue and all job state expire exactly 24 hours after creation. No activity extends it. Limits are 100 distinct jobs, 16 KiB per JSON payload and five claim attempts. Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. Make external actions idempotent. <a href="/free-public-api-agent-queue-api-endpoint">Read the Agent Queue guide</a>.</p>
+</article>
+
 <article class="endpoint">
 <h3><a href="/free-public-api-agent-inbox-api-endpoint">Agent Inbox REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/inbox</span> - <span class="method">GET</span> <span class="path">/inbox/{inbox_id}</span></p>
@@ -652,7 +671,7 @@ GET  /inbox/{inbox_id}
 <article class="endpoint">
 <h3>Solana Generate New Wallet REST API Endpoint</h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/solana/generate_new_wallet</span></p>
-<pre><code>{ "private_key": "...", "public_address": "..." }</code></pre>
+<pre><code>{ "private_key": "[...]", "private_key_base58": "...", "public_address": "..." }</code></pre>
 </article>
 
 <article class="endpoint">
@@ -721,7 +740,7 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Generate a UUID and hash Hello with SHA256"}]
 )</code></pre>
 
-<p>Client libraries, tool definitions and a test suite that verifies every response format against production: <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a></p>
+<p>Client libraries, tool definitions and tests for documented response formats: <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a></p>
 </section>
 
 <!-- SUMMARY -->
@@ -744,7 +763,7 @@ response = client.chat.completions.create(
 
 <section id="summary" aria-labelledby="summary-heading">
 <h2 id="summary-heading">All endpoints</h2>
-<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Temporary active state has a 24-hour ceiling. Heartbeat terminal state can remain readable for another 24 hours.</p>
+<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Temporary active state has a 24-hour ceiling. Heartbeat terminal state and Webhook Schedule results can remain readable for another 24 hours. Queue state shares its fixed creation-time expiry.</p>
 
 <div class="table-wrap">
 <table>
@@ -793,12 +812,14 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/heartbeat</code></td><td>POST / GET</td><td><code>heartbeat_id</code>, <code>status</code>, timing fields, <code>ping_count</code>, <code>delivery</code></td></tr>
 <tr><td>Web</td><td><code>/lease</code></td><td>POST</td><td><code>status</code>, <code>owner_token</code>, <code>fencing_token</code>, expiry fields, <code>result</code></td></tr>
 <tr><td>Web</td><td><code>/inbox</code></td><td>POST / GET</td><td><code>inbox_id</code>, <code>slug</code>, <code>address</code>, <code>received</code>, <code>truncated</code>, <code>messages</code></td></tr>
+<tr><td>Web</td><td><code>/queue</code></td><td>POST / GET</td><td><code>queue_id</code>, role tokens on creation, counts and fixed expiry</td></tr>
+<tr><td>Web</td><td><code>/queue/{id}/jobs</code>, <code>/queue/{id}/claim</code></td><td>POST / GET</td><td>Job payload, status, attempts and a receipt only on claim</td></tr>
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td>pending or captured state, update, read and wait URLs</td></tr>
 <tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td>single or group forms, result and wait URLs</td></tr>
-<tr><td>Crypto</td><td><code>/solana/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>public_address</code></td></tr>
+<tr><td>Crypto</td><td><code>/solana/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>private_key_base58</code>, <code>public_address</code></td></tr>
 <tr><td>Crypto</td><td><code>/solana/balance/{address}</code></td><td>GET</td><td><code>balance_sol</code>, <code>balance_lamports</code></td></tr>
 <tr><td>Crypto</td><td><code>/bitcoin/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>private_key_wif</code>, <code>public_address</code></td></tr>
 <tr><td>Crypto</td><td><code>/bitcoin/balance/{address}</code></td><td>GET</td><td><code>final_balance_btc</code>, <code>final_balance_sats</code></td></tr>
