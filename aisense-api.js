@@ -3,8 +3,11 @@
  * https://aisenseapi.com
  *
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
- * There is no account and nothing to send with a request beyond the path and,
- * for POST endpoints, the body.
+ * There is no account. Most requests need nothing beyond the path and, for POST
+ * endpoints, the body. Agent Queue calls also carry the queue's role token,
+ * which this client sends as an Authorization header and never puts in a URL.
+ * The queue answers the browser preflight for that header, so those calls work
+ * from a page as well as from Node.
  *
  * Usage (ESM):
  *   import { AISenseAPI } from './aisense-api.js'
@@ -65,17 +68,18 @@ export class AISenseAPI {
 
   // ── Internal helpers ───────────────────────────────────────────────────────
 
-  async #fetch(path, method, body) {
-    const init = { method }
+  async #fetch(path, method, body, token) {
+    const init = { method, headers: {} }
     if (method === 'POST') {
-      init.headers = { 'Content-Type': 'application/json' }
+      init.headers['Content-Type'] = 'application/json'
       init.body = JSON.stringify(body)
     }
+    if (token !== undefined) init.headers.Authorization = `Bearer ${token}`
     return fetch(`${this.baseUrl}${path}`, init)
   }
 
-  async #request(path, method = 'GET', body) {
-    const res = await this.#fetch(path, method, body)
+  async #request(path, method = 'GET', body, token) {
+    const res = await this.#fetch(path, method, body, token)
     const text = await res.text()
 
     if (DEBUG_ECHO.test(text)) {
@@ -159,12 +163,12 @@ export class AISenseAPI {
     }
   }
 
-  #get(path) {
-    return this.#request(path, 'GET')
+  #get(path, token) {
+    return this.#request(path, 'GET', undefined, token)
   }
 
-  #post(path, body) {
-    return this.#request(path, 'POST', body)
+  #post(path, body, token) {
+    return this.#request(path, 'POST', body, token)
   }
 
   #delete(path) {
@@ -630,6 +634,128 @@ export class AISenseAPI {
   agentInboxRead(inboxId, waitSeconds) {
     const suffix = waitSeconds === undefined ? '' : `/wait/${waitSeconds}`
     return this.#get(`/inbox/${inboxId}${suffix}`)
+  }
+
+  /**
+   * Create a pull queue that cooperating agents share for at most 24 hours.
+   * Takes no arguments. Response keys: `ok`, `queue_id`,
+   * `created_at_timestamp`, `expire_timestamp`, `counts`, `read_token`,
+   * `write_token`, `worker_token`.
+   *
+   * The three tokens are separate capabilities, and each is returned once,
+   * here. `read_token` reads counts and single jobs, `write_token` adds jobs,
+   * and `worker_token` claims, acknowledges, releases and renews them. A token
+   * used for another role answers 403, so each agent can be given only the
+   * token its role needs. Every queue method below takes the queue ID first,
+   * then the token, then the job details, and sends the token as an
+   * Authorization header.
+   *
+   * The whole queue expires 24 hours after creation, and activity never
+   * extends it. Caps: 100 jobs over the queue's lifetime, 16 KiB of encoded
+   * JSON per payload, 5 claims per job and 20 new queues per client IP per 24
+   * hours. The service stores jobs and hands them out; it never runs them.
+   */
+  createAgentQueue() {
+    return this.#post('/queue', {})
+  }
+
+  /**
+   * Read queue counts with the read token. Response keys: `ok`, `queue_id`,
+   * `created_at_timestamp`, `expire_timestamp`, `counts`. `counts` has
+   * `pending`, `claimed`, `completed`, `failed` and `total`. Payloads and
+   * tokens are never listed.
+   */
+  readAgentQueue(queueId, readToken) {
+    return this.#get(`/queue/${queueId}`, readToken)
+  }
+
+  /**
+   * Add a job with the write token. Response keys: `ok`, `queue_id`,
+   * `expire_timestamp`, `job`, `deduplicated`. `job` has `job_id`, `job_key`,
+   * `payload`, `status`, `attempts`, `created_at_timestamp`,
+   * `expire_timestamp` and `claimed_until_timestamp`.
+   *
+   * `jobKey` makes a resend harmless. The same key with the same payload
+   * returns the existing job with `deduplicated` true. The same key with a
+   * different payload answers 409, so a retry can never quietly change a job.
+   * A key is 1 to 64 characters of `[A-Za-z0-9._:-]` and starts with a letter
+   * or digit.
+   *
+   * `payload` is any JSON value, `null` included, up to 16 KiB encoded.
+   * `undefined` is not a JSON value: it is dropped from the request body, and
+   * the server answers 400 `payload is required`.
+   */
+  enqueueAgentQueueJob(queueId, writeToken, jobKey, payload) {
+    return this.#post(`/queue/${queueId}/jobs`, { job_key: jobKey, payload }, writeToken)
+  }
+
+  /**
+   * Read one job with the read token. Response keys: `ok`, `queue_id`,
+   * `expire_timestamp`, `job`, with the same `job` fields as
+   * {@link enqueueAgentQueueJob}. A claim receipt is never shown here. The
+   * server keeps only its hash, so the worker that claimed the job is the one
+   * party that holds it.
+   */
+  readAgentQueueJob(queueId, readToken, jobId) {
+    return this.#get(`/queue/${queueId}/jobs/${jobId}`, readToken)
+  }
+
+  /**
+   * Claim the next pending job with the worker token. Response keys: `ok`,
+   * `queue_id`, `expire_timestamp`, `job`. `job` is `null` when nothing is
+   * waiting, which is the normal answer from an idle queue and not an error.
+   * Otherwise it is the job with `status` `'claimed'`, a
+   * `claimed_until_timestamp` and a secret `receipt`. Keep the receipt:
+   * acknowledging, releasing and renewing all need it.
+   *
+   * `visibilityTimeout` is how long the claim holds, 30 to 900 seconds, 60 by
+   * default, and never past the queue's expiry. A job whose claim runs out goes
+   * back to pending for another worker. Each claim counts one attempt, and a
+   * job fails after 5 unsuccessful ones.
+   *
+   * A job can be handed out more than once, so make the work itself
+   * idempotent. A claim reply that is lost can still have reserved a job; the
+   * Agent Queue section of API.md describes how to recover without taking a
+   * second job.
+   */
+  claimAgentQueueJob(queueId, workerToken, visibilityTimeout) {
+    const body = visibilityTimeout === undefined ? {} : { visibility_timeout: visibilityTimeout }
+    return this.#post(`/queue/${queueId}/claim`, body, workerToken)
+  }
+
+  /**
+   * Mark a claimed job completed with the worker token and its receipt.
+   * Response keys: `ok`, `queue_id`, `expire_timestamp`, `job`, with `status`
+   * `'completed'`. Repeating the acknowledgement with the same receipt
+   * succeeds again, so a worker whose reply was lost can retry it. A receipt
+   * from an earlier claim of the same job answers 409. Completing a job does
+   * not free room under the 100 job cap.
+   */
+  ackAgentQueueJob(queueId, workerToken, jobId, receipt) {
+    return this.#post(`/queue/${queueId}/jobs/${jobId}/ack`, { receipt }, workerToken)
+  }
+
+  /**
+   * Give a claimed job back to the queue with the worker token and its
+   * receipt. Response keys: `ok`, `queue_id`, `expire_timestamp`, `job`, with
+   * `status` `'pending'` again. The attempt the claim used still counts toward
+   * the limit of 5.
+   */
+  releaseAgentQueueJob(queueId, workerToken, jobId, receipt) {
+    return this.#post(`/queue/${queueId}/jobs/${jobId}/release`, { receipt }, workerToken)
+  }
+
+  /**
+   * Extend a claim with the worker token and its receipt. Response keys: `ok`,
+   * `queue_id`, `expire_timestamp`, `job`, with a later
+   * `claimed_until_timestamp`. No new receipt is issued, and the one from the
+   * claim stays valid. Renewing adds no attempt. `visibilityTimeout` is 30 to
+   * 900 seconds, 60 by default, and never past the queue's expiry.
+   */
+  renewAgentQueueJob(queueId, workerToken, jobId, receipt, visibilityTimeout) {
+    const body = { receipt }
+    if (visibilityTimeout !== undefined) body.visibility_timeout = visibilityTimeout
+    return this.#post(`/queue/${queueId}/jobs/${jobId}/renew`, body, workerToken)
   }
 
   // ── Crypto ────────────────────────────────────────────────────────────────

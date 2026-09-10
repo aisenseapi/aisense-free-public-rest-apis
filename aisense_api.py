@@ -2,9 +2,10 @@
 aisense_api.py: Python client for the AI SENSE AS Free Public REST APIs
 https://aisenseapi.com
 
-No dependencies beyond the standard library (uses urllib). There is no account
-and nothing to send with a request beyond the path and, for POST endpoints, the
-body.
+No dependencies beyond the standard library (uses urllib). There is no account.
+Most requests need nothing beyond the path and, for POST endpoints, the body.
+Agent Queue calls also carry the queue's role token, which this client sends as
+an Authorization header and never puts in a URL.
 
 Usage:
     from aisense_api import AISenseAPI
@@ -69,13 +70,22 @@ class AISenseAPI:
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
-    def _read(self, path: str, method: str, payload: Any = None, content_type: str = "application/json"):
+    def _read(
+        self,
+        path: str,
+        method: str,
+        payload: Any = None,
+        content_type: str = "application/json",
+        token: Optional[str] = None,
+    ):
         url = f"{self.base_url}{path}"
         data = None
         headers = {}
         if method == "POST":
             data = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
             headers["Content-Type"] = content_type
+        if token is not None:
+            headers["Authorization"] = f"Bearer {token}"
 
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
@@ -86,8 +96,8 @@ class AISenseAPI:
             # read it rather than letting urllib swallow the reason.
             return err.code, err.headers.get("Content-Type", ""), err.read()
 
-    def _request(self, path: str, method: str = "GET", payload: Any = None) -> dict:
-        status, _content_type, raw = self._read(path, method, payload)
+    def _request(self, path: str, method: str = "GET", payload: Any = None, token: Optional[str] = None) -> dict:
+        status, _content_type, raw = self._read(path, method, payload, token=token)
         text = raw.decode("utf-8", "replace")
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
@@ -144,11 +154,11 @@ class AISenseAPI:
         except UnicodeDecodeError:
             return raw
 
-    def _get(self, path: str) -> dict:
-        return self._request(path, "GET")
+    def _get(self, path: str, token: Optional[str] = None) -> dict:
+        return self._request(path, "GET", token=token)
 
-    def _post(self, path: str, payload: Any) -> dict:
-        return self._request(path, "POST", payload)
+    def _post(self, path: str, payload: Any, token: Optional[str] = None) -> dict:
+        return self._request(path, "POST", payload, token=token)
 
     def _delete(self, path: str) -> dict:
         return self._request(path, "DELETE")
@@ -624,6 +634,139 @@ class AISenseAPI:
         """
         suffix = "" if wait_seconds is None else f"/wait/{wait_seconds}"
         return self._get(f"/inbox/{inbox_id}{suffix}")
+
+    def create_agent_queue(self) -> dict:
+        """Create a pull queue that cooperating agents share for at most 24 hours.
+
+        Takes no arguments. Response keys: ``ok``, ``queue_id``,
+        ``created_at_timestamp``, ``expire_timestamp``, ``counts``,
+        ``read_token``, ``write_token``, ``worker_token``.
+
+        The three tokens are separate capabilities, and each is returned once,
+        here. ``read_token`` reads counts and single jobs, ``write_token`` adds
+        jobs, and ``worker_token`` claims, acknowledges, releases and renews
+        them. A token used for another role answers 403, so each agent can be
+        given only the token its role needs. Every queue method below takes the
+        queue ID first, then the token, then the job details, and sends the
+        token as an Authorization header.
+
+        The whole queue expires 24 hours after creation, and activity never
+        extends it. Caps: 100 jobs over the queue's lifetime, 16 KiB of encoded
+        JSON per payload, 5 claims per job and 20 new queues per client IP per
+        24 hours. The service stores jobs and hands them out; it never runs
+        them.
+        """
+        return self._post("/queue", {})
+
+    def read_agent_queue(self, queue_id: str, read_token: str) -> dict:
+        """Read queue counts with the read token.
+
+        Response keys: ``ok``, ``queue_id``, ``created_at_timestamp``,
+        ``expire_timestamp``, ``counts``. ``counts`` has ``pending``,
+        ``claimed``, ``completed``, ``failed`` and ``total``. Payloads and
+        tokens are never listed.
+        """
+        return self._get(f"/queue/{queue_id}", token=read_token)
+
+    def enqueue_agent_queue_job(self, queue_id: str, write_token: str, job_key: str, payload: Any) -> dict:
+        """Add a job with the write token.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``,
+        ``deduplicated``. ``job`` has ``job_id``, ``job_key``, ``payload``,
+        ``status``, ``attempts``, ``created_at_timestamp``,
+        ``expire_timestamp`` and ``claimed_until_timestamp``.
+
+        ``job_key`` makes a resend harmless. The same key with the same payload
+        returns the existing job with ``deduplicated`` true. The same key with a
+        different payload answers 409, so a retry can never quietly change a
+        job. A key is 1 to 64 characters of ``[A-Za-z0-9._:-]`` and starts
+        with a letter or digit.
+
+        ``payload`` is any JSON value, ``None`` included, up to 16 KiB encoded.
+        """
+        body = {"job_key": job_key, "payload": payload}
+        return self._post(f"/queue/{queue_id}/jobs", body, token=write_token)
+
+    def read_agent_queue_job(self, queue_id: str, read_token: str, job_id: str) -> dict:
+        """Read one job with the read token.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``,
+        with the same ``job`` fields as :meth:`enqueue_agent_queue_job`. A
+        claim receipt is never shown here. The server keeps only its hash, so
+        the worker that claimed the job is the one party that holds it.
+        """
+        return self._get(f"/queue/{queue_id}/jobs/{job_id}", token=read_token)
+
+    def claim_agent_queue_job(
+        self,
+        queue_id: str,
+        worker_token: str,
+        visibility_timeout: Optional[int] = None,
+    ) -> dict:
+        """Claim the next pending job with the worker token.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``.
+        ``job`` is ``None`` when nothing is waiting, which is the normal answer
+        from an idle queue and not an error. Otherwise it is the job with
+        ``status`` ``"claimed"``, a ``claimed_until_timestamp`` and a secret
+        ``receipt``. Keep the receipt: acknowledging, releasing and renewing
+        all need it.
+
+        ``visibility_timeout`` is how long the claim holds, 30 to 900 seconds,
+        60 by default, and never past the queue's expiry. A job whose claim
+        runs out goes back to pending for another worker. Each claim counts one
+        attempt, and a job fails after 5 unsuccessful ones.
+
+        A job can be handed out more than once, so make the work itself
+        idempotent. A claim reply that is lost can still have reserved a job;
+        the Agent Queue section of API.md describes how to recover without
+        taking a second job.
+        """
+        body = {} if visibility_timeout is None else {"visibility_timeout": visibility_timeout}
+        return self._post(f"/queue/{queue_id}/claim", body, token=worker_token)
+
+    def ack_agent_queue_job(self, queue_id: str, worker_token: str, job_id: str, receipt: str) -> dict:
+        """Mark a claimed job completed with the worker token and its receipt.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``,
+        with ``status`` ``"completed"``. Repeating the acknowledgement with the
+        same receipt succeeds again, so a worker whose reply was lost can
+        retry it. A receipt from an earlier claim of the same job answers 409.
+        Completing a job does not free room under the 100 job cap.
+        """
+        path = f"/queue/{queue_id}/jobs/{job_id}/ack"
+        return self._post(path, {"receipt": receipt}, token=worker_token)
+
+    def release_agent_queue_job(self, queue_id: str, worker_token: str, job_id: str, receipt: str) -> dict:
+        """Give a claimed job back to the queue with the worker token and its receipt.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``,
+        with ``status`` ``"pending"`` again. The attempt the claim used still
+        counts toward the limit of 5.
+        """
+        path = f"/queue/{queue_id}/jobs/{job_id}/release"
+        return self._post(path, {"receipt": receipt}, token=worker_token)
+
+    def renew_agent_queue_job(
+        self,
+        queue_id: str,
+        worker_token: str,
+        job_id: str,
+        receipt: str,
+        visibility_timeout: Optional[int] = None,
+    ) -> dict:
+        """Extend a claim with the worker token and its receipt.
+
+        Response keys: ``ok``, ``queue_id``, ``expire_timestamp``, ``job``,
+        with a later ``claimed_until_timestamp``. No new receipt is issued, and
+        the one from the claim stays valid. Renewing adds no attempt.
+        ``visibility_timeout`` is 30 to 900 seconds, 60 by default, and never
+        past the queue's expiry.
+        """
+        body = {"receipt": receipt}
+        if visibility_timeout is not None:
+            body["visibility_timeout"] = visibility_timeout
+        return self._post(f"/queue/{queue_id}/jobs/{job_id}/renew", body, token=worker_token)
 
     # ── Crypto ────────────────────────────────────────────────────────────────
 
