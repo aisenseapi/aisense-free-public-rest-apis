@@ -268,6 +268,10 @@ Jobs can be delivered again after a claim expires or is released. Queue expiry a
 actions idempotent. The service holds
 the queue state and does not run jobs, fetch URLs or send callbacks.
 
+MCP clients use the eight queue tools. A2A clients name the `agent-queue` skill,
+which creates the queue and returns its three role tokens; enqueueing, claiming
+and acknowledging stay on REST or MCP.
+
 See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-workers),
 [eight MCP tools](MCP.md#agent-queue) and
 [website guide](web/free-public-api-agent-queue-api-endpoint.html).

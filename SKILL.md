@@ -552,7 +552,8 @@ resumable or waiting on a person. MCP is the richer of the two agent surfaces
 and exposes workflow tools with schemas, while A2A carries five creation skills.
 REST exposes the utility catalog. Time, UUIDs and short links also have MCP
 tools, but hashing, encoding, QR and wallet operations are REST-only. Queue
-has REST and MCP interfaces, not an A2A skill.
+is on all three: A2A creates a queue, and the job operations stay on REST
+and MCP.
 
 Five skills, and they are the same capabilities you already have, not extra
 ones:
@@ -563,10 +564,11 @@ ones:
 | `human-approval` | `create_human_approval` | `POST /webhook_action` |
 | `agent-inbox` | `create_agent_inbox` | `POST /inbox` |
 | `webhook-capture` | `create_webhook_capture` | `POST /webhook_capture` |
+| `agent-queue` | `create_agent_queue` | `POST /queue` |
 
 Each skill runs the same code as its MCP tool, so the arguments, the bounds and
 the refusals are identical. There is no read skill. A2A creates the record;
-`GetTask` reads an Agent Wake task, and the other three are read with the MCP
+`GetTask` reads an Agent Wake task, and the other four are read with the MCP
 read tool or the REST route above.
 
 **Name the skill inside the message.** A2A skills are not addressable: the card
@@ -627,7 +629,7 @@ States are `TASK_STATE_WORKING`, `TASK_STATE_INPUT_REQUIRED`,
 L. The Task carries the ID, a context ID and the state, and nothing more, so
 create the task over REST or MCP when you need the wake URL or the form URL.
 
-The other three answer with a Message whose data part is the record the create
+The other four answer with a Message whose data part is the record the create
 call returns, the same JSON as the REST response for that endpoint:
 
 ```json

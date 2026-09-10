@@ -1481,7 +1481,7 @@ single L in `CANCELED`; the REST status for the same task is spelled `cancelled`
 An interrupted task puts the thing a person has to act on, such as a form URL, in
 `status.update`.
 
-The other three answer with a Message carrying the created resource:
+The other four answer with a Message carrying the created resource:
 
 ```json
 {
