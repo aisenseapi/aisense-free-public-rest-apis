@@ -3,7 +3,7 @@
   "info": {
     "title": "AI SENSE Agent Queue",
     "version": "1.0.0",
-    "description": "Agent Queue-only OpenAPI contract for the 1.8.0 source release. This is not a specification of the other API families. Production deployment of Queue has not been verified. Temporary jobs with separate read, write and worker bearer capabilities. The entire queue, jobs and deduplication state expires exactly 86400 seconds after queue creation. Activity never extends expiry. At most 100 lifetime jobs, 16384 encoded payload bytes and five claim attempts. The service does not execute jobs, fetch URLs, make callbacks or contact outside services. Keep external actions idempotent and payloads free of secrets. Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed."
+    "description": "Agent Queue-only OpenAPI contract for the 1.8.0 source release. This is not a specification of the other API families. Queue was deployed and verified in production on 9 September 2026. Temporary jobs with separate read, write and worker bearer capabilities. The entire queue, jobs and deduplication state expires exactly 86400 seconds after queue creation. Activity never extends expiry. At most 100 lifetime jobs, 16384 encoded payload bytes and five claim attempts. The service does not execute jobs, fetch URLs, make callbacks or contact outside services. Keep external actions idempotent and payloads free of secrets. Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed."
   },
   "servers": [
     {
