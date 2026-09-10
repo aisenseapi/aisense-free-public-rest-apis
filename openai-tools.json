@@ -1311,7 +1311,7 @@
     "type": "function",
     "function": {
       "name": "create_agent_queue",
-      "description": "Create a small temporary pull queue for cooperating agents. Its fixed 24 hour lifetime cannot be extended. Returns separate read, write and worker bearer tokens once. Keep them secret and share only the role needed. Maximum 100 jobs over the queue lifetime, 16 KiB per JSON payload, 5 claims per job and 20 queues per client IP in 24 hours. The server does not execute jobs. No account or API key is required. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue. Takes no arguments. Returns queue_id, counts, created_at_timestamp, expire_timestamp and read_token/write_token/worker_token, disclosed only on creation.",
+      "description": "Create a small temporary pull queue for cooperating agents. Its fixed 24 hour lifetime cannot be extended. Returns separate read, write and worker bearer tokens once. Keep them secret and share only the role needed. Maximum 100 jobs over the queue lifetime, 16 KiB per JSON payload, 5 claims per job and 20 queues per client IP in 24 hours. The server does not execute jobs. No account or API key is required. POST /queue. Takes no arguments. Returns queue_id, counts, created_at_timestamp, expire_timestamp and read_token/write_token/worker_token, disclosed only on creation.",
       "parameters": {
         "type": "object",
         "properties": {},
@@ -1323,7 +1323,7 @@
     "type": "function",
     "function": {
       "name": "read_agent_queue",
-      "description": "Read queue metadata and pending, claimed, completed and failed counts using the read token. Does not list payloads, disclose role tokens or extend the fixed expiry. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. GET /queue/{queue_id}. Send read_token as Authorization: Bearer. Never put role tokens in paths, queries or the JSON body.",
+      "description": "Read queue metadata and pending, claimed, completed and failed counts using the read token. Does not list payloads, disclose role tokens or extend the fixed expiry. GET /queue/{queue_id}. Send read_token as Authorization: Bearer. Never put role tokens in paths, queries or the JSON body.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1348,7 +1348,7 @@
     "type": "function",
     "function": {
       "name": "enqueue_agent_queue_job",
-      "description": "Add a JSON job using the write token and a stable job_key. The same key and payload return the original job. Changing the payload for that key is a conflict. Payloads are limited to 16 KiB encoded JSON and must contain no secrets or personal data. The 100-job lifetime limit includes completed and failed jobs. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs. Send write_token as Authorization: Bearer. JSON body contains job_key and payload only. HTTP201 for a new job, HTTP200 plus deduplicated:true for an identical retry, HTTP409 if its payload changed.",
+      "description": "Add a JSON job using the write token and a stable job_key. The same key and payload return the original job. Changing the payload for that key is a conflict. Payloads are limited to 16 KiB encoded JSON and must contain no secrets or personal data. The 100-job lifetime limit includes completed and failed jobs. POST /queue/{queue_id}/jobs. Send write_token as Authorization: Bearer. JSON body contains job_key and payload only. HTTP201 for a new job, HTTP200 plus deduplicated:true for an identical retry, HTTP409 if its payload changed.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1384,7 +1384,7 @@
     "type": "function",
     "function": {
       "name": "read_agent_queue_job",
-      "description": "Read one known job, its JSON payload and status using the read token. The active claim receipt and role tokens are never returned by this operation. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. GET /queue/{queue_id}/jobs/{job_id}. Send read_token as Authorization: Bearer. No receipt or tokens are returned.",
+      "description": "Read one known job, its JSON payload and status using the read token. The active claim receipt and role tokens are never returned by this operation. GET /queue/{queue_id}/jobs/{job_id}. Send read_token as Authorization: Bearer. No receipt or tokens are returned.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1414,7 +1414,7 @@
     "type": "function",
     "function": {
       "name": "claim_agent_queue_job",
-      "description": "Claim the next pending job using the worker token. Returns job:null immediately when no work is available, otherwise a job containing a new secret receipt. Visibility defaults to 60 seconds and accepts 30-900 seconds. Redelivery is possible: make worker side effects idempotent. Jobs fail after 5 unsuccessful claims. No job is executed by the server. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/claim. Send worker_token as Authorization: Bearer. JSON body contains optional visibility_timeout only. Returns job:null when empty or a job with a fresh receipt.",
+      "description": "Claim the next pending job using the worker token. Returns job:null immediately when no work is available, otherwise a job containing a new secret receipt. Visibility defaults to 60 seconds and accepts 30-900 seconds. Redelivery is possible: make worker side effects idempotent. Jobs fail after 5 unsuccessful claims. No job is executed by the server. POST /queue/{queue_id}/claim. Send worker_token as Authorization: Bearer. JSON body contains optional visibility_timeout only. Returns job:null when empty or a job with a fresh receipt.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1446,7 +1446,7 @@
     "type": "function",
     "function": {
       "name": "ack_agent_queue_job",
-      "description": "Mark a claimed job completed using the worker token and its current receipt. Repeating acknowledgement with the same winning receipt succeeds. A different, stale or expired claim receipt is a conflict. Completion does not reclaim the lifetime job allowance. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/ack. Send worker_token as Authorization: Bearer. JSON body contains receipt only. A duplicate ack with the winning receipt succeeds. Other stale receipts return 409.",
+      "description": "Mark a claimed job completed using the worker token and its current receipt. Repeating acknowledgement with the same winning receipt succeeds. A different, stale or expired claim receipt is a conflict. Completion does not reclaim the lifetime job allowance. POST /queue/{queue_id}/jobs/{job_id}/ack. Send worker_token as Authorization: Bearer. JSON body contains receipt only. A duplicate ack with the winning receipt succeeds. Other stale receipts return 409.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1481,7 +1481,7 @@
     "type": "function",
     "function": {
       "name": "release_agent_queue_job",
-      "description": "Return a claimed job to pending using the worker token and its current receipt. On the fifth claim it becomes failed. The receipt is invalidated. Stale receipts conflict. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/release. Send worker_token as Authorization: Bearer. JSON body contains receipt only.",
+      "description": "Return a claimed job to pending using the worker token and its current receipt. On the fifth claim it becomes failed. The receipt is invalidated. Stale receipts conflict. POST /queue/{queue_id}/jobs/{job_id}/release. Send worker_token as Authorization: Bearer. JSON body contains receipt only.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1516,7 +1516,7 @@
     "type": "function",
     "function": {
       "name": "renew_agent_queue_job",
-      "description": "Move the active claim deadline using the worker token and current receipt. Visibility accepts 30-900 seconds, defaults to 60 seconds and is capped by the original queue expiry. A stale or expired receipt is a conflict. Queue lifetime is never extended. Queue belongs to the 1.8.0 source release. Deployment is not yet verified. POST /queue/{queue_id}/jobs/{job_id}/renew. Send worker_token as Authorization: Bearer. JSON body contains receipt and optional visibility_timeout only.",
+      "description": "Move the active claim deadline using the worker token and current receipt. Visibility accepts 30-900 seconds, defaults to 60 seconds and is capped by the original queue expiry. A stale or expired receipt is a conflict. Queue lifetime is never extended. POST /queue/{queue_id}/jobs/{job_id}/renew. Send worker_token as Authorization: Bearer. JSON body contains receipt and optional visibility_timeout only.",
       "parameters": {
         "type": "object",
         "properties": {

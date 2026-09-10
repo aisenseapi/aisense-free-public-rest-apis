@@ -83,9 +83,10 @@ is a plain GET at `https://aisenseapi.com/.well-known/agent-card.json`.
 A2A is the protocol for delegating work to another agent. MCP is the protocol
 for exposing tools. Most of this service is tools, so only the five task-shaped
 capabilities are offered over A2A: `agent-wake`, `human-approval`,
-`agent-inbox` and `webhook-capture`. The other tools are not reachable through
-it. MCP stays the richer workflow surface with its own tool schemas. Queue
-is available through REST and MCP, not through A2A.
+`agent-inbox`, `webhook-capture` and `agent-queue`. The other tools are not
+reachable through it. MCP stays the richer workflow surface with its own tool
+schemas. Over A2A the queue skill creates a queue and returns its three role
+tokens; enqueueing, claiming and acknowledging stay on REST and MCP.
 
 A2A puts no skill id on the wire, so the caller names the skill in a data part
 of the message, as `{"skill": "agent-wake", "arguments": { ... }}`. That is a
