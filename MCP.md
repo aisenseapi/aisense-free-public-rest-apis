@@ -405,7 +405,7 @@ no method for fetching it. No account, API key or token is needed, the same as
 here.
 
 A2A is a protocol for one agent to delegate work to another. MCP is the
-protocol for exposing tools. Most of this service is tools, so only four
+protocol for exposing tools. Most of this service is tools, so only five
 capabilities are offered over A2A:
 
 | A2A skill | Same capability on this endpoint |
@@ -414,9 +414,11 @@ capabilities are offered over A2A:
 | `human-approval` | `create_human_approval` |
 | `agent-inbox` | `create_agent_inbox` |
 | `webhook-capture` | `create_webhook_capture` |
+| `agent-queue` | `create_agent_queue` |
 
-Those four are the cases where the interesting object is a long-lived,
-resumable, human-in-the-loop task. A2A carries that in core, while MCP needed
+Those five are the cases where the interesting object is a long-lived,
+resumable task, often waiting on a person or on another agent. A2A carries
+that in core, while MCP needed
 the `io.modelcontextprotocol/tasks` extension to say the same thing. Each skill
 calls the tool in the right-hand column, so arguments, bounds and refusals are
 identical on the two surfaces.

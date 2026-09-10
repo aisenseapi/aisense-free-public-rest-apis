@@ -60,7 +60,7 @@
 </header>
 
 <div class="article-body">
-<p class="article-lead">Agent2Agent is a protocol for one agent to delegate work to another. An agent advertises itself with a JSON card at a well-known path, and clients that find the card send it tasks. We now publish one at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. This note is about what we learned on the way there, and why the card describes four capabilities and not twenty.</p>
+<p class="article-lead">Agent2Agent is a protocol for one agent to delegate work to another. An agent advertises itself with a JSON card at a well-known path, and clients that find the card send it tasks. We now publish one at <code>https://aisenseapi.com/.well-known/agent-card.json</code>. This note is about what we learned on the way there, and why the card first described four capabilities and not twenty.</p>
 
 <h2>What the specification actually says</h2>
 
@@ -125,10 +125,12 @@
 
 <p>The other direction is also open. If the eight daily hits stay a single crawler on a six-hour cycle with no retries, the card buys presence and nothing more, and we will say so here.</p>
 
+<p>One change since publication. On 9 September the card gained a fifth skill, <code>agent-queue</code>, which passes the same test as the first four: the queue it creates outlives the request. The service grew to twenty-eight tools the same day, and everything that is not one of the five skills still lives on REST and MCP.</p>
+
 <div class="article-cta">
   <p class="eyebrow">The card</p>
   <h2>Read it, or read the guide behind it.</h2>
-  <p>No account, no API key. Four task-shaped skills over JSON-RPC.</p>
+  <p>No account, no API key. Five task-shaped skills over JSON-RPC.</p>
   <div class="button-row"><a href="/free-public-a2a-agent-endpoint">Agent2Agent endpoint guide</a> <a href="https://aisenseapi.com/.well-known/agent-card.json">The agent card</a></div>
 </div>
 </div>
