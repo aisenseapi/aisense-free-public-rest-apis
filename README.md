@@ -526,7 +526,11 @@ curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-44665544
 # -> {"result": 42, "status": "complete"}
 ```
 
-Expires after 24 hours.
+Expires after 24 hours. Executable files (Windows, Linux and Mac programs,
+judged on their first bytes) are refused with `415`. Each IP may store 80 MB
+per 24 hours; past that a POST answers `429`. A stored file is returned inline
+only as an image, audio, video or PDF; anything else, SVG included, comes back
+as a download.
 
 ---
 

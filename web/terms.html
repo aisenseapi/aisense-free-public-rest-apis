@@ -92,6 +92,7 @@
 
 <h2 id="limits">Limits</h2>
 <p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the shared counter resets at server midnight. This is not a rolling per-request window. The limit is a technical control. We may change it.</p>
+<p><strong>80 MB of stored data per IP address per 24 hours</strong> on /storage, counted on the same calendar day and reset together with the request counter. Executable files are refused at upload.</p>
 <p><strong>Active data has a 24-hour ceiling</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code>, <code>/webhook_action</code>, <code>/agent_wake</code>, <code>/heartbeat</code>, <code>/lease</code> and <code>/inbox</code>. Agent Wake may use a shorter timeout. A Heartbeat terminal record can remain readable for another 24 hours after its target data has been removed. A Lease has a fixed absolute expiry 24 hours after the first acquisition, and renewals cannot extend it. Webhook Schedule keeps its final result for up to 24 hours after the delivery attempt.</p>
 
 <p>Agent Queue and all associated payloads, deduplication entries, completed jobs and failed jobs expire exactly 24 hours after queue creation. No activity extends that deadline. Each queue accepts up to 100 distinct jobs over its lifetime, 16 KiB of encoded JSON per payload and five claim attempts per job. New queues are limited to 20 per client IP per 24 hours. Queue REST deployment was verified on 9 September 2026.</p>
@@ -118,6 +119,7 @@
 <p>Do not use these APIs to break the law, to attack or disrupt this service or anyone else's, to circumvent the rate limit by rotating addresses, or to store or transmit unlawful material. Do not use the storage or webhook endpoints to hold personal data belonging to other people beyond what your own lawful purpose requires - you are the one responsible for that data, not us.</p>
 <p>Do not present this service as your own to your users in a way that leaves them relying on it without knowing.</p>
 <p>We may block an address or withdraw access where use is unlawful, abusive or threatens availability for others, and we may do so without notice.</p>
+<p>Content on /storage that is reported to <a href="mailto:support@aisense.no">support@aisense.no</a> as unlawful or abusive is removed when we receive the notice, and the address that posted it may be blocked.</p>
 
 <h2 id="your-content">Content you send</h2>
 <p>Whatever you post to the storage or webhook endpoints stays yours. We claim no rights in it. We store it for the stated period so that we can hand it back to you, and we do nothing else with it. See the <a href="/privacy">Privacy</a> page for what is recorded and for how long.</p>

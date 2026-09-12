@@ -83,6 +83,12 @@
 
 <p>This is a handoff, not a home. The copy is removed 24 hours after it was written, which is long enough to pass something to a colleague, a script or a support thread, and short enough that nothing lingers. It is not a place to host files you need next week.</p>
 
+<h2>What is refused, and how something gets removed</h2>
+
+<p>Executable files are refused at upload, judged on their first bytes rather than on the file name: Windows, Linux and Mac programs come back with HTTP 415 and are never stored. Each address may store 80 MB per 24 hours; past that a POST answers HTTP 429 until the counter resets at midnight UTC. Images, audio, video and PDF open in the browser. Everything else, SVG included, is served as a download, so nothing uploaded here can run as a page on our domain.</p>
+
+<p>If a link on this service points at something unlawful or abusive, write to <a href="mailto:support@aisense.no">support@aisense.no</a> with the link and the time. The file is removed when we receive the notice, and the address that posted it may be blocked. Whatever is not reported disappears on its own 24 hours after it was written.</p>
+
 <h2>The same thing from the command line</h2>
 
 <p>Because the page only wraps the API, everything it does is one request you can make yourself. Upload a file, then read it back with the identifier from the response.</p>

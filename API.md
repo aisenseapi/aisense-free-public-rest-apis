@@ -570,6 +570,14 @@ retrieve `{"data": {...}}`.
 `application/json` if they parse as JSON, otherwise `application/octet-stream`.
 An unknown or expired id returns `{"error": "Storage id unknown"}`.
 
+**Limits:** executable files (Windows, Linux and Mac programs, judged on their
+first bytes) are refused with `415` and never stored. Each IP may store 80 MB
+per 24 hours; past that a POST answers `429` until the counter resets at
+midnight UTC. A stored file is returned inline only as an image, audio, video
+or PDF; anything else, SVG included, comes back as `application/octet-stream`.
+Content reported to support@aisense.no as unlawful or abusive is removed on
+notice.
+
 ---
 
 ### `GET /url_shortener/{url}` - 24h TTL
