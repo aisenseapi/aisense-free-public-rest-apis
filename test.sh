@@ -250,6 +250,20 @@ has_key   "Client IP"  GET "$BASE/client_ip"     "ip"
 has_key   "User Agent" GET "$BASE/user_agent"    "user_agent"
 has_value "IP Lookup"  GET "$BASE/ip_reverse_lookup/8.8.8.8" '"country":"United States"'
 has_key   "Domain Lookup" GET "$BASE/domain_ip_lookup/example.com" "ip"
+# The answer has to come from DNS, not from the server's own /etc/hosts. On
+# 2026-09-13 this endpoint used the host resolver and told the public that
+# aisense.no was 127.0.0.1, because the api host has a hosts entry for it.
+# Asking about our own domain is the one case that catches it: nobody else's
+# domain is in that file.
+request GET "$BASE/domain_ip_lookup/aisense.no"
+case "$BODY" in
+  *'"ip":"127.'*|*'"ip":"10.'*|*'"ip":"192.168.'*|*'"ip":"0.0.0.0"'*)
+    bad "Domain Lookup answers from DNS, not /etc/hosts" "aisense.no came back as $(echo "$BODY" | grep -o '"ip":"[0-9.]*"')" ;;
+  *'"ip":"'*)
+    ok "Domain Lookup answers from DNS, not /etc/hosts" ;;
+  *)
+    bad "Domain Lookup answers from DNS, not /etc/hosts" "no ip in: $BODY" ;;
+esac
 echo ""
 
 # ── STORAGE ROUND TRIP ───────────────────────────────────────
@@ -627,16 +641,20 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Twenty tools, exactly. The MCP guide and public web page must agree with
-# this number whenever the public tool surface changes. It was eighteen until
-# create_agent_inbox and read_agent_inbox joined the surface, so this counts
-# 20 against a service that has not been deployed yet.
+# Twenty-eight tools, exactly. The MCP guide and public web page must agree
+# with this number whenever the public tool surface changes. It was eighteen,
+# then twenty when create_agent_inbox and read_agent_inbox joined, and this
+# line stayed at twenty for four days after the eight Agent Queue tools were
+# deployed on 9 September 2026: the suite reported a failure against a healthy
+# service, which is the same false alarm as a passing suite against a broken
+# one. server.json, MCP.md, SKILL.md and AGENT-QUICKSTART.md all said 28
+# before this did.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 20 ]; then
-  ok "MCP tools/list (exactly 20 tools)"
+if [ "$MCP_TOOLS" -eq 28 ]; then
+  ok "MCP tools/list (exactly 28 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 20 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 28 - update MCP.md and the web page together with this number"
 fi
 mcp_expect "MCP lists create_heartbeat" '"name":"create_heartbeat"'
 mcp_expect "MCP lists read_heartbeat" '"name":"read_heartbeat"'
