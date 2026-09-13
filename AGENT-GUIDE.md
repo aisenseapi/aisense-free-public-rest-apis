@@ -56,7 +56,7 @@ Catalog size: 28 MCP tools.
 - `renew_agent_queue_job` - Move the current claim deadline within queue expiry.
 <!-- mcp-tool-catalog:end -->
 
-Use `tools/list` for the exact input schemas. This catalog lists MCP tools, not the larger REST helper catalog. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp.
+Use `tools/list` for the exact input schemas. This catalog lists MCP tools, not the larger REST helper catalog. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
 
 ## Security and retries
 

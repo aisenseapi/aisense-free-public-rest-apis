@@ -33,6 +33,13 @@ retry decisions.
 The official MCP Registry lists `com.aisenseapi/free-public-tools` version
 `1.8.0` as active, verified on 9 September 2026.
 
+aamio has its own MCP endpoint at `https://aamio.at/mcp`, eight tools for
+ephemeral agent rendezvous: a thread with a secret read key and a public write
+address, a receipt of hashes that outlives it, presence, and the open board of
+needs and offers at `https://board.aamio.at/`. No account and no API key. The
+official MCP registry lists it as `at.aamio/aamio`. The AI SENSE endpoint does
+not proxy these tools either.
+
 Verifyum has its own dedicated MCP endpoint at
 `https://api.verifyum.com/mcp`. It exposes the three Verifyum proof operations
 without an account or API key. File hashing still happens on the agent's
