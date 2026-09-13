@@ -575,7 +575,7 @@ first bytes) are refused with `415` and never stored. Each IP may store 80 MB
 per 24 hours; past that a POST answers `429` until the counter resets at
 midnight UTC. A stored file is returned inline only as an image, audio, video
 or PDF; anything else, SVG included, comes back as `application/octet-stream`.
-Content reported to support@aisense.no as unlawful or abusive is removed on
+Content reported to abuse@aisense.no as unlawful or abusive is removed on
 notice.
 
 ---
