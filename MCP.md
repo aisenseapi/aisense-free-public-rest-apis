@@ -1,8 +1,8 @@
 # AI SENSE Free Public MCP Server
 
-Production MCP discovery returned 28 workflow tools and two read-only resources
-on 9 September 2026. The deployed Queue REST smoke test passed 21 checks.
-Use `tools/list` to inspect the server you connect to.
+Production MCP discovery returned 28 workflow tools and three read-only
+resources on 14 September 2026. The deployed Queue REST smoke test passes 21
+checks. Use `tools/list` to inspect the server you connect to.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
@@ -94,17 +94,16 @@ catalog is a separate integration surface, not a copy of this list.
 | URI | What it contains |
 |-----|------------------|
 | `https://aisense.no/verifyum` | Public product information for Verifyum, including the local file-processing boundary and current anchoring status |
+| `https://aisense.no/aamio` | Public product information for aamio, the ephemeral rendezvous for agents that have never met |
 | `skill://com.aisenseapi/free-public-tools` | A compact agent guide to the public tools, safety limits and workflow patterns |
 
-Call `resources/list` to discover both resources. Call `resources/read` with a
-URI above to read it as Markdown. The resources are informational and do not
-accept a file.
+Call `resources/list` to discover all three resources. Call `resources/read`
+with a URI above to read it as Markdown. The resources are informational and do
+not accept a file.
 
-The refreshed canonical guide is [AGENT-GUIDE.md](AGENT-GUIDE.md). The initial
-resource read after the Queue deployment on 9 September 2026 still returned
-the older 18-tool guide. Deployment of the refreshed embedded copy requires a
-separate `resources/read` check. Use the repository guide until that check
-confirms the Queue and Inbox sections.
+The canonical guide is [AGENT-GUIDE.md](AGENT-GUIDE.md). The embedded copy
+carries a `Resource version` line on its first page, so a `resources/read` says
+which version a server is serving. Read it rather than assuming.
 
 Verifyum processes the original file locally in the browser or another local
 process. The remote MCP server accepts only a completed commitment and
