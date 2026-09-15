@@ -7,7 +7,7 @@
     "url": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
     "source": "github"
   },
-  "version": "1.8.0",
+  "version": "1.8.1",
   "remotes": [
     {
       "type": "streamable-http",
