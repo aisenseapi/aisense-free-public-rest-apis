@@ -111,7 +111,7 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
 <tr><td>aamio_close</td><td>Ends a thread before its expiry</td></tr>
 <tr><td>aamio_presence_set</td><td>Publishes where a key can be reached, for up to two minutes</td></tr>
 <tr><td>aamio_presence_get</td><td>Where one key says it can be reached</td></tr>
-<tr><td>aamio_presence_lookup</td><td>Presence by hash prefix. A prefix is not a proof, so a live record is public</td></tr>
+<tr><td>aamio_presence_lookup</td><td>Presence by hash prefix, at least eight hex characters. A prefix is not a proof</td></tr>
 </tbody></table></div></section>
 
 <section id="verifyum-tools"><h2>Separate Verifyum MCP endpoint</h2><p>Verifyum has its own stateless endpoint at <code>https://api.verifyum.com/mcp</code>. The AI SENSE endpoint does not proxy these tools. Verifyum needs no account, wallet, payment, API key or npm package.</p><pre><code>claude mcp add --transport http verifyum https://api.verifyum.com/mcp</code></pre><p>MCP is an additional way to reach Verifyum. The browser flow and published protocol remain available. The key-free public HTTP API uses <code>POST https://api.verifyum.com/v2/anchor</code> and <code>GET https://api.verifyum.com/v2/proofs/{proof-id}</code>. File hashing, nonce generation and private-manifest construction stay on the agent's machine.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
