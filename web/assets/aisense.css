@@ -493,6 +493,10 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .product-feature .eyebrow { color: var(--blue-dark); }
 .product-feature h2 { max-width: 720px; font-size: clamp(34px, 5vw, 54px); line-height: 1.14; }
 .product-feature > div:last-child p { color: var(--body); }
+/* A product wordmark above the eyebrow. Height, not width, so a wide mark
+   and a square one sit on the same baseline; the PNG has its own
+   transparency, so the tinted card shows through. */
+.product-logo { display: block; height: 44px; width: auto; margin-bottom: 22px; }
 
 .home-cta { padding: 39px 0 116px; text-align: center; }
 .home-cta .eyebrow, .home-cta > p { margin-left: auto; margin-right: auto; }
