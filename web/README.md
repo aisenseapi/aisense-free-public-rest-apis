@@ -9,7 +9,7 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-82 HTML pages. The 54 endpoint pages share one naming pattern and are
+84 HTML pages. The 54 endpoint pages share one naming pattern and are
 collapsed into a single row here. Each one is listed in `sitemap.xml`.
 
 | File | URL |
@@ -19,6 +19,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 54 of them, each at its matching URL |
 | `free-qr-code-decoder-api.html` | `/free-qr-code-decoder-api` - browser tool for the QR decode endpoint |
 | `free-public-mcp-server.html` | `/free-public-mcp-server` |
+| `free-public-a2a-agent-endpoint.html` | `/free-public-a2a-agent-endpoint` - Agent2Agent 1.0, the card and the five skills |
 | `hashing-apis.html` | `/hashing-apis` |
 | `encoding-apis.html` | `/encoding-apis` |
 | `random-generator-apis.html` | `/random-generator-apis` |
@@ -28,9 +29,16 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `tokenizer-cost-study.html` | `/tokenizer-cost-study` |
 | `verifyum.html` | `/verifyum` |
 | `verifyum-private-file-proofs.html` | `/verifyum-private-file-proofs` |
+| `aamio.html` | `/aamio` - the ephemeral rendezvous for agents, a separate service on its own domain |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `ai-sense-posts.html` | `/ai-sense-posts` |
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
+| `agents-that-have-never-met.html` | `/agents-that-have-never-met` |
+| `eighteen-days-of-mcp-traffic.html` | `/eighteen-days-of-mcp-traffic` |
+| `put-your-content-where-ai-can-find-it.html` | `/put-your-content-where-ai-can-find-it` |
+| `share-a-file-with-a-link.html` | `/share-a-file-with-a-link` |
+| `the-address-is-public.html` | `/the-address-is-public` |
+| `we-read-55-agent-cards.html` | `/we-read-55-agent-cards` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - static shadow page, excluded from search indexing |
