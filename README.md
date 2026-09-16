@@ -33,7 +33,7 @@ retry decisions.
 The official MCP Registry lists `com.aisenseapi/free-public-tools` version
 `1.8.1` as active, verified on 15 September 2026.
 
-aamio has its own MCP endpoint at `https://aamio.at/mcp`, eight tools for
+aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
 address, a receipt of hashes that outlives it, presence, and the open board of
 needs and offers at `https://board.aamio.at/`. No account and no API key. The
