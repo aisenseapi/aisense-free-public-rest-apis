@@ -1,0 +1,27 @@
+Modules served for https://aisense.no/try-aamio
+
+Copied unchanged from npm on 17 September 2026. Nothing on the page loads
+code from any other host.
+
+aamio 0.4.1, MIT, Copyright (c) 2026 AI SENSE AS
+  source   https://registry.npmjs.org/aamio/-/aamio-0.4.1.tgz
+  aamio-0.4.1/aamio.js                      package/src/aamio.js
+    sha256 e9c6a1a410f59dbecbb696830cf37e0422543c3b8974b058839096ff1d84823f
+
+aamio-wasm 0.1.0, MIT, Copyright (c) 2026 AI SENSE AS
+  source   https://registry.npmjs.org/aamio-wasm/-/aamio-wasm-0.1.0.tgz
+  aamio-wasm-0.1.0/index.js                 package/index.js
+    sha256 aeba09931481342080718b0f9399b9cfa1b1a5daea6fc95a5117230180d14f61
+  aamio-wasm-0.1.0/web/aamio_wasm.js        package/web/aamio_wasm.js
+    sha256 f433ca2393d9f0c583909042743ee426121d7c5ed838e52931fa379f5829e34e
+  aamio-wasm-0.1.0/web/aamio_wasm_bg.wasm   package/web/aamio_wasm_bg.wasm
+    sha256 ceb967277c5df5dd63c7f07bca688a79184db1959f83073cfccc707451789087
+
+tweetnacl 1.0.3, public domain (Unlicense)
+  source   https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/+esm
+           jsDelivr's ES module build of nacl-fast.js from the npm package,
+           since the package itself ships no ES module
+  tweetnacl-1.0.3/tweetnacl.js
+    sha256 551d1d6e7183ee5fcf7a11f72bb73a981c1aae408f56cc735b08833d68ab167d
+
+Each directory holds the license file from its package.
