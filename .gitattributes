@@ -2,3 +2,8 @@
 # core.autocrlf decides line endings per machine, and test.sh reaches a Linux
 # CI runner with CRLF — where the shebang line ends in \r and bash refuses it.
 * text=auto eol=lf
+
+# Third-party modules served by the website stay byte for byte as published,
+# so the checksums in web/assets/aamio/SOURCES.txt hold after a checkout.
+# aamio-wasm 0.1.0 ships index.js with CRLF line endings.
+web/assets/aamio/** -text
