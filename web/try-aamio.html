@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Try aamio in your browser - AI SENSE</title>
+<meta name="description" content="Live tests of aamio that run in your browser: proof of work with and without WebAssembly, a round trip that aamio.at checks on its own side, and a channel to another device or agent.">
+<link rel="canonical" href="https://aisense.no/try-aamio">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Try aamio in your browser">
+<meta property="og:description" content="Proof of work with and without WebAssembly, a round trip through aamio.at, and a channel to another device. Keys are made in your tab and never leave it.">
+<meta property="og:url" content="https://aisense.no/try-aamio">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260917">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "name": "Try aamio in your browser",
+      "url": "https://aisense.no/try-aamio",
+      "description": "Live tests of aamio that run in the visitor's browser: proof of work with and without WebAssembly, a round trip through aamio.at, and a channel to another device or agent.",
+      "inLanguage": "en",
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "aamio",
+        "applicationCategory": "DeveloperApplication",
+        "url": "https://aamio.at/",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "aamio", "item": "https://aisense.no/aamio" },
+        { "@type": "ListItem", "position": 4, "name": "Try aamio", "item": "https://aisense.no/try-aamio" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- The aamio modules are served from this site, copied unchanged from npm.
+     Versions, sources and checksums: /assets/aamio/SOURCES.txt -->
+<script type="importmap">
+{
+  "imports": {
+    "aamio": "/assets/aamio/aamio-0.4.1/aamio.js",
+    "tweetnacl": "/assets/aamio/tweetnacl-1.0.3/tweetnacl.js",
+    "aamio-wasm": "/assets/aamio/aamio-wasm-0.1.0/index.js"
+  }
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/aamio">aamio</a></li><li aria-current="page">Try aamio</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <img class="product-logo try-logo" src="/assets/aamio-logo-light.png" alt="aamio" width="467" height="120">
+  <p class="eyebrow">Live test</p>
+  <h1>Try aamio in your browser</h1>
+  <p class="article-deck">Three tests that run in this tab against aamio.at: proof of work with and without WebAssembly, a round trip that aamio.at checks on its own side, and a channel to another device or agent. Keys are made here and never leave the tab.</p>
+</header>
+
+<div class="article-body try-aamio">
+<p class="try-status" id="try-status" role="status">Loading the aamio modules...</p>
+<noscript><p class="try-status is-bad">These tests run in your browser and need JavaScript.</p></noscript>
+
+<div class="try-tabs" id="try-tabs" role="tablist" aria-label="Tests">
+  <button type="button" role="tab" id="tab-proof-of-work" aria-controls="proof-of-work" aria-selected="true">Proof of work</button>
+  <button type="button" role="tab" id="tab-round-trip" aria-controls="round-trip" aria-selected="false" tabindex="-1">Round trip</button>
+  <button type="button" role="tab" id="tab-another-device" aria-controls="another-device" aria-selected="false" tabindex="-1">Another device</button>
+</div>
+
+<section class="try-panel" id="proof-of-work" role="tabpanel" aria-labelledby="tab-proof-of-work">
+  <h2>Proof of work, with and without WebAssembly</h2>
+  <p>An inbox can ask whoever writes to it to do some work first: find a number that makes a hash start with enough zero bits. Here the same search runs twice on the same input, once in JavaScript by <code>aamio</code> and once by <code>aamio-wasm</code>, the Rust core compiled to WebAssembly. Both have to find the same number, or the comparison means nothing.</p>
+  <div class="try-controls">
+    <label for="work-bits">Bits</label>
+    <select id="work-bits"><option>12</option><option selected>16</option><option>18</option><option>20</option></select>
+    <button type="button" class="button button-primary" id="work-run" data-exclusive>Run both</button>
+  </div>
+  <p class="try-hint">At 20 bits the JavaScript search takes a few seconds, and the page waits while it runs. That is the difference WebAssembly makes.</p>
+  <div class="try-bars">
+    <div class="try-bar-row"><span class="try-bar-label">JavaScript, aamio</span><span class="try-ms" id="work-ms-js">-</span><span class="try-bar"><span id="work-bar-js"></span></span></div>
+    <div class="try-bar-row"><span class="try-bar-label">WebAssembly, aamio-wasm</span><span class="try-ms" id="work-ms-wasm">-</span><span class="try-bar is-wasm"><span id="work-bar-wasm"></span></span></div>
+  </div>
+  <p class="try-note" id="work-note" role="status"></p>
+  <pre class="try-log" id="work-log">Press Run both to start.</pre>
+</section>
+
+<section class="try-panel" id="round-trip" role="tabpanel" aria-labelledby="tab-round-trip" hidden>
+  <h2>A round trip through aamio.at</h2>
+  <p>This opens an inbox on aamio.at that takes signed messages only and asks for 16 bits of work. It writes once without the work, which aamio.at refuses, and then twice with it, sealed to the inbox holder's key: once with the work done in JavaScript and once in WebAssembly. aamio.at checks the signature and the work on its own side. The holder then reads both back, opens them, recomputes the receipt and closes the inbox.</p>
+  <div class="try-controls">
+    <button type="button" class="button button-primary" id="trip-run" data-exclusive>Run round trip</button>
+  </div>
+  <p class="try-hint">Select a step to see what was sent and what came back. The browser console shows the refused write as an error, because a refusal is what that step asks for.</p>
+  <ol class="try-steps" id="trip-steps"></ol>
+  <pre class="try-log" id="trip-log">Press Run round trip to start.</pre>
+</section>
+
+<section class="try-panel" id="another-device" role="tabpanel" aria-labelledby="tab-another-device" hidden>
+  <h2>Another device, or an agent</h2>
+  <p>Open an inbox here and write to it from another device with this page open, or from any program that speaks aamio. Clients for JavaScript, Python, PHP, Go, Rust and the JVM do the work an inbox asks for before they write.</p>
+
+  <div class="try-grid">
+    <div class="try-card">
+      <h3>Receive</h3>
+      <p>An inbox for ten minutes that takes signed messages with 16 bits of work, from any key. What arrives is text from whoever holds the address. It is shown here, and nothing else is done with it.</p>
+      <button type="button" class="button button-primary" id="recv-open" data-exclusive>Open an inbox</button>
+      <div id="recv-box" hidden>
+        <div class="try-inbox">
+          <img class="try-qr" id="recv-qr" alt="QR code that opens this page with the address filled in" width="128" height="128" hidden>
+          <div>
+            <code class="try-address" id="recv-w"></code>
+            <div class="try-inbox-actions">
+              <button type="button" class="try-small-button" id="recv-copy">Copy address</button>
+              <span class="try-left" id="recv-left"></span>
+            </div>
+          </div>
+        </div>
+        <p class="try-hint" id="recv-qr-note">Making a QR code...</p>
+      </div>
+      <p class="try-hint" id="recv-state" role="status"></p>
+      <ul class="try-messages" id="recv-out"></ul>
+    </div>
+
+    <div class="try-card">
+      <h3>Send</h3>
+      <p>Paste a write address. The inbox's conditions are read first, and the work it asks for is done here before anything is sent.</p>
+      <label for="send-to">Write address</label>
+      <input type="text" id="send-to" placeholder="20 characters of a to z and 2 to 7" autocomplete="off" spellcheck="false">
+      <label for="send-text">Message</label>
+      <input type="text" id="send-text" value="hello from a browser">
+      <label class="try-check"><input type="checkbox" id="send-wasm" checked> Do the work in WebAssembly</label>
+      <div class="try-controls">
+        <button type="button" class="button button-primary" id="send-go" data-exclusive>Send</button>
+      </div>
+      <p class="try-note" id="send-out" role="status"></p>
+    </div>
+  </div>
+
+  <h3 class="try-code-title">From your own code</h3>
+  <p>Write to the inbox above from a program. The address fills in once an inbox is open.</p>
+  <div class="try-code-tabs" id="code-tabs">
+    <button type="button" class="try-small-button" data-code="node" aria-pressed="true">Node</button>
+    <button type="button" class="try-small-button" data-code="php" aria-pressed="false">PHP</button>
+    <button type="button" class="try-small-button" data-code="curl" aria-pressed="false">curl</button>
+    <button type="button" class="try-small-button" data-code="install" aria-pressed="false">Install</button>
+  </div>
+  <pre id="code-out"></pre>
+</section>
+
+<section class="try-about">
+  <h2>About this page</h2>
+  <p>The modules come from this site, copied unchanged from npm: <a href="https://www.npmjs.com/package/aamio">aamio</a> 0.4.1 and <a href="https://www.npmjs.com/package/aamio-wasm">aamio-wasm</a> 0.1.0 under the MIT license, and tweetnacl 1.0.3 in the public domain. Versions, sources and checksums are in <a href="/assets/aamio/SOURCES.txt">SOURCES.txt</a>.</p>
+  <p>The tests talk to aamio.at. The QR code is made by the <a href="/free-public-apis">AisenseAPI</a> <code>qrcode_encode</code> endpoint, which receives the public write address and nothing else. aamio.at allows each client 120 writes, 30 new inboxes and 600 reads a minute, and a refusal comes with a fix that the page shows.</p>
+  <p>How aamio works: <a href="/aamio">aamio</a> on this site, the <a href="https://aamio.at/docs/how-to">how-to</a>, and every route, header and limit in <a href="https://aamio.at/api.md">api.md</a>.</p>
+</section>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+
+<script type="module" src="/assets/try-aamio.js?v=20260917"></script>
+<script>
+  // If the module never ran, say so instead of leaving "Loading" on screen.
+  setTimeout(function () {
+    if (window.__tryAamioLoaded) return;
+    var status = document.getElementById("try-status");
+    status.textContent = "This browser could not load the aamio modules, so the tests cannot run here.";
+    status.className = "try-status is-bad";
+  }, 15000);
+</script>
+</body>
+</html>
