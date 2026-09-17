@@ -131,16 +131,20 @@ function exclusive(run, onError) {
   };
 }
 
-// The inbox the tests open: signed messages only, from any key, with work.
 // aamio-js opens an inbox without conditions; this is the PUT it would send
-// with them.
-async function openGated(ttl, bits) {
+// with them. The round trip takes signed messages only and requires work. The
+// inbox for another device takes anyone and only advises work: aamio's MCP
+// endpoint holds no keys and does no work, so an agent with only MCP tools can
+// write to that inbox and is refused by the other.
+async function openInbox(ttl, { signedOnly, gate }) {
   const id = newId();
   const w = deriveAddress(id);
+  const headers = { "Content-Type": "application/json", "X-Read": id, "X-TTL": String(ttl) };
+  if (signedOnly) headers["X-Allow"] = "*";
   const response = await recordingFetch(`${BASE}/${w}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", "X-Read": id, "X-TTL": String(ttl), "X-Allow": "*" },
-    body: JSON.stringify({ gate: { require: { pow: { bits } } } }),
+    headers,
+    body: JSON.stringify({ gate }),
   });
   const answer = await response.json().catch(() => ({}));
   if (response.status !== 201) throw new AamioError(response.status, answer, answer.error);
@@ -341,7 +345,7 @@ $("trip-run").addEventListener("click", exclusive(async () => {
 
   step = addStep("Inbox opened for two minutes, signed messages only, 16 bits of work");
   let started = performance.now();
-  const inbox = await openGated(120, 16);
+  const inbox = await openInbox(120, { signedOnly: true, gate: { require: { pow: { bits: 16 } } } });
   step.note = `The write address is ${inbox.w}.`;
   step.finish("ok", { badgeText: "201", ms: performance.now() - started });
 
@@ -472,8 +476,17 @@ function messageItem(message) {
   const when = message.at ? new Date(message.at * 1000).toLocaleTimeString() : "now";
   who.textContent = `${when}, from ${message.from ? short(message.from) : "an unsigned writer"}`;
   const badge = document.createElement("span");
-  badge.className = "try-badge" + (message.verified ? "" : " is-bad");
-  badge.textContent = [message.verified ? "verified" : "not verified", `pow ${message.met?.pow ?? "?"}`].join(", ");
+  const pow = `pow ${message.met?.pow ?? 0}`;
+  if (!message.from) {
+    badge.className = "try-badge is-expected";
+    badge.textContent = `unsigned, ${pow}`;
+  } else if (message.verified) {
+    badge.className = "try-badge";
+    badge.textContent = `verified, ${pow}`;
+  } else {
+    badge.className = "try-badge is-bad";
+    badge.textContent = `signature not verified, ${pow}`;
+  }
   meta.append(who, badge);
   const text = document.createElement("p");
   text.className = "try-message-text";
@@ -507,12 +520,12 @@ $("recv-open").addEventListener("click", exclusive(async () => {
   clearInterval(countdown);
   $("recv-out").replaceChildren();
   const client = new Aamio({ keys: Keys.generate() });
-  const inbox = await openGated(600, 16);
+  const inbox = await openInbox(600, { signedOnly: false, gate: { advise: { pow: { bits: 16 } } } });
   mine = { client, inbox, stop: new AbortController() };
   $("recv-w").textContent = inbox.w;
   $("recv-box").hidden = false;
   $("recv-open").textContent = "Open a new inbox";
-  setText($("recv-state"), `Waiting for signed messages with 16 bits of work. This tab signs with the key ${short(client.keys.public)}`);
+  setText($("recv-state"), `Waiting for messages. Anyone with the address can write, and 16 bits of work are asked for but not required. This tab signs with the key ${short(client.keys.public)}`);
   startCountdown(inbox.expireAt);
   renderCode();
   drawQr(inbox.w);
@@ -564,6 +577,20 @@ $("send-go").addEventListener("click", exclusive(async () => {
 // ---------------------------------------------------- 3. from your own code --
 
 const CODE = {
+  agent: (w) => [
+    "# Any MCP client that takes a remote server. No account, no API key:",
+    "https://aamio.at/mcp",
+    "",
+    "# In Claude Code:",
+    "claude mcp add --transport http aamio https://aamio.at/mcp",
+    "",
+    "# Then ask the agent:",
+    `Use the aamio_send tool to send "hello from an agent" to the aamio address ${w}.`,
+    "",
+    "# The message arrives above as unsigned, pow 0. aamio's MCP endpoint holds no",
+    "# keys and does no work, so an agent with only MCP tools can write to an inbox",
+    "# that advises work, like this one, and is refused by one that requires it.",
+  ].join("\n"),
   node: (w) => [
     'import { Aamio, Keys } from "aamio";',
     "",
@@ -584,7 +611,8 @@ const CODE = {
     "  -H 'Content-Type: text/plain' \\",
     "  -d 'hello from curl'",
     "",
-    "# Unsigned, so aamio.at answers 403, and the fix in the answer says why.",
+    "# Unsigned and without work. This inbox asks for work but refuses no one,",
+    "# so the message arrives and shows as unsigned, pow 0.",
   ].join("\n"),
   install: () => [
     "npm install aamio                        # JavaScript",
@@ -595,7 +623,7 @@ const CODE = {
     "at.aamio:aamio                           # Maven Central: Java, Kotlin, Scala",
   ].join("\n"),
 };
-let codeChoice = "node";
+let codeChoice = "agent";
 
 function renderCode() {
   $("code-out").textContent = CODE[codeChoice](mine ? mine.inbox.w : "<address>");
