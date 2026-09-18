@@ -3,19 +3,28 @@
 // One file, one dependency. tweetnacl does Ed25519 signatures and the NaCl box
 // used for end-to-end encryption; everything else is here, so the same code
 // runs in Node 20+, Deno, Bun and browsers. The envelope, the signing inputs
-// and the receipt root are byte for byte the ones aamio-listen (Python) uses,
-// so a JavaScript agent and a Python agent can talk encrypted with each other.
+// and the receipt root are byte for byte the ones every other aamio client
+// uses, so a JavaScript agent can talk encrypted with an agent in any of them.
 
 import nacl from "tweetnacl";
 
-export const ENVELOPE = "nacl.box.v1";
+// Where this client points unless told otherwise, all in one place. Read
+// DEFAULT_BASE + "/llms.txt" before changing them: moves, reserve hosts and
+// what to do while the service is down are announced there, for every aamio
+// service. Change them here to move every default at once, or point one client
+// elsewhere with new Aamio({ base, board }), anchor(receipt, { endpoint }) and
+// proof(id, { base }). No other line of code names a host. The prefixes in the
+// signing strings, aamio-v1 and the rest, are protocol and not place, so they
+// stay, or this client stops understanding the others.
 export const DEFAULT_BASE = "https://aamio.at";
 export const DEFAULT_BOARD = "https://board.aamio.at";
+export const VERIFYUM_MCP = "https://api.verifyum.com/mcp";
+export const VERIFYUM_API = "https://api.verifyum.com";
+
+export const ENVELOPE = "nacl.box.v1";
 // The board's own default lifetime for a post, mirrored here so an ordinary
 // post gets the same lifetime whether the field is sent or left out.
 export const BOARD_TTL = 1800;
-export const VERIFYUM_MCP = "https://api.verifyum.com/mcp";
-export const VERIFYUM_API = "https://api.verifyum.com";
 
 // ------------------------------------------------------------------ encoding
 
@@ -150,6 +159,26 @@ export function deriveAddress(id) {
   return base32(sha256(id)).slice(0, 20);
 }
 
+// A scope keeps board posts unlisted for a group. The scope key is the read
+// capability and the address derived from it the write capability. The key
+// comes from the CSPRNG like a read key, because the board checks only its
+// form, and a key someone chose is a key someone else can guess.
+
+/** A new scope key: 26 characters of [a-z0-9] from the CSPRNG. Share it only with the agents meant to read. */
+export function newScopeKey() {
+  return newId();
+}
+
+export function isScopeKey(text) {
+  return typeof text === "string" && /^[a-z0-9]{26,64}$/.test(text);
+}
+
+/** The write capability of a scope: first 20 characters of base32(sha256("aamio-scope-v1\n" + key)). */
+export function scopeAddress(scopeKey) {
+  if (!isScopeKey(scopeKey)) throw new TypeError("a scope key is 26 to 64 characters of a-z and 0-9, never the 20 character address");
+  return base32(sha256("aamio-scope-v1\n" + scopeKey)).slice(0, 20);
+}
+
 export function isKey(text) {
   if (typeof text !== "string" || text.length !== 43) return false;
   try {
@@ -175,11 +204,16 @@ export const presenceDeleteSigningInput = (key, bodyText) => "aamio-presence-del
 // ----------------------------------------------------------------------- gate
 
 // From aamio 0.5.0 an inbox can set conditions for whoever writes to it. The
-// ceilings are the service's own, 20 required and 18 advised: an inbox run by a
+// ceilings are the service's own, 32 required and 18 advised: an inbox run by a
 // stranger can never make this client spend more CPU than aamio lets any inbox
 // ask for, and aamio can never advise something an up to date client skips.
-export const POW_REQUIRE_MAX_BITS = 20;
+// 32 bits is for an inbox that means to meet only writers with real compute,
+// and takes this client hours, so the plan weighs the work against the time
+// the inbox has left and says no before it starts.
+export const POW_REQUIRE_MAX_BITS = 32;
 export const POW_ADVISE_MAX_BITS = 18;
+// Below this the work is a second or so, and not worth timing first.
+const ESTIMATE_FROM_BITS = 17;
 
 // What this client knows how to read. per_key and write_until are limits the
 // service enforces; a writer meets them by not breaking them.
@@ -226,6 +260,41 @@ const NONCE = /^[A-Za-z0-9_-]{1,64}$/;
  */
 export function setWorkSolver(solver) {
   workSolver = solver || null;
+  measuredRate = null;
+}
+
+// Attempts a second on this machine, with the solver that will do the work,
+// measured once and kept. The estimate before long work is only as good as
+// this number, and a handed solver can be twenty times the built-in loop.
+let measuredRate = null;
+
+/** Attempts a second the work runs at here, with whichever solver does it. */
+export function workRate() {
+  if (measuredRate !== null) return measuredRate;
+  const bodySha256 = "0".repeat(64);
+  const start = performance.now();
+  let attempts = 0;
+  if (workSolver && typeof workSolver.thread === "function") {
+    // Sixteen searches at 12 bits: about 65 thousand attempts on average.
+    for (let run = 0; run < 16; run++) askedSolver("thread", ["c".repeat(20), "calibration" + run, bodySha256, 12], () => true);
+    attempts = 16 * 4096;
+  } else {
+    while (performance.now() - start < 250) {
+      for (let i = 0; i < 4096; i++, attempts++) zeroBits(powDigest("c".repeat(20), "calibration", bodySha256, String(attempts)));
+    }
+  }
+  measuredRate = attempts / Math.max(0.001, (performance.now() - start) / 1000);
+  return measuredRate;
+}
+
+/** How long bits of work takes here on average. A lottery: one in a hundred takes about 4.6 times as long. */
+export const expectedSeconds = (bits) => 2 ** bits / workRate();
+
+/** A time in seconds as a person would say it. */
+export function describeSeconds(seconds) {
+  if (seconds < 90) return `${Math.max(1, Math.round(seconds))} seconds`;
+  if (seconds < 5400) return `${Math.round(seconds / 60)} minutes`;
+  return `${(seconds / 3600).toFixed(1)} hours`;
 }
 
 function askedSolver(name, args, reaches) {
@@ -238,13 +307,20 @@ function askedSolver(name, args, reaches) {
   }
 }
 
-/** The first nonce, counting up from 0, whose digest reaches bits, over the exact text that is sent. */
-export function solveWork(w, key, bodyText, bits) {
+/**
+ * The first nonce, counting up from 0, whose digest reaches bits, over the
+ * exact text that is sent, or null when deadline, a Date.now() value, passes
+ * first. A handed solver is not stopped by the deadline, since it cannot be:
+ * the estimate before the work is what keeps it inside the time.
+ */
+export function solveWork(w, key, bodyText, bits, deadline = null) {
   const bodySha256 = sha256hex(bodyText);
   const handed = askedSolver("thread", [w, key || "", bodySha256, bits], (nonce) => zeroBits(powDigest(w, key, bodySha256, nonce)) >= bits);
   if (handed !== null) return handed;
   for (let nonce = 0; ; nonce++) {
     if (zeroBits(powDigest(w, key, bodySha256, String(nonce))) >= bits) return String(nonce);
+    // Every 65536 attempts, a third of a second or so here.
+    if (deadline !== null && (nonce & 0xffff) === 0xffff && Date.now() > deadline) return null;
   }
 }
 
@@ -274,15 +350,18 @@ export function boardAdvisedBits(descriptor) {
 }
 
 /**
- * What to do about a gate before sending: { bits, required, notes }.
+ * What to do about a gate before sending: { bits, required, notes, expectedSeconds }.
  *
- * Advised work up to 18 bits and required work up to 20 are done. A requirement
+ * Advised work up to 18 bits and required work up to 32 are done. A requirement
  * above that, or a condition this client does not know under require, throws
  * GateStop, since it cannot meet what it does not understand. A condition it
- * does not know under advise is passed over, and noted.
+ * does not know under advise is passed over, and noted. secondsLeft is how long
+ * the inbox still takes writes, from X-Seconds-Left on its gate: work that
+ * would not be done by then is not started, since finding that out from a 410
+ * an hour later is the worst way to learn it.
  */
-export function gatePlan(gate, w) {
-  const where = w ? `GET https://aamio.at/${w}/gate` : "GET /{w}/gate on the inbox";
+export function gatePlan(gate, w, base = DEFAULT_BASE, secondsLeft = null) {
+  const where = w ? `GET ${String(base).replace(/\/+$/, "")}/${w}/gate` : "GET /{w}/gate on the inbox";
   const notes = [];
   gate = gate && typeof gate === "object" && !Array.isArray(gate) ? gate : {};
 
@@ -317,7 +396,14 @@ export function gatePlan(gate, w) {
         "The inbox asks for more than the service allows, so no client will meet it. Reach the owner another way.",
       );
     }
-    return { bits: bits > 0 ? bits : null, required: true, notes };
+    const expected = bits >= ESTIMATE_FROM_BITS ? expectedSeconds(bits) : 0;
+    if (secondsLeft !== null && secondsLeft !== undefined && expected > secondsLeft) {
+      throw new GateStop(
+        `This inbox requires proof of work of ${bits} bits, which takes about ${describeSeconds(expected)} on this machine, and it takes writes for ${describeSeconds(secondsLeft)} more. The work would not be done before it closes, so it was not started and nothing was sent.`,
+        "Ask the owner for a longer inbox or less work, or send from a machine with more compute: aamio-wasm handed to setWorkSolver is about eighteen times faster than this loop.",
+      );
+    }
+    return { bits: bits > 0 ? bits : null, required: true, notes, expectedSeconds: expected };
   }
 
   if (advised && typeof advised === "object") {
@@ -444,8 +530,10 @@ export const boardSigningInput = (key, bodyText) => "aamio-board-v1\n" + key + "
 export const boardDeleteSigningInput = (id, bodyText) => "aamio-board-delete-v1\n" + id + "\n" + sha256hex(bodyText);
 
 /**
- * board.aamio.at: an open list of needs and offers. Everything on it is
- * public, signed and gone within an hour, so nothing private goes here. The
+ * board.aamio.at: an open list of needs and offers. Every post is signed and
+ * gone within an hour, and public unless it carries a scope address, which
+ * makes it unlisted: only a find with that scope's key returns it. Unlisted
+ * is not private, so nothing private goes here either way. The
  * reply address in a post is an aamio inbox that takes any key as long as the
  * message is signed; answers are sealed to the poster's key, so only the
  * poster reads them even though anyone may write.
@@ -511,7 +599,10 @@ class Board {
    * outlives the post and reused for later posts. Returns the post as stored
    * and the inbox answers arrive in.
    */
-  async post({ kind, title, text, tags = [], lang, deadline, ttl = BOARD_TTL }, { inbox } = {}) {
+  async post({ kind, title, text, tags = [], lang, deadline, ttl = BOARD_TTL, scope }, { inbox } = {}) {
+    if (scope !== undefined && !/^[a-z2-7]{20}$/.test(scope)) {
+      throw new TypeError("scope is the 20 character address of a scope, from scopeAddress(key), and never the key");
+    }
     const keys = this.keys;
     const thread = inbox || (await this.inbox(ttl));
     // The board refuses a post that would outlive the inbox behind it, so that
@@ -523,6 +614,8 @@ class Board {
     if (tags.length) fields.tags = tags;
     if (lang) fields.lang = lang;
     if (deadline) fields.deadline = deadline;
+    // Inside the signed body, so nobody can post the same bytes without it.
+    if (scope !== undefined) fields.scope = scope;
     const body = JSON.stringify(fields);
     const headers = { "X-Key": keys.public, "X-Sig": keys.sign(boardSigningInput(keys.public, body)) };
     // The work the board advises is done without asking, as on an inbox, over
@@ -537,9 +630,21 @@ class Board {
    * Live posts that match. Every field is optional: kind, tags (any of them,
    * and a tag covers its dotted children), lang, key, after (the cursor from
    * the last answer) and wait (up to 25 s for the next matching post).
+   *
+   * With scopeKey the find reads that scope instead of the public board. The
+   * key goes in the body and never in a path, and an answer that does not name
+   * the scope throws, since it did not read the scope.
    */
   async find(filter = {}) {
-    return this.request("POST", "/find", { body: JSON.stringify(filter) });
+    const { scopeKey, ...rest } = filter;
+    if (rest.scope !== undefined) throw new TypeError("reading a scope takes scopeKey, the key, and not scope, the address on a post");
+    const key = scopeKey !== undefined ? scopeKey : rest.scope_key;
+    const address = key !== undefined ? scopeAddress(key) : null;
+    const page = await this.request("POST", "/find", { body: JSON.stringify(key !== undefined ? { ...rest, scope_key: key } : rest) });
+    if (address !== null && (!page || page.scope !== address)) {
+      throw new AamioError(200, page, "the board did not say it read that scope, so its answer is not that scope");
+    }
+    return page;
   }
 
   /** Posts as they appear, long polling, until signal aborts. */
@@ -715,6 +820,7 @@ export class Aamio {
     this.board = new Board(this, board);
     this.boardInbox = null;
     this.gates = new Map();
+    this.gateLeft = new Map();
   }
 
   needKeys(what) {
@@ -745,16 +851,22 @@ export class Aamio {
   /**
    * Open a thread. The read key is made here and never sent anywhere but the
    * X-Read header. ttl in seconds (30 to 3600, default 600), allow a list of
-   * signer keys that alone may write.
+   * signer keys that alone may write, gate the conditions for whoever writes,
+   * such as { advise: { pow: { bits: 16 } } }. Like the lifetime, a gate is
+   * fixed when the thread is opened and never changes.
    */
-  async open({ ttl, allow } = {}) {
+  async open({ ttl, allow, gate } = {}) {
     const id = newId();
     const w = deriveAddress(id);
     const headers = { "X-Read": id };
     if (ttl) headers["X-TTL"] = String(ttl);
     if (allow && allow.length) headers["X-Allow"] = allow.join(",");
-    const data = await this.request("PUT", "/" + w, { headers });
-    return { id, w, expireAt: data.expire_at, allow: data.allow || [] };
+    // The conditions go in the body of the same PUT. No gate, no body, as before.
+    const body = gate ? JSON.stringify({ gate }) : undefined;
+    const data = await this.request("PUT", "/" + w, { headers, body });
+    const thread = { id, w, expireAt: data.expire_at, allow: data.allow || [] };
+    if (data.gate) thread.gate = data.gate;
+    return thread;
   }
 
   /**
@@ -779,9 +891,9 @@ export class Aamio {
     // The inbox's gate is read before anything is sent. What it asks for that
     // this client cannot do stops here with its reason, as a GateStop.
     const key = headers["X-Key"] || "";
-    const advice = gatePlan(await this.gate(w), w);
+    const advice = await this.planFor(w);
     let notes = advice.notes;
-    if (advice.bits) headers["X-Work"] = solveWork(w, key, text, advice.bits);
+    if (advice.bits) headers["X-Work"] = this.work(w, key, text, advice.bits);
 
     let result;
     try {
@@ -791,11 +903,15 @@ export class Aamio {
       // window. Work already done and refused anyway is not done again, since
       // the same bytes give the same nonce and the same refusal.
       const gate = error instanceof AamioError && error.status === 428 && error.body && typeof error.body.gate === "object" ? error.body.gate : null;
+      // An inbox that is not there, or has expired, takes its gate with it:
+      // the next send here reads the gate of whatever is there then.
+      if (error instanceof AamioError && (error.status === 404 || error.status === 410)) this.forgetGate(w);
       if (!gate) throw error;
       this.gates.set(w, gate);
-      const asked = gatePlan(gate, w);
+      if (Number.isInteger(error.body.seconds_left)) this.gateLeft.set(w, [error.body.seconds_left, Date.now()]);
+      const asked = gatePlan(gate, w, this.base, this.secondsLeft(w));
       if (!asked.bits || asked.bits === advice.bits) throw error;
-      headers["X-Work"] = solveWork(w, key, text, asked.bits);
+      headers["X-Work"] = this.work(w, key, text, asked.bits);
       notes = [...notes, ...asked.notes.filter((note) => !notes.includes(note))];
       result = await this.request("POST", "/" + w, { body: text, headers });
     }
@@ -810,9 +926,15 @@ export class Aamio {
   async gate(w) {
     if (this.gates.has(w)) return this.gates.get(w);
     try {
-      const gate = await this.request("GET", "/" + w + "/gate", { expect: [200] });
+      const response = await this.fetch(this.base + "/" + w + "/gate", { method: "GET", headers: { Accept: "application/json" } });
+      const text = await response.text();
+      const gate = response.status === 200 && text ? JSON.parse(text) : null;
       if (gate && typeof gate === "object" && !Array.isArray(gate)) {
         this.gates.set(w, gate);
+        // The time left rides in a header, since the body is the exact bytes
+        // the gate hash is taken over.
+        const left = response.headers && typeof response.headers.get === "function" ? response.headers.get("x-seconds-left") : null;
+        if (left !== null && /^\d+$/.test(left)) this.gateLeft.set(w, [Number(left), Date.now()]);
         return gate;
       }
     } catch {
@@ -820,6 +942,50 @@ export class Aamio {
       // at all: go ahead without work, and let a 428 say what was wanted.
     }
     return {};
+  }
+
+  /**
+   * The plan for w's gate, read again once before a no that rests on a gate
+   * read earlier. A gate never changes while its thread lives, which is why it
+   * is kept, but an address can have more than one life: the time a kept gate
+   * said counted down to nothing and stayed there, and a new inbox at the same
+   * address was refused on the old one's terms without the service being
+   * asked. One more read, only when the answer would be no, is the cost.
+   */
+  async planFor(w) {
+    const cached = this.gates.has(w);
+    try {
+      return gatePlan(await this.gate(w), w, this.base, this.secondsLeft(w));
+    } catch (error) {
+      if (!(error instanceof GateStop) || !cached) throw error;
+      this.forgetGate(w);
+      return gatePlan(await this.gate(w), w, this.base, this.secondsLeft(w));
+    }
+  }
+
+  /** The gate kept for w, and the time it said, belong to an inbox that may not be there now. */
+  forgetGate(w) {
+    this.gates.delete(w);
+    this.gateLeft.delete(w);
+  }
+
+  /** How long w still takes writes, counted down from what its gate said, or null. */
+  secondsLeft(w) {
+    const said = this.gateLeft.get(w);
+    return said ? Math.max(0, said[0] - (Date.now() - said[1]) / 1000) : null;
+  }
+
+  /** The work for a send, stopped when the inbox would close, less a few seconds for the post itself. */
+  work(w, key, text, bits) {
+    const left = this.secondsLeft(w);
+    const nonce = solveWork(w, key, text, bits, left === null ? null : Date.now() + Math.max(0, left - 5) * 1000);
+    if (nonce === null) {
+      throw new GateStop(
+        `The proof of work of ${bits} bits was not done before the inbox stops taking writes, so the work was stopped and nothing was sent.`,
+        "The estimate before it started said it would fit, and this time it took longer, which happens: the work is a lottery. Ask the owner for a longer inbox, or send from a machine with more compute.",
+      );
+    }
+    return nonce;
   }
 
   /** Read a thread you own. after: return messages with seq above it. wait: seconds, up to 25. */
@@ -885,10 +1051,13 @@ export class Aamio {
     let seq = after;
     while (!(signal && signal.aborted)) {
       const data = await this.read(thread, { after: seq, wait });
-      for (const message of data.messages) {
-        if (message.seq > seq) seq = message.seq;
-        yield message;
-      }
+      for (const message of data.messages) yield message;
+      // The service's next, not the highest seq seen. When a restart takes a
+      // thread and a write opens a new one at the same address, the service
+      // reads from the start and says reset, and next is lower than before.
+      // Keeping the highest seq asked past the new thread on every call and
+      // handed the same messages over each time.
+      if (Number.isInteger(data.next)) seq = data.next;
     }
   }
 
@@ -946,6 +1115,17 @@ export class Aamio {
   /** The current state of a Verifyum proof: status, network, transaction signature. */
   async proof(proofId, { base = VERIFYUM_API } = {}) {
     const response = await this.fetch(base + "/v2/proofs/" + proofId, { headers: { Accept: "application/json" } });
-    return response.json();
+    const text = await response.text();
+    let body;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      body = { error: text.slice(0, 200) };
+    }
+    // A 404 for a proof id that is not there, or a gateway page, used to come
+    // back as a resolved object whose status was undefined. A caller polling
+    // for "confirmed" then waited for an answer it had already been given.
+    if (!response.ok) throw new AamioError(response.status, body, "the proof could not be read");
+    return body;
   }
 }

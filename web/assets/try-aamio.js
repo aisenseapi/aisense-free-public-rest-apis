@@ -8,7 +8,7 @@
 // never as HTML.
 //
 // The proof of work runs on the page itself rather than in a Web Worker.
-// aamio 0.4.1 asks its solver for a nonce and expects the answer at once, so a
+// aamio 0.5.2 asks its solver for a nonce and expects the answer at once, so a
 // solver that answers later cannot take part in send(). While a test runs,
 // the buttons and the tabs are locked, and the page is painted first so the
 // visitor sees that it is working.
@@ -24,6 +24,8 @@ import {
   solveWork,
   sha256hex,
   threadSigningInput,
+  expectedSeconds,
+  describeSeconds,
 } from "aamio";
 
 window.__tryAamioLoaded = true;
@@ -33,6 +35,9 @@ const PAGE = "https://aisense.no/try-aamio";
 const QR_ENDPOINT = "https://aisenseapi.com/services/v1/qrcode_encode";
 const TABS = ["proof-of-work", "round-trip", "another-device"];
 const ADDRESS = /^[a-z2-7]{20}$/;
+// The work runs on this page, and a tab that stands still for minutes looks
+// broken, whatever the inbox allows.
+const PAGE_WORK_SECONDS = 60;
 
 const $ = (id) => document.getElementById(id);
 const short = (text) => String(text).slice(0, 8) + "...";
@@ -65,7 +70,7 @@ const paint = () => new Promise((resolve) => {
 });
 
 function describe(error) {
-  if (error instanceof GateStop) return `${error.reason}. ${error.fix}`;
+  if (error instanceof GateStop) return `${error.reason} ${error.fix}`;
   if (error instanceof AamioError) {
     const body = error.body && typeof error.body === "object" ? error.body : {};
     return `aamio.at answered ${error.status}: ${body.error ?? error.message}${body.fix ? ". " + body.fix : ""}`;
@@ -565,6 +570,11 @@ $("send-go").addEventListener("click", exclusive(async () => {
   setText(out, bits ? `The inbox asks for ${bits} bits of work. Working in ${useWasm ? "WebAssembly" : "JavaScript"}...` : "Sending...");
   await paint();
   setWorkSolver(useWasm ? wasmSolver : null);
+  const required = gate?.require?.pow?.bits ?? 0;
+  if (required > 16 && expectedSeconds(required) > PAGE_WORK_SECONDS) {
+    setText(out, `The inbox requires ${required} bits of work, about ${describeSeconds(expectedSeconds(required))} in ${useWasm ? "WebAssembly" : "JavaScript"} on this device, and this page stops at a minute. Nothing was sent.${useWasm ? "" : " With WebAssembly on, the same work goes about eighteen times faster."}`, "is-bad");
+    return;
+  }
   const started = performance.now();
   const sent = await client.send(to, body);
   const took = performance.now() - started;
