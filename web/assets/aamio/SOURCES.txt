@@ -1,21 +1,21 @@
 Modules served for https://aisense.no/try-aamio
 
-Copied unchanged from npm on 17 September 2026. Nothing on the page loads
+Copied unchanged from npm on 18 September 2026. Nothing on the page loads
 code from any other host.
 
-aamio 0.4.1, MIT, Copyright (c) 2026 AI SENSE AS
-  source   https://registry.npmjs.org/aamio/-/aamio-0.4.1.tgz
-  aamio-0.4.1/aamio.js                      package/src/aamio.js
-    sha256 e9c6a1a410f59dbecbb696830cf37e0422543c3b8974b058839096ff1d84823f
+aamio 0.5.2, MIT, Copyright (c) 2026 AI SENSE AS
+  source   https://registry.npmjs.org/aamio/-/aamio-0.5.2.tgz
+  aamio-0.5.2/aamio.js                      package/src/aamio.js
+    sha256 70d68d9a8ddd48c8210348cb8ba61bf5095c173bfba06b6fb037ede3fa603964
 
-aamio-wasm 0.1.0, MIT, Copyright (c) 2026 AI SENSE AS
-  source   https://registry.npmjs.org/aamio-wasm/-/aamio-wasm-0.1.0.tgz
-  aamio-wasm-0.1.0/index.js                 package/index.js
+aamio-wasm 0.1.1, MIT, Copyright (c) 2026 AI SENSE AS
+  source   https://registry.npmjs.org/aamio-wasm/-/aamio-wasm-0.1.1.tgz
+  aamio-wasm-0.1.1/index.js                 package/index.js
     sha256 aeba09931481342080718b0f9399b9cfa1b1a5daea6fc95a5117230180d14f61
-  aamio-wasm-0.1.0/web/aamio_wasm.js        package/web/aamio_wasm.js
+  aamio-wasm-0.1.1/web/aamio_wasm.js        package/web/aamio_wasm.js
     sha256 f433ca2393d9f0c583909042743ee426121d7c5ed838e52931fa379f5829e34e
-  aamio-wasm-0.1.0/web/aamio_wasm_bg.wasm   package/web/aamio_wasm_bg.wasm
-    sha256 ceb967277c5df5dd63c7f07bca688a79184db1959f83073cfccc707451789087
+  aamio-wasm-0.1.1/web/aamio_wasm_bg.wasm   package/web/aamio_wasm_bg.wasm
+    sha256 894c2dd05a20e8fe2ff58e381f37143cc51920cc9136aadf66d7e479d3b75303
 
 tweetnacl 1.0.3, public domain (Unlicense)
   source   https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/+esm

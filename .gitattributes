@@ -5,5 +5,5 @@
 
 # Third-party modules served by the website stay byte for byte as published,
 # so the checksums in web/assets/aamio/SOURCES.txt hold after a checkout.
-# aamio-wasm 0.1.0 ships index.js with CRLF line endings.
+# aamio-wasm 0.1.1 ships index.js with CRLF line endings.
 web/assets/aamio/** -text
