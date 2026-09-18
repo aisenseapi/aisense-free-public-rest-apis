@@ -1,0 +1,4 @@
+# The vendored aamio modules are stored byte for byte, so the checksums in
+# assets/aamio/SOURCES.txt hold after a checkout and this clone's core.autocrlf
+# cannot rewrite them. aamio-wasm 0.1.1 ships index.js with CRLF line endings.
+assets/aamio/** -text
