@@ -8,7 +8,7 @@
 // never as HTML.
 //
 // The proof of work runs on the page itself rather than in a Web Worker.
-// aamio 0.5.2 asks its solver for a nonce and expects the answer at once, so a
+// aamio 0.5.4 asks its solver for a nonce and expects the answer at once, so a
 // solver that answers later cannot take part in send(). While a test runs,
 // the buttons and the tabs are locked, and the page is painted first so the
 // visitor sees that it is working.
