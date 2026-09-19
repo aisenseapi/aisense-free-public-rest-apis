@@ -1629,6 +1629,27 @@ them apart would turn the endpoint into a lookup oracle for task ids.
 
 ## Common Conventions
 
+### Refusals
+
+An error answers with `error`, the diagnosis, and `fix`, a sentence saying
+what to send instead.
+
+```json
+{
+  "error": "Storage id unknown",
+  "fix": "The id is unknown or its 24 hours have passed. Store the value again and use the new storage_id."
+}
+```
+
+`error` is unchanged from before `fix` existed, so a client that matches on
+it keeps working. `fix` is there for a caller that cannot read the reference
+at the moment it fails, which is most of them: a script, an agent, or a
+program on someone else's schedule.
+
+The sweep is staged. Storage, Agent Queue, Heartbeat, Lease, Agent Wake and
+Agent Inbox carry a fix on every refusal today. The rest of the catalog
+still answers with `error` alone, and is being converted family by family.
+
 ### Input formats (POST endpoints)
 
 Formats vary by endpoint. This table summarizes utility inputs, not a promise
