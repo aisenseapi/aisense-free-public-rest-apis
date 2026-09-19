@@ -514,11 +514,14 @@ Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.co
 <h3><a href="/free-public-api-storage-api-endpoint">Storage REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/storage</span> - <span class="method">GET</span> <span class="path">/storage/{storage_id}</span></p>
 <p>Temporary key-value storage for JSON, text or files. Post any body, get a UUID, retrieve it from anywhere - another machine, a later pipeline step, a different agent call. No database to set up and no sign-up. The <code>storage_id</code> is the only thing that reads the item, so treat its URL as a capability link and send it only to the intended recipient.</p>
-<p>The body is stored <strong>verbatim</strong>: whatever you send is exactly what comes back, with no wrapper added or removed. Everything expires after 24 hours.</p>
+<p>The body is stored <strong>verbatim</strong>: whatever you send is exactly what comes back, with no wrapper added or removed. Everything expires after 24 hours.</p><p>The answer carries the link to hand on and the digest of the bytes as stored. Put that digest in the link, as <code>/storage/{storage_id}/sha256/{64 hex}</code>, and the bytes come back only if they still hash to it; if they do not, the answer is <code>412</code> and nothing is served.</p>
 <pre><code>curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" -d '{"result": 42}'
 
-{ "storage_id": "123e4567-e89b-12d3-a456-426614174000", "expire_timestamp": 1738457158 }
+{ "storage_id": "123e4567-e89b-12d3-a456-426614174000",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/123e4567-e89b-12d3-a456-426614174000",
+  "sha256_hash": "7ecbd6ed72a9632423e471e35dfa32b41e4a44b94c4e1be3a771696a73f05db4",
+  "bytes": 14, "expire_timestamp": 1738457158 }
 
 curl https://aisenseapi.com/services/v1/storage/123e4567-e89b-12d3-a456-426614174000
 Response: {"result": 42}</code></pre>
@@ -819,7 +822,7 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/queue</code></td><td>POST / GET</td><td><code>queue_id</code>, role tokens on creation, counts and fixed expiry</td></tr>
 <tr><td>Web</td><td><code>/queue/{id}/jobs</code>, <code>/queue/{id}/claim</code></td><td>POST / GET</td><td>Job payload, status, attempts and a receipt only on claim</td></tr>
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
-<tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>expire_timestamp</code></td></tr>
+<tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>storage_url</code>, <code>sha256_hash</code>, <code>bytes</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td>pending or captured state, update, read and wait URLs</td></tr>
 <tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td>single or group forms, result and wait URLs</td></tr>

@@ -311,6 +311,7 @@ if [ -n "$SID" ]; then
     ok "Storage (If-None-Match on the same tag gives 304)"
   else
     bad "Storage (If-None-Match)" "expected 304, got $NM"
+  fi
 
   # A link may carry the digest the fetcher expects. Right one serves the
   # bytes, wrong one is 412 because the object is there and it is the
@@ -337,7 +338,6 @@ if [ -n "$SID" ]; then
     private,no-cache*) ok "Storage (kept by the browser, revalidated every time)" ;;
     *) bad "Storage (Cache-Control)" "expected private, no-cache, got ${CC:-nothing}" ;;
   esac
-  fi
 else
   bad "Storage (store)" "no storage_id in: $(echo "$BODY" | head -c 140)"
 fi
