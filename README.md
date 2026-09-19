@@ -527,7 +527,9 @@ no wrapper is added or removed.
 curl -X POST https://aisenseapi.com/services/v1/storage \
   -H "Content-Type: application/json" \
   -d '{"result": 42, "status": "complete"}'
-# -> { "storage_id": "550e8400-e29b-41d4-a716-446655440000", "expire_timestamp": 1738457158 }
+# -> { "storage_id": "550e8400-e29b-41d4-a716-446655440000",
+#      "storage_url": "https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-446655440000",
+#      "sha256_hash": "...", "bytes": 36, "expire_timestamp": 1738457158 }
 
 curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-446655440000
 # -> {"result": 42, "status": "complete"}
@@ -833,12 +835,12 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |
 | Web | `/client_ip` | GET | `ip` |
-| Web | `/html2pdf` | POST | `storage_id`, `storage_url`, `expire_timestamp` |
+| Web | `/html2pdf` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | Web | `/user_agent` | GET | `user_agent` |
 | Web | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | Web | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
 | Web | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts` |
-| Web | `/storage` | POST / GET | `storage_id`, `expire_timestamp` |
+| Web | `/storage` | POST / GET | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url`, `wait_url` |
 | Web | `/webhook_action` | POST / GET | `action_id`, form URL or URLs, `result_url`, `wait_url` |

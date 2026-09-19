@@ -455,11 +455,16 @@ optional `options` object sets the page up.
 {
   "storage_id": "1c896e41-d5b7-4017-b888-8381d7866088",
   "storage_url": "https://aisenseapi.com/services/v1/storage/1c896e41-d5b7-4017-b888-8381d7866088",
+  "sha256_hash": "38f4ffe5184786d22c3370bd351b8cff30087d9f87eac15f92374272653893e7",
+  "bytes": 12764,
   "expire_timestamp": 1787257796
 }
 ```
 
-Fetching `storage_url` returns the file with `Content-Type: application/pdf`.
+Fetching `storage_url` returns the file with `Content-Type: application/pdf`,
+and an `ETag` that is `sha256_hash` in quotes. The digest and byte count
+above are from one real render of that request; a PDF carries its creation
+time, so the next render of the same markup hashes differently.
 
 `options` accepts `page-size` (A3, A4, A5, Letter, Legal, Tabloid),
 `orientation` (Portrait, Landscape) and `margin-top`, `margin-bottom`,
@@ -560,15 +565,29 @@ retrieve `{"data": {...}}`.
 
 ```json
 // Request body
-{ "key1": "value1" }
+{"key1":"value1"}
 
 // Response
-{ "storage_id": "123e4567-e89b-12d3-a456-426614174000", "expire_timestamp": 1738457158 }
+{
+  "storage_id": "123e4567-e89b-12d3-a456-426614174000",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/123e4567-e89b-12d3-a456-426614174000",
+  "sha256_hash": "9874854240b45b4bdbf43fca6110bafce8525aedbeca5babaee0cb137d9a7868",
+  "bytes": 17,
+  "expire_timestamp": 1738457158,
+  "expire_datetime": "2025-02-02T01:25:58+00:00"
+}
 ```
+
+`storage_url` is the link to hand on, and `sha256_hash` is the digest of the
+bytes as stored, so whoever fetches them can tell they got what you sent.
+`bytes` is the stored length. The digest above is the real one for the 17 byte
+body in this example.
 
 **Retrieve:** `GET /storage/{storage_id}` - returns the stored bytes with
 `application/json` if they parse as JSON, otherwise `application/octet-stream`.
-An unknown or expired id returns `{"error": "Storage id unknown"}`.
+The answer carries `ETag`, which is `sha256_hash` in quotes, so a repeat fetch
+sending `If-None-Match` with that value is answered `304 Not Modified` with no
+body. An unknown or expired id returns `{"error": "Storage id unknown"}`.
 
 **Limits:** executable files (Windows, Linux and Mac programs, judged on their
 first bytes) are refused with `415` and never stored. Each IP may store 80 MB
@@ -1616,14 +1635,14 @@ operations use JSON with the fields documented in their own sections.
 | `/ping` | `ping` |
 | `/health` | `status`, `microtimestamp` |
 | `/client_ip` | `ip` |
-| `/html2pdf` | `storage_id`, `storage_url`, `expire_timestamp` |
+| `/html2pdf` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | `/user_agent` | `user_agent` |
 | `/ip_reverse_lookup` | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup` | `domain`, `ip` |
 | `/email_validate` | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
 | `/hash_verify` | `match`, `algorithm`, `computed` |
 | `/slugify` | `slug` |
-| `/storage` (store) | `storage_id`, `expire_timestamp` |
+| `/storage` (store) | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime` |
 | `/url_shortener` | `short_url`, `expire_timestamp` |
 | `/webhook_capture` (create) | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
 | `/webhook_action` (create) | `ok`, `action_id`, `form_url`, `result_url`, `expire_timestamp`, `expire_datetime` |

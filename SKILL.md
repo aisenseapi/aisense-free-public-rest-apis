@@ -229,8 +229,8 @@ country centroid when the city is unknown. Latitude and longitude are strings.
 
 ### Storage - 24h TTL
 
-`POST /storage` -> `{"storage_id": "...", "expire_timestamp": ...}`
-`GET /storage/{storage_id}` -> the stored bytes
+`POST /storage` -> `{"storage_id": "...", "storage_url": "...", "sha256_hash": "...", "bytes": ..., "expire_timestamp": ...}`
+`GET /storage/{storage_id}` -> the stored bytes, with `ETag` set to `sha256_hash` in quotes
 
 The body is stored **verbatim**. Post `{"data": {...}}` and you retrieve
 `{"data": {...}}` - no wrapper is added or removed. The response key is
@@ -728,7 +728,7 @@ return numbers; their smallest units stay inside the safe range.
 | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
 | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
-| `/storage` | POST | `storage_id`, `expire_timestamp` |
+| `/storage` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | `/storage/{id}` | GET | the stored body, verbatim |
 | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | `/webhook_capture` | POST | `capture_id`, update, read and wait URLs, expiry |
