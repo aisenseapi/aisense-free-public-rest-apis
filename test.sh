@@ -277,6 +277,7 @@ if [ -n "$SID" ]; then
   # The body is stored verbatim, so the marker must come back unwrapped.
   has_value "Storage (retrieve)" GET "$BASE/storage/$SID" "\"marker\":\"$MARKER\""
   has_value "Storage (unknown id)" GET "$BASE/storage/00000000-0000-4000-8000-000000000000" "Storage id unknown"
+  has_value "Storage (a refusal carries a fix)" GET "$BASE/storage/00000000-0000-4000-8000-000000000000" "\"fix\":\"The id is unknown"
 
   # The store answer says where to fetch the object, what it hashes to and
   # how big it is. The digest is checked against the bytes we sent.
