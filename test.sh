@@ -801,10 +801,26 @@ MCP_BASE="$MCP_AI_SENSE_BASE"
 MCP_MARK="mcp-rt-$(date +%s)-$$"
 mcp_post "{\"jsonrpc\":\"2.0\",\"id\":7,\"method\":\"tools/call\",\"params\":{\"name\":\"store_temporary_data\",\"arguments\":{\"data\":\"$MCP_MARK\"}}}" '2025-11-25'
 MCP_SID=$(echo "$BODY" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
+MCP_STORE_SHA=$(echo "$BODY" | grep -o '"sha256_hash":"[0-9a-f]*"' | head -1 | cut -d'"' -f4)
 if [ -n "$MCP_SID" ]; then
   ok "MCP store_temporary_data"
   mcp_post "{\"jsonrpc\":\"2.0\",\"id\":8,\"method\":\"tools/call\",\"params\":{\"name\":\"read_temporary_data\",\"arguments\":{\"storage_id\":\"$MCP_SID\"}}}" '2025-11-25'
   mcp_expect "MCP read_temporary_data (round trip)" "$MCP_MARK"
+
+  # Both storage tools say what the stored bytes hash to. The bytes are the
+  # JSON encoding of the marker, so the string with its quotes.
+  MCP_WANT=$(printf '%s' "\"$MCP_MARK\"" | sha256sum | cut -d' ' -f1)
+  MCP_READ_SHA=$(echo "$BODY" | grep -o '"sha256_hash":"[0-9a-f]*"' | head -1 | cut -d'"' -f4)
+  if [ "$MCP_STORE_SHA" = "$MCP_WANT" ]; then
+    ok "MCP store_temporary_data reports the digest of the stored bytes"
+  else
+    bad "MCP store_temporary_data digest" "expected $MCP_WANT, got ${MCP_STORE_SHA:-nothing}"
+  fi
+  if [ "$MCP_READ_SHA" = "$MCP_WANT" ]; then
+    ok "MCP read_temporary_data reports the same digest"
+  else
+    bad "MCP read_temporary_data digest" "expected $MCP_WANT, got ${MCP_READ_SHA:-nothing}"
+  fi
 else
   bad "MCP store_temporary_data" "no storage_id in: $(echo "$BODY" | head -c 140)"
 fi

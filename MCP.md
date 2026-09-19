@@ -10,9 +10,11 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The official MCP Registry lists `com.aisenseapi/free-public-tools` version
-`1.8.1` as active, verified on 15 September 2026. This is the server release
-version, separate from the agent guide resource version.
+The server reports version `1.8.2`. The official MCP Registry lists
+`com.aisenseapi/free-public-tools` version
+`1.8.1` as active, verified on 15 September 2026, so the registry is one
+release behind the server until the next publish. Both numbers are the server
+release version, separate from the agent guide resource version.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per 24 hours. This limit is shared with the public REST API and A2A.
@@ -64,8 +66,8 @@ proxy these tools either.
 | `get_current_time` | Returns the current time for an IANA timezone or UTC offset |
 | `generate_uuid` | Generates a UUID version 4 |
 | `shorten_url` | Creates a 307.fi link that expires after 24 hours |
-| `store_temporary_data` | Stores a JSON value for 24 hours |
-| `read_temporary_data` | Reads a stored JSON value by ID |
+| `store_temporary_data` | Stores a JSON value for 24 hours, and answers with its `sha256_hash` and `bytes` |
+| `read_temporary_data` | Reads a stored JSON value by ID, with the same `sha256_hash` and `bytes` |
 | `create_webhook_capture` | Creates a URL that captures an HTTP request |
 | `read_webhook_capture` | Reads the captured method, headers and body |
 | `create_human_approval` | Creates a hosted approval form for a person |

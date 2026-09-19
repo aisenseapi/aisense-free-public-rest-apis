@@ -30,8 +30,9 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The official MCP Registry lists `com.aisenseapi/free-public-tools` version
-`1.8.1` as active, verified on 15 September 2026.
+The server reports version `1.8.2`. The official MCP Registry lists
+`com.aisenseapi/free-public-tools` version `1.8.1` as active, verified on
+15 September 2026, one release behind the server until the next publish.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
