@@ -271,11 +271,47 @@ echo -e "${YELLOW}🗄  Storage round trip${NC}"
 MARKER="test-$(date +%s)-$$"
 request POST "$BASE/storage" "{\"marker\":\"$MARKER\"}"
 SID=$(echo "$BODY" | grep -o '"storage_id":"[^"]*"' | cut -d'"' -f4)
+STORE_BODY="$BODY"
 if [ -n "$SID" ]; then
   ok "Storage (store)  → $SID"
   # The body is stored verbatim, so the marker must come back unwrapped.
   has_value "Storage (retrieve)" GET "$BASE/storage/$SID" "\"marker\":\"$MARKER\""
   has_value "Storage (unknown id)" GET "$BASE/storage/00000000-0000-4000-8000-000000000000" "Storage id unknown"
+
+  # The store answer says where to fetch the object, what it hashes to and
+  # how big it is. The digest is checked against the bytes we sent.
+  SENT="{\"marker\":\"$MARKER\"}"
+  WANT_SHA=$(printf '%s' "$SENT" | sha256sum | cut -d' ' -f1)
+  GOT_SHA=$(echo "$STORE_BODY" | grep -o '"sha256_hash":"[^"]*"' | cut -d'"' -f4)
+  GOT_BYTES=$(echo "$STORE_BODY" | grep -o '"bytes":[0-9]*' | cut -d: -f2)
+  if [ "$GOT_SHA" = "$WANT_SHA" ]; then
+    ok "Storage (sha256_hash is the digest of the bytes sent)"
+  else
+    bad "Storage (sha256_hash)" "sent $WANT_SHA, got ${GOT_SHA:-nothing}"
+  fi
+  if [ "$GOT_BYTES" = "${#SENT}" ]; then
+    ok "Storage (bytes = ${#SENT})"
+  else
+    bad "Storage (bytes)" "expected ${#SENT}, got ${GOT_BYTES:-nothing}"
+  fi
+  case "$STORE_BODY" in
+    *'"storage_url":"https:'*"$SID"*) ok "Storage (storage_url points at the object)" ;;
+    *) bad "Storage (storage_url)" "no storage_url for $SID in: $(echo "$STORE_BODY" | head -c 140)" ;;
+  esac
+
+  # A stored object is served with its digest as a strong entity tag, so a
+  # second fetch that already has it is answered 304 with no body.
+  ETAG=$(curl -s -m 30 -D - -o /dev/null "$BASE/storage/$SID" | grep -i '^etag:' | cut -d' ' -f2 | tr -d '[:space:]')
+  case "$ETAG" in
+    *"$WANT_SHA"*) ok "Storage (ETag is the sha256 of the stored bytes)" ;;
+    *) bad "Storage (ETag)" "expected $WANT_SHA, got ${ETAG:-nothing}" ;;
+  esac
+  NM=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -H "If-None-Match: $ETAG" "$BASE/storage/$SID")
+  if [ "$NM" = "304" ]; then
+    ok "Storage (If-None-Match on the same tag gives 304)"
+  else
+    bad "Storage (If-None-Match)" "expected 304, got $NM"
+  fi
 else
   bad "Storage (store)" "no storage_id in: $(echo "$BODY" | head -c 140)"
 fi

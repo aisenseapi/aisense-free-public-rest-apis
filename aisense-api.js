@@ -399,7 +399,8 @@ export class AISenseAPI {
   }
 
   /**
-   * Store data for 24 hours. Response keys: `storage_id`, `expire_timestamp`
+   * Store data for 24 hours. Response keys: `storage_id`, `storage_url`,
+   * `sha256_hash`, `bytes`, `expire_timestamp`
    * and `expire_datetime`.
    *
    * The request body is stored verbatim, so whatever you pass here is exactly
@@ -409,7 +410,11 @@ export class AISenseAPI {
     return this.#post('/storage', data)
   }
 
-  /** Retrieve stored data by its `storage_id`, returned verbatim. */
+  /**
+   * Retrieve stored data by its `storage_id`, returned verbatim. The answer
+   * carries an `ETag` that is `sha256_hash` in quotes, so what came back can
+   * be checked against what {@link storageSet} reported.
+   */
   storageGet(storageId) {
     return this.#get(`/storage/${storageId}`)
   }

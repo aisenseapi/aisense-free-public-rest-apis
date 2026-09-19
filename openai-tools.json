@@ -364,7 +364,7 @@
     "type": "function",
     "function": {
       "name": "storage_set",
-      "description": "Store data for 24 hours. Returns {\"storage_id\": \"...\", \"expire_timestamp\": ...} - the key is storage_id, not uuid. The request body is stored verbatim, so whatever is sent is exactly what storage_get returns. POST /storage",
+      "description": "Store data for 24 hours. Returns {\"storage_id\": \"...\", \"storage_url\": \"...\", \"sha256_hash\": \"...\", \"bytes\": ..., \"expire_timestamp\": ...} - the key is storage_id, not uuid. storage_url is the link to hand on and sha256_hash is the digest of the bytes as stored. The request body is stored verbatim, so whatever is sent is exactly what storage_get returns. POST /storage",
       "parameters": {
         "type": "object",
         "properties": { "data": { "description": "Value to store. Sent as the request body verbatim." } },
@@ -376,7 +376,7 @@
     "type": "function",
     "function": {
       "name": "storage_get",
-      "description": "Retrieve stored data, returned verbatim. An unknown or expired id returns {\"error\": \"Storage id unknown\"}. GET /storage/{storage_id}",
+      "description": "Retrieve stored data, returned verbatim, with an ETag that is sha256_hash in quotes. An unknown or expired id returns {\"error\": \"Storage id unknown\"}. GET /storage/{storage_id}",
       "parameters": {
         "type": "object",
         "properties": { "storage_id": { "type": "string", "description": "The storage_id returned by storage_set." } },
