@@ -231,6 +231,7 @@ country centroid when the city is unknown. Latitude and longitude are strings.
 
 `POST /storage` -> `{"storage_id": "...", "storage_url": "...", "sha256_hash": "...", "bytes": ..., "expire_timestamp": ...}`
 `GET /storage/{storage_id}` -> the stored bytes, with `ETag` set to `sha256_hash` in quotes
+`GET /storage/{storage_id}/sha256/{64 hex}` -> the same bytes, but only if they hash to that value, else `412`
 
 The body is stored **verbatim**. Post `{"data": {...}}` and you retrieve
 `{"data": {...}}` - no wrapper is added or removed. The response key is
@@ -730,6 +731,7 @@ return numbers; their smallest units stay inside the safe range.
 | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
 | `/storage` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | `/storage/{id}` | GET | the stored body, verbatim |
+| `/storage/{id}/sha256/{hex}` | GET | the same body, or `412` if it does not hash to `{hex}` |
 | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | `/webhook_capture` | POST | `capture_id`, update, read and wait URLs, expiry |
 | `/webhook_capture/{id}` | GET | pending or captured state, optional wait metadata |

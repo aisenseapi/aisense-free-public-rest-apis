@@ -311,6 +311,32 @@ if [ -n "$SID" ]; then
     ok "Storage (If-None-Match on the same tag gives 304)"
   else
     bad "Storage (If-None-Match)" "expected 304, got $NM"
+
+  # A link may carry the digest the fetcher expects. Right one serves the
+  # bytes, wrong one is 412 because the object is there and it is the
+  # condition that failed, and a shape we do not understand is 400.
+  has_value "Storage (link with the right digest)" GET "$BASE/storage/$SID/sha256/$WANT_SHA" "\"marker\":\"$MARKER\""
+  WRONG=$(printf '%064d' 0)
+  ST=$(curl -s -m 30 -o /dev/null -w '%{http_code}' "$BASE/storage/$SID/sha256/$WRONG")
+  [ "$ST" = "412" ] && ok "Storage (link with the wrong digest is 412)" || bad "Storage (wrong digest)" "expected 412, got $ST"
+  ST=$(curl -s -m 30 -o /dev/null -w '%{http_code}' "$BASE/storage/$SID/sha256/abc")
+  [ "$ST" = "400" ] && ok "Storage (a digest that is not 64 hex is 400)" || bad "Storage (short digest)" "expected 400, got $ST"
+  ST=$(curl -s -m 30 -o /dev/null -w '%{http_code}' "$BASE/storage/$SID/md5/$WANT_SHA")
+  [ "$ST" = "400" ] && ok "Storage (another algorithm in a link is 400)" || bad "Storage (md5 in link)" "expected 400, got $ST"
+
+  # If-Match is the same comparison as a header, for a client that can set one.
+  ST=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -H "If-Match: $ETAG" "$BASE/storage/$SID")
+  [ "$ST" = "200" ] && ok "Storage (If-Match on the same tag serves the bytes)" || bad "Storage (If-Match)" "expected 200, got $ST"
+  ST=$(curl -s -m 30 -o /dev/null -w '%{http_code}' -H 'If-Match: "deadbeef"' "$BASE/storage/$SID")
+  [ "$ST" = "412" ] && ok "Storage (If-Match on another tag is 412)" || bad "Storage (If-Match mismatch)" "expected 412, got $ST"
+
+  # An object never changes in its 24 hours, so the browser that fetched it
+  # may keep it, but must ask again every time so a removal takes effect.
+  CC=$(curl -s -m 30 -D - -o /dev/null "$BASE/storage/$SID" | grep -i '^cache-control:' | cut -d' ' -f2- | tr -d '[:space:]')
+  case "$CC" in
+    private,no-cache*) ok "Storage (kept by the browser, revalidated every time)" ;;
+    *) bad "Storage (Cache-Control)" "expected private, no-cache, got ${CC:-nothing}" ;;
+  esac
   fi
 else
   bad "Storage (store)" "no storage_id in: $(echo "$BODY" | head -c 140)"

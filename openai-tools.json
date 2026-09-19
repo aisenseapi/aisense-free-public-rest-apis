@@ -376,7 +376,7 @@
     "type": "function",
     "function": {
       "name": "storage_get",
-      "description": "Retrieve stored data, returned verbatim, with an ETag that is sha256_hash in quotes. An unknown or expired id returns {\"error\": \"Storage id unknown\"}. GET /storage/{storage_id}",
+      "description": "Retrieve stored data, returned verbatim, with an ETag that is sha256_hash in quotes. GET /storage/{storage_id}/sha256/{64 hex} serves the same bytes only if they hash to that value and answers 412 if they do not, so a link can carry its own expectation. An unknown or expired id returns {\"error\": \"Storage id unknown\"}. GET /storage/{storage_id}",
       "parameters": {
         "type": "object",
         "properties": { "storage_id": { "type": "string", "description": "The storage_id returned by storage_set." } },
