@@ -589,6 +589,43 @@ The answer carries `ETag`, which is `sha256_hash` in quotes, so a repeat fetch
 sending `If-None-Match` with that value is answered `304 Not Modified` with no
 body. An unknown or expired id returns `{"error": "Storage id unknown"}`.
 
+**Fetch only if it is what you expect:** put the digest in the link.
+
+```
+GET /storage/{storage_id}/sha256/{64 hex}
+```
+
+The bytes come back only if they hash to that value. If they do not, the
+answer is `412 Precondition Failed` with both digests, and nothing is
+served:
+
+```json
+{
+  "error": "Stored bytes do not match the sha256 in the link",
+  "storage_id": "123e4567-e89b-12d3-a456-426614174000",
+  "expected": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sha256_hash": "9874854240b45b4bdbf43fca6110bafce8525aedbeca5babaee0cb137d9a7868"
+}
+```
+
+A digest that is not 64 hexadecimal characters, or any algorithm other than
+`sha256`, is `400`. The point is that a link can carry its own expectation,
+so a receiver that only has the URL gets a hard failure instead of content
+it did not ask for. It is a guard against a wrong id or a wrong object, not
+a proof: the server computes the comparison, so a caller that needs proof
+must hash the bytes itself. It is not access control either, since the link
+without the digest still works.
+
+A client that can set a header can use `If-Match` with the same value in
+quotes instead, which is the standard spelling of the same condition and
+answers `412` the same way.
+
+**Caching:** a stored object never changes and lives 24 hours, so the answer
+is `Cache-Control: private, no-cache`. The browser that fetched it may keep
+it, and revalidates every time, which the `ETag` turns into a `304` with no
+body. `private` keeps it out of shared caches, and revalidation means
+content removed on notice stops being served at once.
+
 **Limits:** executable files (Windows, Linux and Mac programs, judged on their
 first bytes) are refused with `415` and never stored. Each IP may store 80 MB
 per 24 hours; past that a POST answers `429` until the counter resets at

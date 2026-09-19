@@ -841,6 +841,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
 | Web | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts` |
 | Web | `/storage` | POST / GET | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
+| Web | `/storage/{id}/sha256/{hex}` | GET | the stored body, or `412` if it does not hash to `{hex}` |
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
 | Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url`, `wait_url` |
 | Web | `/webhook_action` | POST / GET | `action_id`, form URL or URLs, `result_url`, `wait_url` |
