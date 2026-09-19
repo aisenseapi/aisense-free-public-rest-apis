@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.2.0
+Resource version 1.2.1
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -29,8 +29,8 @@ Catalog size: 28 MCP tools.
 - `get_current_time` - Read the current time in a timezone or UTC offset.
 - `generate_uuid` - Generate a random UUID.
 - `shorten_url` - Create a 307.fi link lasting 24 hours.
-- `store_temporary_data` - Store a JSON value for 24 hours.
-- `read_temporary_data` - Read that value using its storage ID.
+- `store_temporary_data` - Store a JSON value for 24 hours, and read back its sha256 and size.
+- `read_temporary_data` - Read that value using its storage ID, with the same sha256 and size.
 - `create_webhook_capture` - Create a session for the first HTTP request.
 - `read_webhook_capture` - Read a capture or wait for its arrival.
 - `create_human_approval` - Create a decision form for one to twenty people.
