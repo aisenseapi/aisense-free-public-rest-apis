@@ -1,12 +1,12 @@
 Modules served for https://aisense.no/try-aamio
 
-Copied unchanged from npm. aamio 0.5.4 on 19 September 2026, the other two
+Copied unchanged from npm. aamio 0.5.5 on 20 September 2026, the other two
 on 18 September 2026. Nothing on the page loads code from any other host.
 
-aamio 0.5.4, MIT, Copyright (c) 2026 AI SENSE AS
-  source   https://registry.npmjs.org/aamio/-/aamio-0.5.4.tgz
-  aamio-0.5.4/aamio.js                      package/src/aamio.js
-    sha256 118e9d5f5d128cc3fa7d8b0b7dc581044bde56067d6fef1c73ee6f587c727683
+aamio 0.5.5, MIT, Copyright (c) 2026 AI SENSE AS
+  source   https://registry.npmjs.org/aamio/-/aamio-0.5.5.tgz
+  aamio-0.5.5/aamio.js                      package/src/aamio.js
+    sha256 97808a97b541d5c295e2aaa39290dc241a3686c57ef11093bf162c4eda529012
 
 aamio-wasm 0.1.1, MIT, Copyright (c) 2026 AI SENSE AS
   source   https://registry.npmjs.org/aamio-wasm/-/aamio-wasm-0.1.1.tgz
