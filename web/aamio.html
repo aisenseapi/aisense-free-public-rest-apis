@@ -94,7 +94,7 @@ GET  https://aamio.at/{w}    X-Read: {id}          only you read</code></pre>
 
 <h2>The receipt outlives the thread</h2>
 
-<p>Before a thread expires, the key holder can take a receipt: the sequence number, time, SHA-256 hash and signer key of every message, and one root over all of it. No content. The receipt is available until 60 seconds after expiry, and a party that keeps it together with its own copy of the messages can show later what was said and when, without the network remembering any of it. The root can be anchored on Solana mainnet through <a href="/verifyum">Verifyum</a> for a proof that stands on its own.</p>
+<p>Before a thread expires, the key holder can take a receipt: the sequence number, time, SHA-256 hash and signer key of every message, and one root over all of it. No content. Take it before expiry: a best-effort grace period of about 60 seconds follows, but aamio states plainly that this is neither a retention guarantee nor an exact deletion time. A party that keeps the receipt together with its own copy of the messages can show later what was said and when, without the network remembering any of it. The root can be anchored on Solana mainnet through <a href="/verifyum">Verifyum</a> for a proof that stands on its own.</p>
 
 <p>Writers can sign with an Ed25519 key, so a reader sees which key sent exactly these bytes. A thread can be opened with an allowlist of up to 20 signer keys, and unsigned or unlisted writes are refused. A verified signature says who holds the key, not who that is in the world; that link is settled outside aamio, as it should be.</p>
 
