@@ -75,19 +75,17 @@
 
 <p>One request with the address you want it to point at gives back a name of the form <code>aisense-slug.53for24h.com</code>, an A record with a TTL of 60 seconds, and a token that is shown once. The name lives for 24 hours from creation. Nothing renews it.</p>
 
-<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/dns \
-  -H 'Content-Type: application/json' \
-  -d '{"ip": "203.0.113.10"}'</code></pre>
+<pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"</code></pre>
 
-<p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Reading it back needs nothing at all, since everything in it is already public in DNS. Changing the address or removing the name needs the token.</p>
+<p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Every call is a GET with its arguments in the path, and a seven character slug can never be mistaken for an address. Reading needs nothing at all, since everything a read returns is already public in DNS. Changing the address or removing the name needs the token, which travels in an <code>Authorization: Bearer</code> header, never in the path.</p>
 
 <div class="table-wrap"><table>
 <thead><tr><th>Call</th><th>Token</th><th>Does</th></tr></thead>
 <tbody>
-<tr><td><code>POST /services/v1/dns</code></td><td>None</td><td>Create a name. The address must be a public unicast address</td></tr>
+<tr><td><code>GET /services/v1/dns/{ip}</code></td><td>None</td><td>Create a name for the address, which must be public unicast</td></tr>
 <tr><td><code>GET /services/v1/dns/{slug}</code></td><td>None</td><td>Read what the name currently says</td></tr>
-<tr><td><code>POST /services/v1/dns/{slug}/update</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
-<tr><td><code>DELETE /services/v1/dns/{slug}</code></td><td>Bearer</td><td>Remove it from both name servers at once</td></tr>
+<tr><td><code>GET /services/v1/dns/{slug}/update/{ip}</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
+<tr><td><code>GET /services/v1/dns/{slug}/delete</code></td><td>Bearer</td><td>Remove it from both name servers at once</td></tr>
 </tbody>
 </table></div>
 
@@ -122,7 +120,7 @@
 
 <h2>Limits, and what this is not</h2>
 
-<p>The pilot allows 20 names per client address per UTC day and 100 active names in total. The TTL menu has one item, 60 seconds, because a short-lived name with a long TTL is a name that keeps answering after it is gone. Names are public: they are in DNS, they can be enumerated by anyone watching, and nothing private belongs in one.</p>
+<p>The pilot allows 10 names per client address per hour and 100 active names in total. The TTL menu has one item, 60 seconds, because a short-lived name with a long TTL is a name that keeps answering after it is gone. Names are public: they are in DNS, they can be enumerated by anyone watching, and nothing private belongs in one.</p>
 
 <p>This is a pilot, and we are not quoting a query rate. The capacity of the running daemon has not been measured, so any number here would be a guess. What is measured is above, and it is one cycle rather than a load test.</p>
 
