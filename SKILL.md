@@ -529,16 +529,16 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 
 ### Temporary DNS name - 24h TTL
 
-`POST /dns` with `{"ip": "203.0.113.10"}` -> `{"ok": true, "name": "aisense-<slug>.53for24h.com", "ttl": 60, "expire_at": "...", "dns_token": "shown once", "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"]}`
+`GET /dns/{ip}` (the address last in the path) -> `{"ok": true, "name": "aisense-<slug>.53for24h.com", "ttl": 60, "expire_at": "...", "dns_token": "shown once", "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"]}`
 
-`GET /dns/{slug}` reads it without a token. `POST /dns/{slug}/update` and
-`DELETE /dns/{slug}` need `Authorization: Bearer <dns_token>`, and the update
-moves the address but never the expiry.
+`GET /dns/{slug}` reads it without a token. `GET /dns/{slug}/update/{ip}` and
+`GET /dns/{slug}/delete` need `Authorization: Bearer <dns_token>`, and the
+update moves the address but never the expiry.
 
 The address must be a public unicast IPv4 or IPv6 address and is never taken
 from the caller. A name is a DNS record and nothing else: no tunnel, no
-hosting, no certificate and no HTTPS. Limits are 20 names per client address
-per UTC day, one change per name per 10 seconds, and 100 active names in the
+hosting, no certificate and no HTTPS. Limits are 10 names per client address
+per hour, one change per name per 10 seconds, and 100 active names in the
 pilot. The four MCP equivalents are `create_dns_name`, `read_dns_name`,
 `update_dns_name` and `delete_dns_name`.
 

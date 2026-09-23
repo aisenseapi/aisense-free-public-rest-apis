@@ -22,7 +22,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 - Example worker: https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/examples/agent_queue_worker.py
 - Agent skill: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/SKILL.md
 
-Production discovery returned 28 workflow tools and three read-only resources on 14 September 2026. The deployed Queue REST smoke test passes 21 checks. The resources provide the agent guide, Verifyum product information and aamio product information. The embedded guide carries a Resource version line on its first page, so a resources/read tells you which version a server is serving. Verifyum proof tools use the separate https://api.verifyum.com/mcp endpoint and aamio tools the separate https://aamio.at/mcp endpoint, not the AI SENSE MCP endpoint. Proof creation writes a real Solana transaction and requires clear user intent.
+Production discovery returned 32 workflow tools and three read-only resources on 23 September 2026. The deployed Queue REST smoke test passes 21 checks. The resources provide the agent guide, Verifyum product information and aamio product information. The embedded guide carries a Resource version line on its first page, so a resources/read tells you which version a server is serving. Verifyum proof tools use the separate https://api.verifyum.com/mcp endpoint and aamio tools the separate https://aamio.at/mcp endpoint, not the AI SENSE MCP endpoint. Proof creation writes a real Solana transaction and requires clear user intent.
 
 Agent Wake creates a durable MCP task that completes after a webhook, human answer or time event. It uses the io.modelcontextprotocol/tasks extension with MCP revision 2026-07-28. REST clients can use the same task model at https://aisenseapi.com/services/v1/agent_wake.
 
@@ -51,6 +51,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Lease guide: https://aisense.no/free-public-api-lease-api-endpoint
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
+- Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
 
 ## Products
 

@@ -436,15 +436,17 @@ behind one.
 
 | Limit | Value |
 |---|---|
-| Names per client address per UTC day | 20 |
+| Names per client address per hour | 10 |
 | Changes per name | One per 10 seconds |
 | Active names in the pilot | 100 |
 | TTL | 60 seconds, fixed |
 | Lifetime | 24 hours, fixed |
 
-The zone is served by `ns1.aisenseapi.com` and `ns2.aisenseapi.com`. The REST
-equivalents are `POST /services/v1/dns`, `GET /services/v1/dns/{slug}`,
-`POST /services/v1/dns/{slug}/update` and `DELETE /services/v1/dns/{slug}`.
+The zone is served by `ns1.aisenseapi.com` and `ns2.aisenseapi.com`. Every REST
+call is a GET with its arguments in the path: `GET /services/v1/dns/{ip}` to
+create, `GET /services/v1/dns/{slug}` to read,
+`GET /services/v1/dns/{slug}/update/{ip}` to move it, and
+`GET /services/v1/dns/{slug}/delete` to remove it, the last two with the token.
 
 ## Agent2Agent, a third protocol
 

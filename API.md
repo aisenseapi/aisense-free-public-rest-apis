@@ -1414,14 +1414,13 @@ The standalone machine-readable Queue contract is
 
 ### DNS names - 24h TTL
 
-A public hostname for an address, for a day. `POST /dns` with the address it
-should point at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with
-a TTL of 60 seconds, and a `dns_token` shown once.
+A public hostname for an address, for a day. Every call is a GET with its
+arguments in the path. `GET /dns/{ip}` with the address the name should point
+at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with a TTL of 60
+seconds, and a `dns_token` shown once.
 
 ```bash
-curl -s -X POST https://aisenseapi.com/services/v1/dns \
-  -H 'Content-Type: application/json' \
-  -d '{"ip": "203.0.113.10"}'
+curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"
 ```
 
 ```json
@@ -1441,10 +1440,10 @@ curl -s -X POST https://aisenseapi.com/services/v1/dns \
 
 | Method and path | Token | Does |
 |---|---|---|
-| `POST /dns` | None | Creates a name. `ip` is required and must be a public unicast address. 201 |
+| `GET /dns/{ip}` | None | Creates a name pointing at the address. `ip` must be a public unicast address. 201 |
 | `GET /dns/{slug}` | None | Reads the name, its address and its expiry. Everything in it is already public in DNS |
-| `POST /dns/{slug}/update` | Bearer | Moves the name to another address. The expiry does not move |
-| `DELETE /dns/{slug}` | Bearer | Removes the name from both name servers at once |
+| `GET /dns/{slug}/update/{ip}` | Bearer | Moves the name to another address. The expiry does not move |
+| `GET /dns/{slug}/delete` | Bearer | Removes the name from both name servers at once |
 
 Names are assigned, never chosen, and the address is never taken from the
 caller, because the caller is usually not the machine the name should point at.
@@ -1458,7 +1457,11 @@ one certificate quota and browsers treat them as one site. Do not put a login
 behind one, and do not put anything private in a name: the zone is public and
 can be watched.
 
-Limits are 20 names per client address per UTC day, one change per name per 10
+A seven character slug names an existing record; an address, told apart by its
+dot or colon, creates a new one. The token goes in an `Authorization: Bearer`
+header on update and delete, never in the path.
+
+Limits are 10 names per client address per hour, one change per name per 10
 seconds, and 100 active names while the service is a pilot. The four MCP
 equivalents are `create_dns_name`, `read_dns_name`, `update_dns_name` and
 `delete_dns_name`.
