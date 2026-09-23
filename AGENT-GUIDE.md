@@ -148,7 +148,7 @@ The answer carries `dns_token` once. It is the only way to change or remove the 
 
 A name is a DNS record and nothing else: no tunnel, no hosting, no certificate and no HTTPS. The zone is not on the Public Suffix List, so every name shares one certificate quota and browsers treat them as one site. Do not put a login behind one.
 
-Limits are 10 names per client address per hour, one change per name per 10 seconds, and 100 active names in the pilot. `update_dns_name` moves the address, never the expiry. `delete_dns_name` removes the name from both name servers at once. A resolver that already holds the answer keeps it for the rest of its TTL.
+Limits are 10 names per client address per hour, one change per name per 10 seconds, and 100 active names in the pilot. `update_dns_name` moves the address, never the expiry. `delete_dns_name` removes the name. The primary name server drops it at once and the secondary follows by replication. A disconnected secondary may keep answering until it reconnects or the name reaches its original expiry. A resolver that already holds the answer keeps it for the rest of its TTL.
 
 REST paths:
 

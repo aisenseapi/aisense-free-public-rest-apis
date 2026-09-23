@@ -94,7 +94,7 @@ proxy these tools either.
 | `create_dns_name` | Assigns `aisense-<slug>.53for24h.com` to an address you supply, for 24 hours |
 | `read_dns_name` | Reads what a name points at and when it expires |
 | `update_dns_name` | Moves a name to another address without moving its expiry |
-| `delete_dns_name` | Removes a name from both name servers before it expires |
+| `delete_dns_name` | Removes a name before it expires |
 
 Each MCP tool has a schema returned by discovery. The REST function-calling
 catalog is a separate integration surface, not a copy of this list.

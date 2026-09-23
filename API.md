@@ -1443,7 +1443,7 @@ curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"
 | `GET /dns/{ip}` | None | Creates a name pointing at the address. `ip` must be a public unicast address. 201 |
 | `GET /dns/{slug}` | None | Reads the name, its address and its expiry. Everything in it is already public in DNS |
 | `GET /dns/{slug}/update/{ip}` | Bearer | Moves the name to another address. The expiry does not move |
-| `GET /dns/{slug}/delete` | Bearer | Removes the name from both name servers at once |
+| `GET /dns/{slug}/delete` | Bearer | Removes the name; the primary at once, the secondary as replication reaches it |
 
 Names are assigned, never chosen, and the address is never taken from the
 caller, because the caller is usually not the machine the name should point at.
