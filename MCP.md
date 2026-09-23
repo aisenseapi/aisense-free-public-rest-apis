@@ -1,7 +1,7 @@
 # AI SENSE Free Public MCP Server
 
-Production MCP discovery returned 28 workflow tools and three read-only
-resources on 14 September 2026. The deployed Queue REST smoke test passes 21
+Production MCP discovery returned 32 workflow tools and three read-only
+resources on 23 September 2026. The deployed Queue REST smoke test passes 21
 checks. Use `tools/list` to inspect the server you connect to.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
@@ -91,6 +91,10 @@ proxy these tools either.
 | `ack_agent_queue_job` | Marks a currently claimed job completed |
 | `release_agent_queue_job` | Makes a claimed job available for another attempt |
 | `renew_agent_queue_job` | Extends claim visibility within the queue's original expiry |
+| `create_dns_name` | Assigns `aisense-<slug>.53for24h.com` to an address you supply, for 24 hours |
+| `read_dns_name` | Reads what a name points at and when it expires |
+| `update_dns_name` | Moves a name to another address without moving its expiry |
+| `delete_dns_name` | Removes a name from both name servers before it expires |
 
 Each MCP tool has a schema returned by discovery. The REST function-calling
 catalog is a separate integration surface, not a copy of this list.
@@ -410,6 +414,37 @@ codes and public links are kept.
 | Inboxes per client per UTC day | 50 |
 | Active inboxes service wide | 5000 |
 | Lifetime | 24 hours, fixed |
+
+## Temporary DNS names
+
+`create_dns_name` assigns `aisense-<slug>.53for24h.com` to a public unicast
+IPv4 or IPv6 address you supply. Names are assigned, never chosen, and the
+address is never taken from the caller, because the caller is usually not the
+machine the name should point at. Private, loopback, link-local and multicast
+addresses are refused.
+
+The answer carries `dns_token` once, and it is the only way to change or remove
+the name. Expiry is fixed at 24 hours from creation and nothing extends it. TTL
+is 60 seconds, the served TTL never exceeds the time the name has left, and
+negative answers are cached for 5 seconds, so no resolver keeps answering for a
+name that is gone.
+
+A name is a DNS record and nothing else: no tunnel, no hosting, no certificate
+and no HTTPS. The zone is not on the Public Suffix List, so every name shares
+one certificate quota and browsers treat them as one site. Do not put a login
+behind one.
+
+| Limit | Value |
+|---|---|
+| Names per client address per UTC day | 20 |
+| Changes per name | One per 10 seconds |
+| Active names in the pilot | 100 |
+| TTL | 60 seconds, fixed |
+| Lifetime | 24 hours, fixed |
+
+The zone is served by `ns1.aisenseapi.com` and `ns2.aisenseapi.com`. The REST
+equivalents are `POST /services/v1/dns`, `GET /services/v1/dns/{slug}`,
+`POST /services/v1/dns/{slug}/update` and `DELETE /services/v1/dns/{slug}`.
 
 ## Agent2Agent, a third protocol
 

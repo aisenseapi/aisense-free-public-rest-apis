@@ -6,7 +6,8 @@ for the compact 28-tool catalog, [MCP.md](MCP.md) for protocol details, and
 fields and limits.
 
 On 9 September 2026, the deployed Queue REST smoke test passed 21 checks and
-production MCP discovery returned all 28 tools. This verifies the Queue
+production MCP discovery returned all 28 tools. On 23 September 2026 it
+returned 32, the four added ones being the temporary DNS names. This verifies the Queue
 deployment and discovery, not deployment of the refreshed embedded agent
 guide. Check `resources/read` before relying on its contents.
 

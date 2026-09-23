@@ -1,6 +1,6 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, IBAN/card/phone/Norwegian org and account number validation, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, IBAN/card/phone/Norwegian org and account number validation, temporary DNS names that expire after 24 hours, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
 license: MIT
 ---
 
@@ -527,13 +527,28 @@ key itself must be a high-entropy ASCII value from 32 to 200 characters.
 MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 `release_lease` and `complete_lease` for the same flow.
 
+### Temporary DNS name - 24h TTL
+
+`POST /dns` with `{"ip": "203.0.113.10"}` -> `{"ok": true, "name": "aisense-<slug>.53for24h.com", "ttl": 60, "expire_at": "...", "dns_token": "shown once", "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"]}`
+
+`GET /dns/{slug}` reads it without a token. `POST /dns/{slug}/update` and
+`DELETE /dns/{slug}` need `Authorization: Bearer <dns_token>`, and the update
+moves the address but never the expiry.
+
+The address must be a public unicast IPv4 or IPv6 address and is never taken
+from the caller. A name is a DNS record and nothing else: no tunnel, no
+hosting, no certificate and no HTTPS. Limits are 20 names per client address
+per UTC day, one change per name per 10 seconds, and 100 active names in the
+pilot. The four MCP equivalents are `create_dns_name`, `read_dns_name`,
+`update_dns_name` and `delete_dns_name`.
+
 ---
 
 ## Agent2Agent - a third protocol with five of these capabilities
 
 Everything above is REST. The same service is also on MCP at
 `https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
-version contains 28 tools, matching production discovery on 9 September 2026.
+version contains 32 tools, matching production discovery on 23 September 2026.
 
 A third protocol runs at its own URL:
 
