@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Temporary DNS Name API Endpoint - 24h Names | AI SENSE</title>
+<meta name="description" content="The free Temporary DNS Name API endpoint puts a public hostname on an address for 24 hours. One GET with the address last in the path returns a name on 53for24h.com that resolves through public resolvers and expires on its own.">
+<link rel="canonical" href="https://aisense.no/free-public-api-dns-name-api-endpoint">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free Temporary DNS Name API Endpoint">
+<meta property="og:description" content="A public hostname for an address, for 24 hours. One GET creates it, two name servers answer it, and it expires without anyone having to clean it up.">
+<meta property="og:url" content="https://aisense.no/free-public-api-dns-name-api-endpoint">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free Temporary DNS Name API Endpoint",
+      "description": "Assigns aisense-<slug>.53for24h.com to a public unicast address for 24 hours over a GET request, with a fixed 60 second TTL and a per-name bearer token to move or remove it.",
+      "url": "https://aisense.no/free-public-api-dns-name-api-endpoint",
+      "documentation": "https://aisense.no/free-public-apis",
+      "provider": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Free public REST APIs", "item": "https://aisense.no/free-public-apis" },
+        { "@type": "ListItem", "position": 3, "name": "Temporary DNS Name API endpoint", "item": "https://aisense.no/free-public-api-dns-name-api-endpoint" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Temporary DNS Name API endpoint</li></ol></nav>
+
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Web - DNS</p><h1 id="page-title">Free Temporary DNS Name API Endpoint</h1><p class="lede">The free Temporary DNS Name API endpoint puts a public hostname on an address you already control, for 24 hours. Send the address last in the path and the answer is a name on 53for24h.com that resolves through public resolvers and then expires on its own.</p><ul class="badges"><li>No API key</li><li>One GET request</li><li>53for24h.com</li><li>24-hour names</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Create a DNS name</p><p class="sig"><span class="method">GET</span><span class="path">/dns/{ip}</span></p><code>https://aisenseapi.com/services/v1/dns/</code></div></section>
+
+<div class="api-detail-body">
+
+<section id="quick-start"><h2>Call the free Temporary DNS Name API endpoint</h2><p>Put the address the name should point at straight after <code>/dns/</code>. It has to be a public unicast address, IPv4 or IPv6, and it is never taken from the caller, because the machine asking is usually not the machine the name should reach.</p><pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"</code></pre><pre><code>{
+  "ok": true,
+  "name": "aisense-t1mpdqk.53for24h.com",
+  "slug": "t1mpdqk",
+  "ip": "203.0.113.10",
+  "record": "A",
+  "ttl": 60,
+  "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"],
+  "expire_at": "2026-09-24T18:42:17Z",
+  "dns_token": "shown once",
+  "serial": 9
+}</code></pre><p>The name is assigned, never chosen. Keep the <code>dns_token</code>: it is shown once and is the only way to move or remove the name before it expires.</p></section>
+
+<section id="calls"><h2>The four calls</h2><p>Every call is a GET with its arguments in the path. A seven character slug names an existing record; an address creates a new one. The two can never be confused, because a slug has no dots or colons.</p><div class="table-wrap field-table"><table><thead><tr><th>Call</th><th>Token</th><th>Does</th></tr></thead><tbody><tr><td><code>GET /dns/{ip}</code></td><td>None</td><td>Creates a name pointing at the address. 201 with the name and the token</td></tr><tr><td><code>GET /dns/{slug}</code></td><td>None</td><td>Reads what the name points at and when it expires</td></tr><tr><td><code>GET /dns/{slug}/update/{ip}</code></td><td>Bearer</td><td>Moves the name to another address. The expiry does not move</td></tr><tr><td><code>GET /dns/{slug}/delete</code></td><td>Bearer</td><td>Removes the name from both name servers at once</td></tr></tbody></table></div><p>The token goes in an <code>Authorization: Bearer</code> header, never in the path, so it stays out of access logs. Only the holder of the token can move or delete a name. Reading is open, because everything a read returns is already public in DNS.</p></section>
+
+<section id="response"><h2>Response fields</h2><div class="table-wrap field-table"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>name</td><td>string</td><td>The full hostname, <code>aisense-&lt;slug&gt;.53for24h.com</code>.</td></tr><tr><td>slug</td><td>string</td><td>The seven character handle used to read, move or delete the name.</td></tr><tr><td>ip</td><td>string</td><td>The address the name resolves to.</td></tr><tr><td>record</td><td>string</td><td><code>A</code> for IPv4, <code>AAAA</code> for IPv6.</td></tr><tr><td>ttl</td><td>integer</td><td>Always 60. The served value never exceeds the time the name has left.</td></tr><tr><td>nameservers</td><td>array</td><td>The two name servers that answer for the zone.</td></tr><tr><td>expire_at</td><td>string</td><td>The ISO 8601 instant the name stops answering, 24 hours after creation.</td></tr><tr><td>dns_token</td><td>string</td><td>Shown once on creation. The only key to move or delete the name.</td></tr></tbody></table></div></section>
+
+<section id="expiry"><h2>The name dies after 24 hours</h2><div class="api-note warning-note"><p>Every name stops answering 24 hours after it was created, and nothing extends that. Never print one on a poster, a slide or a badge. The TTL menu has one item, 60 seconds, because a short-lived name with a long TTL is a name that keeps answering after it is gone.</p></div><p>The countdown starts when the API answers. A name is for the length of a task, not for publishing. When the work is done, <code>GET /dns/{slug}/delete</code> with the token removes it early; otherwise it clears itself. A resolver that already holds the answer keeps it for the rest of its TTL, at most 60 seconds.</p></section>
+
+<section id="how-it-works"><h2>How the zone answers</h2><ol class="workflow-steps"><li><strong>Send the address</strong><p>The endpoint assigns <code>aisense-&lt;slug&gt;.53for24h.com</code> and writes it to both name servers.</p></li><li><strong>It resolves everywhere</strong><p>The zone is delegated at the registry, so public resolvers answer the name within a second, not just our own servers.</p></li><li><strong>It expires</strong><p>Twenty-four hours later the name is gone from both servers, whether or not anyone deletes it.</p></li></ol><p>The zone is served by <code>ns1.aisenseapi.com</code> and <code>ns2.aisenseapi.com</code>, on separate machines at separate sites. An unknown name in the zone answers NXDOMAIN; a name outside the zone answers REFUSED, which is what an authoritative server should say.</p></section>
+
+<section id="errors"><h2>What the endpoint rejects</h2><p>Failures arrive as JSON with an <code>error</code> string. Check the status code rather than the text.</p><div class="table-wrap field-table"><table><thead><tr><th>Status</th><th>When</th></tr></thead><tbody><tr><td>400</td><td>The address is not a public unicast address: private, loopback, link-local, multicast or malformed</td></tr><tr><td>401</td><td>An update or delete without a valid bearer token</td></tr><tr><td>403</td><td>A token that does not match the name</td></tr><tr><td>404</td><td>An unknown or expired name, or a route that is neither an address nor a slug</td></tr><tr><td>429</td><td>More than 10 names from one address in an hour, or a change less than 10 seconds after the last</td></tr><tr><td>503</td><td>The zone is briefly unavailable. Retry</td></tr></tbody></table></div></section>
+
+<section id="not-hosting"><h2>A name, and nothing else</h2><div class="api-note warning-note"><p>A name is a DNS record only: no tunnel, no hosting, no certificate and no HTTPS. The zone is not on the Public Suffix List, so every name shares one certificate quota and browsers treat them as one site. Do not put a login behind one.</p></div><p>Use it where a name, not a service, is what is missing: a webhook target someone has to type, a staging box whose address moves, a service two agents must reach by the same name. The address it points at is yours to run and to secure.</p></section>
+
+<section id="use-cases"><h2>When a temporary name fits</h2><div class="use-case-grid"><article><h3>Webhook targets</h3><p>Hand a callback a name to type while the address behind it is still moving.</p></article><article><h3>Staging and demos</h3><p>Reach a box by name for a day without touching a registrar.</p></article><article><h3>Agents that share a target</h3><p>Let two agents reach the same machine by one name for the length of a job.</p></article><article><h3>Short-lived tests</h3><p>Point a name at a test host, run the test, and let the name expire.</p></article></div></section>
+
+<section id="privacy"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>Names are public. They are in DNS, anyone watching can enumerate them, and nothing private belongs in one. The zone is public and can be watched.</p></div><p>The pilot allows 10 names per client address per hour, one change per name per 10 seconds, and 100 active names in total. Responses set no-store cache headers. The service-wide ceiling is 5000 requests per IP per 24 hours across every endpoint.</p></section>
+
+<section id="related"><h2>Related endpoints</h2><div class="related-api-grid"><a href="/free-public-apis">Free public REST APIs<span>The full endpoint reference</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Domain IP Lookup API Endpoint<span>Resolve a hostname to an address</span></a><a href="/free-public-api-url-shortener-api-endpoint">URL Shortener API Endpoint<span>Short links that expire after 24 hours</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture API Endpoint<span>Collect an inbound request</span></a></div></section>
+
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
