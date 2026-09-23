@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>A Name That Answers for 24 Hours, Then Stops Existing - AI SENSE</title>
+<meta name="description" content="53for24h.com is an authoritative name server for one zone. One call gives a name that points where you say, resolves through public resolvers at once, and is gone a day later. No account, no API key, and deleting it is one call or no call at all.">
+<link rel="canonical" href="https://aisense.no/a-name-that-answers-for-24-hours">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="A Name That Answers for 24 Hours, Then Stops Existing">
+<meta property="og:description" content="A free DNS name for the length of a test, a demo or a callback. Created in a quarter of a second, answered by two name servers and by public resolvers, and expired without anyone having to remember it.">
+<meta property="og:url" content="https://aisense.no/a-name-that-answers-for-24-hours">
+<meta property="article:published_time" content="2026-09-23">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "A Name That Answers for 24 Hours, Then Stops Existing",
+      "description": "53for24h.com is an authoritative name server for a single zone, serving short-lived names of the form aisense-slug.53for24h.com over a free REST API and four MCP tools, with a fixed TTL of 60 seconds and a 24 hour lifetime.",
+      "url": "https://aisense.no/a-name-that-answers-for-24-hours",
+      "datePublished": "2026-09-23",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" },
+      "about": {
+        "@type": "WebAPI",
+        "name": "53for24h DNS names",
+        "documentation": "https://aisense.no/free-public-apis",
+        "provider": { "@type": "Organization", "name": "AI SENSE AS" }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "A name that answers for 24 hours", "item": "https://aisense.no/a-name-that-answers-for-24-hours" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">A name that answers for 24 hours</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 23 September 2026</p>
+  <h1>A Name That Answers for 24 Hours, Then Stops Existing</h1>
+  <p class="article-deck">53for24h.com is an authoritative name server for one zone, written for this service rather than adopted. One call gives you a name that points where you say. It answers from public resolvers within a second, and a day later it is gone whether you remember it or not.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">Plenty of work needs a public hostname for an afternoon. A callback target while a webhook is being built. A demo that has to be reachable by name rather than by address. An agent that must be addressable for the length of one job. The name is needed for an hour, and the usual path is to register something, wait for it to spread, and then forget to clean it up. Here the cleanup is the default.</p>
+
+<h2>What it does</h2>
+
+<p>One request with the address you want it to point at gives back a name of the form <code>aisense-slug.53for24h.com</code>, an A record with a TTL of 60 seconds, and a token that is shown once. The name lives for 24 hours from creation. Nothing renews it.</p>
+
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/dns \
+  -H 'Content-Type: application/json' \
+  -d '{"ip": "203.0.113.10"}'</code></pre>
+
+<p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Reading it back needs nothing at all, since everything in it is already public in DNS. Changing the address or removing the name needs the token.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Call</th><th>Token</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><code>POST /services/v1/dns</code></td><td>None</td><td>Create a name. The address must be a public unicast address</td></tr>
+<tr><td><code>GET /services/v1/dns/{slug}</code></td><td>None</td><td>Read what the name currently says</td></tr>
+<tr><td><code>POST /services/v1/dns/{slug}/update</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
+<tr><td><code>DELETE /services/v1/dns/{slug}</code></td><td>Bearer</td><td>Remove it from both name servers at once</td></tr>
+</tbody>
+</table></div>
+
+<p>The same four operations are MCP tools, so an agent can do this without an HTTP client of its own: <code>create_dns_name</code>, <code>read_dns_name</code>, <code>update_dns_name</code> and <code>delete_dns_name</code> on the free MCP server.</p>
+
+<h2>Measured this evening</h2>
+
+<p>We ran the whole cycle from outside, against the live service, before writing this.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Step</th><th>What happened</th></tr></thead>
+<tbody>
+<tr><td>Create</td><td>201 in 0.23 seconds, with the name, TTL 60 and an expiry 24 hours out</td></tr>
+<tr><td>Resolve</td><td>The same address from both name servers and from a public resolver immediately after</td></tr>
+<tr><td>Read</td><td>200, the same record, no token needed</td></tr>
+<tr><td>Delete</td><td>200, and neither name server answered for the name afterwards</td></tr>
+<tr><td>An unknown name in the zone</td><td>NXDOMAIN from both</td></tr>
+<tr><td>A name outside the zone</td><td>REFUSED from both, which is what an authoritative server should say</td></tr>
+<tr><td>The zone itself</td><td>Same serial from both servers over TCP, before and after the change</td></tr>
+</tbody>
+</table></div>
+
+<div class="article-cta">
+  <p class="eyebrow">The shape of it</p>
+  <h2>Create it, use it, and let it expire.</h2>
+  <p>A name that outlives the work becomes something to inventory, secure and eventually explain. A name with 24 hours on it never becomes anything.</p>
+</div>
+
+<h2>Two servers, two places</h2>
+
+<p>The zone is served by two name servers, <code>ns1.aisenseapi.com</code> and <code>ns2.aisenseapi.com</code>, on separate machines at separate sites, and the delegation for 53for24h.com points at them at the registry. A change written through the API reaches both, and both report the same zone serial. Everything else in DNS is left alone: the service serves this one zone and answers REFUSED for anything outside it.</p>
+
+<h2>Limits, and what this is not</h2>
+
+<p>The pilot allows 20 names per client address per UTC day and 100 active names in total. The TTL menu has one item, 60 seconds, because a short-lived name with a long TTL is a name that keeps answering after it is gone. Names are public: they are in DNS, they can be enumerated by anyone watching, and nothing private belongs in one.</p>
+
+<p>This is a pilot, and we are not quoting a query rate. The capacity of the running daemon has not been measured, so any number here would be a guess. What is measured is above, and it is one cycle rather than a load test.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Take one</p>
+  <h2>No account, no API key, and it cleans up after itself.</h2>
+  <p>The DNS calls sit with the rest of the free public API, and the four MCP tools are on the same free MCP server as the other tools.</p>
+  <div class="button-row"><a href="/free-public-apis">The free public APIs</a> <a href="/free-public-mcp-server">The MCP server</a> <a href="/ai-sense-posts">More posts</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
