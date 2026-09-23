@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.2.1
+Resource version 1.3.0
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -20,10 +20,11 @@ This public server needs no account, API key or authentication header. Its tools
 | Inspect the first incoming HTTP request | Webhook Capture | One captured request |
 | Ask one person or a group for a decision | Human Approval | One-use response links |
 | Hand off a value or short link | Temporary Data or URL | Readable by anyone holding the ID or link |
+| A public name for an address, for a day | Temporary DNS Name | A DNS record only: no tunnel, no hosting, no certificate |
 
 ## Tool catalog
 
-Catalog size: 28 MCP tools.
+Catalog size: 32 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -54,6 +55,10 @@ Catalog size: 28 MCP tools.
 - `ack_agent_queue_job` - Complete work using the current claim receipt.
 - `release_agent_queue_job` - Return a claim for retry if attempts remain.
 - `renew_agent_queue_job` - Move the current claim deadline within queue expiry.
+- `create_dns_name` - Assign a public hostname to an address for 24 hours.
+- `read_dns_name` - Read what a name points at and when it expires.
+- `update_dns_name` - Move a name to another address without moving its expiry.
+- `delete_dns_name` - Remove a name before it expires.
 <!-- mcp-tool-catalog:end -->
 
 Use `tools/list` for the exact input schemas. This catalog lists MCP tools, not the larger REST helper catalog. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
@@ -134,3 +139,19 @@ REST read and wait paths:
 - https://aisenseapi.com/services/v1/webhook_capture/{capture_id}/wait/{seconds}
 - https://aisenseapi.com/services/v1/webhook_action/{action_id}
 - https://aisenseapi.com/services/v1/webhook_action/{action_id}/wait/{seconds}
+
+## Temporary DNS names
+
+`create_dns_name` assigns `aisense-<slug>.53for24h.com` to a public unicast IPv4 or IPv6 address you supply. Names are assigned, never chosen. The address is required and is never taken from the caller, because the caller is usually not the machine the name should point at. Private, loopback, link-local and multicast addresses are refused.
+
+The answer carries `dns_token` once. It is the only way to change or remove the name. Expiry is fixed at 24 hours from creation and nothing extends it, so a name is for the length of a task and not for publishing. TTL is 60 seconds, and the served TTL never exceeds the time the name has left, so no cache keeps answering for a name that has expired. Negative answers are cached for 5 seconds.
+
+A name is a DNS record and nothing else: no tunnel, no hosting, no certificate and no HTTPS. The zone is not on the Public Suffix List, so every name shares one certificate quota and browsers treat them as one site. Do not put a login behind one.
+
+Limits are 20 names per client address per UTC day, one change per name per 10 seconds, and 100 active names in the pilot. `update_dns_name` moves the address, never the expiry. `delete_dns_name` removes the name from both name servers at once. A resolver that already holds the answer keeps it for the rest of its TTL.
+
+REST paths:
+
+- https://aisenseapi.com/services/v1/dns
+- https://aisenseapi.com/services/v1/dns/{slug}
+- https://aisenseapi.com/services/v1/dns/{slug}/update

@@ -1412,6 +1412,57 @@ The eight MCP equivalents and their argument names are listed in
 The standalone machine-readable Queue contract is
 [`queue-openapi.json`](queue-openapi.json). It does not describe other endpoints.
 
+### DNS names - 24h TTL
+
+A public hostname for an address, for a day. `POST /dns` with the address it
+should point at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with
+a TTL of 60 seconds, and a `dns_token` shown once.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/dns \
+  -H 'Content-Type: application/json' \
+  -d '{"ip": "203.0.113.10"}'
+```
+
+```json
+{
+  "ok": true,
+  "name": "aisense-t1mpdqk.53for24h.com",
+  "slug": "t1mpdqk",
+  "ip": "203.0.113.10",
+  "record": "A",
+  "ttl": 60,
+  "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"],
+  "expire_at": "2026-09-24T18:42:17Z",
+  "dns_token": "shown once",
+  "serial": 9
+}
+```
+
+| Method and path | Token | Does |
+|---|---|---|
+| `POST /dns` | None | Creates a name. `ip` is required and must be a public unicast address. 201 |
+| `GET /dns/{slug}` | None | Reads the name, its address and its expiry. Everything in it is already public in DNS |
+| `POST /dns/{slug}/update` | Bearer | Moves the name to another address. The expiry does not move |
+| `DELETE /dns/{slug}` | Bearer | Removes the name from both name servers at once |
+
+Names are assigned, never chosen, and the address is never taken from the
+caller, because the caller is usually not the machine the name should point at.
+Private, loopback, link-local and multicast addresses are refused. Expiry is
+fixed at 24 hours and nothing extends it. The served TTL never exceeds the time
+the name has left, and negative answers are cached for 5 seconds.
+
+A name is a DNS record and nothing else: no tunnel, no hosting, no certificate
+and no HTTPS. The zone is not on the Public Suffix List, so every name shares
+one certificate quota and browsers treat them as one site. Do not put a login
+behind one, and do not put anything private in a name: the zone is public and
+can be watched.
+
+Limits are 20 names per client address per UTC day, one change per name per 10
+seconds, and 100 active names while the service is a pilot. The four MCP
+equivalents are `create_dns_name`, `read_dns_name`, `update_dns_name` and
+`delete_dns_name`.
+
 ---
 
 ## Crypto
