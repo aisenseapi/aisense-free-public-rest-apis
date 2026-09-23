@@ -85,7 +85,7 @@
 <tr><td><code>GET /services/v1/dns/{ip}</code></td><td>None</td><td>Create a name for the address, which must be public unicast</td></tr>
 <tr><td><code>GET /services/v1/dns/{slug}</code></td><td>None</td><td>Read what the name currently says</td></tr>
 <tr><td><code>GET /services/v1/dns/{slug}/update/{ip}</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
-<tr><td><code>GET /services/v1/dns/{slug}/delete</code></td><td>Bearer</td><td>Remove it from both name servers at once</td></tr>
+<tr><td><code>GET /services/v1/dns/{slug}/delete</code></td><td>Bearer</td><td>Remove it; the primary at once, the secondary as replication follows</td></tr>
 </tbody>
 </table></div>
 
