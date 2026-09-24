@@ -160,6 +160,7 @@
 <tr><td>Heartbeat</td><td>Armed for no more than 24 hours. Terminal timing and delivery state can remain readable for another 24 hours</td></tr>
 <tr><td>Lease</td><td>Until the fixed absolute expiry 24 hours after the first acquisition. Renewals do not extend it</td></tr>
 <tr><td>Agent Inbox API state</td><td>At most 24 hours from creation. Activity does not extend expiry</td></tr>
+<tr><td>Temporary DNS names</td><td>24 hours from creation, or until deleted. The name and its address are public in DNS for as long as the name lives. The creator's address, a hash of the token and the timestamps are kept with the record on both name servers and are removed within a minute of expiry. The lookup counters on the primary count queries per name and hold no client addresses</td></tr>
 <tr><td>Raw Inbox mail at the receiving provider</td><td>Separate mailbox and provider retention. The 24-hour API expiry does not delete this copy, and the default worker does not configure a purge period</td></tr>
 <tr><td>Agent Queue, including completed and failed jobs</td><td>Until the fixed expiry 24 hours after queue creation. Activity does not extend it</td></tr>
 <tr><td>Rate limit counters</td><td>Shared request counters and the storage byte counters reset at server midnight. Queue creation uses a separate fixed 24-hour window. Inbox creation uses a UTC-day quota</td></tr>

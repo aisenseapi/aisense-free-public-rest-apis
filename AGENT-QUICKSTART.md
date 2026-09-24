@@ -1,7 +1,7 @@
 # AI SENSE Agent Quickstart
 
 Use this guide for one complete Queue workflow. See [AGENT-GUIDE.md](AGENT-GUIDE.md)
-for the compact 28-tool catalog, [MCP.md](MCP.md) for protocol details, and
+for the compact 32-tool catalog, [MCP.md](MCP.md) for protocol details, and
 [API.md](API.md#agent-queue---temporary-work-for-multiple-workers) for response
 fields and limits.
 

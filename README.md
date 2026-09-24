@@ -31,8 +31,8 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 retry decisions.
 
 The server reports version `1.8.2`. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.8.1` as active, verified on
-15 September 2026, one release behind the server until the next publish.
+`com.aisenseapi/free-public-tools` version `1.8.2` as active and latest,
+published 24 September 2026.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
@@ -721,8 +721,8 @@ survives in a JavaScript client.
 
 ---
 
-The bundled JavaScript and Python clients do not yet wrap Agent Queue. Use
-the raw HTTP examples above or the eight MCP tools for Queue operations.
+The bundled JavaScript and Python clients wrap Agent Queue with eight methods
+each, one per MCP tool; the raw HTTP examples above show the same calls.
 
 ## Quick start by language
 
