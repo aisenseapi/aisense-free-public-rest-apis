@@ -77,6 +77,8 @@
 
 <pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"</code></pre>
 
+<p><code>203.0.113.10</code> is a documentation address and the service refuses it with 400. Put the public unicast address the name should point at in its place.</p>
+
 <p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Every call is a GET with its arguments in the path, and a seven character slug can never be mistaken for an address. Reading needs nothing at all, since everything a read returns is already public in DNS. Changing the address or removing the name needs the token, which travels in an <code>Authorization: Bearer</code> header, never in the path.</p>
 
 <div class="table-wrap"><table>
