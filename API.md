@@ -1412,7 +1412,7 @@ The eight MCP equivalents and their argument names are listed in
 The standalone machine-readable Queue contract is
 [`queue-openapi.json`](queue-openapi.json). It does not describe other endpoints.
 
-### DNS names - 24h TTL
+### DNS names - 24h lifetime
 
 A public hostname for an address, for a day. Every call is a GET with its
 arguments in the path. `GET /dns/{ip}` with the address the name should point
@@ -1422,6 +1422,8 @@ seconds, and a `dns_token` shown once.
 ```bash
 curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"
 ```
+
+`203.0.113.10` is a documentation address and the service refuses it with 400. Put the public unicast address the name should point at in its place.
 
 ```json
 {

@@ -1291,6 +1291,10 @@
         "properties": {
           "error": {
             "type": "string"
+          },
+          "fix": {
+            "type": "string",
+            "description": "What to do instead, when the service knows."
           }
         },
         "required": [

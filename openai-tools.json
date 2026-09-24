@@ -419,7 +419,7 @@
     "type": "function",
     "function": {
       "name": "webhook_capture_read",
-      "description": "Read the first captured request, or a pending result until capture. A captured result includes {ok, capture_id, captured_at_timestamp, captured_at_datetime, request: {method, uri, headers, client_ip, body}}. Optional long poll adds waited_seconds and wait_reason. The capture ID is a bearer secret. An expired stored session returns 410, then 404 after cleanup. GET /webhook_capture/{capture_id}[/wait/{wait_seconds}]",
+      "description": "Read the first captured request, or a pending result until capture. A captured result includes {ok, capture_id, captured_at_timestamp, captured_at_datetime, request: {method, uri, headers, client_ip, body}}. Optional long poll adds waitedSeconds and waitReason. The capture ID is a bearer secret. An expired stored session returns 410, then 404 after cleanup. GET /webhook_capture/{capture_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -563,7 +563,7 @@
     "type": "function",
     "function": {
       "name": "webhook_action_result",
-      "description": "Read a human form result with status pending, partial (group forms) or answered. Single forms return response. Group forms additionally return responses, respondents, answered and tally. The fixed 24-hour expiry never extends on answers. Optional long poll adds waited_seconds and wait_reason and returns on a state change. Keep action_id secret. GET /webhook_action/{action_id}[/wait/{wait_seconds}]",
+      "description": "Read a human form result with status pending, partial (group forms) or answered. Single forms return response. Group forms additionally return responses, respondents, answered and tally. The fixed 24-hour expiry never extends on answers. Optional long poll adds waitedSeconds and waitReason and returns on a state change. Keep action_id secret. GET /webhook_action/{action_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -893,7 +893,7 @@
     "type": "function",
     "function": {
       "name": "agent_wake_status",
-      "description": "Read a durable Agent Wake task. Returns working, input_required, completed, failed or cancelled. A completed task includes the event result. Optional long poll adds waited_seconds and wait_reason. The task ID is a bearer secret. GET /agent_wake/{task_id}[/wait/{wait_seconds}]",
+      "description": "Read a durable Agent Wake task. Returns working, input_required, completed, failed or cancelled. A completed task includes the event result. Optional long poll adds waitedSeconds and waitReason. The task ID is a bearer secret. GET /agent_wake/{task_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -948,7 +948,7 @@
     "type": "function",
     "function": {
       "name": "agent_inbox_read",
-      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means at least one message was refused, by the 20 message cap or by the 256 KiB total across the inbox. An inbox at a cap refuses new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waited_seconds and wait_reason. It returns when received or truncated changes (a new message or the first refused message), or when the wait ends. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
+      "description": "Read the mail in an Agent Inbox. Returns {\"ok\", \"slug\", \"address\", \"received\", \"truncated\", \"messages\": [{\"from\", \"subject\", \"date\", \"text\", \"codes\", \"links\"}], \"created_at_timestamp\", \"expire_timestamp\"} - inbox_id is never echoed back. \"date\" is when the service received the message, not the sender's Date header. \"codes\" are standalone 4 to 8 digit numbers and \"links\" are public http(s) links only. \"truncated\" true means at least one message was refused, by the 20 message cap or by the 256 KiB total across the inbox. An inbox at a cap refuses new mail rather than evicting old mail. A wrong inbox_id and a missing inbox both answer 404, never 403. With wait_seconds the call long polls and adds waitedSeconds and waitReason. It returns when received or truncated changes (a new message or the first refused message), or when the wait ends. GET /inbox/{inbox_id}[/wait/{wait_seconds}]",
       "parameters": {
         "type": "object",
         "properties": {

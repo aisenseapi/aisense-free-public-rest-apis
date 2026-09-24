@@ -527,7 +527,7 @@ key itself must be a high-entropy ASCII value from 32 to 200 characters.
 MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 `release_lease` and `complete_lease` for the same flow.
 
-### Temporary DNS name - 24h TTL
+### Temporary DNS name - 24h lifetime
 
 `GET /dns/{ip}` (the address last in the path) -> `{"ok": true, "name": "aisense-<slug>.53for24h.com", "ttl": 60, "expire_at": "...", "dns_token": "shown once", "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"]}`
 
