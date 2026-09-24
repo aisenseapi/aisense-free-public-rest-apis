@@ -704,20 +704,21 @@ mcp_expect() {
 mcp_post '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test.sh","version":"1.0"}}}'
 mcp_expect "MCP initialize (2025-11-25)" '"serverInfo"'
 
-# Twenty-eight tools, exactly. The MCP guide and public web page must agree
+# Thirty-two tools, exactly. The MCP guide and public web page must agree
 # with this number whenever the public tool surface changes. It was eighteen,
 # then twenty when create_agent_inbox and read_agent_inbox joined, and this
 # line stayed at twenty for four days after the eight Agent Queue tools were
 # deployed on 9 September 2026: the suite reported a failure against a healthy
 # service, which is the same false alarm as a passing suite against a broken
 # one. server.json, MCP.md, SKILL.md and AGENT-QUICKSTART.md all said 28
-# before this did.
+# before this did, and the same happened again at 32 when the four DNS tools
+# landed on 23 September 2026.
 mcp_post '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' '2025-11-25'
 MCP_TOOLS=$(echo "$BODY" | grep -o '"name":"[a-z_]*"' | sort -u | wc -l)
-if [ "$MCP_TOOLS" -eq 28 ]; then
-  ok "MCP tools/list (exactly 28 tools)"
+if [ "$MCP_TOOLS" -eq 32 ]; then
+  ok "MCP tools/list (exactly 32 tools)"
 else
-  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 28 - update MCP.md and the web page together with this number"
+  bad "MCP tools/list" "found $MCP_TOOLS tools, expected 32 - update MCP.md and the web page together with this number"
 fi
 mcp_expect "MCP lists create_heartbeat" '"name":"create_heartbeat"'
 mcp_expect "MCP lists read_heartbeat" '"name":"read_heartbeat"'

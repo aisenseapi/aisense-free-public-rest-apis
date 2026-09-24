@@ -1449,7 +1449,9 @@ Names are assigned, never chosen, and the address is never taken from the
 caller, because the caller is usually not the machine the name should point at.
 Private, loopback, link-local and multicast addresses are refused. Expiry is
 fixed at 24 hours and nothing extends it. The served TTL never exceeds the time
-the name has left, and negative answers are cached for 5 seconds.
+the name has left, and negative answers are cached for 5 seconds. Every name
+also carries SPF `-all` and a null MX, and the zone publishes a DMARC reject
+policy, so no name can send or receive mail.
 
 A name is a DNS record and nothing else: no tunnel, no hosting, no certificate
 and no HTTPS. The zone is not on the Public Suffix List, so every name shares

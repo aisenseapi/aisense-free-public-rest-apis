@@ -783,7 +783,7 @@ it will use these APIs as tools automatically.
 | [`API.md`](API.md) | Endpoint contracts, source checks and dated production observations |
 | [`queue-openapi.json`](queue-openapi.json) | Standalone OpenAPI contract for Agent Queue |
 | [`MCP.md`](MCP.md) | Remote MCP server, tool list and client examples |
-| [`AGENT-GUIDE.md`](AGENT-GUIDE.md) | Canonical compact guide to all 28 workflow tools |
+| [`AGENT-GUIDE.md`](AGENT-GUIDE.md) | Canonical compact guide to all 32 workflow tools |
 | [`AGENT-QUICKSTART.md`](AGENT-QUICKSTART.md) | Complete Queue example, worker and retry decisions |
 | [`server.json`](server.json) | Metadata for the official MCP Registry |
 | [`aisense_api.py`](aisense_api.py) | Python client (standard library only) |
