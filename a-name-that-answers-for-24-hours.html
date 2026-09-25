@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>A Name That Answers for 24 Hours, Then Stops Existing - AI SENSE</title>
-<meta name="description" content="53for24h.com is an authoritative name server for one zone. One call gives a name that points where you say, resolves through public resolvers at once, and is gone a day later. No account, no API key, and deleting it is one call or no call at all.">
+<meta name="description" content="53for24h.com is an authoritative name server for one zone. One call gives a name that points where you say, resolves through public resolvers once it exists, and is gone a day later. No account, no API key, and deleting it is one call or no call at all.">
 <link rel="canonical" href="https://aisense.no/a-name-that-answers-for-24-hours">
 
 <meta property="og:type" content="article">
@@ -65,7 +65,7 @@
 <header class="article-header">
   <p class="eyebrow">Product note - 23 September 2026</p>
   <h1>A Name That Answers for 24 Hours, Then Stops Existing</h1>
-  <p class="article-deck">53for24h.com is an authoritative name server for one zone, written for this service rather than adopted. One call gives you a name that points where you say. It answers from public resolvers within a second, and a day later it is gone whether you remember it or not.</p>
+  <p class="article-deck">53for24h.com is an authoritative name server for one zone, written for this service rather than adopted. One call gives you a name that points where you say. Public resolvers answer it on their first lookup after it exists, and a day later it is gone whether you remember it or not.</p>
 </header>
 
 <div class="article-body">
@@ -75,9 +75,9 @@
 
 <p>One request with the address you want it to point at gives back a name of the form <code>aisense-slug.53for24h.com</code>, an A record with a TTL of 60 seconds, and a token that is shown once. The name lives for 24 hours from creation. Nothing renews it.</p>
 
-<pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"</code></pre>
+<pre><code>curl "https://aisenseapi.com/services/v1/dns/&lt;YOUR_PUBLIC_IP&gt;"</code></pre>
 
-<p><code>203.0.113.10</code> is a documentation address and the service refuses it with 400. Put the public unicast address the name should point at in its place.</p>
+<p>Replace <code>&lt;YOUR_PUBLIC_IP&gt;</code> with the public unicast address the name should point at. Private, reserved and documentation ranges are refused with 400.</p>
 
 <p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Every call is a GET with its arguments in the path, and a seven character slug can never be mistaken for an address. Reading needs nothing at all, since everything a read returns is already public in DNS. Changing the address or removing the name needs the token, which travels in an <code>Authorization: Bearer</code> header, never in the path.</p>
 
