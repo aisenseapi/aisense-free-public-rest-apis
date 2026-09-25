@@ -278,7 +278,8 @@ export class AISenseAPI {
   }
 
   /**
-   * Decode Base58. Answers with raw bytes, not JSON, and ignores `Accept`.
+   * Decode Base58 and return the raw bytes. The service answers JSON when asked
+   * with `Accept: application/json`; this method does not ask.
    *
    * This endpoint used to validate its input with the Base32 decoder and reject
    * everything with "Invalid Base32 input.", including strings produced by
@@ -294,7 +295,10 @@ export class AISenseAPI {
     return this.#post('/base32_encode', { data })
   }
 
-  /** Decode Base32. Answers with raw bytes, not JSON, and ignores `Accept`. */
+  /**
+   * Decode Base32 and return the raw bytes. The service answers JSON when asked
+   * with `Accept: application/json`; this method does not ask.
+   */
   base32Decode(data) {
     return this.#requestBinary('/base32_decode', { data })
   }

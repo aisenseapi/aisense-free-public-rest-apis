@@ -52,11 +52,11 @@
 
 <div class="api-detail-body">
 
-<section id="quick-start"><h2>Call the free Temporary DNS Name API endpoint</h2><p>Put the address the name should point at straight after <code>/dns/</code>. It has to be a public unicast address, IPv4 or IPv6, and it is never taken from the caller, because the machine asking is usually not the machine the name should reach.</p><pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"</code></pre><p><code>203.0.113.10</code> is a documentation address and the service refuses it with 400. Put the public unicast address the name should point at in its place.</p><pre><code>{
+<section id="quick-start"><h2>Call the free Temporary DNS Name API endpoint</h2><p>Put the address the name should point at straight after <code>/dns/</code>. It has to be a public unicast address, IPv4 or IPv6, and it is never taken from the caller, because the machine asking is usually not the machine the name should reach.</p><pre><code>curl "https://aisenseapi.com/services/v1/dns/&lt;YOUR_PUBLIC_IP&gt;"</code></pre><p>Replace <code>&lt;YOUR_PUBLIC_IP&gt;</code> with the public unicast address the name should point at. Private, reserved and documentation ranges are refused with 400. An illustrative answer:</p><pre><code>{
   "ok": true,
   "name": "aisense-t1mpdqk.53for24h.com",
   "slug": "t1mpdqk",
-  "ip": "203.0.113.10",
+  "ip": "&lt;YOUR_PUBLIC_IP&gt;",
   "record": "A",
   "ttl": 60,
   "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"],
