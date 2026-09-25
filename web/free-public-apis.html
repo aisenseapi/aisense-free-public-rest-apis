@@ -540,8 +540,8 @@ Response: {"result": 42}</code></pre>
 <article class="endpoint">
 <h3><a href="/free-public-api-dns-name-api-endpoint">Temporary DNS Name REST API Endpoint</a></h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/dns/{ip}</span></p>
-<p>The address goes last in the path. The name is on 53for24h.com and expires after 24 hours. <code>203.0.113.10</code> is a documentation address the service refuses; put the public address the name should point at in its place.</p>
-<pre><code>curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"
+<p>The address goes last in the path, in place of <code>&lt;YOUR_PUBLIC_IP&gt;</code>; private, reserved and documentation ranges are refused. The name is on 53for24h.com and expires after 24 hours.</p>
+<pre><code>curl "https://aisenseapi.com/services/v1/dns/&lt;YOUR_PUBLIC_IP&gt;"
 
 { "name": "aisense-t1mpdqk.53for24h.com", "ttl": 60, "dns_token": "shown once" }</code></pre>
 </article>

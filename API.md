@@ -271,8 +271,12 @@ bytes.
 ---
 
 ### `POST /base58_decode`
-Same `Accept` behaviour as `base64_decode`. An invalid Base58 character returns
-HTTP 400 with `{"error": "Invalid Base58 input."}`.
+Answers with the raw bytes as `application/octet-stream`. With
+`Accept: application/json` it answers `{"type": "json", "decoded_data": ...}` when the decoded bytes are JSON, and
+`{"type": "binary", "encoding": "base64", "decoded_data": "..."}` otherwise.
+Unlike `base64_decode` there is no `text/plain` mode and no 406: any other
+`Accept` gets the bytes. An invalid Base58 character returns HTTP 400 with
+`{"error": "Invalid Base58 input."}`.
 
 ```json
 { "data": "9Ajdvzr" } -> Hello
@@ -288,7 +292,11 @@ HTTP 400 with `{"error": "Invalid Base58 input."}`.
 ---
 
 ### `POST /base32_decode`
-Same `Accept` behaviour as `base64_decode`.
+Answers with the raw bytes as `application/octet-stream`. With
+`Accept: application/json` it answers `{"type": "json", "decoded_data": ...}` when the decoded bytes are JSON, and
+`{"type": "binary", "encoding": "base64", "decoded_data": "..."}` otherwise.
+Unlike `base64_decode` there is no `text/plain` mode and no 406: any other
+`Accept` gets the bytes.
 
 ```json
 { "data": "JBSWY3DP" } -> Hello
@@ -1420,17 +1428,19 @@ at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with a TTL of 60
 seconds, and a `dns_token` shown once.
 
 ```bash
-curl "https://aisenseapi.com/services/v1/dns/203.0.113.10"
+curl "https://aisenseapi.com/services/v1/dns/<YOUR_PUBLIC_IP>"
 ```
 
-`203.0.113.10` is a documentation address and the service refuses it with 400. Put the public unicast address the name should point at in its place.
+Replace `<YOUR_PUBLIC_IP>` with the public unicast address the name should point
+at. Private, reserved and documentation ranges are refused with 400. An
+illustrative answer:
 
 ```json
 {
   "ok": true,
   "name": "aisense-t1mpdqk.53for24h.com",
   "slug": "t1mpdqk",
-  "ip": "203.0.113.10",
+  "ip": "<YOUR_PUBLIC_IP>",
   "record": "A",
   "ttl": 60,
   "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"],

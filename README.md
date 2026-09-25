@@ -624,7 +624,9 @@ curl -X POST https://aisenseapi.com/services/v1/base64_decode \
 
 The three decoders (`base64_decode`, `base58_decode`, `base32_decode`) answer
 with `application/octet-stream` unless you send `Accept: application/json`.
-This is the one place the API is not JSON.
+This is the one place the API is not JSON. `base64_decode` also answers
+`text/plain` and refuses an `Accept` it cannot serve with 406; the other two
+give the bytes for anything but JSON.
 
 **JWT - `data` takes the claims as a JSON object, or as a string containing
 JSON.** Both forms produce the same token.

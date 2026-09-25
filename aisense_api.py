@@ -262,7 +262,8 @@ class AISenseAPI:
         return self._post("/base58_encode", {"data": data})
 
     def base58_decode(self, data: str) -> Union[str, bytes]:
-        """Decode Base58. Answers with raw bytes, not JSON, and ignores ``Accept``.
+        """Decode Base58 and return the raw bytes. The service answers JSON when
+        asked with ``Accept: application/json``; this method does not ask.
 
         This endpoint used to validate its input with the Base32 decoder and
         reject everything with "Invalid Base32 input.", including strings
@@ -277,7 +278,8 @@ class AISenseAPI:
         return self._post("/base32_encode", {"data": data})
 
     def base32_decode(self, data: str) -> Union[str, bytes]:
-        """Decode Base32. Answers with raw bytes, not JSON, and ignores ``Accept``."""
+        """Decode Base32 and return the raw bytes. The service answers JSON when
+        asked with ``Accept: application/json``; this method does not ask."""
         return self._request_binary("/base32_decode", {"data": data})
 
     def jwt_encode(self, payload: Union[dict, str], secret: str) -> dict:
