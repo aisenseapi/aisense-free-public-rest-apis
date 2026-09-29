@@ -246,7 +246,7 @@
     <strong>Drop a QR code or barcode image here</strong>
     <small>or click to choose a file, or paste a screenshot with Ctrl+V / Cmd+V</small>
   </div>
-  <input type="file" id="qr-input" accept="image/*" multiple hidden>
+  <input type="file" id="qr-input" accept="image/png,image/jpeg,image/gif,image/webp,.png,.jpg,.jpeg,.gif,.webp" multiple hidden>
 
   <div class="qr-list" id="qr-list" aria-live="polite"></div>
 </div>
@@ -270,7 +270,7 @@
 
 <p>Both <code>payload</code> and <code>data</code> are accepted as the field name. The base64 must be the raw encoding - a <code>data:image/png;base64,</code> prefix is rejected with <code>400</code> and <code>{"error":"Invalid base64 payload"}</code>, so strip it before sending.</p>
 
-<p>If the image carries no readable code, the answer is <code>400</code> with <code>{"error":"No valid payload. Provide a file or base64 image"}</code>. Treat that as a real answer about the image rather than a fault worth retrying.</p>
+<p>If the image carries no readable code, the answer is <code>400</code> with the error <code>No QR code or barcode was found in the image.</code> and a <code>fix</code>. Treat that as a real answer about the image rather than a fault worth retrying.</p>
 
 <h2 id="safety">The decoded text is shown, never linked</h2>
 <p>A QR code is an instruction nobody can read until it has been decoded, which is exactly what makes it a convenient carrier for phishing. Stickers placed over real payment codes and lookalike domains on parking signs both work because the victim cannot see the destination before arriving at it.</p>
@@ -280,7 +280,8 @@
 <h2 id="limits">What it does and does not do</h2>
 <ul>
   <li><strong>Nothing is stored.</strong> The image is decoded inside the request and the temporary file is removed in the same call. There is no id and no shareable URL - if you want that, use the <a href="/upload">file uploader</a> instead.</li>
-  <li><strong>One code per image.</strong> The first code found comes back as a single string.</li>
+  <li><strong>PNG, JPEG, GIF or WebP</strong>, at most 10 MB and 25 megapixels. A PDF is refused; send the page as an image instead.</li>
+  <li><strong>Every code comes back.</strong> An image with several codes gives each on its own line in the one string.</li>
   <li><strong>Going the other way</strong> is the <a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode endpoint</a>, which turns text into a PNG.</li>
   <li><strong>The full parameter table and error contract</strong> are in the <a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode endpoint reference</a>.</li>
 </ul>

@@ -369,7 +369,9 @@ Generates a QR code. The request field is `payload`, with `data` accepted as an 
 
 ### `POST /qrcode_decode`
 Accepts a Base64 image in the **`payload`** field, or a file upload
-(`qrcode_image` field, `multipart/form-data`).
+(`qrcode_image` field, `multipart/form-data`). The image is a PNG, JPEG,
+GIF or WebP of at most 10 MB and 25 megapixels. Anything else, a PDF
+included, is refused with 415 before it is opened.
 
 ```json
 // Request
@@ -378,6 +380,17 @@ Accepts a Base64 image in the **`payload`** field, or a file upload
 // Response
 { "qrcode_content": "https://aisenseapi.com/" }
 ```
+
+Several codes in one image come back one per line in the same string.
+
+| Status | When |
+|--------|------|
+| 400 | No payload, invalid base64, an image that does not open, or no code found |
+| 413 | Over 10 MB or 25 megapixels |
+| 415 | Not a PNG, JPEG, GIF or WebP |
+| 503 | Two images are being worked on already (with `Retry-After`), or the decoding took more than 45 seconds |
+
+Every refusal carries `error` and `fix`.
 
 ---
 
@@ -2100,7 +2113,7 @@ at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
 The sweep is staged. Storage, the five Convert endpoints, the six Images
-endpoints, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
+endpoints, qrcode_decode, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
 fix on every refusal today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
 

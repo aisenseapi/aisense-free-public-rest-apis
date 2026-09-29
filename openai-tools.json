@@ -234,7 +234,7 @@
     "type": "function",
     "function": {
       "name": "qrcode_decode",
-      "description": "Decode a QR code image. Returns {\"qrcode_content\": \"https://example.com\"}. The request field is \"payload\", with \"data\" accepted as an alias. POST /qrcode_decode",
+      "description": "Decode a QR code image. Returns {\"qrcode_content\": \"https://example.com\"}. The request field is \"payload\", with \"data\" accepted as an alias. Takes a PNG, JPEG, GIF or WebP of at most 10 MB. POST /qrcode_decode",
       "parameters": {
         "type": "object",
         "properties": {

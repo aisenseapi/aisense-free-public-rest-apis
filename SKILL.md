@@ -178,7 +178,8 @@ HS256 only.
 -> { "qrcode_content": "https://example.com" }
 ```
 
-`qrcode_decode` also accepts a file upload in a `qrcode_image` field.
+`qrcode_decode` also accepts a file upload in a `qrcode_image` field. The image
+is a PNG, JPEG, GIF or WebP of at most 10 MB and 25 megapixels.
 
 ---
 
