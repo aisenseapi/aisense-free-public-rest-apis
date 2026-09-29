@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Free image converter API: HEIC, WebP, PNG and JPEG | AI SENSE</title>
-<meta name="description" content="Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
-<link rel="canonical" href="https://aisense.no/free-image-converter-api">
+<title>Free EXIF remover API: remove GPS and metadata from photos | AI SENSE</title>
+<meta name="description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<link rel="canonical" href="https://aisense.no/free-exif-remover-api">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
-<meta property="og:title" content="Free image converter: HEIC, WebP, PNG and JPEG - AI SENSE">
-<meta property="og:description" content="Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
-<meta property="og:url" content="https://aisense.no/free-image-converter-api">
+<meta property="og:title" content="Free EXIF remover: metadata out, pixels untouched - AI SENSE">
+<meta property="og:description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<meta property="og:url" content="https://aisense.no/free-exif-remover-api">
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css">
@@ -24,11 +24,11 @@
   "@graph": [
     {
       "@type": "WebAPI",
-      "name": "Free image converter API",
-      "url": "https://aisense.no/free-image-converter-api",
-      "documentation": "https://aisense.no/free-image-converter-api",
+      "name": "Free EXIF remover API",
+      "url": "https://aisense.no/free-exif-remover-api",
+      "documentation": "https://aisense.no/free-exif-remover-api",
       "termsOfService": "https://aisense.no/terms",
-      "description": "Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.",
+      "description": "Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.",
       "inLanguage": "en",
       "provider": {
         "@type": "Organization",
@@ -46,7 +46,7 @@
         "@type": "ConsumeAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://aisenseapi.com/services/v1/image_convert",
+          "urlTemplate": "https://aisenseapi.com/services/v1/image_strip",
           "httpMethod": "POST",
           "contentType": "multipart/form-data",
           "encodingType": "application/json"
@@ -58,7 +58,7 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is the image converter API free?",
+          "name": "Is the EXIF remover API free?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day."
@@ -66,26 +66,26 @@
         },
         {
           "@type": "Question",
-          "name": "Does it keep transparency?",
+          "name": "Does removing the metadata lower the quality?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "In PNG and WebP, yes. JPEG has no transparency, so transparent pixels become white."
+            "text": "No. The image data is copied byte for byte, so the pixels are exactly the same as in the upload."
           }
         },
         {
           "@type": "Question",
-          "name": "Is the GPS position removed?",
+          "name": "Will the photo still show the right way up?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. EXIF, XMP, IPTC and comments are removed from every result. The colour profile is kept, so the colours stay the same."
+            "text": "Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is."
           }
         },
         {
           "@type": "Question",
-          "name": "Can it convert HEIC or GIF?",
+          "name": "Can it remove metadata from HEIC?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its colour profile. GIF, no."
+            "text": "No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts."
           }
         }
       ]
@@ -108,7 +108,7 @@
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "Free image converter: HEIC, WebP, PNG and JPEG"
+          "name": "Free EXIF remover: metadata out, pixels untouched"
         }
       ]
     }
@@ -140,43 +140,45 @@
 <main>
 
 <nav class="breadcrumbs" aria-label="Breadcrumb">
-  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free image converter: HEIC, WebP, PNG and JPEG
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free EXIF remover: metadata out, pixels untouched
 </nav>
 
 <div class="hero">
-  <h1>Free image converter: HEIC, WebP, PNG and JPEG</h1>
-  <p class="lede">Drop an image and choose WebP, PNG or JPEG. HEIC photos from an iPhone work too. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.</p>
+  <h1>Free EXIF remover: metadata out, pixels untouched</h1>
+  <p class="lede">Drop a JPEG, PNG or WebP and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.</p>
 
   <div class="tool-lead-api">
     <div class="api-window">
       <div class="api-window-bar">The whole API</div>
-      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
-  -F "file=@photo.jpg" \
-  -F "format=webp"
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_strip \
+  -F "file=@photo.jpg"
 
 {
-  "storage_id": "1ddd4269-b51c-4209-a4de-6908926f672b",
-  "storage_url": "https://aisenseapi.com/services/v1/storage/1ddd4269-b51c-4209-a4de-6908926f672b",
-  "sha256_hash": "97350f282284446cbb19db5a0695a654e0162fafd52db766fb12099b6497202d",
-  "bytes": 195648,
-  "expire_timestamp": 1790767674,
-  "expire_datetime": "2026-09-30T11:27:54+00:00",
-  "content_type": "image/webp",
-  "filename": "result.webp",
-  "operation": "image_convert",
-  "format": "webp",
+  "storage_id": "3a60f9aa-1277-4025-9028-9d1a6c618118",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/3a60f9aa-1277-4025-9028-9d1a6c618118",
+  "sha256_hash": "976bb93fbccde05545bf17033d5616dc83ea7c5787b5eafc58ac1e0c54381679",
+  "bytes": 640376,
+  "expire_timestamp": 1790778560,
+  "expire_datetime": "2026-09-30T14:29:20+00:00",
+  "content_type": "image/jpeg",
+  "filename": "result.jpg",
+  "operation": "image_strip",
+  "format": "jpeg",
   "width": 1600,
   "height": 1200,
-  "input_format": "jpeg",
-  "input_bytes": 641358
+  "input_bytes": 640790,
+  "removed": [
+    "EXIF"
+  ],
+  "kept": []
 }</code></pre></div>
     </div>
     <div class="tool-badges">
       <span>No API key</span>
       <span>No account</span>
-      <span>HEIC, WebP, PNG and JPEG</span>
-      <span>EXIF removed</span>
-      <span>5000 req / IP / 24h</span>
+      <span>Not saved again</span>
+      <span>GPS removed</span>
+      <span>Colour profile kept</span>
     </div>
   </div>
 </div>
@@ -191,83 +193,54 @@
   <form id="tool-form">
     <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
       <strong>Drop an image here</strong>
-      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG, WebP or HEIC, up to 10 MB.</small>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG or WebP, up to 10 MB.</small>
     </div>
-    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,image/heic,image/heif,.heic,.heif" hidden>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
     <div class="tool-chosen" id="tool-chosen" hidden>
       <img id="tool-thumb" alt="The image you chose">
       <p class="tool-meta" id="tool-chosen-text"></p>
     </div>
-    <div class="tool-options">
-      <div class="tool-field">
-        <label for="tool-format">Convert to</label>
-        <select id="tool-format">
-          <option value="webp" selected>WebP</option>
-          <option value="png">PNG</option>
-          <option value="jpeg">JPEG</option>
-        </select>
-      </div>
-      <div class="tool-field" id="tool-quality-field">
-        <label for="tool-quality">Quality: <output id="tool-quality-value" for="tool-quality">82</output></label>
-        <input type="range" id="tool-quality" min="40" max="95" step="1" value="82">
-      </div>
-      <label class="tool-check" id="tool-lossless-field"><input type="checkbox" id="tool-lossless"> Lossless</label>
-    </div>
     <div class="tool-actions">
-      <button type="submit" class="button button-primary" id="tool-submit" disabled>Convert</button>
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Remove the metadata</button>
     </div>
   </form>
   <div class="tool-result" id="tool-result" aria-live="polite"></div>
 </div>
 
-<h2 id="how">How the conversion works</h2>
+<h2 id="how">How it works</h2>
 <ul>
-  <li><strong>JPEG, PNG, WebP and HEIC in, JPEG, PNG or WebP out.</strong> The format is read from the file itself, not from its name. An animated image is converted from its first frame.</li>
-  <li><strong>HEIC from an iPhone</strong> is turned the way the phone stored it, once, and keeps its colour profile, so the colours of a Display P3 photo stay right. HEIC can be read but not written.</li>
-  <li><strong>Quality</strong> goes from 40 to 95 for JPEG and WebP, and is 82 when you send none. PNG is lossless and takes no quality.</li>
-  <li><strong>Lossless WebP</strong> keeps every pixel. For screenshots and graphics it is usually far smaller than PNG.</li>
-  <li><strong>Transparency</strong> is kept in PNG and WebP. JPEG has none, so transparent pixels become white.</li>
-  <li><strong>The image is turned upright</strong> from the orientation a phone camera writes in the EXIF data, before that data is removed.</li>
-  <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC colour profile is kept, so the colours stay the same. A CMYK JPEG is converted to RGB.</li>
-  <li><strong>Nothing is resized.</strong> The result has the width and height of the upload, turned upright.</li>
+  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
+  <li><strong>From a JPEG</strong> it removes EXIF with its GPS directory and thumbnail, XMP, IPTC and other Photoshop data, comments, the multi-picture index, other application segments, and whatever follows the end of the image, where phones keep depth maps and HDR gain maps.</li>
+  <li><strong>From a PNG</strong> it removes the text chunks, XMP, EXIF and the time of last change.</li>
+  <li><strong>From a WebP</strong> it removes the EXIF and XMP chunks.</li>
+  <li><strong>The colour profile is kept</strong>, so the colours look the same, and so are the JFIF header and the Adobe colour transform of a JPEG.</li>
+  <li><strong>The orientation is kept.</strong> A photo the camera marked as rotated gets a new EXIF with its orientation alone, so it still shows the right way up. Nothing else is written back.</li>
 </ul>
+<p>The <a href="/free-image-converter-api">image converter</a> and <a href="/free-image-compression-api">image compression</a> remove metadata too, but they save the image again. This endpoint does not, so it is the one to use when the pixels must not change. The <a href="/free-image-metadata-viewer-api">image metadata viewer</a> shows what a file carries before you remove it.</p>
 
 <h2 id="api">The API</h2>
-<p><code>POST https://aisenseapi.com/services/v1/image_convert</code> with <code>multipart/form-data</code>.</p>
-<table>
-  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
-  <tbody>
-    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
-    <tr><td><code>format</code></td><td>yes</td><td><code>jpeg</code>, <code>png</code> or <code>webp</code>. <code>jpg</code> is read as <code>jpeg</code>.</td></tr>
-    <tr><td><code>quality</code></td><td>no</td><td>40 to 95, for JPEG and WebP. 82 when left out.</td></tr>
-    <tr><td><code>lossless</code></td><td>no</td><td><code>true</code> or <code>false</code>, for WebP only. Lossless takes no quality.</td></tr>
-  </tbody>
-</table>
-<p>A GET on <code>storage_url</code> returns the image with its own image type, so the link also works in an <code>&lt;img&gt;</code> tag.</p>
-
-<h2 id="storage">The answer is a Storage link</h2>
-<p>The endpoint never sends the image in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
+<p><code>POST https://aisenseapi.com/services/v1/image_strip</code> with <code>multipart/form-data</code> and one field, <code>file</code>. Any other field is refused. The result is stored in the format of the upload, and the answer holds the Storage fields and what was done:</p>
 <table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
-    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the image.</td></tr>
-    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored image.</td></tr>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored result.</td></tr>
     <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
-    <tr><td><code>content_type</code>, <code>filename</code></td><td>The type of the image and the name to save it under.</td></tr>
-    <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td>The endpoint that made it, and the format and size of the result in pixels.</td></tr>
-    <tr><td><code>input_format</code>, <code>input_bytes</code></td><td>What the upload was, so the saving can be read off.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code> or <code>result.webp</code>.</td></tr>
+    <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td><code>image_strip</code>, and the format and size of the image.</td></tr>
+    <tr><td><code>input_bytes</code></td><td>The size of the upload. <code>bytes</code> is the size without the metadata.</td></tr>
+    <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
+    <tr><td><code>kept</code></td><td><code>Colour profile</code> and <code>Orientation</code>, when the image had them.</td></tr>
   </tbody>
 </table>
-<p>The example at the top of the page comes from a test run with a test image of 1600 x 1200 pixels. The id and the expiry are different on every call, and the sizes depend on the image.</p>
+<p>The example at the top of the page comes from the same test photo as on the <a href="/free-image-metadata-viewer-api">metadata viewer</a>, with made-up EXIF data and a GPS position. What came back is the photo as it was before the EXIF data was added, 640 376 bytes. A GET on <code>storage_url</code> returns the image with its own image type.</p>
 <p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
 <h2 id="limits">Limits</h2>
 <ul>
-  <li>The upload is at most 10 MB and 25 megapixels.</li>
-  <li>The result is at most 8 MB. A photo saved as PNG often goes over that; as JPEG or WebP it is far smaller.</li>
-  <li>WebP allows at most 16383 pixels per side.</li>
-  <li>One conversion may take at most 45 seconds.</li>
-  <li>At most two images are converted at a time. A third waits up to ten seconds and is then answered 503 with <code>Retry-After</code>.</li>
+  <li>The upload is a JPEG, PNG or WebP of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
+  <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> only.</li>
+  <li>The result is at most 10 MB.</li>
 </ul>
 
 <h2 id="errors">Errors</h2>
@@ -275,28 +248,28 @@
 <table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
-    <tr><td><code>400</code></td><td>A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.</td></tr>
+    <tr><td><code>400</code></td><td>A field was sent, the upload is not one whole file, or the file cannot be read as an image.</td></tr>
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
-    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG, WebP or HEIC.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG or WebP.</td></tr>
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
-    <tr><td><code>503</code></td><td>Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now.</td></tr>
+    <tr><td><code>503</code></td><td>The service cannot read or store the image right now.</td></tr>
   </tbody>
 </table>
 
 <h2 id="faq">Questions</h2>
 
-<h3>Is the image converter API free?</h3>
+<h3>Is the EXIF remover API free?</h3>
 <p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
-<h3>Does it keep transparency?</h3>
-<p>In PNG and WebP, yes. JPEG has no transparency, so transparent pixels become white.</p>
+<h3>Does removing the metadata lower the quality?</h3>
+<p>No. The image data is copied byte for byte, so the pixels are exactly the same as in the upload.</p>
 
-<h3>Is the GPS position removed?</h3>
-<p>Yes. EXIF, XMP, IPTC and comments are removed from every result. The colour profile is kept, so the colours stay the same.</p>
+<h3>Will the photo still show the right way up?</h3>
+<p>Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is.</p>
 
-<h3>Can it convert HEIC or GIF?</h3>
-<p>HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its colour profile. GIF, no.</p>
+<h3>Can it remove metadata from HEIC?</h3>
+<p>No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts.</p>
 
 <h2 id="related">Related tools</h2>
 <ul>
@@ -341,19 +314,13 @@
 (function () {
   var T = window.AisenseTools;
   var form = document.getElementById('tool-form');
-  var format = document.getElementById('tool-format');
-  var quality = document.getElementById('tool-quality');
-  var qualityValue = document.getElementById('tool-quality-value');
-  var qualityField = document.getElementById('tool-quality-field');
-  var lossless = document.getElementById('tool-lossless');
-  var losslessField = document.getElementById('tool-lossless-field');
   var submit = document.getElementById('tool-submit');
   var chosen = document.getElementById('tool-chosen');
   var thumb = document.getElementById('tool-thumb');
   var chosenText = document.getElementById('tool-chosen-text');
   var result = document.getElementById('tool-result');
-  var accepts = ['jpeg', 'png', 'webp', 'heic'];
-  var acceptsText = 'JPEG, PNG, WebP or HEIC';
+  var accepts = ['jpeg', 'png', 'webp'];
+  var acceptsText = 'JPEG, PNG or WebP';
   if (!T || !form) { return; }
   var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
   var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
@@ -402,51 +369,36 @@
     });
   }
 
-  function summary(answer) {
-    var change = answer.bytes - answer.input_bytes;
-    var percent = Math.round(Math.abs(change) / answer.input_bytes * 100);
-    var line = names[answer.input_format] + ', ' + T.bytes(answer.input_bytes) + ', became ' + names[answer.format] + ', '
-      + T.bytes(answer.bytes) + ', ' + answer.width + ' x ' + answer.height + ' pixels';
-    if (change < 0) { return line + '. That is ' + percent + '% smaller.'; }
-    if (change > 0) { return line + '. That is ' + percent + '% larger, so the original may be the better file.'; }
-    return line + '. That is the same size.';
+  // Comments becomes comments inside a sentence, while EXIF stays EXIF.
+  function soft(item) {
+    return /^[A-Z][a-z]/.test(item) ? item.charAt(0).toLowerCase() + item.slice(1) : item;
   }
 
-  function refresh() {
-    losslessField.hidden = format.value !== 'webp';
-    if (format.value !== 'webp') { lossless.checked = false; }
-    qualityField.hidden = format.value === 'png' || lossless.checked;
-    qualityValue.textContent = quality.value;
+  function list(items) {
+    items = items.map(soft);
+    return items.length < 2 ? items.join('') : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
   }
 
   T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
-    choose(picked, refresh);
+    choose(picked, function () {});
   });
-  format.addEventListener('change', refresh);
-  lossless.addEventListener('change', refresh);
-  quality.addEventListener('input', refresh);
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
     if (!file) { return; }
-    var fields = { format: format.value };
-    if (format.value === 'webp' && lossless.checked) {
-      fields.lossless = 'true';
-    } else if (format.value !== 'png') {
-      fields.quality = quality.value;
-    }
-    T.busy(result, 'Converting...');
+    T.busy(result, 'Removing...');
     submit.disabled = true;
-    T.postFile('image_convert', file, fields).then(function (answer) {
-      T.showStored(result, answer, { image: true, summary: summary(answer) });
+    T.postFile('image_strip', file, {}).then(function (answer) {
+      var line = answer.removed.length ? 'Removed ' + list(answer.removed) + '.' : 'There was nothing to remove.';
+      if (answer.kept.length) { line += ' Kept ' + list(answer.kept) + '.'; }
+      line += ' ' + T.bytes(answer.input_bytes) + ' became ' + T.bytes(answer.bytes) + '.';
+      T.showStored(result, answer, { image: true, summary: line });
     }).catch(function (error) {
       T.showError(result, error);
     }).then(function () {
       submit.disabled = false;
     });
   });
-
-  refresh();
 })();
 </script>
 
