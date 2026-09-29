@@ -794,6 +794,7 @@ it will use these APIs as tools automatically.
 | [`SKILL.md`](SKILL.md) | Claude skill file |
 | [`test.sh`](test.sh) | Asserts on response bodies and statuses; exits `1` on failure (CI-friendly) |
 | [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
+| [`tools/pages/`](tools/pages/) | Generators for the image tool pages and the two image guides in `web/` |
 
 `test.sh` asserts on response bodies as well as status codes. Bodies are the
 part that matters most: a status-code-only suite passes an endpoint that

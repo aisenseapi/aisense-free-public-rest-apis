@@ -1,0 +1,9 @@
+{
+    "heic_convert": {
+        "fields": {
+            "format": "jpeg"
+        },
+        "upload": "IMG_0001.HEIC",
+        "answer": "{\"storage_id\":\"4bb715b0-e38f-49c0-b107-8971bb0da14d\",\"storage_url\":\"https://aisenseapi.com/services/v1/storage/4bb715b0-e38f-49c0-b107-8971bb0da14d\",\"sha256_hash\":\"3973005e87eabd09798f4306817dc2c56f3b7fb81a5d590502ffb3768689bb63\",\"bytes\":98701,\"expire_timestamp\":1790788252,\"expire_datetime\":\"2026-09-30T17:10:52+00:00\",\"content_type\":\"image/jpeg\",\"filename\":\"result.jpg\",\"operation\":\"image_convert\",\"format\":\"jpeg\",\"width\":1600,\"height\":1200,\"input_format\":\"heic\",\"input_bytes\":84381}"
+    }
+}

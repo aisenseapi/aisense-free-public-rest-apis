@@ -1,0 +1,39 @@
+# Page generators
+
+The seven image tool pages and the two image guides in `web/` are generated.
+Change the generator or its data here, not the HTML, or the next build undoes
+the change.
+
+| Script | Writes in `web/` |
+|--------|------------------|
+| `make_image_pages.py` | `free-image-converter-api.html`, `free-heic-to-jpg-converter.html`, `free-image-compression-api.html`, `free-image-metadata-viewer-api.html`, `free-exif-remover-api.html`, `free-image-color-palette-api.html`, `free-favicon-generator-api.html` |
+| `make_post_photo_location.py` | `remove-gps-location-and-exif-data-from-photos.html`, plus its card in `ai-sense-posts.html` and its line in `sitemap.xml` |
+| `make_post_favicon.py` | `favicon-sizes-and-the-files-a-website-needs.html`, plus its card and sitemap line |
+
+Run all three with Python 3 and nothing but the standard library:
+
+```sh
+python tools/pages/build.py
+```
+
+A build with nothing changed leaves `git status` clean. That is the check that
+the generators and the published pages still agree. The two posts add their
+card and sitemap line only when the page is not listed yet, so a card that
+needs new text is edited in `ai-sense-posts.html` itself.
+
+The tool pages take the site header and footer from
+`web/free-json-to-csv-api.html`, and the posts take theirs from
+`web/a-name-that-answers-for-24-hours.html`. A change there reaches these pages
+at the next build.
+
+`data/` holds the example answers the pages show. They were recorded on
+29 September 2026 by running each request through the service's own handler,
+with ImageMagick, on test images: among them a photo with made-up EXIF and a
+GPS position at the Oslo Opera House, and a logo of 600 x 200 pixels. The
+stored JPEG and ZIP were left out, since the pages read only the stored JSON of
+`image_metadata` and `image_colors`. The Storage links in the answers expired
+24 hours after the recording.
+
+To publish, commit the changed files in `web/` on `main`, then copy them to the
+root of the `website` branch and commit there with the same message, as
+[`web/README.md`](../../web/README.md) describes.
