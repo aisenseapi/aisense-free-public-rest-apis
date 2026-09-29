@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free image resizer API: resize JPEG, PNG, WebP and HEIC | AI SENSE</title>
+<meta name="description" content="Resize a JPEG, PNG, WebP or iPhone HEIC to a width, a height or a square thumbnail, in the browser or with one API call. Never enlarged unless asked. Free.">
+<link rel="canonical" href="https://aisense.no/free-image-resizer-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free image resizer - AI SENSE">
+<meta property="og:description" content="Resize a JPEG, PNG, WebP or iPhone HEIC to a width, a height or a square thumbnail, in the browser or with one API call. Never enlarged unless asked. Free.">
+<meta property="og:url" content="https://aisense.no/free-image-resizer-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free image resizer API",
+      "url": "https://aisense.no/free-image-resizer-api",
+      "documentation": "https://aisense.no/free-image-resizer-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Resize a JPEG, PNG, WebP or iPhone HEIC to a width, a height or a square thumbnail, in the browser or with one API call. Never enlarged unless asked. Free.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/image_resize",
+          "httpMethod": "POST",
+          "contentType": "multipart/form-data",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the image resizer API free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it keep the aspect ratio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Contain fits all of the picture inside the box, and cover fills the box and cuts what sticks out from the centre. Neither stretches the picture."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I make a square thumbnail?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Send the same width and height with fit=cover, for example 400 and 400. The picture fills the square and is cut from the centre."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will it enlarge a small image?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Only if you send upscale=true. Otherwise a picture already smaller than the box keeps its size, and the answer says upscaled: false."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it resize iPhone photos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It reads HEIC, turns the photo upright, keeps its colour profile and gives back a JPEG unless you ask for PNG or WebP."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the location removed?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. EXIF with the GPS position, XMP, IPTC and comments are removed from every result. The colour profile is kept."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Free image resizer"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </div></nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free image resizer
+</nav>
+
+<div class="hero">
+  <h1>Free image resizer</h1>
+  <p class="lede">Drop an image and give it a new width, a new height or both: fitted inside the box with all of the picture kept, or filling the box as a thumbnail cut from the centre. It is never enlarged unless you ask. The form calls the same free API your code can call: one POST, no API key and no account. The result waits in Storage for 24 hours.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_resize \
+  -F "file=@photo.jpg" \
+  -F "width=800"
+
+{
+  "storage_id": "993a1e6c-05c7-499e-a91c-27acfd276821",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/993a1e6c-05c7-499e-a91c-27acfd276821",
+  "sha256_hash": "5873dba208f75963c40bc01d7d9542a82473218bc274dab6ea9917c9264c329b",
+  "bytes": 102116,
+  "expire_timestamp": 1790806372,
+  "expire_datetime": "2026-09-30T22:12:52+00:00",
+  "content_type": "image/jpeg",
+  "filename": "result.jpg",
+  "operation": "image_resize",
+  "format": "jpeg",
+  "width": 800,
+  "height": 600,
+  "input_format": "jpeg",
+  "input_bytes": 641358,
+  "input_width": 1600,
+  "input_height": 1200,
+  "fit": "contain",
+  "upscaled": false
+}</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>Keeps the aspect ratio</span>
+      <span>Square thumbnails</span>
+      <span>HEIC in</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts your image to the same endpoint and shows the stored result. The image is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
+      <strong>Drop an image here</strong>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG, WebP or HEIC, up to 10 MB.</small>
+    </div>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,image/heic,image/heif,.heic,.heif" hidden>
+    <div class="tool-chosen" id="tool-chosen" hidden>
+      <img id="tool-thumb" alt="The image you chose">
+      <p class="tool-meta" id="tool-chosen-text"></p>
+    </div>
+    <div class="tool-options">
+      <div class="tool-field">
+        <label for="tool-width">Width in pixels</label>
+        <input type="number" id="tool-width" min="1" max="10000" step="1" inputmode="numeric" placeholder="800">
+      </div>
+      <div class="tool-field">
+        <label for="tool-height">Height in pixels</label>
+        <input type="number" id="tool-height" min="1" max="10000" step="1" inputmode="numeric" placeholder="Optional">
+      </div>
+      <div class="tool-field">
+        <label for="tool-fit">Fit</label>
+        <select id="tool-fit">
+          <option value="contain" selected>Contain: keep all of it</option>
+          <option value="cover">Cover: fill and crop</option>
+        </select>
+      </div>
+      <div class="tool-field">
+        <label for="tool-format">Format</label>
+        <select id="tool-format">
+          <option value="" selected>Keep the format</option>
+          <option value="jpeg">JPG (JPEG)</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+        </select>
+      </div>
+      <label class="tool-check"><input type="checkbox" id="tool-upscale"> Enlarge a smaller image</label>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Resize</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+</div>
+
+<h2 id="how">How the resize works</h2>
+<ul>
+  <li><strong>Contain</strong>, the default, fits all of the picture inside the width and height you give, and keeps its aspect ratio. Give one side only and the other follows.</li>
+  <li><strong>Cover</strong> fills the box exactly and cuts what sticks out from the centre, which is what a square thumbnail or a fixed-size card needs. It needs both a width and a height.</li>
+  <li><strong>Nothing is enlarged unless you ask.</strong> A picture already smaller than the box keeps its size; with cover, only what sticks out is cut. Send <code>upscale=true</code> to enlarge, and the answer says <code>upscaled: true</code> when it happened.</li>
+  <li><strong>The format stays</strong> unless you name another. A HEIC from an iPhone comes out as JPEG, since HEIC is read but not written.</li>
+  <li><strong>The image is turned upright</strong> from the orientation a phone camera writes in the EXIF data, before that data is removed.</li>
+  <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC colour profile is kept, so the colours stay the same. A CMYK JPEG is converted to RGB.</li>
+</ul>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/image_resize</code> with <code>multipart/form-data</code>.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
+    <tr><td><code>width</code>, <code>height</code></td><td>one of them</td><td>The box in pixels, from 1 to 10000.</td></tr>
+    <tr><td><code>fit</code></td><td>no</td><td><code>contain</code> or <code>cover</code>. <code>contain</code> when left out; <code>cover</code> needs both sides.</td></tr>
+    <tr><td><code>upscale</code></td><td>no</td><td><code>true</code> to let a smaller picture be enlarged. <code>false</code> when left out.</td></tr>
+    <tr><td><code>format</code></td><td>no</td><td><code>jpeg</code>, <code>png</code> or <code>webp</code>. The format of the upload when left out, and JPEG for a HEIC.</td></tr>
+    <tr><td><code>quality</code>, <code>lossless</code></td><td>no</td><td>As on the <a href="/free-image-converter-api">image converter</a>: 40 to 95 for JPEG and WebP, 82 when left out, and <code>lossless</code> for WebP.</td></tr>
+  </tbody>
+</table></div>
+<p>The answer has the Storage fields, <code>width</code> and <code>height</code> of the result, and <code>input_width</code> and <code>input_height</code>, the size of the upload once turned upright. <code>fit</code> repeats the fit, and <code>upscaled</code> says whether the picture was enlarged.</p>
+
+<h2 id="storage">The answer is a Storage link</h2>
+<p>The endpoint never sends the image in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the image.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored image.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>The type of the image and the name to save it under.</td></tr>
+    <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td>The endpoint that made it, and the format and size of the result in pixels.</td></tr>
+    <tr><td><code>input_format</code>, <code>input_bytes</code></td><td>What the upload was, so the saving can be read off.</td></tr>
+  </tbody>
+</table></div>
+<p>The example at the top of the page comes from a test run with a test image of 1600 x 1200 pixels. The id and the expiry are different on every call, and the sizes depend on the image.</p>
+<p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h2 id="limits">Limits</h2>
+<ul>
+  <li>The upload is at most 10 MB and 25 megapixels, and so is an enlarged result. A width or height is at most 10000 pixels.</li>
+  <li>The result is at most 8 MB. A photo saved as PNG often goes over that; as JPEG or WebP it is far smaller.</li>
+  <li>WebP allows at most 16383 pixels per side.</li>
+  <li>One conversion may take at most 45 seconds.</li>
+  <li>At most two images are converted at a time. A third waits up to ten seconds and is then answered 503 with <code>Retry-After</code>.</li>
+</ul>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG, WebP or HEIC.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Is the image resizer API free?</h3>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h3>Does it keep the aspect ratio?</h3>
+<p>Yes. Contain fits all of the picture inside the box, and cover fills the box and cuts what sticks out from the centre. Neither stretches the picture.</p>
+
+<h3>How do I make a square thumbnail?</h3>
+<p>Send the same width and height with fit=cover, for example 400 and 400. The picture fills the square and is cut from the centre.</p>
+
+<h3>Will it enlarge a small image?</h3>
+<p>Only if you send upscale=true. Otherwise a picture already smaller than the box keeps its size, and the answer says upscaled: false.</p>
+
+<h3>Can it resize iPhone photos?</h3>
+<p>Yes. It reads HEIC, turns the photo upright, keeps its colour profile and gives back a JPEG unless you ask for PNG or WebP.</p>
+
+<h3>Is the location removed?</h3>
+<p>Yes. EXIF with the GPS position, XMP, IPTC and comments are removed from every result. The colour profile is kept.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
+  <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
+  <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
+  <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#images">All image endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var width = document.getElementById('tool-width');
+  var height = document.getElementById('tool-height');
+  var fit = document.getElementById('tool-fit');
+  var format = document.getElementById('tool-format');
+  var upscale = document.getElementById('tool-upscale');
+  var submit = document.getElementById('tool-submit');
+  var chosen = document.getElementById('tool-chosen');
+  var thumb = document.getElementById('tool-thumb');
+  var chosenText = document.getElementById('tool-chosen-text');
+  var result = document.getElementById('tool-result');
+  var accepts = ['jpeg', 'png', 'webp', 'heic'];
+  var acceptsText = 'JPEG, PNG, WebP or HEIC';
+  if (!T || !form) { return; }
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+  var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
+  var file = null;
+  var chosenFormat = null;
+  var thumbUrl = null;
+
+  function formatOf(picked) {
+    return picked.slice(0, 64).arrayBuffer().then(function (buffer) {
+      var b = new Uint8Array(buffer);
+      var text = function (from, to) { return String.fromCharCode.apply(null, b.subarray(from, to)); };
+      if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
+      if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
+      if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (b.length >= 16 && text(4, 8) === 'ftyp') {
+        var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
+        var brands = [text(8, 12)];
+        for (var at = 16; at + 4 <= end; at += 4) { brands.push(text(at, at + 4)); }
+        if (brands[0] !== 'avif' && brands[0] !== 'avis' && brands.some(function (brand) { return hevc.indexOf(brand) !== -1; })) { return 'heic'; }
+      }
+      return null;
+    });
+  }
+
+  function choose(picked, done) {
+    file = picked;
+    T.clear(result);
+    Promise.all([T.imageSize(picked), formatOf(picked)]).then(function (read) {
+      var size = read[0];
+      chosenFormat = read[1];
+      if (thumbUrl) { URL.revokeObjectURL(thumbUrl); }
+      thumbUrl = size ? size.url : null;
+      thumb.src = thumbUrl || '';
+      thumb.hidden = !thumbUrl;
+      chosen.hidden = false;
+      chosenText.textContent = picked.name + ', ' + (chosenFormat ? names[chosenFormat] + ', ' : '') + T.bytes(picked.size)
+        + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
+      var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
+      if (!taken) {
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
+        error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
+        T.showError(result, error);
+      }
+      submit.disabled = !taken;
+      done();
+    });
+  }
+
+  function summary(answer) {
+    var line = names[answer.input_format] + ', ' + answer.input_width + ' x ' + answer.input_height + ' pixels, ' + T.bytes(answer.input_bytes)
+      + ', became ' + names[answer.format] + ', ' + answer.width + ' x ' + answer.height + ' pixels, ' + T.bytes(answer.bytes) + '.';
+    if (answer.upscaled) { return line + ' It was enlarged, so it can look softer than the original.'; }
+    if (answer.width === answer.input_width && answer.height === answer.input_height) { return line + ' It already fitted, so only the metadata and the format were changed.'; }
+    return line;
+  }
+
+  T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
+    choose(picked, function () {});
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!file) { return; }
+    var fields = { fit: fit.value };
+    if (width.value) { fields.width = width.value; }
+    if (height.value) { fields.height = height.value; }
+    if (format.value) { fields.format = format.value; }
+    if (upscale.checked) { fields.upscale = 'true'; }
+    if (!fields.width && !fields.height) {
+      var missing = new Error('Give a width, a height or both.');
+      missing.fix = 'Type the size in pixels, for example 800.';
+      T.showError(result, missing);
+      return;
+    }
+    if (fields.fit === 'cover' && !(fields.width && fields.height)) {
+      var both = new Error('Cover needs both a width and a height.');
+      both.fix = 'Give both, for example 400 and 400 for a square thumbnail.';
+      T.showError(result, both);
+      return;
+    }
+    T.busy(result, 'Resizing...');
+    submit.disabled = true;
+    T.postFile('image_resize', file, fields).then(function (answer) {
+      T.showStored(result, answer, { image: true, summary: summary(answer) });
+    }).catch(function (error) {
+      T.showError(result, error);
+    }).then(function () {
+      submit.disabled = false;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

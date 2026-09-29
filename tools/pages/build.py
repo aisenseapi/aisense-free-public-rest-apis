@@ -16,7 +16,7 @@ DATA = os.path.join(HERE, 'data')
 
 RUNS = [
     ['make_image_pages.py', WEB, os.path.join(DATA, 'results-images.json'), os.path.join(DATA, 'results-more.json'),
-     os.path.join(DATA, 'results-heic.json')],
+     os.path.join(DATA, 'results-heic.json'), os.path.join(DATA, 'results-resize.json')],
     ['make_post_photo_location.py', WEB, os.path.join(DATA, 'results-more.json')],
     ['make_post_favicon.py', WEB, os.path.join(DATA, 'results-more.json')],
     ['make_logic_pages.py', WEB, os.path.join(DATA, 'decide-examples.json')],

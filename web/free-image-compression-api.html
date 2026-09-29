@@ -85,7 +85,7 @@
           "name": "Does it resize the image?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both."
+            "text": "No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both. The free image resizer makes a new size."
           }
         }
       ]
@@ -219,7 +219,7 @@
   <li><strong>PNG is saved again losslessly</strong> with the strongest zlib compression. Every pixel stays the same, and PNG takes no quality.</li>
   <li><strong>The image is turned upright</strong> from the orientation a phone camera writes in the EXIF data, before that data is removed.</li>
   <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC colour profile is kept, so the colours stay the same. A CMYK JPEG is converted to RGB.</li>
-  <li><strong>Nothing is resized.</strong> An image the EXIF data marks as rotated is turned upright, which swaps its width and height; any other keeps both.</li>
+  <li><strong>Nothing is resized.</strong> An image the EXIF data marks as rotated is turned upright, which swaps its width and height; any other keeps both. The <a href="/free-image-resizer-api">image resizer</a> makes a new size.</li>
   <li><strong>The answer says what was saved.</strong> <code>input_bytes</code> is the upload and <code>bytes</code> the result. An image that was already saved at a lower quality, or compressed well already, can come out larger. Then keep the original.</li>
 </ul>
 
@@ -285,11 +285,11 @@
 <p>The image was already compressed harder than the quality you chose. Keep the original, or choose a lower quality.</p>
 
 <h3>Does it resize the image?</h3>
-<p>No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both.</p>
+<p>No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both. The free image resizer makes a new size.</p>
 
 <h2 id="related">Related tools</h2>
 <ul>
-  <li><a href="/free-image-converter-api">Image converter</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
+  <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
@@ -381,7 +381,7 @@
         + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
       var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
       if (!taken) {
-        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter only.' : 'This is not a ' + acceptsText + ' image.');
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
         error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
         T.showError(result, error);
       }

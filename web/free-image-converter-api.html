@@ -229,7 +229,7 @@
   <li><strong>Transparency</strong> is kept in PNG and WebP. JPEG has none, so transparent pixels become white.</li>
   <li><strong>The image is turned upright</strong> from the orientation a phone camera writes in the EXIF data, before that data is removed.</li>
   <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC colour profile is kept, so the colours stay the same. A CMYK JPEG is converted to RGB.</li>
-  <li><strong>Nothing is resized.</strong> The result has the width and height of the upload, turned upright.</li>
+  <li><strong>Nothing is resized.</strong> The result has the width and height of the upload, turned upright. The <a href="/free-image-resizer-api">image resizer</a> makes a new size.</li>
 </ul>
 
 <h2 id="api">The API</h2>
@@ -300,7 +300,7 @@
 
 <h2 id="related">Related tools</h2>
 <ul>
-  <li><a href="/free-image-converter-api">Image converter</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
+  <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
@@ -395,7 +395,7 @@
         + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
       var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
       if (!taken) {
-        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter only.' : 'This is not a ' + acceptsText + ' image.');
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
         error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
         T.showError(result, error);
       }

@@ -38,7 +38,7 @@ PROVIDER = OrderedDict([
 
 RELATED = '''<h2 id="related">Related tools</h2>
 <ul>
-  <li><a href="/free-image-converter-api">Image converter</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
+  <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
@@ -89,7 +89,7 @@ LIMITS_DECODED = '''<h2 id="limits">Limits</h2>
 LIMITS_READ = '''<h2 id="limits">Limits</h2>
 <ul>
   <li>The upload is a JPEG, PNG or WebP of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
-  <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> only.</li>
+  <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> and the <a href="/free-image-resizer-api">image resizer</a> only.</li>
   <li>%s</li>
 </ul>'''
 
@@ -202,7 +202,7 @@ SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic
         + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
       var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
       if (!taken) {
-        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter only.' : 'This is not a ' + acceptsText + ' image.');
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
         error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
         T.showError(result, error);
       }
@@ -504,7 +504,7 @@ page(
   <li><strong>Lossless WebP</strong> keeps every pixel. For screenshots and graphics it is usually far smaller than PNG.</li>
   <li><strong>Transparency</strong> is kept in PNG and WebP. JPEG has none, so transparent pixels become white.</li>
   ''' + METADATA + '''
-  <li><strong>Nothing is resized.</strong> The result has the width and height of the upload, turned upright.</li>
+  <li><strong>Nothing is resized.</strong> The result has the width and height of the upload, turned upright. The <a href="/free-image-resizer-api">image resizer</a> makes a new size.</li>
 </ul>
 
 <h2 id="api">The API</h2>
@@ -620,6 +620,142 @@ page(
     'heic_convert'
 )
 
+# -- The image resizer ------------------------------------------------------------
+
+page(
+    'free-image-resizer-api',
+    'Free image resizer API: resize JPEG, PNG, WebP and HEIC | AI SENSE',
+    'Resize a JPEG, PNG, WebP or iPhone HEIC to a width, a height or a square thumbnail, in the browser or with one API call. Never enlarged unless asked. Free.',
+    'Free image resizer',
+    'Drop an image and give it a new width, a new height or both: fitted inside the box with all of the picture kept, or filling the box as a thumbnail cut from the centre. It is never enlarged unless you ask. The form calls the same free API your code can call: one POST, no API key and no account. The result waits in Storage for 24 hours.',
+    ['No API key', 'No account', 'Keeps the aspect ratio', 'Square thumbnails', 'HEIC in'],
+    'image_resize',
+    """  <form id="tool-form">
+""" + drop('JPEG, PNG, WebP or HEIC', ACCEPT_HEIC) + """
+    <div class="tool-options">
+      <div class="tool-field">
+        <label for="tool-width">Width in pixels</label>
+        <input type="number" id="tool-width" min="1" max="10000" step="1" inputmode="numeric" placeholder="800">
+      </div>
+      <div class="tool-field">
+        <label for="tool-height">Height in pixels</label>
+        <input type="number" id="tool-height" min="1" max="10000" step="1" inputmode="numeric" placeholder="Optional">
+      </div>
+      <div class="tool-field">
+        <label for="tool-fit">Fit</label>
+        <select id="tool-fit">
+          <option value="contain" selected>Contain: keep all of it</option>
+          <option value="cover">Cover: fill and crop</option>
+        </select>
+      </div>
+      <div class="tool-field">
+        <label for="tool-format">Format</label>
+        <select id="tool-format">
+          <option value="" selected>Keep the format</option>
+          <option value="jpeg">JPG (JPEG)</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+        </select>
+      </div>
+      <label class="tool-check"><input type="checkbox" id="tool-upscale"> Enlarge a smaller image</label>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Resize</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>""",
+    """<h2 id="how">How the resize works</h2>
+<ul>
+  <li><strong>Contain</strong>, the default, fits all of the picture inside the width and height you give, and keeps its aspect ratio. Give one side only and the other follows.</li>
+  <li><strong>Cover</strong> fills the box exactly and cuts what sticks out from the centre, which is what a square thumbnail or a fixed-size card needs. It needs both a width and a height.</li>
+  <li><strong>Nothing is enlarged unless you ask.</strong> A picture already smaller than the box keeps its size; with cover, only what sticks out is cut. Send <code>upscale=true</code> to enlarge, and the answer says <code>upscaled: true</code> when it happened.</li>
+  <li><strong>The format stays</strong> unless you name another. A HEIC from an iPhone comes out as JPEG, since HEIC is read but not written.</li>
+  """ + METADATA + """
+</ul>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/image_resize</code> with <code>multipart/form-data</code>.</p>
+<table>
+  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
+    <tr><td><code>width</code>, <code>height</code></td><td>one of them</td><td>The box in pixels, from 1 to 10000.</td></tr>
+    <tr><td><code>fit</code></td><td>no</td><td><code>contain</code> or <code>cover</code>. <code>contain</code> when left out; <code>cover</code> needs both sides.</td></tr>
+    <tr><td><code>upscale</code></td><td>no</td><td><code>true</code> to let a smaller picture be enlarged. <code>false</code> when left out.</td></tr>
+    <tr><td><code>format</code></td><td>no</td><td><code>jpeg</code>, <code>png</code> or <code>webp</code>. The format of the upload when left out, and JPEG for a HEIC.</td></tr>
+    <tr><td><code>quality</code>, <code>lossless</code></td><td>no</td><td>As on the <a href="/free-image-converter-api">image converter</a>: 40 to 95 for JPEG and WebP, 82 when left out, and <code>lossless</code> for WebP.</td></tr>
+  </tbody>
+</table>
+<p>The answer has the Storage fields, <code>width</code> and <code>height</code> of the result, and <code>input_width</code> and <code>input_height</code>, the size of the upload once turned upright. <code>fit</code> repeats the fit, and <code>upscaled</code> says whether the picture was enlarged.</p>
+
+""" + STORAGE_SECTION + """
+
+""" + LIMITS.replace('<li>The upload is at most 10 MB and 25 megapixels.</li>',
+                     '<li>The upload is at most 10 MB and 25 megapixels, and so is an enlarged result. A width or height is at most 10000 pixels.</li>') + """
+
+""" + ERRORS_CONVERT,
+    script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP or HEIC', r"""  var width = document.getElementById('tool-width');
+  var height = document.getElementById('tool-height');
+  var fit = document.getElementById('tool-fit');
+  var format = document.getElementById('tool-format');
+  var upscale = document.getElementById('tool-upscale');
+""") + SCRIPT_CHOOSE + r"""
+
+  function summary(answer) {
+    var line = names[answer.input_format] + ', ' + answer.input_width + ' x ' + answer.input_height + ' pixels, ' + T.bytes(answer.input_bytes)
+      + ', became ' + names[answer.format] + ', ' + answer.width + ' x ' + answer.height + ' pixels, ' + T.bytes(answer.bytes) + '.';
+    if (answer.upscaled) { return line + ' It was enlarged, so it can look softer than the original.'; }
+    if (answer.width === answer.input_width && answer.height === answer.input_height) { return line + ' It already fitted, so only the metadata and the format were changed.'; }
+    return line;
+  }
+
+  T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
+    choose(picked, function () {});
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!file) { return; }
+    var fields = { fit: fit.value };
+    if (width.value) { fields.width = width.value; }
+    if (height.value) { fields.height = height.value; }
+    if (format.value) { fields.format = format.value; }
+    if (upscale.checked) { fields.upscale = 'true'; }
+    if (!fields.width && !fields.height) {
+      var missing = new Error('Give a width, a height or both.');
+      missing.fix = 'Type the size in pixels, for example 800.';
+      T.showError(result, missing);
+      return;
+    }
+    if (fields.fit === 'cover' && !(fields.width && fields.height)) {
+      var both = new Error('Cover needs both a width and a height.');
+      both.fix = 'Give both, for example 400 and 400 for a square thumbnail.';
+      T.showError(result, both);
+      return;
+    }
+    T.busy(result, 'Resizing...');
+    submit.disabled = true;
+    T.postFile('image_resize', file, fields).then(function (answer) {
+      T.showStored(result, answer, { image: true, summary: summary(answer) });
+    }).catch(function (error) {
+      T.showError(result, error);
+    }).then(function () {
+      submit.disabled = false;
+    });
+  });
+})();""",
+    [
+        ('Is the image resizer API free?', FAQ_FREE),
+        ('Does it keep the aspect ratio?', 'Yes. Contain fits all of the picture inside the box, and cover fills the box and cuts what sticks out from the centre. Neither stretches the picture.'),
+        ('How do I make a square thumbnail?', 'Send the same width and height with fit=cover, for example 400 and 400. The picture fills the square and is cut from the centre.'),
+        ('Will it enlarge a small image?', 'Only if you send upscale=true. Otherwise a picture already smaller than the box keeps its size, and the answer says upscaled: false.'),
+        ('Can it resize iPhone photos?', 'Yes. It reads HEIC, turns the photo upright, keeps its colour profile and gives back a JPEG unless you ask for PNG or WebP.'),
+        ('Is the location removed?', 'Yes. EXIF with the GPS position, XMP, IPTC and comments are removed from every result. The colour profile is kept.')
+    ],
+    'Free image resizer API',
+    'image_resize'
+)
+
 # -- Image compression ----------------------------------------------------------
 
 page(
@@ -650,7 +786,7 @@ page(
   <li><strong>JPEG and WebP are saved again at the quality you choose</strong>, 82 when you choose none. That is lossy: the lower the quality, the smaller the file and the more fine detail is lost.</li>
   <li><strong>PNG is saved again losslessly</strong> with the strongest zlib compression. Every pixel stays the same, and PNG takes no quality.</li>
   ''' + METADATA + '''
-  <li><strong>Nothing is resized.</strong> An image the EXIF data marks as rotated is turned upright, which swaps its width and height; any other keeps both.</li>
+  <li><strong>Nothing is resized.</strong> An image the EXIF data marks as rotated is turned upright, which swaps its width and height; any other keeps both. The <a href="/free-image-resizer-api">image resizer</a> makes a new size.</li>
   <li><strong>The answer says what was saved.</strong> <code>input_bytes</code> is the upload and <code>bytes</code> the result. An image that was already saved at a lower quality, or compressed well already, can come out larger. Then keep the original.</li>
 </ul>
 
@@ -706,7 +842,7 @@ page(
         ('Is the image compression API free?', FAQ_FREE),
         ('Is the compression lossless?', 'For PNG, yes. JPEG and WebP are saved again at the quality you choose, which is lossy.'),
         ('Why is my result larger than the upload?', 'The image was already compressed harder than the quality you chose. Keep the original, or choose a lower quality.'),
-        ('Does it resize the image?', 'No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both.')
+        ('Does it resize the image?', 'No. An image the EXIF data marks as rotated is turned upright, which swaps its width and height. Any other image keeps both. The free image resizer makes a new size.')
     ],
     'Free image compression API'
 )
