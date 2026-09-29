@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Favicon Sizes: The Files Every Website Needs - AI SENSE</title>
+<meta name="description" content="Which favicon sizes a site needs: favicon.ico, 32 px PNG, the 180 px Apple touch icon, 192 and 512 px for Android. Make them all free from one image.">
+<link rel="canonical" href="https://aisense.no/favicon-sizes-and-the-files-a-website-needs">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Favicon Sizes: The Files a Website Needs, and How to Make Them">
+<meta property="og:description" content="favicon.ico, the PNG sizes, the Apple touch icon, the web manifest and the HTML to paste, explained, and made from one logo in a single free call.">
+<meta property="og:url" content="https://aisense.no/favicon-sizes-and-the-files-a-website-needs">
+<meta property="article:published_time" content="2026-09-29">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Favicon Sizes: The Files a Website Needs, and How to Make Them",
+      "description": "Which favicon sizes a site needs: favicon.ico, 32 px PNG, the 180 px Apple touch icon, 192 and 512 px for Android. Make them all free from one image.",
+      "url": "https://aisense.no/favicon-sizes-and-the-files-a-website-needs",
+      "datePublished": "2026-09-29",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "name": "AI SENSE AS"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no/"
+      },
+      "about": {
+        "@type": "WebAPI",
+        "name": "Favicon generator",
+        "documentation": "https://aisense.no/free-favicon-generator-api",
+        "provider": {
+          "@type": "Organization",
+          "name": "AI SENSE AS"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What size should a favicon be?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There is no single size. Browser tabs use 16 and 32 pixels, favicon.ico holds 16, 32 and 48, an iPhone home screen uses 180, and Android and installed web apps use 192 and 512. Start from a square image of at least 512 pixels and make the rest from it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I still need favicon.ico?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Browsers ask for /favicon.ico when a page names no icon, and many other programs ask for it directly. It costs one file."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What size is the Apple touch icon?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "180 by 180 pixels, on a solid background, since an iPhone shows no transparency on the home screen."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can a favicon be an SVG?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most browsers read an SVG favicon, and it stays sharp at any size. Not every browser and tool does, so keep the PNG and ICO files beside it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the favicon generator free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No account and no API key. It makes all the files from one image and gives them back as a ZIP."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Posts",
+          "item": "https://aisense.no/ai-sense-posts"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Favicon sizes",
+          "item": "https://aisense.no/favicon-sizes-and-the-files-a-website-needs"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Favicon sizes</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Guide - 29 September 2026</p>
+  <h1>Favicon Sizes: The Files a Website Needs, and How to Make Them</h1>
+  <p class="article-deck">A favicon is no longer one file. Browser tabs, iPhones, Android phones and installed web apps each look for their own size. The set that covers them all is small: six images, a manifest and five lines of HTML, all made from one picture.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">The little icon in a browser tab is the most repeated piece of branding a website has. It sits in every tab, every bookmark and every history list, beside the site in search results, and on the home screen of every phone that saved a shortcut. Each of those places asks for a different file, and a site that only has one gets a blurry or missing icon in the others.</p>
+
+<h2>The sizes, and who asks for each</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Size</th><th>Who asks for it</th></tr></thead>
+<tbody>
+<tr><td><code>favicon.ico</code></td><td>16, 32 and 48 px in one file</td><td>Every browser when a page names no icon, and many other programs directly at <code>/favicon.ico</code></td></tr>
+<tr><td><code>favicon-32x32.png</code></td><td>32 x 32</td><td>Browser tabs and bookmarks on sharp screens</td></tr>
+<tr><td><code>favicon-16x16.png</code></td><td>16 x 16</td><td>Browser tabs on ordinary screens</td></tr>
+<tr><td><code>apple-touch-icon.png</code></td><td>180 x 180, solid background</td><td>An iPhone or iPad that saves the site to the home screen</td></tr>
+<tr><td><code>icon-192.png</code></td><td>192 x 192</td><td>Android home screens, through the web manifest</td></tr>
+<tr><td><code>icon-512.png</code></td><td>512 x 512</td><td>Installed web apps and their splash screens, through the web manifest</td></tr>
+<tr><td><code>site.webmanifest</code></td><td>text</td><td>Android and installed web apps: the name, the icons and the colours</td></tr>
+</tbody>
+</table></div>
+
+<p>That is the whole list for most sites. Old guides list twenty sizes or more, for tiles on Windows 8, old Android versions and every iPad generation. Current systems scale from the files above.</p>
+
+<h2>The HTML to put in the head</h2>
+
+<p>Put the files in the root of the site and these five lines in the <code>&lt;head&gt;</code> of every page:</p>
+
+<pre><code>&lt;link rel="icon" href="/favicon.ico" sizes="48x48"&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;
+&lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"&gt;
+&lt;link rel="apple-touch-icon" href="/apple-touch-icon.png"&gt;
+&lt;link rel="manifest" href="/site.webmanifest"&gt;</code></pre>
+
+<p>The paths start with a slash on purpose. A relative path such as <code>favicon.ico</code> works on the front page and breaks on every page one folder down.</p>
+
+<p>The manifest is a small JSON file beside them, with the name of the site, the two large icons and two colours:</p>
+
+<pre><code>{
+  "name": "Example site",
+  "short_name": "Example site",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}</code></pre>
+
+<p><code>theme_color</code> colours the title bar when the site is installed as an app. The generator writes white for both colours. To match the logo, put its main colour in <code>theme_color</code>; the <a href="/free-image-color-palette-api">colour palette tool</a> reads it from the image.</p>
+
+<h2>Start from the right picture</h2>
+
+<ul>
+  <li><strong>Square, and at least 512 pixels.</strong> Every size is made from the largest. A smaller picture has to be enlarged, and the large icons look soft.</li>
+  <li><strong>Simple enough for 16 pixels.</strong> A full logo with a name in small letters turns into a smudge in a tab. The symbol alone, or the first letter, usually reads better.</li>
+  <li><strong>No empty border.</strong> White space around a logo makes the icon look small next to other tabs. Cut it away first, or let the generator trim it.</li>
+  <li><strong>Transparent for browsers, solid for the iPhone.</strong> A tab looks best with a transparent background. The home screen of an iPhone shows no transparency, so its icon needs a background of its own.</li>
+</ul>
+
+<div class="article-cta">
+  <p class="eyebrow">Try it</p>
+  <h2>One logo in, every favicon out.</h2>
+  <p>The favicon generator makes all seven files and head.html from one picture, and gives them back as a ZIP.</p>
+  <div class="button-row"><a href="/free-favicon-generator-api">Favicon generator</a></div>
+</div>
+
+<h2>Make them all from one image</h2>
+
+<p>The <a href="/free-favicon-generator-api">free favicon generator</a> takes a JPEG, PNG or WebP and makes the whole set: favicon.ico with 16, 32 and 48 pixels inside, the two PNGs for tabs, the 180 pixel iPhone icon on white, the 192 and 512 pixel icons, the manifest, and <code>head.html</code> with the five lines above. It gives them back as one ZIP.</p>
+
+<p>It has three ways to make a picture square:</p>
+
+<ul>
+  <li><strong>fit</strong> shows all of the picture on a transparent square. Right for a logo that is already square, or nearly.</li>
+  <li><strong>trim</strong> first cuts away a border of one colour, such as the white around a logo, and then fits what is left.</li>
+  <li><strong>center</strong> cuts a square from the middle and fills the whole icon with it. Right for a photo.</li>
+</ul>
+
+<p>We gave it a logo of 600 x 200 pixels with white around it, trimmed. The ZIP came back at 63 564 bytes with all eight files. The answer also said <code>upscaled: true</code>: what was left after trimming was 301 pixels wide, less than 512, so the largest icons were enlarged. That is the sign to start from a bigger picture.</p>
+
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_favicon \
+  -F "file=@logo.png" \
+  -F "crop=trim" \
+  -F "name=Example site"
+
+{
+  "storage_id": "4b4a8449-d135-4bfb-b1c3-e763093e07ab",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/4b4a8449-d135-4bfb-b1c3-e763093e07ab",
+  "sha256_hash": "d39531425ba15d2512a04e53b5385d02db4f1d034abc9786b54dc0e1355cff76",
+  "bytes": 63564,
+  "expire_timestamp": 1790778560,
+  "expire_datetime": "2026-09-30T14:29:20+00:00",
+  "content_type": "application/zip",
+  "filename": "favicon.zip",
+  "operation": "image_favicon",
+  "files": [
+    "favicon.ico",
+    "favicon-16x16.png",
+    "favicon-32x32.png",
+    "apple-touch-icon.png",
+    "icon-192.png",
+    "icon-512.png",
+    "site.webmanifest",
+    "head.html"
+  ],
+  "crop": "trim",
+  "upscaled": true
+}</code></pre>
+
+<h2>Common mistakes</h2>
+
+<ul>
+  <li><strong>Only a 16 pixel favicon.ico.</strong> It looks blurry on every sharp screen, which is most of them.</li>
+  <li><strong>A transparent iPhone icon.</strong> The transparent parts do not stay transparent on the home screen.</li>
+  <li><strong>No manifest, or no 192 and 512 pixel icons in it.</strong> Android may then put a small, blurry icon or just the first letter of the site on the home screen instead of the logo.</li>
+  <li><strong>Relative paths.</strong> The icon shows on the front page and disappears one folder down.</li>
+  <li><strong>Waiting for the old icon to go away.</strong> Browsers keep favicons for a long time. After a change, give the files a new name or add <code>?v=2</code> to the links, and browsers fetch the new icon on the next visit.</li>
+</ul>
+
+<h2>Search results</h2>
+
+<p>Google Search shows a site's favicon beside its results. It reads the icon links on the home page, the Apple touch icon among them, and asks for a square icon, preferably larger than 48 pixels. The set above has one of 180. After a change it can take days or weeks before the new icon shows there, and Google does not promise to show one at all.</p>
+
+<h2>For developers</h2>
+
+<p>The generator is a free REST endpoint with no key and no account: <code>POST https://aisenseapi.com/services/v1/image_favicon</code> with the picture in a field named <code>file</code>, and optionally <code>crop</code> and <code>name</code> for the manifest. The ZIP is stored for 24 hours at a link in the answer. The details are on the <a href="/free-favicon-generator-api">favicon generator page</a> and in the <a href="/free-public-apis#images">image section of the API reference</a>.</p>
+
+<h2>Questions</h2>
+
+<h3>What size should a favicon be?</h3>
+<p>There is no single size. Browser tabs use 16 and 32 pixels, favicon.ico holds 16, 32 and 48, an iPhone home screen uses 180, and Android and installed web apps use 192 and 512. Start from a square image of at least 512 pixels and make the rest from it.</p>
+
+<h3>Do I still need favicon.ico?</h3>
+<p>Yes. Browsers ask for /favicon.ico when a page names no icon, and many other programs ask for it directly. It costs one file.</p>
+
+<h3>What size is the Apple touch icon?</h3>
+<p>180 by 180 pixels, on a solid background, since an iPhone shows no transparency on the home screen.</p>
+
+<h3>Can a favicon be an SVG?</h3>
+<p>Most browsers read an SVG favicon, and it stays sharp at any size. Not every browser and tool does, so keep the PNG and ICO files beside it.</p>
+
+<h3>Is the favicon generator free?</h3>
+<p>Yes. No account and no API key. It makes all the files from one image and gives them back as a ZIP.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Make yours</p>
+  <h2>Every favicon a website needs, from one picture.</h2>
+  <p>Free, no account and no API key. Drop a logo, choose how to make it square, and download the ZIP.</p>
+  <div class="button-row"><a href="/free-favicon-generator-api">Favicon generator</a> <a href="/free-image-color-palette-api">Colour palette</a> <a href="/ai-sense-posts">More posts</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>

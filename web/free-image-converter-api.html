@@ -234,7 +234,7 @@
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/image_convert</code> with <code>multipart/form-data</code>.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
@@ -242,12 +242,12 @@
     <tr><td><code>quality</code></td><td>no</td><td>40 to 95, for JPEG and WebP. 82 when left out.</td></tr>
     <tr><td><code>lossless</code></td><td>no</td><td><code>true</code> or <code>false</code>, for WebP only. Lossless takes no quality.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>A GET on <code>storage_url</code> returns the image with its own image type, so the link also works in an <code>&lt;img&gt;</code> tag.</p>
 
 <h2 id="storage">The answer is a Storage link</h2>
 <p>The endpoint never sends the image in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the image.</td></tr>
@@ -257,7 +257,7 @@
     <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td>The endpoint that made it, and the format and size of the result in pixels.</td></tr>
     <tr><td><code>input_format</code>, <code>input_bytes</code></td><td>What the upload was, so the saving can be read off.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The example at the top of the page comes from a test run with a test image of 1600 x 1200 pixels. The id and the expiry are different on every call, and the sizes depend on the image.</p>
 <p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
@@ -272,7 +272,7 @@
 
 <h2 id="errors">Errors</h2>
 <p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
     <tr><td><code>400</code></td><td>A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.</td></tr>
@@ -282,7 +282,7 @@
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now.</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h2 id="faq">Questions</h2>
 
@@ -304,6 +304,7 @@
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
   <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
