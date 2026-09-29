@@ -333,8 +333,9 @@ export class AISenseAPI {
 
   /**
    * Decode a Base64-encoded QR code image. Response key: `qrcode_content`.
-   * The request field is `payload`, and `data` is accepted as well. Anything
-   * the decoder cannot read as a QR code answers 400.
+   * The request field is `payload`, and `data` is accepted as well. The image
+   * is a PNG, JPEG, GIF or WebP of at most 10 MB; anything else answers 415.
+   * An image with no readable code answers 400.
    */
   qrcodeDecode(imageBase64) {
     return this.#post('/qrcode_decode', { payload: imageBase64 })
