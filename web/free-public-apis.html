@@ -157,6 +157,7 @@
     <a href="/free-json-formatter-api"><strong>JSON Formatter API</strong><span>Pretty print or minify, numbers untouched.</span></a>
     <a href="/free-json-validator-api"><strong>JSON Validator API</strong><span>Check JSON syntax and keep the report.</span></a>
     <a href="/free-image-converter-api"><strong>Image Converter API</strong><span>HEIC, WebP, PNG and JPEG, with EXIF removed.</span></a>
+    <a href="/free-heic-to-jpg-converter"><strong>HEIC to JPG Converter</strong><span>iPhone photos to JPG, turned right, GPS removed.</span></a>
     <a href="/free-image-compression-api"><strong>Image Compression API</strong><span>A smaller file in the same format.</span></a>
     <a href="/free-image-metadata-viewer-api"><strong>Image Metadata API</strong><span>EXIF, GPS and XMP, with a privacy summary.</span></a>
     <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
@@ -505,7 +506,7 @@ Response: Hello</code></pre>
 <article class="endpoint">
 <h3>Image Convert REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/image_convert</span></p>
-<p>Converts between JPEG, PNG and WebP, and reads HEIC from an iPhone, turned the way the phone stored it. <code>format</code> is required. <code>quality</code>, 40 to 95 and 82 by default, applies to JPEG and WebP, and <code>lossless=true</code> makes a lossless WebP. Transparent pixels become white in a JPEG. <a href="/free-image-converter-api">Guide and browser tool</a>.</p>
+<p>Converts between JPEG, PNG and WebP, and reads HEIC from an iPhone, turned the way the phone stored it. <code>format</code> is required. <code>quality</code>, 40 to 95 and 82 by default, applies to JPEG and WebP, and <code>lossless=true</code> makes a lossless WebP. Transparent pixels become white in a JPEG. <a href="/free-image-converter-api">Guide and browser tool</a>, and a <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos.</p>
 <pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
   -F "file=@photo.jpg" \
   -F "format=webp"</code></pre>
@@ -935,7 +936,7 @@ response = client.chat.completions.create(
 <h3>Convert</h3>
 <div class="related-api-grid"><a href="/free-json-to-csv-api">Free JSON to CSV API<span>Records to a CSV file</span></a><a href="/free-csv-to-json-api">Free CSV to JSON API<span>Every cell stays text</span></a><a href="/free-table-matching-api">Free Table Matching API<span>Matched, missing and ambiguous rows</span></a><a href="/free-json-formatter-api">Free JSON Formatter API<span>Only the whitespace changes</span></a><a href="/free-json-validator-api">Free JSON Validator API<span>A stored report for every check</span></a></div>
 <h3>Images</h3>
-<div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>HEIC, WebP, PNG and JPEG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a><a href="/free-image-metadata-viewer-api">Free Image Metadata API<span>EXIF, GPS and XMP</span></a><a href="/free-exif-remover-api">Free EXIF Remover API<span>Pixels untouched</span></a><a href="/free-image-color-palette-api">Free Colour Palette API<span>Dominant colours</span></a><a href="/free-favicon-generator-api">Free Favicon Generator API<span>A ZIP of icons</span></a></div>
+<div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>HEIC, WebP, PNG and JPEG</span></a><a href="/free-heic-to-jpg-converter">Free HEIC to JPG Converter<span>iPhone photos to JPG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a><a href="/free-image-metadata-viewer-api">Free Image Metadata API<span>EXIF, GPS and XMP</span></a><a href="/free-exif-remover-api">Free EXIF Remover API<span>Pixels untouched</span></a><a href="/free-image-color-palette-api">Free Colour Palette API<span>Dominant colours</span></a><a href="/free-favicon-generator-api">Free Favicon Generator API<span>A ZIP of icons</span></a></div>
 <h3>Hash</h3>
 <div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
