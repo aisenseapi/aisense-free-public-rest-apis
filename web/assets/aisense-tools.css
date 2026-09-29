@@ -25,6 +25,33 @@
 .tool-field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1rem; }
 .tool-field label, .tool-legend { font-weight: 600; color: var(--ink); font-size: .92rem; }
 .tool-field small { color: var(--muted); font-size: .8rem; }
+/* A low version of the drop zone on the upload page, one under each textarea. */
+.tool-drop {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: .15rem .45rem;
+  padding: .6rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: var(--tint);
+  color: var(--body);
+  font-size: .88rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tool-drop:hover, .tool-drop:focus-visible, .tool-drop.is-over {
+  background: #eef5ff;
+  border-color: var(--blue);
+  color: var(--blue-dark);
+}
+.tool-drop:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.tool-drop * { pointer-events: none; }
+.tool-drop strong { font-weight: 600; }
+.tool-drop.is-bad { border-color: #f87171; }
+.tool-drop.is-bad small { color: #b91c1c; }
 .tool-card textarea {
   width: 100%;
   min-height: 12rem;

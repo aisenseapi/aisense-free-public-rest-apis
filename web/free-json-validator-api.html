@@ -188,6 +188,8 @@
     <div class="tool-field">
       <label for="tool-input">JSON text</label>
       <textarea id="tool-input" spellcheck="false">{"active": true,}</textarea>
+      <div class="tool-drop" id="tool-drop" role="button" tabindex="0"><strong>Drop a JSON file here</strong> <small>or click to choose one</small></div>
+      <input type="file" id="tool-file" accept=".json,application/json,.txt" hidden>
     </div>
     <div class="tool-actions">
       <button type="submit" class="button button-primary">Validate</button>
@@ -310,6 +312,8 @@
   var input = document.getElementById('tool-input');
   var result = document.getElementById('tool-result');
   if (!T || !form) { return; }
+
+  T.fileInto(document.getElementById('tool-drop'), document.getElementById('tool-file'), input);
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
