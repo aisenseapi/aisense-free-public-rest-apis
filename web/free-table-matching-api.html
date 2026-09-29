@@ -190,14 +190,18 @@
         <textarea id="tool-left" spellcheck="false">customer_id;name
 00123;Nordlys AS
 00456;Fjord &amp; Fjell</textarea>
-        <small>CSV with a header line, or a JSON list of objects. <input type="file" id="tool-left-file" accept=".csv,.tsv,.txt,.json"></small>
+        <small>CSV with a header line, or a JSON list of objects.</small>
+        <div class="tool-drop" id="tool-left-drop" role="button" tabindex="0"><strong>Drop a CSV or JSON file here</strong> <small>or click to choose one</small></div>
+        <input type="file" id="tool-left-file" accept=".csv,.tsv,.txt,.json" hidden>
       </div>
       <div class="tool-field">
         <label for="tool-right">Right table</label>
         <textarea id="tool-right" spellcheck="false">kundenummer;navn
 00123;Nordlys AS
 00999;Solvik</textarea>
-        <small>CSV with a header line, or a JSON list of objects. <input type="file" id="tool-right-file" accept=".csv,.tsv,.txt,.json"></small>
+        <small>CSV with a header line, or a JSON list of objects.</small>
+        <div class="tool-drop" id="tool-right-drop" role="button" tabindex="0"><strong>Drop a CSV or JSON file here</strong> <small>or click to choose one</small></div>
+        <input type="file" id="tool-right-file" accept=".csv,.tsv,.txt,.json" hidden>
       </div>
     </div>
     <div class="tool-options">
@@ -384,8 +388,8 @@
     if (rows.length > 50) { report.appendChild(T.make('p', 'tool-note', 'The first 50 are shown. The stored report has all of them.')); }
   }
 
-  T.fileInto(document.getElementById('tool-left-file'), left);
-  T.fileInto(document.getElementById('tool-right-file'), right);
+  T.fileInto(document.getElementById('tool-left-drop'), document.getElementById('tool-left-file'), left);
+  T.fileInto(document.getElementById('tool-right-drop'), document.getElementById('tool-right-file'), right);
   left.addEventListener('input', refresh);
   right.addEventListener('input', refresh);
 

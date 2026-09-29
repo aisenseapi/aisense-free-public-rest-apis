@@ -186,8 +186,10 @@
   <form id="tool-form">
     <div class="tool-field">
       <label for="tool-input">JSON text</label>
-      <textarea id="tool-input" spellcheck="false">{"id":123456789012345678901234567890,"price":1.50,"tags":["a","b"],"note":"café"}</textarea>
+      <textarea id="tool-input" spellcheck="false">{"id":123456789012345678901234567890,"price":1.50,"tags":["a","b"],"note":"caf\u00e9"}</textarea>
       <small>Any JSON value: an object, a list, a string, a number, true, false or null.</small>
+      <div class="tool-drop" id="tool-drop" role="button" tabindex="0"><strong>Drop a JSON file here</strong> <small>or click to choose one</small></div>
+      <input type="file" id="tool-file" accept=".json,application/json,.txt" hidden>
     </div>
     <div class="tool-options">
       <div class="tool-field">
@@ -338,6 +340,8 @@
   var indent = document.getElementById('tool-indent');
   var result = document.getElementById('tool-result');
   if (!T || !form) { return; }
+
+  T.fileInto(document.getElementById('tool-drop'), document.getElementById('tool-file'), input);
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
