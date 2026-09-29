@@ -26,6 +26,7 @@ guess it.
 - [Time](#time)
 - [Random](#random)
 - [Transform](#transform)
+- [Convert](#convert)
 - [Hash](#hash)
 - [Web](#web)
 - [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
@@ -376,6 +377,190 @@ Accepts a Base64 image in the **`payload`** field, or a file upload
 // Response
 { "qrcode_content": "https://aisenseapi.com/" }
 ```
+
+---
+
+## Convert
+
+Five endpoints convert, format, validate and compare JSON, CSV and tables.
+None of them returns its result in the answer. Each stores the result in
+[Storage](#storage---24h-ttl) for 24 hours and answers with the Storage fields
+plus `content_type`, `filename` and `operation`. Read the result with a GET on
+`storage_url`. Anyone with that link can read it, and stored results count
+against the Storage budget of 80 MB per IP address per day.
+
+All five take `POST` with `Content-Type: application/json` and a JSON object
+of at most 256 KB, with lists and objects nested at most 63 deep. Unknown
+fields are refused, and so is an integer too large for 64 bits anywhere in
+the body; send large IDs as strings. Every refusal from these endpoints
+carries `error` and `fix`, and stores nothing.
+
+```json
+// Response to the json_to_csv request below, from a test run.
+// The id and the expiry are different on every call.
+{
+  "storage_id": "b5b3016f-52df-43a7-801c-7b7d0baa4b94",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/b5b3016f-52df-43a7-801c-7b7d0baa4b94",
+  "sha256_hash": "3e749b9bff583e347820dee8435476eca0ca58fe2e4639c53cc13c8cc9925c1c",
+  "bytes": 44,
+  "expire_timestamp": 1790760065,
+  "expire_datetime": "2026-09-30T09:21:05+00:00",
+  "content_type": "text/csv; charset=utf-8",
+  "filename": "result.csv",
+  "operation": "json_to_csv"
+}
+```
+
+| Status | When |
+|--------|------|
+| 400 | The body is not a JSON object, a field is missing, unknown or has the wrong type, or the input breaks the endpoint's rules |
+| 405 | The method is not `POST` |
+| 413 | The body, the rows or the result is over a limit |
+| 415 | The `Content-Type` is not `application/json` |
+| 429 | The request budget or the day's Storage budget is used up |
+| 503 | The result could not be stored |
+
+A result is at most 2 MB. Tables are at most 5000 rows and 100 columns, but
+the 256 KB body limit is usually reached first.
+
+Each endpoint has a guide with a browser tool:
+[JSON to CSV](https://aisense.no/free-json-to-csv-api),
+[CSV to JSON](https://aisense.no/free-csv-to-json-api),
+[table matching](https://aisense.no/free-table-matching-api),
+[JSON formatter](https://aisense.no/free-json-formatter-api) and
+[JSON validator](https://aisense.no/free-json-validator-api).
+
+---
+
+### `POST /json_to_csv`
+JSON records to CSV. `columns` names the columns and their order, and `rows`
+is a list of flat objects. Optional `delimiter` is `","` (default), `";"` or
+`"\t"`. Optional `spreadsheet_safe` (default `false`) puts an apostrophe in
+front of cells that start with `=`, `+`, `-` or `@`, the header and negative
+numbers sent as text included.
+
+```json
+// Request
+{"columns": ["customer_id", "name"], "rows": [{"customer_id": "00123", "name": "Nordlys AS"}], "delimiter": ";"}
+```
+
+Stored as `result.csv` with the content type `text/csv; charset=utf-8`.
+Every cell is quoted, quotes inside a cell are doubled, and every line ends
+with CRLF:
+
+```text
+"customer_id";"name"
+"00123";"Nordlys AS"
+```
+
+A row with a field that is not in `columns` is refused, so nothing is dropped
+without notice. `null` and a missing field give an empty cell, `true` and
+`false` give the words, and numbers are written as JSON numbers, so `1.50`
+becomes `1.5`. Nested objects and lists are refused. Storage serves the CSV
+as `application/octet-stream`.
+
+---
+
+### `POST /csv_to_json`
+CSV text in `data` to JSON. Optional `delimiter` as for `json_to_csv`. The
+first line is the header, and column names must be unique and not empty.
+
+```json
+// Request
+{"data": "customer_id,name\n00123,Nordlys AS\n"}
+```
+
+Stored as `result.json`:
+
+```json
+{"columns":["customer_id","name"],"rows":[{"customer_id":"00123","name":"Nordlys AS"}]}
+```
+
+Every cell stays a string; nothing is converted to a number, boolean, date or
+null. A quoted field can hold the delimiter, doubled quotes and line breaks,
+and a UTF-8 byte order mark is removed. Lines end with LF or CRLF, and a lone
+CR is refused. An unclosed quote, text after a closing quote, a quote inside
+an unquoted field and a row of a different width than the header answer 400.
+A blank line is a row with one empty field.
+
+---
+
+### `POST /table_match`
+Compares two lists of rows, `left` and `right`, on the key column pairs in
+`keys`. Every pair must be equal for two rows to match.
+
+```json
+// Request
+{"left": [{"id": "1"}, {"id": "2"}], "right": [{"id": "2"}, {"id": "3"}], "keys": [{"left": "id", "right": "id"}]}
+```
+
+Stored as `matches.json`:
+
+```json
+{"matched":[{"left_index":1,"right_index":0}],"only_left":[0],"only_right":[1],"ambiguous":[]}
+```
+
+Every row lands in exactly one list, and indices are zero-based positions in
+the lists you sent. When a key value found in both tables appears more than
+once in either of them, all those rows go into `ambiguous` as `left_indices`
+and `right_indices`; nothing is paired at random. A row whose key is missing,
+null or empty never matches and is listed in `only_left` or `only_right`.
+Keys compare exactly and with their type: `"1"` does not match `1`, and
+nothing is trimmed. Key values may be strings, integers or booleans, and a
+number with a decimal part is refused. At most 5000 rows per table, 100
+fields per row and 100 key pairs. The report holds positions only, not your
+data.
+
+---
+
+### `POST /json_format`
+Formats JSON text sent as a string in `data`. `mode` is `"pretty"` (default)
+or `"compact"`, and `indent` is `2` (default) or `4`.
+
+```json
+// Request
+{"data": "{\"price\":1.50,\"tags\":[\"a\"]}", "mode": "pretty"}
+```
+
+Stored as `result.json`:
+
+```json
+{
+  "price": 1.50,
+  "tags": [
+    "a"
+  ]
+}
+```
+
+Only whitespace changes. Number spelling, string escapes, key order and
+duplicate keys are kept, so `1.50` stays `1.50` and a 30-digit integer stays
+exact. Pretty output ends with a line break. Invalid JSON, or more than 127
+nested lists or objects, answers 400 with the parser's message and stores nothing.
+
+---
+
+### `POST /json_validate`
+Checks the syntax of JSON text sent as a string in `data`. Invalid JSON is a
+result, not an error: the call answers 200, adds `valid` to the Storage
+fields, and stores a report.
+
+```json
+// Request
+{"data": "{\"a\":1,}"}
+```
+
+Stored as `validation.json`:
+
+```json
+{"valid":false,"error":"Syntax error","input_bytes":8,"max_depth":128}
+```
+
+The check is syntax only, not JSON Schema. `error` is the parser's message,
+without a line or column. Duplicate keys are valid, and more than 127 nested
+lists or objects is invalid. The report's `max_depth` of 128 is the parser's
+limit, which counts the values inside the innermost list or object as one
+more level. The report does not contain the JSON itself.
 
 ---
 
@@ -1714,8 +1899,9 @@ it keeps working. `fix` is there for a caller that cannot read the reference
 at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
-The sweep is staged. Storage, Agent Queue, Heartbeat, Lease, Agent Wake and
-Agent Inbox carry a fix on every refusal today. The rest of the catalog
+The sweep is staged. Storage, the five Convert endpoints, Agent Queue,
+Heartbeat, Lease, Agent Wake and Agent Inbox carry a fix on every refusal
+today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
 
 ### Input formats (POST endpoints)
@@ -1753,6 +1939,8 @@ operations use JSON with the fields documented in their own sections.
 | `/jwt_decode` | `decoded_payload` |
 | `/qrcode_encode` | `qrcode_image`, `image_type` |
 | `/qrcode_decode` | `qrcode_content` |
+| `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
+| `/json_validate` | the same fields, plus `valid` |
 | `/md5_hash` | `md5_hash` |
 | `/sha1_hash` | `sha1_hash` |
 | `/sha256_hash` | `sha256_hash` |
