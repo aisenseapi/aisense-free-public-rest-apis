@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free EXIF remover API: remove GPS and metadata from photos | AI SENSE</title>
+<meta name="description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<link rel="canonical" href="https://aisense.no/free-exif-remover-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free EXIF remover: metadata out, pixels untouched - AI SENSE">
+<meta property="og:description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<meta property="og:url" content="https://aisense.no/free-exif-remover-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free EXIF remover API",
+      "url": "https://aisense.no/free-exif-remover-api",
+      "documentation": "https://aisense.no/free-exif-remover-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/image_strip",
+          "httpMethod": "POST",
+          "contentType": "multipart/form-data",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the EXIF remover API free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does removing the metadata lower the quality?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The image data is copied byte for byte, so the pixels are exactly the same as in the upload."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will the photo still show the right way up?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it remove metadata from HEIC?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Free EXIF remover: metadata out, pixels untouched"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </div></nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free EXIF remover: metadata out, pixels untouched
+</nav>
+
+<div class="hero">
+  <h1>Free EXIF remover: metadata out, pixels untouched</h1>
+  <p class="lede">Drop a JPEG, PNG or WebP and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_strip \
+  -F "file=@photo.jpg"
+
+{
+  "storage_id": "3a60f9aa-1277-4025-9028-9d1a6c618118",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/3a60f9aa-1277-4025-9028-9d1a6c618118",
+  "sha256_hash": "976bb93fbccde05545bf17033d5616dc83ea7c5787b5eafc58ac1e0c54381679",
+  "bytes": 640376,
+  "expire_timestamp": 1790778560,
+  "expire_datetime": "2026-09-30T14:29:20+00:00",
+  "content_type": "image/jpeg",
+  "filename": "result.jpg",
+  "operation": "image_strip",
+  "format": "jpeg",
+  "width": 1600,
+  "height": 1200,
+  "input_bytes": 640790,
+  "removed": [
+    "EXIF"
+  ],
+  "kept": []
+}</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>Not saved again</span>
+      <span>GPS removed</span>
+      <span>Colour profile kept</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts your image to the same endpoint and shows the stored result. The image is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
+      <strong>Drop an image here</strong>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG or WebP, up to 10 MB.</small>
+    </div>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
+    <div class="tool-chosen" id="tool-chosen" hidden>
+      <img id="tool-thumb" alt="The image you chose">
+      <p class="tool-meta" id="tool-chosen-text"></p>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Remove the metadata</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+</div>
+
+<h2 id="how">How it works</h2>
+<ul>
+  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
+  <li><strong>From a JPEG</strong> it removes EXIF with its GPS directory and thumbnail, XMP, IPTC and other Photoshop data, comments, the multi-picture index, other application segments, and whatever follows the end of the image, where phones keep depth maps and HDR gain maps.</li>
+  <li><strong>From a PNG</strong> it removes the text chunks, XMP, EXIF and the time of last change.</li>
+  <li><strong>From a WebP</strong> it removes the EXIF and XMP chunks.</li>
+  <li><strong>The colour profile is kept</strong>, so the colours look the same, and so are the JFIF header and the Adobe colour transform of a JPEG.</li>
+  <li><strong>The orientation is kept.</strong> A photo the camera marked as rotated gets a new EXIF with its orientation alone, so it still shows the right way up. Nothing else is written back.</li>
+</ul>
+<p>The <a href="/free-image-converter-api">image converter</a> and <a href="/free-image-compression-api">image compression</a> remove metadata too, but they save the image again. This endpoint does not, so it is the one to use when the pixels must not change. The <a href="/free-image-metadata-viewer-api">image metadata viewer</a> shows what a file carries before you remove it.</p>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/image_strip</code> with <code>multipart/form-data</code> and one field, <code>file</code>. Any other field is refused. The result is stored in the format of the upload, and the answer holds the Storage fields and what was done:</p>
+<table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored result.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code> or <code>result.webp</code>.</td></tr>
+    <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td><code>image_strip</code>, and the format and size of the image.</td></tr>
+    <tr><td><code>input_bytes</code></td><td>The size of the upload. <code>bytes</code> is the size without the metadata.</td></tr>
+    <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
+    <tr><td><code>kept</code></td><td><code>Colour profile</code> and <code>Orientation</code>, when the image had them.</td></tr>
+  </tbody>
+</table>
+<p>The example at the top of the page comes from the same test photo as on the <a href="/free-image-metadata-viewer-api">metadata viewer</a>, with made-up EXIF data and a GPS position. What came back is the photo as it was before the EXIF data was added, 640 376 bytes. A GET on <code>storage_url</code> returns the image with its own image type.</p>
+<p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h2 id="limits">Limits</h2>
+<ul>
+  <li>The upload is a JPEG, PNG or WebP of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
+  <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> only.</li>
+  <li>The result is at most 10 MB.</li>
+</ul>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>A field was sent, the upload is not one whole file, or the file cannot be read as an image.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG or WebP.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>The service cannot read or store the image right now.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Is the EXIF remover API free?</h3>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h3>Does removing the metadata lower the quality?</h3>
+<p>No. The image data is copied byte for byte, so the pixels are exactly the same as in the upload.</p>
+
+<h3>Will the photo still show the right way up?</h3>
+<p>Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is.</p>
+
+<h3>Can it remove metadata from HEIC?</h3>
+<p>No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-image-converter-api">Image converter</a>, which also reads HEIC, and <a href="/free-image-compression-api">image compression</a></li>
+  <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#images">All image endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var submit = document.getElementById('tool-submit');
+  var chosen = document.getElementById('tool-chosen');
+  var thumb = document.getElementById('tool-thumb');
+  var chosenText = document.getElementById('tool-chosen-text');
+  var result = document.getElementById('tool-result');
+  var accepts = ['jpeg', 'png', 'webp'];
+  var acceptsText = 'JPEG, PNG or WebP';
+  if (!T || !form) { return; }
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+  var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
+  var file = null;
+  var chosenFormat = null;
+  var thumbUrl = null;
+
+  function formatOf(picked) {
+    return picked.slice(0, 64).arrayBuffer().then(function (buffer) {
+      var b = new Uint8Array(buffer);
+      var text = function (from, to) { return String.fromCharCode.apply(null, b.subarray(from, to)); };
+      if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
+      if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
+      if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (b.length >= 16 && text(4, 8) === 'ftyp') {
+        var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
+        var brands = [text(8, 12)];
+        for (var at = 16; at + 4 <= end; at += 4) { brands.push(text(at, at + 4)); }
+        if (brands[0] !== 'avif' && brands[0] !== 'avis' && brands.some(function (brand) { return hevc.indexOf(brand) !== -1; })) { return 'heic'; }
+      }
+      return null;
+    });
+  }
+
+  function choose(picked, done) {
+    file = picked;
+    T.clear(result);
+    Promise.all([T.imageSize(picked), formatOf(picked)]).then(function (read) {
+      var size = read[0];
+      chosenFormat = read[1];
+      if (thumbUrl) { URL.revokeObjectURL(thumbUrl); }
+      thumbUrl = size ? size.url : null;
+      thumb.src = thumbUrl || '';
+      thumb.hidden = !thumbUrl;
+      chosen.hidden = false;
+      chosenText.textContent = picked.name + ', ' + (chosenFormat ? names[chosenFormat] + ', ' : '') + T.bytes(picked.size)
+        + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
+      var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
+      if (!taken) {
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter only.' : 'This is not a ' + acceptsText + ' image.');
+        error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
+        T.showError(result, error);
+      }
+      submit.disabled = !taken;
+      done();
+    });
+  }
+
+  // Comments becomes comments inside a sentence, while EXIF stays EXIF.
+  function soft(item) {
+    return /^[A-Z][a-z]/.test(item) ? item.charAt(0).toLowerCase() + item.slice(1) : item;
+  }
+
+  function list(items) {
+    items = items.map(soft);
+    return items.length < 2 ? items.join('') : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+  }
+
+  T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
+    choose(picked, function () {});
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!file) { return; }
+    T.busy(result, 'Removing...');
+    submit.disabled = true;
+    T.postFile('image_strip', file, {}).then(function (answer) {
+      var line = answer.removed.length ? 'Removed ' + list(answer.removed) + '.' : 'There was nothing to remove.';
+      if (answer.kept.length) { line += ' Kept ' + list(answer.kept) + '.'; }
+      line += ' ' + T.bytes(answer.input_bytes) + ' became ' + T.bytes(answer.bytes) + '.';
+      T.showStored(result, answer, { image: true, summary: line });
+    }).catch(function (error) {
+      T.showError(result, error);
+    }).then(function () {
+      submit.disabled = false;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

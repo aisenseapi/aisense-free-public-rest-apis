@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Free image converter API: WebP, PNG and JPEG | AI SENSE</title>
-<meta name="description" content="Convert images between WebP, PNG and JPEG in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
+<title>Free image converter API: HEIC, WebP, PNG and JPEG | AI SENSE</title>
+<meta name="description" content="Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
 <link rel="canonical" href="https://aisense.no/free-image-converter-api">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
-<meta property="og:title" content="Free image converter: WebP, PNG and JPEG - AI SENSE">
-<meta property="og:description" content="Convert images between WebP, PNG and JPEG in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
+<meta property="og:title" content="Free image converter: HEIC, WebP, PNG and JPEG - AI SENSE">
+<meta property="og:description" content="Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.">
 <meta property="og:url" content="https://aisense.no/free-image-converter-api">
 <meta name="twitter:card" content="summary">
 
@@ -28,7 +28,7 @@
       "url": "https://aisense.no/free-image-converter-api",
       "documentation": "https://aisense.no/free-image-converter-api",
       "termsOfService": "https://aisense.no/terms",
-      "description": "Convert images between WebP, PNG and JPEG in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.",
+      "description": "Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.",
       "inLanguage": "en",
       "provider": {
         "@type": "Organization",
@@ -85,7 +85,7 @@
           "name": "Can it convert HEIC or GIF?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. It accepts JPEG, PNG and WebP."
+            "text": "HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its colour profile. GIF, no."
           }
         }
       ]
@@ -108,7 +108,7 @@
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "Free image converter: WebP, PNG and JPEG"
+          "name": "Free image converter: HEIC, WebP, PNG and JPEG"
         }
       ]
     }
@@ -140,12 +140,12 @@
 <main>
 
 <nav class="breadcrumbs" aria-label="Breadcrumb">
-  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free image converter: WebP, PNG and JPEG
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free image converter: HEIC, WebP, PNG and JPEG
 </nav>
 
 <div class="hero">
-  <h1>Free image converter: WebP, PNG and JPEG</h1>
-  <p class="lede">Drop an image and choose WebP, PNG or JPEG. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.</p>
+  <h1>Free image converter: HEIC, WebP, PNG and JPEG</h1>
+  <p class="lede">Drop an image and choose WebP, PNG or JPEG. HEIC photos from an iPhone work too. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.</p>
 
   <div class="tool-lead-api">
     <div class="api-window">
@@ -174,7 +174,7 @@
     <div class="tool-badges">
       <span>No API key</span>
       <span>No account</span>
-      <span>WebP, PNG and JPEG</span>
+      <span>HEIC, WebP, PNG and JPEG</span>
       <span>EXIF removed</span>
       <span>5000 req / IP / 24h</span>
     </div>
@@ -191,9 +191,9 @@
   <form id="tool-form">
     <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
       <strong>Drop an image here</strong>
-      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG or WebP, up to 10 MB.</small>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG, WebP or HEIC, up to 10 MB.</small>
     </div>
-    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,image/heic,image/heif,.heic,.heif" hidden>
     <div class="tool-chosen" id="tool-chosen" hidden>
       <img id="tool-thumb" alt="The image you chose">
       <p class="tool-meta" id="tool-chosen-text"></p>
@@ -222,7 +222,8 @@
 
 <h2 id="how">How the conversion works</h2>
 <ul>
-  <li><strong>JPEG, PNG and WebP in, any of the three out.</strong> The format is read from the file itself, not from its name. An animated image is converted from its first frame.</li>
+  <li><strong>JPEG, PNG, WebP and HEIC in, JPEG, PNG or WebP out.</strong> The format is read from the file itself, not from its name. An animated image is converted from its first frame.</li>
+  <li><strong>HEIC from an iPhone</strong> is turned the way the phone stored it, once, and keeps its colour profile, so the colours of a Display P3 photo stay right. HEIC can be read but not written.</li>
   <li><strong>Quality</strong> goes from 40 to 95 for JPEG and WebP, and is 82 when you send none. PNG is lossless and takes no quality.</li>
   <li><strong>Lossless WebP</strong> keeps every pixel. For screenshots and graphics it is usually far smaller than PNG.</li>
   <li><strong>Transparency</strong> is kept in PNG and WebP. JPEG has none, so transparent pixels become white.</li>
@@ -236,7 +237,7 @@
 <table>
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
-    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG or WebP.</td></tr>
+    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
     <tr><td><code>format</code></td><td>yes</td><td><code>jpeg</code>, <code>png</code> or <code>webp</code>. <code>jpg</code> is read as <code>jpeg</code>.</td></tr>
     <tr><td><code>quality</code></td><td>no</td><td>40 to 95, for JPEG and WebP. 82 when left out.</td></tr>
     <tr><td><code>lossless</code></td><td>no</td><td><code>true</code> or <code>false</code>, for WebP only. Lossless takes no quality.</td></tr>
@@ -277,7 +278,7 @@
     <tr><td><code>400</code></td><td>A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.</td></tr>
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
-    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG or WebP.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG, WebP or HEIC.</td></tr>
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now.</td></tr>
   </tbody>
@@ -295,11 +296,13 @@
 <p>Yes. EXIF, XMP, IPTC and comments are removed from every result. The colour profile is kept, so the colours stay the same.</p>
 
 <h3>Can it convert HEIC or GIF?</h3>
-<p>No. It accepts JPEG, PNG and WebP.</p>
+<p>HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its colour profile. GIF, no.</p>
 
 <h2 id="related">Related tools</h2>
 <ul>
-  <li><a href="/free-image-converter-api">Image converter</a> and <a href="/free-image-compression-api">image compression</a> for JPEG, PNG and WebP</li>
+  <li><a href="/free-image-converter-api">Image converter</a>, which also reads HEIC, and <a href="/free-image-compression-api">image compression</a></li>
+  <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
   <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
@@ -349,18 +352,28 @@
   var thumb = document.getElementById('tool-thumb');
   var chosenText = document.getElementById('tool-chosen-text');
   var result = document.getElementById('tool-result');
+  var accepts = ['jpeg', 'png', 'webp', 'heic'];
+  var acceptsText = 'JPEG, PNG, WebP or HEIC';
   if (!T || !form) { return; }
-  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP' };
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+  var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
   var file = null;
   var chosenFormat = null;
   var thumbUrl = null;
 
   function formatOf(picked) {
-    return picked.slice(0, 12).arrayBuffer().then(function (buffer) {
+    return picked.slice(0, 64).arrayBuffer().then(function (buffer) {
       var b = new Uint8Array(buffer);
+      var text = function (from, to) { return String.fromCharCode.apply(null, b.subarray(from, to)); };
       if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
       if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
-      if (String.fromCharCode(b[0], b[1], b[2], b[3]) === 'RIFF' && String.fromCharCode(b[8], b[9], b[10], b[11]) === 'WEBP') { return 'webp'; }
+      if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (b.length >= 16 && text(4, 8) === 'ftyp') {
+        var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
+        var brands = [text(8, 12)];
+        for (var at = 16; at + 4 <= end; at += 4) { brands.push(text(at, at + 4)); }
+        if (brands[0] !== 'avif' && brands[0] !== 'avis' && brands.some(function (brand) { return hevc.indexOf(brand) !== -1; })) { return 'heic'; }
+      }
       return null;
     });
   }
@@ -374,15 +387,17 @@
       if (thumbUrl) { URL.revokeObjectURL(thumbUrl); }
       thumbUrl = size ? size.url : null;
       thumb.src = thumbUrl || '';
+      thumb.hidden = !thumbUrl;
       chosen.hidden = false;
       chosenText.textContent = picked.name + ', ' + (chosenFormat ? names[chosenFormat] + ', ' : '') + T.bytes(picked.size)
         + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
-      if (!chosenFormat) {
-        var error = new Error('This is not a JPEG, PNG or WebP image.');
-        error.fix = 'Choose a JPEG, PNG or WebP file.';
+      var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
+      if (!taken) {
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter only.' : 'This is not a ' + acceptsText + ' image.');
+        error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
         T.showError(result, error);
       }
-      submit.disabled = !chosenFormat;
+      submit.disabled = !taken;
       done();
     });
   }

@@ -567,21 +567,25 @@ more level. The report does not contain the JSON itself.
 
 ## Images
 
-`image_convert` and `image_compress` take one image as `multipart/form-data`,
-in a field named `file`: a JPEG, PNG or WebP of at most 10 MB and 25
-megapixels. The format is read from the first bytes of the file, and an
+The six image endpoints take one image as `multipart/form-data`, in a field
+named `file`: a JPEG, PNG or WebP of at most 10 MB. `image_convert` also
+reads HEIC. The format is read from the first bytes of the file, and an
 animated image is converted from its first frame. Like the Convert endpoints,
 they store the result in [Storage](#storage---24h-ttl) for 24 hours and answer
-with the Storage fields plus `operation`, `format`, `width`, `height`,
-`input_format` and `input_bytes`. A GET on `storage_url` returns the image
-with its image type.
+with the Storage fields plus `operation` and what the result is. A GET on
+`storage_url` returns the result with its own type.
 
-Every result is turned upright from its EXIF orientation, and EXIF, XMP, IPTC
-and comments are removed. The ICC colour profile is kept, and a CMYK JPEG
-becomes RGB. Nothing is resized. ImageMagick runs in a sandbox without network
-access, at most two images at a time; a third waits up to ten seconds and is
-then answered 503 with `Retry-After`. A conversion may take 45 seconds, and a
-result may be 8 MB.
+`image_convert`, `image_compress`, `image_colors` and `image_favicon` decode
+the image, which may then be at most 25 megapixels. Every converted image is
+turned upright from its EXIF orientation, and EXIF, XMP, IPTC and comments are
+removed. The ICC colour profile is kept, and a CMYK JPEG becomes RGB. Nothing
+is resized. ImageMagick runs in a sandbox without network access, at most two
+images at a time; a third waits up to ten seconds and is then answered 503
+with `Retry-After`. A request may take 45 seconds, and a result may be 8 MB.
+
+`image_metadata` and `image_strip` read and rewrite the file in PHP without
+decoding it, so they have no pixel limit, run no process and never change a
+pixel.
 
 ```json
 // Response to the image_convert request below, from a test run with a test
@@ -609,18 +613,22 @@ result may be 8 MB.
 | 400 | A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image |
 | 405 | The method is not `POST` |
 | 413 | The upload, its number of pixels or the result is over a limit |
-| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP |
+| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP (or HEIC, for `image_convert`) |
 | 429 | The request budget or the day's Storage budget is used up |
 | 503 | Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now |
 
 Each endpoint has a guide with a browser tool:
-[image converter](https://aisense.no/free-image-converter-api) and
-[image compression](https://aisense.no/free-image-compression-api).
+[image converter](https://aisense.no/free-image-converter-api),
+[image compression](https://aisense.no/free-image-compression-api),
+[image metadata](https://aisense.no/free-image-metadata-viewer-api),
+[EXIF remover](https://aisense.no/free-exif-remover-api),
+[colour palette](https://aisense.no/free-image-color-palette-api) and
+[favicon generator](https://aisense.no/free-favicon-generator-api).
 
 ---
 
 ### `POST /image_convert`
-Converts between JPEG, PNG and WebP.
+Converts between JPEG, PNG and WebP, and reads HEIC.
 
 ```bash
 curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
@@ -630,13 +638,15 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
 
 | Field | Required | Meaning |
 |-------|----------|---------|
-| `file` | yes | The image: JPEG, PNG or WebP |
+| `file` | yes | The image: JPEG, PNG, WebP or HEIC |
 | `format` | yes | `jpeg`, `png` or `webp`; `jpg` is read as `jpeg` |
 | `quality` | no | 40 to 95, for JPEG and WebP; 82 when left out |
 | `lossless` | no | `true` or `false`, for WebP only; lossless takes no quality |
 
 Transparency is kept in PNG and WebP and becomes white in a JPEG. PNG is
 lossless and takes no quality. WebP allows at most 16383 pixels per side.
+A HEIC from an iPhone is turned once, the way its irot box says, and keeps
+its colour profile. HEIC cannot be written.
 
 ---
 
@@ -657,7 +667,100 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_compress \
 JPEG and WebP are saved again at the given quality, which is lossy. PNG is
 saved again losslessly at the strongest zlib level. A `format` field is
 refused. An image that was already compressed harder can come out larger;
-`bytes` and `input_bytes` in the answer show it.
+`bytes` and `input_bytes` in the answer show it. A HEIC is refused here;
+convert it with `image_convert`.
+
+---
+
+### `POST /image_metadata`
+Reports what an image carries besides its pixels, stored as `metadata.json`.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_metadata \
+  -F "file=@photo.jpg"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG or WebP |
+
+The report has `file` (format, size, dimensions, estimated JPEG quality and
+more), `orientation`, `color_profile`, `exif` by directory, `gps` in decimal
+degrees with the altitude in metres and the time in UTC, `xmp`, `iptc`,
+`comments`, PNG `text`, `embedded` (thumbnails, a multi-picture index, data
+after the end of the image) and `privacy`: what can identify a person, a
+place, a device or a time, most sensitive first, each with `item`, `level`
+and `why`. The answer adds `format`, `width`, `height`, `gps` (true when there
+is a position) and `findings`, the items of the privacy list.
+
+---
+
+### `POST /image_strip`
+Removes the metadata without saving the image again.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_strip \
+  -F "file=@photo.jpg"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG or WebP |
+
+From a JPEG it removes EXIF, XMP, IPTC and other Photoshop data, comments,
+the multi-picture index, other application segments and anything after the
+end of the image; from a PNG the text chunks, XMP, EXIF and the time; from a
+WebP the EXIF and XMP chunks. The image data is copied byte for byte. The
+colour profile is kept, and an orientation other than upright is written back
+alone. The result is stored in the format of the upload, at most 10 MB, and
+the answer adds `format`, `width`, `height`, `input_bytes`, `removed` and
+`kept`.
+
+---
+
+### `POST /image_colors`
+The dominant colours of an image, stored as `colors.json`.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_colors \
+  -F "file=@photo.jpg" \
+  -F "count=6"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG or WebP |
+| `count` | no | How many colours, 2 to 16; 8 when left out |
+
+The report has `colors`, each with `hex`, `rgb` and its `share` of the
+visible pixels, the `average`, `transparent_share` for the pixels left out,
+and `placeholder`, the image at most 16 pixels on its longest side as a PNG
+data URI. The answer adds `average`, `dominant` and `count`.
+
+---
+
+### `POST /image_favicon`
+A favicon set as a ZIP, stored as `favicon.zip`.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_favicon \
+  -F "file=@logo.png" \
+  -F "crop=trim" \
+  -F "name=Example site"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The picture: JPEG, PNG or WebP |
+| `crop` | no | `fit` (all of it on transparent, the default), `trim` (cut away a border of one colour first) or `center` (a square from the middle) |
+| `name` | no | The site name for the manifest, at most 60 characters |
+
+The ZIP holds `favicon.ico` with 16, 32 and 48 pixels, `favicon-16x16.png`,
+`favicon-32x32.png`, `apple-touch-icon.png` (180 pixels on white),
+`icon-192.png`, `icon-512.png`, `site.webmanifest` and `head.html` with the
+tags to paste. The answer adds `files`, `crop` and `upscaled`, which is true
+when the picture, or what was left after trimming, was smaller than 512
+pixels.
 
 ---
 
@@ -1996,7 +2099,7 @@ it keeps working. `fix` is there for a caller that cannot read the reference
 at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
-The sweep is staged. Storage, the five Convert endpoints, the two Images
+The sweep is staged. Storage, the five Convert endpoints, the six Images
 endpoints, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
 fix on every refusal today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
@@ -2039,6 +2142,10 @@ operations use JSON with the fields documented in their own sections.
 | `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
 | `/json_validate` | the same fields, plus `valid` |
 | `/image_convert`, `/image_compress` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| `/image_metadata` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `gps`, `findings` |
+| `/image_strip` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_bytes`, `removed`, `kept` |
+| `/image_colors` | the Storage fields, `content_type`, `filename`, `operation`, `average`, `dominant`, `count` |
+| `/image_favicon` | the Storage fields, `content_type`, `filename`, `operation`, `files`, `crop`, `upscaled` |
 | `/md5_hash` | `md5_hash` |
 | `/sha1_hash` | `sha1_hash` |
 | `/sha256_hash` | `sha256_hash` |
