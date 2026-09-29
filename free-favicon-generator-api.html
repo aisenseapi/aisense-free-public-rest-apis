@@ -228,7 +228,7 @@
 </div>
 
 <h2 id="files">What is in the ZIP</h2>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>File</th><th>Size</th><th>For</th></tr></thead>
   <tbody>
     <tr><td><code>favicon.ico</code></td><td>16, 32 and 48 pixels</td><td>Every browser, and anything that asks for <code>/favicon.ico</code></td></tr>
@@ -238,13 +238,14 @@
     <tr><td><code>site.webmanifest</code></td><td></td><td>The web app manifest, with the name you give and the two large icons</td></tr>
     <tr><td><code>head.html</code></td><td></td><td>The tags to paste into the <code>&lt;head&gt;</code> of your pages</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>Put the files in the root of your site and paste the tags from <code>head.html</code>:</p>
 <pre><code>&lt;link rel="icon" href="/favicon.ico" sizes="48x48"&gt;
 &lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;
 &lt;link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"&gt;
 &lt;link rel="apple-touch-icon" href="/apple-touch-icon.png"&gt;
 &lt;link rel="manifest" href="/site.webmanifest"&gt;</code></pre>
+<p>Why each file is there, and the mistakes that leave an icon blurry or missing, is in <a href="/favicon-sizes-and-the-files-a-website-needs">the guide to favicon sizes</a>.</p>
 
 <h2 id="crop">Fit, trim or center</h2>
 <ul>
@@ -256,16 +257,16 @@
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/image_favicon</code> with <code>multipart/form-data</code>.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>file</code></td><td>yes</td><td>The picture: JPEG, PNG or WebP.</td></tr>
     <tr><td><code>crop</code></td><td>no</td><td><code>fit</code>, <code>trim</code> or <code>center</code>. <code>fit</code> when left out.</td></tr>
     <tr><td><code>name</code></td><td>no</td><td>The site name for the manifest, at most 60 characters of plain text.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The icons are stored as <code>favicon.zip</code>, and the answer holds the Storage fields and what the ZIP holds:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
@@ -276,7 +277,7 @@
     <tr><td><code>files</code></td><td>The names of the files in the ZIP.</td></tr>
     <tr><td><code>upscaled</code></td><td><code>true</code> when the picture was smaller than 512 pixels, so the largest icons are enlarged.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The example at the top of the page comes from a test run with a logo of 600 x 200 pixels, <code>crop=trim</code> and <code>name=Example site</code>. What was left after trimming was 301 pixels wide, so the answer says it was enlarged.</p>
 <p>Anyone with the link can download the ZIP until it expires. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
@@ -289,7 +290,7 @@
 
 <h2 id="errors">Errors</h2>
 <p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
     <tr><td><code>400</code></td><td>A field is unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.</td></tr>
@@ -299,7 +300,7 @@
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>Two images are being worked on already, the work took more than 45 seconds, or the service cannot do it right now.</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h2 id="faq">Questions</h2>
 
@@ -321,6 +322,7 @@
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
   <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>

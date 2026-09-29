@@ -220,7 +220,7 @@
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/image_strip</code> with <code>multipart/form-data</code> and one field, <code>file</code>. Any other field is refused. The result is stored in the format of the upload, and the answer holds the Storage fields and what was done:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
@@ -232,7 +232,7 @@
     <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
     <tr><td><code>kept</code></td><td><code>Colour profile</code> and <code>Orientation</code>, when the image had them.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The example at the top of the page comes from the same test photo as on the <a href="/free-image-metadata-viewer-api">metadata viewer</a>, with made-up EXIF data and a GPS position. What came back is the photo as it was before the EXIF data was added, 640 376 bytes. A GET on <code>storage_url</code> returns the image with its own image type.</p>
 <p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
@@ -245,7 +245,7 @@
 
 <h2 id="errors">Errors</h2>
 <p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
     <tr><td><code>400</code></td><td>A field was sent, the upload is not one whole file, or the file cannot be read as an image.</td></tr>
@@ -255,7 +255,7 @@
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The service cannot read or store the image right now.</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h2 id="faq">Questions</h2>
 
@@ -277,6 +277,7 @@
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
   <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
