@@ -581,19 +581,19 @@ more level. The report does not contain the JSON itself.
 
 ## Images
 
-The six image endpoints take one image as `multipart/form-data`, in a field
-named `file`: a JPEG, PNG or WebP of at most 10 MB. `image_convert` also
-reads HEIC. The format is read from the first bytes of the file, and an
+The seven image endpoints take one image as `multipart/form-data`, in a field
+named `file`: a JPEG, PNG or WebP of at most 10 MB. `image_convert` and
+`image_resize` also read HEIC. The format is read from the first bytes of the file, and an
 animated image is converted from its first frame. Like the Convert endpoints,
 they store the result in [Storage](#storage---24h-ttl) for 24 hours and answer
 with the Storage fields plus `operation` and what the result is. A GET on
 `storage_url` returns the result with its own type.
 
-`image_convert`, `image_compress`, `image_colors` and `image_favicon` decode
-the image, which may then be at most 25 megapixels. Every converted image is
+`image_convert`, `image_compress`, `image_resize`, `image_colors` and
+`image_favicon` decode the image, which may then be at most 25 megapixels. Every converted image is
 turned upright from its EXIF orientation, and EXIF, XMP, IPTC and comments are
-removed. The ICC colour profile is kept, and a CMYK JPEG becomes RGB. Nothing
-is resized. ImageMagick runs in a sandbox without network access, at most two
+removed. The ICC colour profile is kept, and a CMYK JPEG becomes RGB. Only
+`image_resize` changes the size. ImageMagick runs in a sandbox without network access, at most two
 images at a time; a third waits up to ten seconds and is then answered 503
 with `Retry-After`. A request may take 45 seconds, and a result may be 8 MB.
 
@@ -683,6 +683,33 @@ saved again losslessly at the strongest zlib level. A `format` field is
 refused. An image that was already compressed harder can come out larger;
 `bytes` and `input_bytes` in the answer show it. A HEIC is refused here;
 convert it with `image_convert`.
+
+---
+
+### `POST /image_resize`
+Gives a JPEG, PNG, WebP or HEIC a new size.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_resize \
+  -F "file=@photo.jpg" \
+  -F "width=800"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG, WebP or HEIC |
+| `width`, `height` | one of them | The box in pixels, 1 to 10000 |
+| `fit` | no | `contain` (default) keeps all of the picture inside the box; `cover` fills the box and cuts the rest from the centre, and needs both sides |
+| `upscale` | no | `true` lets a smaller picture be enlarged; `false` when left out |
+| `format` | no | `jpeg`, `png` or `webp`; the format of the upload when left out, and JPEG for a HEIC |
+| `quality`, `lossless` | no | As for `image_convert` |
+
+The picture is turned upright before it is resized, and the aspect ratio is
+always kept. A picture already smaller than the box keeps its size unless
+`upscale=true`. The answer adds `input_width` and `input_height`, the size of
+the upload once upright, `fit`, and `upscaled`. A result that would be over 25
+megapixels, or over 16383 pixels on a side as WebP, is refused before anything
+runs. [Guide and browser tool](https://aisense.no/free-image-resizer-api).
 
 ---
 
@@ -2218,7 +2245,7 @@ it keeps working. `fix` is there for a caller that cannot read the reference
 at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
-The sweep is staged. Storage, the five Convert endpoints, the six Images
+The sweep is staged. Storage, the five Convert endpoints, the seven Images
 endpoints, qrcode_decode, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
 fix on every refusal today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
@@ -2261,6 +2288,7 @@ operations use JSON with the fields documented in their own sections.
 | `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
 | `/json_validate` | the same fields, plus `valid` |
 | `/image_convert`, `/image_compress` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| `/image_resize` | the same, and `input_width`, `input_height`, `fit`, `upscaled` |
 | `/image_metadata` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `gps`, `findings` |
 | `/image_strip` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_bytes`, `removed`, `kept` |
 | `/image_colors` | the Storage fields, `content_type`, `filename`, `operation`, `average`, `dominant`, `count` |

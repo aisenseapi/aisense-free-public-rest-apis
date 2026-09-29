@@ -1,0 +1,8 @@
+{
+    "image_resize": {
+        "fields": {
+            "width": "800"
+        },
+        "answer": "{\"storage_id\":\"993a1e6c-05c7-499e-a91c-27acfd276821\",\"storage_url\":\"https://aisenseapi.com/services/v1/storage/993a1e6c-05c7-499e-a91c-27acfd276821\",\"sha256_hash\":\"5873dba208f75963c40bc01d7d9542a82473218bc274dab6ea9917c9264c329b\",\"bytes\":102116,\"expire_timestamp\":1790806372,\"expire_datetime\":\"2026-09-30T22:12:52+00:00\",\"content_type\":\"image/jpeg\",\"filename\":\"result.jpg\",\"operation\":\"image_resize\",\"format\":\"jpeg\",\"width\":800,\"height\":600,\"input_format\":\"jpeg\",\"input_bytes\":641358,\"input_width\":1600,\"input_height\":1200,\"fit\":\"contain\",\"upscaled\":false}"
+    }
+}

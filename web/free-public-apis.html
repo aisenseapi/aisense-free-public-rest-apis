@@ -160,6 +160,7 @@
     <a href="/free-image-converter-api"><strong>Image Converter API</strong><span>HEIC, WebP, PNG and JPEG, with EXIF removed.</span></a>
     <a href="/free-heic-to-jpg-converter"><strong>HEIC to JPG Converter</strong><span>iPhone photos to JPG, turned right, GPS removed.</span></a>
     <a href="/free-image-compression-api"><strong>Image Compression API</strong><span>A smaller file in the same format.</span></a>
+    <a href="/free-image-resizer-api"><strong>Image Resizer API</strong><span>A new size, or a square thumbnail, HEIC included.</span></a>
     <a href="/free-image-metadata-viewer-api"><strong>Image Metadata API</strong><span>EXIF, GPS and XMP, with a privacy summary.</span></a>
     <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
     <a href="/free-image-color-palette-api"><strong>Colour Palette API</strong><span>Dominant colours, average and a placeholder.</span></a>
@@ -484,8 +485,8 @@ Response: Hello</code></pre>
 <section id="images" aria-labelledby="images-heading">
 <h2 id="images-heading">Images</h2>
 
-<p>All six image endpoints are <code>POST</code> with <code>multipart/form-data</code>: the image in a field named <code>file</code>, a JPEG, PNG or WebP of at most 10 MB, and the options as form fields. <code>image_convert</code> also reads HEIC. Like the Convert endpoints, they store the result in <a href="/free-public-api-storage-api-endpoint">Storage</a> for 24 hours and answer with the Storage fields, plus <code>operation</code> and what the result is.</p>
-<p><code>image_convert</code>, <code>image_compress</code>, <code>image_colors</code> and <code>image_favicon</code> decode the image, so it may be at most 25 megapixels. ImageMagick does that work in a sandbox without network access, two images at a time. Every converted image is turned upright, and EXIF, XMP, IPTC and comments are removed while the colour profile is kept. <code>image_metadata</code> and <code>image_strip</code> only read and rewrite the file, so they have no pixel limit and never change a pixel.</p>
+<p>All seven image endpoints are <code>POST</code> with <code>multipart/form-data</code>: the image in a field named <code>file</code>, a JPEG, PNG or WebP of at most 10 MB, and the options as form fields. <code>image_convert</code> and <code>image_resize</code> also read HEIC. Like the Convert endpoints, they store the result in <a href="/free-public-api-storage-api-endpoint">Storage</a> for 24 hours and answer with the Storage fields, plus <code>operation</code> and what the result is.</p>
+<p><code>image_convert</code>, <code>image_compress</code>, <code>image_resize</code>, <code>image_colors</code> and <code>image_favicon</code> decode the image, so it may be at most 25 megapixels. ImageMagick does that work in a sandbox without network access, two images at a time. Every converted image is turned upright, and EXIF, XMP, IPTC and comments are removed while the colour profile is kept. <code>image_metadata</code> and <code>image_strip</code> only read and rewrite the file, so they have no pixel limit and never change a pixel.</p>
 <p>The answer to the image_convert example below, from a test run with a test image of 1600 x 1200 pixels. The id, the expiry and the sizes differ from call to call and image to image:</p>
 <pre><code>{
   "storage_id": "1ddd4269-b51c-4209-a4de-6908926f672b",
@@ -520,6 +521,15 @@ Response: Hello</code></pre>
 <pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_compress \
   -F "file=@photo.jpg" \
   -F "quality=70"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Image Resize REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/image_resize</span></p>
+<p>Gives a JPEG, PNG, WebP or HEIC a new <code>width</code>, <code>height</code> or both. <code>fit=contain</code> keeps all of the picture inside the box, and <code>fit=cover</code> fills it and cuts the rest from the centre, for thumbnails. Nothing is enlarged unless <code>upscale=true</code>. The answer adds <code>input_width</code>, <code>input_height</code>, <code>fit</code> and <code>upscaled</code>. <a href="/free-image-resizer-api">Guide and browser tool</a>.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_resize \
+  -F "file=@photo.jpg" \
+  -F "width=800"</code></pre>
 </article>
 
 <article class="endpoint">
@@ -1013,6 +1023,7 @@ response = client.chat.completions.create(
 <tr><td>Convert</td><td><code>/json_validate</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code>, <code>valid</code></td></tr>
 <tr><td>Images</td><td><code>/image_convert</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_format</code>, <code>input_bytes</code></td></tr>
 <tr><td>Images</td><td><code>/image_compress</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_format</code>, <code>input_bytes</code></td></tr>
+<tr><td>Images</td><td><code>/image_resize</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_width</code>, <code>input_height</code>, <code>fit</code>, <code>upscaled</code></td></tr>
 <tr><td>Images</td><td><code>/image_metadata</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>gps</code>, <code>findings</code></td></tr>
 <tr><td>Images</td><td><code>/image_strip</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_bytes</code>, <code>removed</code>, <code>kept</code></td></tr>
 <tr><td>Images</td><td><code>/image_colors</code></td><td>POST</td><td>Storage fields, <code>average</code>, <code>dominant</code>, <code>count</code></td></tr>
