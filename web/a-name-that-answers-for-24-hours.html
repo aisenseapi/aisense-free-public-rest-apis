@@ -79,15 +79,15 @@
 
 <p>Replace <code>&lt;YOUR_PUBLIC_IP&gt;</code> with the public unicast address the name should point at. Private, reserved and documentation ranges are refused with 400.</p>
 
-<p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Every call is a GET with its arguments in the path, and a seven character slug can never be mistaken for an address. Reading needs nothing at all, since everything a read returns is already public in DNS. Changing the address or removing the name needs the token, which travels in an <code>Authorization: Bearer</code> header, never in the path.</p>
+<p>The answer carries the name, the record, the address, the TTL, the expiry, the two name servers and the zone's serial. Every argument is in the path, and a seven character slug can never be mistaken for an address. Creating and reading are GETs; since 29 September, moving and deleting are POSTs with the token. Reading needs nothing at all, since everything a read returns is already public in DNS. Changing the address or removing the name needs the token, which travels in an <code>Authorization: Bearer</code> header, never in the path.</p>
 
 <div class="table-wrap"><table>
 <thead><tr><th>Call</th><th>Token</th><th>Does</th></tr></thead>
 <tbody>
 <tr><td><code>GET /services/v1/dns/{ip}</code></td><td>None</td><td>Create a name for the address, which must be public unicast</td></tr>
 <tr><td><code>GET /services/v1/dns/{slug}</code></td><td>None</td><td>Read what the name currently says</td></tr>
-<tr><td><code>GET /services/v1/dns/{slug}/update/{ip}</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
-<tr><td><code>GET /services/v1/dns/{slug}/delete</code></td><td>Bearer</td><td>Remove it; the primary at once, the secondary as replication follows</td></tr>
+<tr><td><code>POST /services/v1/dns/{slug}/update/{ip}</code></td><td>Bearer</td><td>Point it somewhere else. The expiry does not move</td></tr>
+<tr><td><code>POST /services/v1/dns/{slug}/delete</code></td><td>Bearer</td><td>Remove it; the primary at once, the secondary as replication follows</td></tr>
 </tbody>
 </table></div>
 

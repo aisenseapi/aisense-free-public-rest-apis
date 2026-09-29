@@ -1820,9 +1820,9 @@ The standalone machine-readable Queue contract is
 
 ### DNS names - 24h lifetime
 
-A public hostname for an address, for a day. Every call is a GET with its
-arguments in the path. `GET /dns/{ip}` with the address the name should point
-at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with a TTL of 60
+A public hostname for an address, for a day. Every argument is in the path.
+Creating and reading are GETs; moving and deleting are POSTs with the token.
+`GET /dns/{ip}` with the address the name should point at returns `aisense-<slug>.53for24h.com`, an A or AAAA record with a TTL of 60
 seconds, and a `dns_token` shown once.
 
 ```bash
@@ -1852,8 +1852,8 @@ illustrative answer:
 |---|---|---|
 | `GET /dns/{ip}` | None | Creates a name pointing at the address. `ip` must be a public unicast address. 201 |
 | `GET /dns/{slug}` | None | Reads the name, its address and its expiry. Everything in it is already public in DNS |
-| `GET /dns/{slug}/update/{ip}` | Bearer | Moves the name to another address. The expiry does not move |
-| `GET /dns/{slug}/delete` | Bearer | Removes the name; the primary at once, the secondary as replication reaches it |
+| `POST /dns/{slug}/update/{ip}` | Bearer | Moves the name to another address. The expiry does not move |
+| `POST /dns/{slug}/delete` | Bearer | Removes the name; the primary at once, the secondary as replication reaches it |
 
 Names are assigned, never chosen, and the address is never taken from the
 caller, because the caller is usually not the machine the name should point at.
@@ -1871,7 +1871,15 @@ can be watched.
 
 A seven character slug names an existing record; an address, told apart by its
 dot or colon, creates a new one. The token goes in an `Authorization: Bearer`
-header on update and delete, never in the path.
+header on update and delete, never in the path. Both are POSTs with no body,
+or `{}`. A GET on them answers 405, so a link preview or a crawler cannot
+change a name. Creating stays a GET, so an agent that can only fetch a URL can
+make one.
+
+```bash
+curl -X POST -H "Authorization: Bearer <DNS_TOKEN>" \n  "https://aisenseapi.com/services/v1/dns/<SLUG>/update/<NEW_PUBLIC_IP>"
+curl -X POST -H "Authorization: Bearer <DNS_TOKEN>" \n  "https://aisenseapi.com/services/v1/dns/<SLUG>/delete"
+```
 
 Limits are 10 names per client address per hour, one change per name per 10
 seconds, and 100 active names while the service is a pilot. The four MCP

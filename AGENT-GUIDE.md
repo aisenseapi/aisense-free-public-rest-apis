@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.3.1
+Resource version 1.3.2
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -154,5 +154,5 @@ REST paths:
 
 - GET https://aisenseapi.com/services/v1/dns/{ip} to create
 - GET https://aisenseapi.com/services/v1/dns/{slug} to read
-- GET https://aisenseapi.com/services/v1/dns/{slug}/update/{ip} to move it, with the token
-- GET https://aisenseapi.com/services/v1/dns/{slug}/delete to remove it, with the token
+- POST https://aisenseapi.com/services/v1/dns/{slug}/update/{ip} to move it, with the token
+- POST https://aisenseapi.com/services/v1/dns/{slug}/delete to remove it, with the token
