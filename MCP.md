@@ -443,10 +443,10 @@ behind one.
 | Lifetime | 24 hours, fixed |
 
 The zone is served by `ns1.aisenseapi.com` and `ns2.aisenseapi.com`. Every REST
-call is a GET with its arguments in the path: `GET /services/v1/dns/{ip}` to
-create, `GET /services/v1/dns/{slug}` to read,
-`GET /services/v1/dns/{slug}/update/{ip}` to move it, and
-`GET /services/v1/dns/{slug}/delete` to remove it, the last two with the token.
+argument is in the path: `GET /services/v1/dns/{ip}` to create,
+`GET /services/v1/dns/{slug}` to read,
+`POST /services/v1/dns/{slug}/update/{ip}` to move it, and
+`POST /services/v1/dns/{slug}/delete` to remove it, the last two with the token.
 
 ## Agent2Agent, a third protocol
 

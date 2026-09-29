@@ -532,9 +532,9 @@ MCP exposes `create_lease_namespace`, `acquire_lease`, `renew_lease`,
 
 `GET /dns/{ip}` (the address last in the path) -> `{"ok": true, "name": "aisense-<slug>.53for24h.com", "ttl": 60, "expire_at": "...", "dns_token": "shown once", "nameservers": ["ns1.aisenseapi.com", "ns2.aisenseapi.com"]}`
 
-`GET /dns/{slug}` reads it without a token. `GET /dns/{slug}/update/{ip}` and
-`GET /dns/{slug}/delete` need `Authorization: Bearer <dns_token>`, and the
-update moves the address but never the expiry.
+`GET /dns/{slug}` reads it without a token. `POST /dns/{slug}/update/{ip}` and
+`POST /dns/{slug}/delete` need `Authorization: Bearer <dns_token>` and no body,
+and the update moves the address but never the expiry. A GET on either is 405.
 
 The address must be a public unicast IPv4 or IPv6 address and is never taken
 from the caller. A name is a DNS record and nothing else: no tunnel, no
