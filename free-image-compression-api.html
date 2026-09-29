@@ -289,7 +289,7 @@
 
 <h2 id="related">Related tools</h2>
 <ul>
-  <li><a href="/free-image-converter-api">Image converter</a>, which also reads HEIC, and <a href="/free-image-compression-api">image compression</a></li>
+  <li><a href="/free-image-converter-api">Image converter</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
@@ -395,6 +395,8 @@
     var line = names[answer.input_format] + ', ' + T.bytes(answer.input_bytes) + ', became ' + names[answer.format] + ', '
       + T.bytes(answer.bytes) + ', ' + answer.width + ' x ' + answer.height + ' pixels';
     if (change < 0) { return line + '. That is ' + percent + '% smaller.'; }
+    // A new format is asked for because it opens where the old one does not.
+    if (change > 0 && answer.format !== answer.input_format) { return line + '. That is ' + percent + '% larger.'; }
     if (change > 0) { return line + '. That is ' + percent + '% larger, so the original may be the better file.'; }
     return line + '. That is the same size.';
   }
