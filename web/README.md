@@ -9,15 +9,27 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-84 HTML pages. The 54 endpoint pages share one naming pattern and are
+102 HTML pages. The 55 endpoint pages share one naming pattern and are
 collapsed into a single row here. Each one is listed in `sitemap.xml`.
 
 | File | URL |
 |------|-----|
 | `index.html` | `/` |
 | `free-public-apis.html` | `/free-public-apis` - maintained alongside [`../API.md`](../API.md), see Editing |
-| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 54 of them, each at its matching URL |
+| `free-public-api-<name>-api-endpoint.html` | one page per endpoint, 55 of them, each at its matching URL |
 | `free-qr-code-decoder-api.html` | `/free-qr-code-decoder-api` - browser tool for the QR decode endpoint |
+| `free-json-to-csv-api.html` | `/free-json-to-csv-api` - browser tool for `json_to_csv` |
+| `free-csv-to-json-api.html` | `/free-csv-to-json-api` - browser tool for `csv_to_json` |
+| `free-table-matching-api.html` | `/free-table-matching-api` - browser tool for `table_match` |
+| `free-json-formatter-api.html` | `/free-json-formatter-api` - browser tool for `json_format` |
+| `free-json-validator-api.html` | `/free-json-validator-api` - browser tool for `json_validate` |
+| `free-image-converter-api.html` | `/free-image-converter-api` - browser tool for `image_convert` |
+| `free-heic-to-jpg-converter.html` | `/free-heic-to-jpg-converter` - browser tool for `image_convert` with HEIC from an iPhone |
+| `free-image-compression-api.html` | `/free-image-compression-api` - browser tool for `image_compress` |
+| `free-image-metadata-viewer-api.html` | `/free-image-metadata-viewer-api` - browser tool for `image_metadata` |
+| `free-exif-remover-api.html` | `/free-exif-remover-api` - browser tool for `image_strip` |
+| `free-image-color-palette-api.html` | `/free-image-color-palette-api` - browser tool for `image_colors` |
+| `free-favicon-generator-api.html` | `/free-favicon-generator-api` - browser tool for `image_favicon` |
 | `free-public-mcp-server.html` | `/free-public-mcp-server` |
 | `free-public-a2a-agent-endpoint.html` | `/free-public-a2a-agent-endpoint` - Agent2Agent 1.0, the card and the five skills |
 | `hashing-apis.html` | `/hashing-apis` |
@@ -30,6 +42,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `verifyum.html` | `/verifyum` |
 | `verifyum-private-file-proofs.html` | `/verifyum-private-file-proofs` |
 | `aamio.html` | `/aamio` - the ephemeral rendezvous for agents, a separate service on its own domain |
+| `try-aamio.html` | `/try-aamio` - aamio in the browser, with the modules under `assets/aamio/` |
 | `make-your-data-available-for-ai.html` | `/make-your-data-available-for-ai` |
 | `ai-sense-posts.html` | `/ai-sense-posts` |
 | `smart-beehive-monitoring-system.html` | `/smart-beehive-monitoring-system` |
@@ -39,15 +52,28 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `share-a-file-with-a-link.html` | `/share-a-file-with-a-link` |
 | `the-address-is-public.html` | `/the-address-is-public` |
 | `we-read-55-agent-cards.html` | `/we-read-55-agent-cards` |
+| `a-name-that-answers-for-24-hours.html` | `/a-name-that-answers-for-24-hours` |
+| `agents-met-in-a-channel-that-deleted-itself.html` | `/agents-met-in-a-channel-that-deleted-itself` |
+| `remove-gps-location-and-exif-data-from-photos.html` | `/remove-gps-location-and-exif-data-from-photos` |
+| `favicon-sizes-and-the-files-a-website-needs.html` | `/favicon-sizes-and-the-files-a-website-needs` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - static shadow page, excluded from search indexing |
 | `privacy.html` | `/privacy` - **needs legal review, see below** |
 | `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
+| `assets/aisense-tools.css` | stylesheet for the browser tools, on top of `aisense.css` |
+| `assets/aisense-tools.js` | shared script for the browser tools |
+| `assets/try-aamio.js` | script for `/try-aamio` |
+| `assets/aamio/` | the aamio, aamio-wasm and tweetnacl modules `/try-aamio` loads, copied unchanged from npm with their licences; `SOURCES.txt` says which versions |
+| `assets/aamio-logo-light.png` | the aamio logo |
 | `assets/posts/smart-beehive-monitoring-system.jpg` | image for the beehive post |
 | `404.html` | served by `ErrorDocument` for any unknown path, noindex |
 | `.htaccess` | 301 redirects from the old URL scheme, error page |
+| `favicon.ico`, `favicon.svg`, `apple-touch-icon.png` | the site's own icons |
+| `llms.txt` | `/llms.txt` - what the site offers, for language models |
+| `m2m-logs.php` | token-protected read access to this box's Apache logs for the operator dashboard; its header says what it may do |
+| `m2m-content-stats.php` | content counts included by `m2m-logs.php`; a direct request gets 404 |
 | `robots.txt` | crawler directives and sitemap location |
 | `sitemap.xml` | canonical URLs for search engines |
 
