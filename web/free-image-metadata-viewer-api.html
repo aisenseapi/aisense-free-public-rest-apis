@@ -212,7 +212,7 @@
 
 <h2 id="how">What the report holds</h2>
 <p>The image is read, not decoded. The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and reports what it finds there, as JSON in these parts:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Part</th><th>What it holds</th></tr></thead>
   <tbody>
     <tr><td><code>file</code></td><td>Format, size in bytes, width, height and megapixels, and what the format tells: the estimated JPEG quality, bit depth, progressive or interlaced, lossy or lossless WebP.</td></tr>
@@ -226,7 +226,7 @@
     <tr><td><code>embedded</code></td><td>What else is inside: an EXIF thumbnail, a multi-picture index, and data after the end of the image, where phones keep depth maps and HDR gain maps.</td></tr>
     <tr><td><code>privacy</code></td><td>What can identify a person, a place, a device or a time, most sensitive first, each with <code>item</code>, <code>level</code> and <code>why</code>.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>A part the file does not have is <code>null</code> or empty. Long values are cut short, and a report is at most 2 MB.</p>
 
 <h2 id="privacy">The privacy summary</h2>
@@ -247,7 +247,7 @@
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/image_metadata</code> with <code>multipart/form-data</code> and one field, <code>file</code>. The report is stored as <code>metadata.json</code>, and the answer holds the Storage fields and a short version of it:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
@@ -258,7 +258,7 @@
     <tr><td><code>gps</code></td><td><code>true</code> when the image carries a GPS position.</td></tr>
     <tr><td><code>findings</code></td><td>The items of the privacy summary, most sensitive first. Empty when nothing was found.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The example at the top of the page comes from a test run with a test photo of 1600 x 1200 pixels, given made-up EXIF data: a camera, a serial number, a date, software and a GPS position at the Oslo Opera House. Part of the stored report:</p>
 <pre><code>{
   "gps": {
@@ -306,7 +306,7 @@
 
 <h2 id="errors">Errors</h2>
 <p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
     <tr><td><code>400</code></td><td>A field was sent, the upload is not one whole file, or the file cannot be read as an image.</td></tr>
@@ -316,7 +316,7 @@
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The service cannot read or store the image right now.</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h2 id="faq">Questions</h2>
 
@@ -338,6 +338,7 @@
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
   <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
