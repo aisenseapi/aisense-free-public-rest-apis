@@ -129,6 +129,7 @@
     <li><a href="#transform">Transform</a></li>
     <li><a href="#convert">Convert</a></li>
     <li><a href="#images">Images</a></li>
+    <li><a href="#logic">Logic</a></li>
     <li><a href="#hash">Hash</a></li>
     <li><a href="#web">Web</a></li>
     <li><a href="#crypto">Crypto</a></li>
@@ -557,6 +558,29 @@ Response: Hello</code></pre>
 </article>
 </section>
 
+<!-- LOGIC -->
+<section id="logic" aria-labelledby="logic-heading">
+<h2 id="logic-heading">Logic</h2>
+
+<p>Two endpoints that store nothing. <code>/decide</code> answers typed questions from rules you send, and <code>/chaos</code> answers with a failure you pick, so a client can be tested against it.</p>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/decide</span></p>
+<p>Send a <code>state</code> and named <code>questions</code>: <code>yes_no</code>, <code>choice</code> or <code>scale</code>, each with rules of a condition and a weight. Each answer has a probability, a <code>confidence</code>, an <code>action</code> of act, review or hold, and <code>because</code>, the rules that held. No model, so every number can be worked out by hand.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide   -H "Content-Type: application/json"   -d '{"state": {"amount": 30}, "questions": {"refund": {"type": "yes_no", "bias": -1, "rules": [{"if": {"amount": {"lte": 50}}, "weight": 3}]}}}'</code></pre>
+<pre><code>{"answers": {"refund": {"type": "yes_no", "answer": "yes", "probability": 0.8808, "confidence": 0.7616, "action": "review", "because": [{"rule": 0, "weight": 3}]}}}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-chaos-api-endpoint">Chaos API Endpoint</a></h3>
+<p class="sig"><span class="method">ANY</span> <span class="path">/chaos/{status}[/{ms}]</span></p>
+<p>Answers with the status in the path, at once or after up to 10000 milliseconds, with the headers a real service sends: <code>Retry-After</code> on 429 and 503, <code>WWW-Authenticate</code> on 401. <code>/chaos/html</code>, <code>/chaos/empty</code> and <code>/chaos/wrongtype</code> give broken answers. Any method works, and the body and the query string are not read.</p>
+<pre><code>curl -s https://aisenseapi.com/services/v1/chaos/503</code></pre>
+<pre><code>{"error":"Service Unavailable","chaos":{"status":503,"delay_ms":0}}</code></pre>
+</article>
+</section>
+
 <!-- HASH -->
 <section id="hash" aria-labelledby="hash-heading">
 <h2 id="hash-heading">Hash</h2>
@@ -831,9 +855,9 @@ Authorization: Bearer WORKER_TOKEN
 
 <article class="endpoint">
 <h3><a href="/free-public-api-agent-inbox-api-endpoint">Agent Inbox REST API Endpoint</a></h3>
-<p class="sig"><span class="method post">POST</span> <span class="path">/inbox</span> - <span class="method">GET</span> <span class="path">/inbox/{inbox_id}</span></p>
+<p class="sig"><span class="method">GET</span> <span class="path">/inbox</span> - <span class="method">GET</span> <span class="path">/inbox/{inbox_id}</span></p>
 <p>Create a disposable mail address an agent can read for up to 24 hours. Verification codes and public links are extracted from the cleaned text. Attachments, raw MIME and arbitrary headers are never stored.</p>
-<pre><code>POST /inbox
+<pre><code>GET /inbox
   -> { "ok": true, "inbox_id": "a85d0bee-...", "slug": "ztjqt7n",
        "address": "aisense+ztjqt7n@aisenseapi.com" }
 
@@ -993,6 +1017,8 @@ response = client.chat.completions.create(
 <tr><td>Images</td><td><code>/image_strip</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_bytes</code>, <code>removed</code>, <code>kept</code></td></tr>
 <tr><td>Images</td><td><code>/image_colors</code></td><td>POST</td><td>Storage fields, <code>average</code>, <code>dominant</code>, <code>count</code></td></tr>
 <tr><td>Images</td><td><code>/image_favicon</code></td><td>POST</td><td>Storage fields, <code>files</code>, <code>crop</code>, <code>upscaled</code></td></tr>
+<tr><td>Logic</td><td><code>/decide</code></td><td>POST</td><td><code>answers</code></td></tr>
+<tr><td>Logic</td><td><code>/chaos/{status}[/{ms}]</code></td><td>Any</td><td><code>error</code> or <code>ok</code>, with <code>chaos</code></td></tr>
 <tr><td>Hash</td><td><code>/md5_hash</code></td><td>POST</td><td><code>md5_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha1_hash</code></td><td>POST</td><td><code>sha1_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>
@@ -1010,7 +1036,7 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/agent_wake</code></td><td>POST / GET / DELETE</td><td><code>taskId</code>, <code>status</code>, <code>result</code></td></tr>
 <tr><td>Web</td><td><code>/heartbeat</code></td><td>POST / GET</td><td><code>heartbeat_id</code>, <code>status</code>, timing fields, <code>ping_count</code>, <code>delivery</code></td></tr>
 <tr><td>Web</td><td><code>/lease</code></td><td>POST</td><td><code>status</code>, <code>owner_token</code>, <code>fencing_token</code>, expiry fields, <code>result</code></td></tr>
-<tr><td>Web</td><td><code>/inbox</code></td><td>POST / GET</td><td><code>inbox_id</code>, <code>slug</code>, <code>address</code>, <code>received</code>, <code>truncated</code>, <code>messages</code></td></tr>
+<tr><td>Web</td><td><code>/inbox</code></td><td>GET, or POST to create</td><td><code>inbox_id</code>, <code>slug</code>, <code>address</code>, <code>received</code>, <code>truncated</code>, <code>messages</code></td></tr>
 <tr><td>Web</td><td><code>/queue</code></td><td>POST / GET</td><td><code>queue_id</code>, role tokens on creation, counts and fixed expiry</td></tr>
 <tr><td>Web</td><td><code>/queue/{id}/jobs</code>, <code>/queue/{id}/claim</code></td><td>POST / GET</td><td>Job payload, status, attempts and a receipt only on claim</td></tr>
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>

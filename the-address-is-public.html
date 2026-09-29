@@ -99,7 +99,7 @@
 
 <h2>Free, and deliberately short-lived</h2>
 
-<p>No account, no API key, no sign-up. An inbox lives at most 24 hours and that limit is fixed rather than extendable, because a disposable address that quietly becomes permanent is no longer disposable. Reach it over REST at <code>POST /services/v1/inbox</code>, or through the <a href="/free-public-mcp-server">free MCP server</a> as <code>create_agent_inbox</code> and <code>read_agent_inbox</code>, which take that server to twenty tools.</p>
+<p>No account, no API key, no sign-up. An inbox lives at most 24 hours and that limit is fixed rather than extendable, because a disposable address that quietly becomes permanent is no longer disposable. Reach it over REST with a plain <code>GET /services/v1/inbox</code>, which any agent that can fetch a URL can send, and a POST works too. Or reach it through the <a href="/free-public-mcp-server">free MCP server</a> as <code>create_agent_inbox</code> and <code>read_agent_inbox</code>, which take that server to twenty tools.</p>
 
 <p>It is a verification-code inbox and a sign-up mailbox for automated work. It is not a mail account, and it is not somewhere to send anything you would mind another person reading.</p>
 
