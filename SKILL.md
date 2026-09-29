@@ -369,7 +369,7 @@ the user for a real address for a throwaway flow. Create and read are the whole
 surface, so it is for mail arriving at the agent, and it is not a mailbox for
 anything that has to outlive the day.
 
-`POST /inbox` takes no arguments and returns the inbox once:
+`GET /inbox`, or `POST /inbox`, takes no arguments and returns the inbox once:
 
 ```json
 {
@@ -579,7 +579,7 @@ ones:
 |-----------|----------|------|
 | `agent-wake` | `create_agent_wake` | `POST /agent_wake` |
 | `human-approval` | `create_human_approval` | `POST /webhook_action` |
-| `agent-inbox` | `create_agent_inbox` | `POST /inbox` |
+| `agent-inbox` | `create_agent_inbox` | `GET /inbox` |
 | `webhook-capture` | `create_webhook_capture` | `POST /webhook_capture` |
 | `agent-queue` | `create_agent_queue` | `POST /queue` |
 

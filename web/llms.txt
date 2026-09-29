@@ -52,6 +52,8 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
+- Decision endpoint, typed decisions with probabilities and confidence from rules you send, nothing stored: https://aisense.no/free-public-api-decide-api-endpoint
+- Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
 - Conversion endpoints, each storing its result in Storage for 24 hours: https://aisense.no/free-public-apis#convert
 - JSON to CSV guide: https://aisense.no/free-json-to-csv-api
 - CSV to JSON guide: https://aisense.no/free-csv-to-json-api

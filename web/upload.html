@@ -333,6 +333,15 @@ curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pr
     }
   }
 
+  // On a phone the list sits below the drop zone, off the screen, and a
+  // visitor who sees nothing move thinks nothing happened. Bring the new row
+  // into view, and only as far as needed, so a screen that shows it stays still.
+  function reveal(node) {
+    if (!node || typeof node.scrollIntoView !== 'function') { return; }
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { node.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'nearest' }); } catch (err) { node.scrollIntoView(false); }
+  }
+
   function handleFiles(files) {
     Array.prototype.slice.call(files).forEach(upload);
   }
@@ -364,6 +373,7 @@ curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pr
     item.appendChild(meta);
     item.appendChild(track);
     list.appendChild(item);
+    reveal(item);
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', ENDPOINT, true);
