@@ -1,0 +1,14 @@
+{
+    "image_convert": {
+        "fields": {
+            "format": "webp"
+        },
+        "answer": "{\"storage_id\":\"1ddd4269-b51c-4209-a4de-6908926f672b\",\"storage_url\":\"https://aisenseapi.com/services/v1/storage/1ddd4269-b51c-4209-a4de-6908926f672b\",\"sha256_hash\":\"97350f282284446cbb19db5a0695a654e0162fafd52db766fb12099b6497202d\",\"bytes\":195648,\"expire_timestamp\":1790767674,\"expire_datetime\":\"2026-09-30T11:27:54+00:00\",\"content_type\":\"image/webp\",\"filename\":\"result.webp\",\"operation\":\"image_convert\",\"format\":\"webp\",\"width\":1600,\"height\":1200,\"input_format\":\"jpeg\",\"input_bytes\":641358}"
+    },
+    "image_compress": {
+        "fields": {
+            "quality": "70"
+        },
+        "answer": "{\"storage_id\":\"f87efab2-9d0d-46e4-b1d8-8b8776ab0a21\",\"storage_url\":\"https://aisenseapi.com/services/v1/storage/f87efab2-9d0d-46e4-b1d8-8b8776ab0a21\",\"sha256_hash\":\"6c930ff8216f4c681e85d1f7558ca7b4f7c9d6c6a988187d2b8df2d485876f03\",\"bytes\":260768,\"expire_timestamp\":1790767674,\"expire_datetime\":\"2026-09-30T11:27:54+00:00\",\"content_type\":\"image/jpeg\",\"filename\":\"result.jpg\",\"operation\":\"image_compress\",\"format\":\"jpeg\",\"width\":1600,\"height\":1200,\"input_format\":\"jpeg\",\"input_bytes\":641358}"
+    }
+}
