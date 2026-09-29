@@ -433,7 +433,7 @@ the mail back as cleaned text. No account, no API key, and it lasts at most 24
 hours.
 
 ```bash
-curl -X POST https://aisenseapi.com/services/v1/inbox
+curl https://aisenseapi.com/services/v1/inbox
 ```
 
 ```json

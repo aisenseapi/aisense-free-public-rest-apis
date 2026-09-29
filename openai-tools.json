@@ -940,7 +940,7 @@
     "type": "function",
     "function": {
       "name": "agent_inbox_create",
-      "description": "Create a disposable mail inbox that lasts at most 24 hours. Takes no arguments. Returns {\"ok\", \"inbox_id\", \"slug\", \"address\", \"read_url\", \"wait_url\", \"expire_timestamp\"}. The slug is seven characters of a-z0-9 and appears in the address, so it is public by construction: knowing it lets anyone send mail to the inbox and never lets anyone read it. The inbox_id is a UUID, is returned once, and is the only credential that reads the mail. The lifetime is fixed and not extendable. POST /inbox",
+      "description": "Create a disposable mail inbox that lasts at most 24 hours. Takes no arguments. Returns {\"ok\", \"inbox_id\", \"slug\", \"address\", \"read_url\", \"wait_url\", \"expire_timestamp\"}. The slug is seven characters of a-z0-9 and appears in the address, so it is public by construction: knowing it lets anyone send mail to the inbox and never lets anyone read it. The inbox_id is a UUID, is returned once, and is the only credential that reads the mail. The lifetime is fixed and not extendable. GET /inbox",
       "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },

@@ -28,6 +28,7 @@ guess it.
 - [Transform](#transform)
 - [Convert](#convert)
 - [Images](#images)
+- [Logic](#logic)
 - [Hash](#hash)
 - [Web](#web)
 - [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
@@ -777,6 +778,100 @@ pixels.
 
 ---
 
+## Logic
+
+Two endpoints that store nothing. `/decide` answers typed questions from rules
+you send, and `/chaos` answers with a failure you pick, so a client can be
+tested against it.
+
+### `POST /decide`
+
+Typed decisions from rules over a state you send. The body is a JSON object
+with `state`, the facts to decide on, and `questions`, 1 to 64 named questions.
+Each question has a `type`:
+
+| Type | Fields | Answers with |
+|---|---|---|
+| `yes_no` | `rules`, optional `bias` | `answer`, `probability` of yes |
+| `choice` | `options`: 2 to 100 named lists of rules, optional `priors` | `choice`, `probabilities` |
+| `scale` | `levels`: 2 to 20 ordered, named lists of rules, optional `priors` | `level`, `expected`, `probabilities` |
+
+Every question also takes `act_at` (0.9 unless set) and `review_at` (0.5 unless
+set), and every answer has `confidence`, `action` and `because`.
+
+A rule is `{"if": condition, "weight": number}`. The weight is evidence in
+log-odds, from -100 to 100: positive pulls towards the answer, and 1 multiplies
+the odds by about 2.7. A `yes_no` is sigmoid(bias + the weights of the rules
+that held). A `choice` is softmax over each option's prior plus its weights. A
+`scale` is a choice over ordered levels, and `expected` counts the first level
+as 0. Confidence is (n × the largest probability − 1) / (n − 1), which is
+|2p − 1| for a `yes_no`. `action` is `act` from `act_at`, `review` from
+`review_at`, and `hold` below. `because` lists the rules that held, with their
+index and weight, so every number can be worked out by hand. When options tie
+at the top, the first listed wins and `tied` names them.
+
+A condition is an object of fields and tests, and every field must hold. A
+field is a dotted path into the state, where a number picks from a list, such as
+`items.0.sku`. The tests are `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in` (a list
+of up to 100 values), `exists`, `prefix` and `contains`. `prefix` and
+`contains` ignore case, and `contains` on a list asks for an item. 1 equals 1.0,
+but `true` is not 1. `any` is a list of conditions of which one must hold, and
+`not` inverts one. A path that leads nowhere fails every test except
+`exists: false`. There are no regular expressions.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/decide \
+  -H "Content-Type: application/json" \
+  -d '{"state": {"amount": 30}, "questions": {"refund": {"type": "yes_no", "bias": -1, "rules": [{"if": {"amount": {"lte": 50}}, "weight": 3}]}}}'
+```
+
+```json
+{"answers": {"refund": {"type": "yes_no", "answer": "yes", "probability": 0.8808, "confidence": 0.7616, "action": "review", "because": [{"rule": 0, "weight": 3}]}}}
+```
+
+Limits: 64 KiB of JSON, 50 rules per list, 5000 tests and 8 levels of `any` and
+`not` in one request. A refusal has `error`, naming the field, and `fix`: 400
+for a wrong field or invalid JSON, 405 for any method but POST, 413 for a body
+or rule set over the limits, 415 unless the body is `application/json`. Nothing
+is stored, and the access log line holds the path and nothing from the body.
+[Guide and examples](https://aisense.no/free-public-api-decide-api-endpoint).
+
+### `ANY /chaos/{status}[/{ms}]`
+
+Answers with the failure the path names, for testing how a client handles it.
+Any method works, and neither the body nor the query string is read.
+
+| Path | Answer |
+|---|---|
+| `/chaos/{status}` | The status at once: 200, 201, 204, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503 or 504 |
+| `/chaos/{status}/{ms}` | The same after `ms` milliseconds, 0 to 10000 |
+| `/chaos/html` | 502 with an HTML page, as a proxy answers when the service behind it is down |
+| `/chaos/empty` | 200 labelled `application/json`, with no body |
+| `/chaos/wrongtype` | 200 with valid JSON labelled `text/plain` |
+
+The three events take a delay the same way, such as `/chaos/html/2000`. A status
+of 400 or above answers `{"error": reason phrase, "chaos": {"status", "delay_ms"}}`,
+200 and 201 answer `{"ok": true, "chaos": {...}}`, and 204 has no body. 429 and
+503 carry `Retry-After: 2`, and 401 carries `WWW-Authenticate`. Every chosen
+answer carries `X-Chaos` with what the path asked for.
+
+```bash
+curl -s https://aisenseapi.com/services/v1/chaos/503
+```
+
+```json
+{"error":"Service Unavailable","chaos":{"status":503,"delay_ms":0}}
+```
+
+A delay holds a place while it waits, at most four at a time from one address.
+When none is free the answer is a real 503 with `Retry-After: 1`, a `fix` and no
+`X-Chaos`. An unknown path or status is 404 with a `fix` listing the forms, and
+a delay over 10000 is 400. Nothing is stored, and chaos calls count towards the
+5000 requests per IP per 24 hours.
+[Guide and a client test](https://aisense.no/free-public-api-chaos-api-endpoint).
+
+---
+
 ## Hash
 
 All hash endpoints accept JSON (`{"data": "..."}`), plain text
@@ -1344,13 +1439,16 @@ verification code, a confirmation link or a sign-up mail. No account and no
 API key. An inbox lasts at most 24 hours, and that lifetime is fixed and not
 extendable.
 
-**Create:** `POST /inbox`
+**Create:** `GET /inbox`, or `POST /inbox`
 
-The route takes no arguments and needs no request body. A create answers
+The route takes no arguments and needs no request body, so a plain GET creates
+the inbox and an agent that can only fetch a URL can make one. POST does the
+same. Anything that fetches the URL makes an inbox, a link preview included, so
+keep the creation URL out of messages a preview will open. A create answers
 HTTP 201.
 
 ```
-POST /inbox
+GET /inbox
 ```
 
 ```json
@@ -1424,7 +1522,7 @@ that is never coming.
 **Worked example.** Create the inbox and keep both values.
 
 ```
-POST /inbox
+GET /inbox
 -> address    aisense+ztjqt7n@aisenseapi.com
    inbox_id   a85d0bee-f8f7-4be1-a1b3-8d58f3dbdfc7
 ```

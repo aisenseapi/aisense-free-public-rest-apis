@@ -377,6 +377,15 @@
     });
   });
 
+  // On a phone the list sits below the drop zone, off the screen, and a
+  // visitor who sees nothing move thinks nothing happened. Bring the new row
+  // into view, and only as far as needed, so a screen that shows it stays still.
+  function reveal(node) {
+    if (!node || typeof node.scrollIntoView !== 'function') { return; }
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { node.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'nearest' }); } catch (err) { node.scrollIntoView(false); }
+  }
+
   function each(files) {
     Array.prototype.slice.call(files).forEach(decode);
   }
@@ -410,6 +419,7 @@
     item.appendChild(thumb);
     item.appendChild(body);
     list.appendChild(item);
+    reveal(item);
 
     var started = Date.now();
     var xhr = new XMLHttpRequest();

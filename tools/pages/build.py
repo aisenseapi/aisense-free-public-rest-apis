@@ -1,4 +1,5 @@
-"""Regenerate the image tool pages and the two image guides in web/.
+"""Regenerate the image tool pages, the two image guides and the /decide and
+/chaos endpoint pages in web/.
 
 Run from anywhere: python tools/pages/build.py
 Then check that git status shows only the pages you meant to change, and copy
@@ -18,6 +19,7 @@ RUNS = [
      os.path.join(DATA, 'results-heic.json')],
     ['make_post_photo_location.py', WEB, os.path.join(DATA, 'results-more.json')],
     ['make_post_favicon.py', WEB, os.path.join(DATA, 'results-more.json')],
+    ['make_logic_pages.py', WEB, os.path.join(DATA, 'decide-examples.json')],
 ]
 
 for script, *args in RUNS:

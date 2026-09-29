@@ -608,7 +608,7 @@ export class AISenseAPI {
    * per inbox, 50 inboxes per client per UTC day, 5000 active inboxes service
    * wide. The 24 hour lifetime is fixed and cannot be extended.
    *
-   * The routes are POST /inbox, GET /inbox/{inbox_id} and
+   * The routes are GET or POST /inbox, GET /inbox/{inbox_id} and
    * GET /inbox/{inbox_id}/wait/{0..25}. A wait outside 0 to 25 answers 404,
    * which is where this differs from the other long poll routes.
    */

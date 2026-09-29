@@ -126,16 +126,27 @@
     }
   }
 
+  // On a phone the result box sits below the form, off the screen, and a
+  // visitor who sees nothing move thinks nothing happened. Bring it into view,
+  // and only as far as needed, so a screen that already shows it stays still.
+  function reveal(box) {
+    if (!box || typeof box.scrollIntoView !== 'function') { return; }
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { box.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'nearest' }); } catch (err) { box.scrollIntoView(false); }
+  }
+
   function showError(box, error) {
     clear(box);
     var node = make('p', 'tool-error', error.message || String(error));
     if (error.fix) { node.appendChild(make('small', '', error.fix)); }
     box.appendChild(node);
+    reveal(box);
   }
 
   function busy(box, message) {
     clear(box);
     box.appendChild(make('p', 'tool-meta', message));
+    reveal(box);
   }
 
   /**
@@ -169,6 +180,7 @@
     actions.appendChild(download);
     actions.appendChild(copyLink);
     box.appendChild(actions);
+    reveal(box);
 
     if (options.image) {
       var image = make('img', 'tool-image-preview');

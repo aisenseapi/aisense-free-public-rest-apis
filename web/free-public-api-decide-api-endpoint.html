@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Decision API Endpoint: Rules to Probabilities | AI SENSE</title>
+<meta name="description" content="Send facts and weighted rules, get typed decisions back: yes or no, a choice or a scale, with probabilities, confidence and the rules that fired. Free, no key.">
+<link rel="canonical" href="https://aisense.no/free-public-api-decide-api-endpoint">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free Decision API Endpoint">
+<meta property="og:description" content="Typed decisions from your own rules, with probabilities, a confidence, an action and the rules behind every number. No model, nothing stored.">
+<meta property="og:url" content="https://aisense.no/free-public-api-decide-api-endpoint">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+<style>
+.try-api textarea, .try-api select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: var(--ink); }
+.try-api textarea { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.try-api select { min-height: 48px; font: inherit; }
+.try-api .button-row { margin: 14px 0; }
+.try-api pre { margin: 0; max-height: 520px; overflow: auto; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free Decision API Endpoint",
+      "description": "Answers yes_no, choice and scale questions from weighted rules over a state the caller sends, with probabilities, confidence, a recommended action and the rules that held. Nothing is stored.",
+      "url": "https://aisense.no/free-public-api-decide-api-endpoint",
+      "documentation": "https://aisense.no/free-public-apis#logic",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Decision API endpoint",
+          "item": "https://aisense.no/free-public-api-decide-api-endpoint"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Decision API endpoint</li></ol></nav>
+
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Logic - Decisions</p><h1 id="page-title">Free Decision API Endpoint</h1><p class="lede">Send the facts and your rules, and get typed decisions back: yes or no, one of several options, or a level on a scale. Each answer has a probability, a confidence, a recommended action and the rules that produced it. There is no model inside, so every number can be worked out by hand, and nothing is stored.</p><ul class="badges"><li>No API key</li><li>One POST</li><li>Probabilities and confidence</li><li>Every number explained</li><li>Nothing stored</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Decide</p><p class="sig"><span class="method post">POST</span><span class="path">/decide</span></p><code>https://aisenseapi.com/services/v1/decide</code></div></section>
+
+<div class="api-detail-body">
+
+<section id="quick-start"><h2>Call the free Decision API endpoint</h2><p>Send a <code>state</code>, the facts to decide on, and named <code>questions</code>. Each question has rules, and each rule is a condition and a weight. This one routes a support ticket and decides whether the refund can go through at once:</p><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": {
+    "ticket": {
+      "subject": "Mug arrived broken, I want my money back",
+      "amount": 30,
+      "tier": "gold",
+      "order_age_days": 3,
+      "has_photo": true
+    }
+  },
+  "questions": {
+    "team": {
+      "type": "choice",
+      "options": {
+        "returns": [
+          {"if": {"ticket.subject": {"contains": "broken"}}, "weight": 3},
+          {"if": {"ticket.subject": {"contains": "return"}}, "weight": 2}
+        ],
+        "billing": [
+          {"if": {"ticket.subject": {"contains": "money"}}, "weight": 1},
+          {"if": {"ticket.subject": {"contains": "charged"}}, "weight": 2}
+        ],
+        "shipping": [{"if": {"ticket.subject": {"contains": "tracking"}}, "weight": 2}]
+      }
+    },
+    "refund_now": {
+      "type": "yes_no",
+      "bias": -2,
+      "rules": [
+        {"if": {"ticket.amount": {"lte": 50}}, "weight": 2},
+        {"if": {"ticket.tier": {"eq": "gold"}}, "weight": 1},
+        {"if": {"ticket.order_age_days": {"lte": 14}}, "weight": 1},
+        {"if": {"ticket.has_photo": {"eq": true}}, "weight": 1}
+      ]
+    }
+  }
+}'</code></pre><pre><code>{
+  "answers": {
+    "team": {
+      "type": "choice",
+      "choice": "returns",
+      "probabilities": {"returns": 0.8438, "billing": 0.1142, "shipping": 0.042},
+      "confidence": 0.7657,
+      "action": "review",
+      "because": [
+        {"option": "returns", "rule": 0, "weight": 3},
+        {"option": "billing", "rule": 0, "weight": 1}
+      ]
+    },
+    "refund_now": {
+      "type": "yes_no",
+      "answer": "yes",
+      "probability": 0.9526,
+      "confidence": 0.9051,
+      "action": "act",
+      "because": [
+        {"rule": 0, "weight": 2},
+        {"rule": 1, "weight": 1},
+        {"rule": 2, "weight": 1},
+        {"rule": 3, "weight": 1}
+      ]
+    }
+  }
+}</code></pre><p>The refund gets &minus;2 + 2 + 1 + 1 + 1 = 3, and sigmoid(3) = 0.9526. Its confidence, 0.9051, is above 0.9, so the action is <code>act</code>: it can go through without anyone looking. The team gets softmax over 3, 1 and 0, and a confidence of 0.7657 says <code>review</code>. <code>because</code> lists the rules that held, including the word "money" that pulled a little towards billing.</p></section>
+
+<section id="questions"><h2>Three kinds of question</h2><div class="table-wrap field-table"><table><thead><tr><th>Type</th><th>Answers with</th><th>How it is worked out</th></tr></thead><tbody><tr><td><code>yes_no</code></td><td><code>answer</code>, <code>probability</code></td><td>sigmoid(<code>bias</code> + the weights of the rules that held)</td></tr><tr><td><code>choice</code></td><td><code>choice</code>, <code>probabilities</code></td><td>softmax over each option: its prior plus the weights of its rules that held</td></tr><tr><td><code>scale</code></td><td><code>level</code>, <code>expected</code>, <code>probabilities</code></td><td>a choice over ordered levels; <code>expected</code> counts the first level as 0</td></tr></tbody></table></div><p>Every answer also has <code>confidence</code>, <code>action</code> and <code>because</code>. A weight is evidence in log-odds: positive pulls towards the answer, negative away, and 1 multiplies the odds by about 2.7. <code>bias</code> is where a yes_no starts, 0 unless you set it, and <code>priors</code> give options or levels a head start.</p></section>
+
+<section id="conditions"><h2>Conditions</h2><p>A condition is an object of fields and tests, and every field must hold. A field is a dotted path into the state, where a number picks from a list: <code>items.0.sku</code>. <code>any</code> is a list of conditions of which one must hold, and <code>not</code> holds when its condition does not.</p><div class="table-wrap field-table"><table><thead><tr><th>Test</th><th>Holds when the value</th></tr></thead><tbody><tr><td><code>eq</code>, <code>ne</code></td><td>equals, or does not equal, the given text, number, true, false or null. 1 equals 1.0; true is not 1</td></tr><tr><td><code>gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code></td><td>is a number above, at least, below or at most the given number</td></tr><tr><td><code>in</code></td><td>equals one of a list of up to 100 values</td></tr><tr><td><code>exists</code></td><td>is there (<code>true</code>) or is not (<code>false</code>)</td></tr><tr><td><code>prefix</code></td><td>is text that starts with the given text, whatever the case</td></tr><tr><td><code>contains</code></td><td>is text that contains the given text, whatever the case, or a list that holds the given item</td></tr></tbody></table></div><p>A path that leads nowhere fails every test except <code>exists: false</code>, so <code>ne</code> on a missing field does not hold. There are no regular expressions, so no condition can make the server spend minutes on one match.</p></section>
+
+<section id="confidence"><h2>Confidence and the action</h2><p>Confidence is (n &times; the largest probability &minus; 1) / (n &minus; 1): 1 when everything is on one answer, 0 when it is spread evenly. For yes_no it is |2p &minus; 1|. The action is <code>act</code> from <code>act_at</code>, 0.9 unless you set it, <code>review</code> from <code>review_at</code>, 0.5 unless you set it, and <code>hold</code> below. Set the thresholds by what a wrong answer costs: a refund of a few euros can act at 0.9, a deletion should not act at all. When two options tie at the top, the first one listed wins and <code>tied</code> names them, so a split is never hidden.</p></section>
+
+<section id="examples"><h2>More examples</h2><h3>Can an agent run this command without asking?</h3><p>A cheap gate in front of an agent that runs commands. The default is yes, and dangerous patterns pull it down.</p><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": {"command": "git push --force origin main", "inside_repo": true, "tests_passed": true},
+  "questions": {
+    "auto_run": {
+      "type": "yes_no",
+      "bias": 3,
+      "rules": [
+        {"if": {"command": {"contains": "--force"}}, "weight": -4},
+        {"if": {"command": {"contains": "rm -rf"}}, "weight": -6},
+        {"if": {"command": {"contains": "| sh"}}, "weight": -6},
+        {"if": {"command": {"contains": " main"}}, "weight": -1},
+        {"if": {"inside_repo": {"eq": false}}, "weight": -3},
+        {"if": {"tests_passed": {"eq": true}}, "weight": 1}
+      ]
+    }
+  }
+}'</code></pre><pre><code>{
+  "answers": {
+    "auto_run": {
+      "type": "yes_no",
+      "answer": "no",
+      "probability": 0.2689,
+      "confidence": 0.4621,
+      "action": "hold",
+      "because": [{"rule": 0, "weight": -4}, {"rule": 3, "weight": -1}, {"rule": 5, "weight": 1}]
+    }
+  }
+}</code></pre><p>3 &minus; 4 &minus; 1 + 1 = &minus;1 gives 0.2689: no, with a confidence of 0.46, so <code>hold</code> and ask a person. The same request with <code>git status</code> answers yes at 0.982 and <code>act</code>.</p><h3>How bad is this alert?</h3><p>A scale with four levels, acting at 0.8, because paging the person on call is right a little more often than it is wrong.</p><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": {"alert": {"service": "payments", "error_rate": 0.12, "customers_affected": 340}},
+  "questions": {
+    "severity": {
+      "type": "scale",
+      "act_at": 0.8,
+      "levels": {
+        "low": [],
+        "normal": [{"if": {"alert.error_rate": {"lt": 0.05}}, "weight": 2}],
+        "high": [
+          {"if": {"alert.error_rate": {"gte": 0.05}}, "weight": 2},
+          {"if": {"alert.service": {"eq": "payments"}}, "weight": 1}
+        ],
+        "urgent": [
+          {"if": {"alert.error_rate": {"gte": 0.1}}, "weight": 2},
+          {"if": {"alert.customers_affected": {"gte": 100}}, "weight": 2},
+          {"if": {"alert.service": {"eq": "payments"}}, "weight": 1}
+        ]
+      }
+    }
+  }
+}'</code></pre><pre><code>{
+  "answers": {
+    "severity": {
+      "type": "scale",
+      "level": "urgent",
+      "expected": 2.8529,
+      "probabilities": {"low": 0.0059, "normal": 0.0059, "high": 0.1178, "urgent": 0.8705},
+      "confidence": 0.8273,
+      "action": "act",
+      "because": [
+        {"level": "high", "rule": 0, "weight": 2},
+        {"level": "high", "rule": 1, "weight": 1},
+        {"level": "urgent", "rule": 0, "weight": 2},
+        {"level": "urgent", "rule": 1, "weight": 2},
+        {"level": "urgent", "rule": 2, "weight": 1}
+      ]
+    }
+  }
+}</code></pre><h3>Who should take the job?</h3><p>The cheapest layer first: rules, a small model, a large one, a person. Here the large model and the person tie, and the answer says so.</p><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide \
+  -H "Content-Type: application/json" \
+  -d '{
+  "state": {"text_chars": 1800, "language": "no", "legal_terms": true, "tier": "gold"},
+  "questions": {
+    "handler": {
+      "type": "choice",
+      "options": {
+        "rules_only": [{"if": {"text_chars": {"lte": 200}}, "weight": 2}],
+        "small_model": [
+          {"if": {"text_chars": {"lte": 2000}}, "weight": 1},
+          {"if": {"language": {"in": ["en"]}}, "weight": 1}
+        ],
+        "large_model": [
+          {"if": {"text_chars": {"gt": 2000}}, "weight": 2},
+          {"if": {"language": {"in": ["no", "sv", "da"]}}, "weight": 1},
+          {"if": {"legal_terms": {"eq": true}}, "weight": 1}
+        ],
+        "human": [
+          {"if": {"legal_terms": {"eq": true}}, "weight": 1},
+          {"if": {"tier": {"eq": "gold"}}, "weight": 1}
+        ]
+      }
+    }
+  }
+}'</code></pre><pre><code>{
+  "answers": {
+    "handler": {
+      "type": "choice",
+      "choice": "large_model",
+      "tied": ["large_model", "human"],
+      "probabilities": {"rules_only": 0.0541, "small_model": 0.147, "large_model": 0.3995, "human": 0.3995},
+      "confidence": 0.1993,
+      "action": "hold",
+      "because": [
+        {"option": "small_model", "rule": 0, "weight": 1},
+        {"option": "large_model", "rule": 1, "weight": 1},
+        {"option": "large_model", "rule": 2, "weight": 1},
+        {"option": "human", "rule": 0, "weight": 1},
+        {"option": "human", "rule": 1, "weight": 1}
+      ]
+    }
+  }
+}</code></pre><p>A confidence of 0.20 gives <code>hold</code>. The rules say plainly that they cannot tell, and the code can then send the job to the safer of the two.</p></section>
+
+<section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">{
+  "state": {
+    "ticket": {
+      "subject": "Mug arrived broken, I want my money back",
+      "amount": 30,
+      "tier": "gold",
+      "order_age_days": 3,
+      "has_photo": true
+    }
+  },
+  "questions": {
+    "team": {
+      "type": "choice",
+      "options": {
+        "returns": [
+          {
+            "if": {
+              "ticket.subject": {
+                "contains": "broken"
+              }
+            },
+            "weight": 3
+          },
+          {
+            "if": {
+              "ticket.subject": {
+                "contains": "return"
+              }
+            },
+            "weight": 2
+          }
+        ],
+        "billing": [
+          {
+            "if": {
+              "ticket.subject": {
+                "contains": "money"
+              }
+            },
+            "weight": 1
+          },
+          {
+            "if": {
+              "ticket.subject": {
+                "contains": "charged"
+              }
+            },
+            "weight": 2
+          }
+        ],
+        "shipping": [
+          {
+            "if": {
+              "ticket.subject": {
+                "contains": "tracking"
+              }
+            },
+            "weight": 2
+          }
+        ]
+      }
+    },
+    "refund_now": {
+      "type": "yes_no",
+      "bias": -2,
+      "rules": [
+        {
+          "if": {
+            "ticket.amount": {
+              "lte": 50
+            }
+          },
+          "weight": 2
+        },
+        {
+          "if": {
+            "ticket.tier": {
+              "eq": "gold"
+            }
+          },
+          "weight": 1
+        },
+        {
+          "if": {
+            "ticket.order_age_days": {
+              "lte": 14
+            }
+          },
+          "weight": 1
+        },
+        {
+          "if": {
+            "ticket.has_photo": {
+              "eq": true
+            }
+          },
+          "weight": 1
+        }
+      ]
+    }
+  }
+}</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
+
+<section id="errors"><h2>Errors</h2><p>Every refusal has <code>error</code>, naming the field, and <code>fix</code>, saying what to send instead. Nothing is stored whatever the outcome.</p><div class="table-wrap field-table"><table><thead><tr><th>Status</th><th>When</th></tr></thead><tbody><tr><td>400</td><td>A field is missing, of the wrong kind or out of range, or the body is not valid JSON. The error names the place, such as <code>questions.team.options.returns[0].weight</code></td></tr><tr><td>405</td><td>Any method but POST</td></tr><tr><td>413</td><td>The body is over 64 KiB, or the rules hold more than 5000 tests</td></tr><tr><td>415</td><td>The body is not sent as <code>application/json</code></td></tr><tr><td>429</td><td>The service-wide limit of 5000 requests per IP per 24 hours</td></tr></tbody></table></div></section>
+
+<section id="use-cases"><h2>When rules fit</h2><div class="use-case-grid"><article><h3>Guardrails for agents</h3><p>Decide whether an action may run on its own, needs a look, or has to wait for a person.</p></article><article><h3>Routing and triage</h3><p>Send tickets, alerts and jobs to the right place, and see why they went there.</p></article><article><h3>Confidence-gated automation</h3><p>Act only when the evidence is strong, with a threshold that fits what a mistake costs.</p></article><article><h3>A cheap first layer</h3><p>Answer the clear cases with rules, and hand only the uncertain ones to a model or a person.</p></article></div></section>
+
+<section id="privacy"><h2>Privacy and limits</h2><p>The state and the rules are tested inside the worker and gone when the answer is. Nothing is written, stored or sent anywhere, and the access log line holds the path and nothing from the body. Limits: 64 KiB of JSON, 64 questions, 100 options, 20 levels, 50 rules per list, weights from &minus;100 to 100, 5000 tests and 8 levels of <code>any</code> and <code>not</code> in one request. The service-wide ceiling is 5000 requests per IP per 24 hours.</p></section>
+
+<section id="related"><h2>Related endpoints</h2><div class="related-api-grid"><a href="/free-public-apis">Free public REST APIs<span>The full endpoint reference</span></a><a href="/free-public-api-chaos-api-endpoint">Chaos API Endpoint<span>Test clients against failures</span></a><a href="/free-public-api-webhook-action-api-endpoint">Human Approval API Endpoint<span>Ask a person when the answer is review</span></a><a href="/free-public-api-agent-queue-api-endpoint">Agent Queue API Endpoint<span>Hand decided work to workers</span></a></div></section>
+
+</div>
+</main>
+<script>
+(function () {
+  var body = document.getElementById('decide-body');
+  var run = document.getElementById('decide-run');
+  var status = document.getElementById('decide-status');
+  var out = document.getElementById('decide-out');
+
+  function show(text, state) {
+    status.textContent = text;
+    status.className = 'try-status' + (state ? ' is-' + state : '');
+  }
+
+  run.addEventListener('click', function () {
+    var parsed;
+
+    try {
+      parsed = JSON.parse(body.value);
+    } catch (error) {
+      show('The body is not valid JSON: ' + error.message, 'bad');
+      out.textContent = '';
+      return;
+    }
+
+    run.disabled = true;
+    show('Deciding');
+    fetch('https://aisenseapi.com/services/v1/decide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed)
+    }).then(function (response) {
+      return response.json().then(function (json) {
+        show('HTTP ' + response.status, response.ok ? 'ok' : 'bad');
+        out.textContent = JSON.stringify(json, null, 2);
+      });
+    }).catch(function (error) {
+      show('The request failed: ' + error.message, 'bad');
+    }).then(function () {
+      run.disabled = false;
+    });
+  });
+})();
+</script>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
