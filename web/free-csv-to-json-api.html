@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free CSV to JSON converter and API | AI SENSE</title>
+<meta name="description" content="Convert CSV to JSON in your browser or with one API call. Every cell stays text, so 00123 stays 00123. Comma, semicolon or tab, quoted fields and line breaks inside quotes. No API key.">
+<link rel="canonical" href="https://aisense.no/free-csv-to-json-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free CSV to JSON converter and API - AI SENSE">
+<meta property="og:description" content="Convert CSV to JSON in your browser or with one API call. Every cell stays text, so 00123 stays 00123. Comma, semicolon or tab, quoted fields and line breaks inside quotes. No API key.">
+<meta property="og:url" content="https://aisense.no/free-csv-to-json-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free CSV to JSON API",
+      "url": "https://aisense.no/free-csv-to-json-api",
+      "documentation": "https://aisense.no/free-csv-to-json-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Convert CSV to JSON in your browser or with one API call. Every cell stays text, so 00123 stays 00123. Comma, semicolon or tab, quoted fields and line breaks inside quotes. No API key.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/csv_to_json",
+          "httpMethod": "POST",
+          "contentType": "application/json",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the CSV to JSON API free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why are numbers returned as strings?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CSV has no types. Guessing them turns an ID like 00123 into 123 and a date into a number, so every cell is returned as the text it was."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which separators are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Comma, semicolon and tab. The form guesses the separator from the first line; the API uses a comma unless you send delimiter."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it read Excel files?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Save the sheet as CSV first. The endpoint reads UTF-8 CSV text."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Free CSV to JSON converter and API"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </div></nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free CSV to JSON converter and API
+</nav>
+
+<div class="hero">
+  <h1>Free CSV to JSON converter and API</h1>
+  <p class="lede">Paste CSV or choose a file, and get JSON with the column names and one object per row. The form calls the same free API your code can call: one POST, no API key and no account. The JSON waits in Storage for 24 hours.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/csv_to_json \
+  -H "Content-Type: application/json" \
+  -d '{"data":"customer_id;name\r\n00123;Nordlys AS\r\n00456;Fjord &amp; Fjell\r\n","delimiter":";"}'
+
+{
+  "storage_id": "c16032d8-daf3-46c9-962f-5102680da0b4",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/c16032d8-daf3-46c9-962f-5102680da0b4",
+  "sha256_hash": "5ad03743756917414f83c5d119ac124896b8a20e7a8eab178c518b03baf7cfdf",
+  "bytes": 134,
+  "expire_timestamp": 1790760065,
+  "expire_datetime": "2026-09-30T09:21:05+00:00",
+  "content_type": "application/json",
+  "filename": "result.json",
+  "operation": "csv_to_json"
+}</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>CSV in, JSON out</span>
+      <span>Cells stay text</span>
+      <span>5000 req / IP / 24h</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts to the same endpoint and shows the stored result. What you enter is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-field">
+      <label for="tool-input">CSV text</label>
+      <textarea id="tool-input" spellcheck="false" aria-describedby="tool-input-help">customer_id;name
+00123;Nordlys AS
+00456;Fjord &amp; Fjell</textarea>
+      <small id="tool-input-help">The first line names the columns. Or choose a file: <input type="file" id="tool-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></small>
+    </div>
+    <div class="tool-options">
+      <div class="tool-field">
+        <label for="tool-delimiter">Separator</label>
+        <select id="tool-delimiter">
+          <option value=",">Comma</option>
+          <option value=";" selected>Semicolon</option>
+          <option value="tab">Tab</option>
+        </select>
+        <small>Guessed from the first line.</small>
+      </div>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary">Convert to JSON</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+</div>
+
+<h2 id="how">How the conversion works</h2>
+<p>The JSON stored for the example at the top of the page, with the column names and one object per row:</p>
+<pre><code>{"columns":["customer_id","name"],"rows":[{"customer_id":"00123","name":"Nordlys AS"},{"customer_id":"00456","name":"Fjord &amp; Fjell"}]}</code></pre>
+<ul>
+  <li><strong>Every cell stays a string.</strong> Nothing is turned into a number, a boolean, a date or null, so <code>00123</code> keeps its zeros. Convert types in your own code, where you know what each column means.</li>
+  <li><strong>The first line is always the header.</strong> Column names must be unique and not empty.</li>
+  <li><strong>Quoting follows the common CSV rules.</strong> A quoted field can hold the separator, doubled quotes and line breaks. A UTF-8 byte order mark is removed. Lines end with LF or CRLF, and one line break at the very end is allowed.</li>
+  <li><strong>Broken input is refused, not guessed at.</strong> An unclosed quote, text after a closing quote, a quote inside an unquoted field, or a row with a different number of fields than the header answers 400. A blank line is a row with one empty field, so remove blank lines first.</li>
+</ul>
+<p>Going from CSV to JSON and back does not always give the original JSON. CSV has no types, so the way back produces strings.</p>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/csv_to_json</code> with <code>Content-Type: application/json</code>.</p>
+<table>
+  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>data</code></td><td>yes</td><td>The CSV text, UTF-8.</td></tr>
+    <tr><td><code>delimiter</code></td><td>no</td><td><code>","</code> (default), <code>";"</code> or <code>"\t"</code>.</td></tr>
+  </tbody>
+</table>
+<p>The result is stored as <code>result.json</code> and served as <code>application/json</code>. The endpoint reads CSV text only; save a spreadsheet as CSV first.</p>
+
+<h2 id="storage">The answer is a Storage link</h2>
+<p>The endpoint never sends the converted file in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
+<table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the bytes.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored bytes.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>What the result is and the name to save it under.</td></tr>
+    <tr><td><code>operation</code></td><td>The endpoint that made it.</td></tr>
+  </tbody>
+</table>
+<p>The id and the expiry in the examples on this page come from a test run and are different on every call. The hash and the size are what the example request gives every time.</p>
+<p>Anyone with the link can read the result until it expires, so do not send personal or confidential data. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h2 id="limits">Limits</h2>
+<ul>
+  <li>The request body is at most 256 KB, and the CSV text has to fit inside it.</li>
+  <li>At most 5000 data rows and 100 columns.</li>
+  <li>The JSON is at most 2 MB.</li>
+</ul>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>The body is not a JSON object, a field is missing, unknown or has the wrong type, or the input breaks the rules above.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The request, the rows or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The <code>Content-Type</code> is not <code>application/json</code>.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Is the CSV to JSON API free?</h3>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h3>Why are numbers returned as strings?</h3>
+<p>CSV has no types. Guessing them turns an ID like 00123 into 123 and a date into a number, so every cell is returned as the text it was.</p>
+
+<h3>Which separators are supported?</h3>
+<p>Comma, semicolon and tab. The form guesses the separator from the first line; the API uses a comma unless you send delimiter.</p>
+
+<h3>Can it read Excel files?</h3>
+<p>No. Save the sheet as CSV first. The endpoint reads UTF-8 CSV text.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-json-to-csv-api">JSON to CSV converter</a> and <a href="/free-csv-to-json-api">CSV to JSON converter</a></li>
+  <li><a href="/free-table-matching-api">Table matching</a>: compare two tables on key columns</li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#convert">All conversion endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var input = document.getElementById('tool-input');
+  var delimiter = document.getElementById('tool-delimiter');
+  var result = document.getElementById('tool-result');
+  if (!T || !form) { return; }
+  var chosen = false;
+
+  delimiter.addEventListener('change', function () { chosen = true; });
+  input.addEventListener('input', function () {
+    if (chosen) { return; }
+    var guess = T.guessDelimiter(input.value);
+    delimiter.value = guess === '\t' ? 'tab' : guess;
+  });
+  T.fileInto(document.getElementById('tool-file'), input);
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    T.busy(result, 'Converting...');
+    T.post('csv_to_json', {
+      data: input.value,
+      delimiter: delimiter.value === 'tab' ? '\t' : delimiter.value
+    }).then(function (answer) {
+      return T.showStored(result, answer, { preview: true, copyText: true });
+    }).catch(function (error) { T.showError(result, error); });
+  });
+})();
+</script>
+
+</body>
+</html>

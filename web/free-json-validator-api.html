@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free JSON validator API | AI SENSE</title>
+<meta name="description" content="Check whether JSON text has valid syntax, in your browser or with one API call. Every check stores a small report, including checks that find invalid JSON. No API key.">
+<link rel="canonical" href="https://aisense.no/free-json-validator-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free JSON validator API - AI SENSE">
+<meta property="og:description" content="Check whether JSON text has valid syntax, in your browser or with one API call. Every check stores a small report, including checks that find invalid JSON. No API key.">
+<meta property="og:url" content="https://aisense.no/free-json-validator-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free JSON validator API",
+      "url": "https://aisense.no/free-json-validator-api",
+      "documentation": "https://aisense.no/free-json-validator-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Check whether JSON text has valid syntax, in your browser or with one API call. Every check stores a small report, including checks that find invalid JSON. No API key.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/json_validate",
+          "httpMethod": "POST",
+          "contentType": "application/json",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the JSON validator API free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it check against a JSON Schema?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It checks syntax only: whether the text is valid JSON."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is a report stored when the JSON is invalid?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Finding invalid JSON is a completed check. The answer says valid false, and the stored report with the parser message can be passed on as a link."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it tell me the line of the error?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The report carries the parser message, such as Syntax error, without a line or column."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Free JSON validator API"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </div></nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free JSON validator API
+</nav>
+
+<div class="hero">
+  <h1>Free JSON validator API</h1>
+  <p class="lede">Paste JSON and check its syntax. The answer says valid true or false at once, and a small report with the parser message is stored for 24 hours, for invalid JSON too. The form calls the same free API your code can call.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/json_validate \
+  -H "Content-Type: application/json" \
+  -d '{"data":"{\"active\":true,}"}'
+
+{
+  "storage_id": "ebcabcff-b3e7-46b1-8920-c27671deedb2",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/ebcabcff-b3e7-46b1-8920-c27671deedb2",
+  "sha256_hash": "936d3fd69bca8892f601b7ab0cce7f3decd1bb11ee8b02a90009a0931b0bff02",
+  "bytes": 71,
+  "expire_timestamp": 1790760065,
+  "expire_datetime": "2026-09-30T09:21:05+00:00",
+  "content_type": "application/json",
+  "filename": "validation.json",
+  "operation": "json_validate",
+  "valid": false
+}</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>Syntax check</span>
+      <span>Report for every check</span>
+      <span>5000 req / IP / 24h</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts to the same endpoint and shows the stored result. What you enter is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-field">
+      <label for="tool-input">JSON text</label>
+      <textarea id="tool-input" spellcheck="false">{"active": true,}</textarea>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary">Validate</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+</div>
+
+<h2 id="how">What is checked</h2>
+<p>The report stored for the example at the top of the page:</p>
+<pre><code>{"valid":false,"error":"Syntax error","input_bytes":16,"max_depth":128}</code></pre>
+<ul>
+  <li><strong>Syntax only.</strong> The check answers whether the text is valid JSON. It is not a JSON Schema check and knows nothing about which fields you expect.</li>
+  <li><strong>Invalid JSON is a result, not an error.</strong> The call answers 200 with <code>valid</code> false and stores the report. Only a broken request, such as <code>data</code> that is not a string, answers 400.</li>
+  <li><strong>The message is the parser's own,</strong> for example <code>Syntax error</code>. It does not give a line or column.</li>
+  <li><strong>Duplicate keys are valid JSON</strong> by this check. More than 127 nested lists or objects is invalid. The <code>max_depth</code> of 128 in the report is the parser's limit, which counts the values inside the innermost list or object as one more level.</li>
+  <li><strong>The report does not contain your JSON,</strong> only its size and the result.</li>
+</ul>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/json_validate</code> with <code>Content-Type: application/json</code>. The JSON to check goes in as text, in a string.</p>
+<table>
+  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>data</code></td><td>yes</td><td>The JSON text, as a string.</td></tr>
+  </tbody>
+</table>
+<p>The answer adds <code>valid</code> to the Storage fields, so a client can act without reading the report. The report is stored as <code>validation.json</code> with <code>valid</code>, <code>error</code>, <code>input_bytes</code> and <code>max_depth</code>.</p>
+
+<h2 id="storage">The answer is a Storage link</h2>
+<p>The endpoint never sends the converted file in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
+<table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the bytes.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored bytes.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>What the result is and the name to save it under.</td></tr>
+    <tr><td><code>operation</code></td><td>The endpoint that made it.</td></tr>
+  </tbody>
+</table>
+<p>The id and the expiry in the examples on this page come from a test run and are different on every call. The hash and the size are what the example request gives every time.</p>
+<p>Anyone with the link can read the result until it expires, so do not send personal or confidential data. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h2 id="limits">Limits</h2>
+<ul>
+  <li>The request body is at most 256 KB, and the JSON text, escaped inside <code>data</code>, has to fit inside it.</li>
+  <li>More than 127 nested lists or objects is reported as invalid.</li>
+</ul>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>The body is not a JSON object, a field is missing, unknown or has the wrong type, or the input breaks the rules above.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The request, the rows or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The <code>Content-Type</code> is not <code>application/json</code>.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Is the JSON validator API free?</h3>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h3>Does it check against a JSON Schema?</h3>
+<p>No. It checks syntax only: whether the text is valid JSON.</p>
+
+<h3>Why is a report stored when the JSON is invalid?</h3>
+<p>Finding invalid JSON is a completed check. The answer says valid false, and the stored report with the parser message can be passed on as a link.</p>
+
+<h3>Does it tell me the line of the error?</h3>
+<p>No. The report carries the parser message, such as Syntax error, without a line or column.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-json-to-csv-api">JSON to CSV converter</a> and <a href="/free-csv-to-json-api">CSV to JSON converter</a></li>
+  <li><a href="/free-table-matching-api">Table matching</a>: compare two tables on key columns</li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#convert">All conversion endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var input = document.getElementById('tool-input');
+  var result = document.getElementById('tool-result');
+  if (!T || !form) { return; }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    T.busy(result, 'Validating...');
+    T.post('json_validate', { data: input.value }).then(function (answer) {
+      // The answer already says valid or not. The parser message is in the stored report.
+      return T.showStored(result, answer, {
+        preview: true,
+        status: answer.valid ? 'Valid JSON syntax.' : 'Invalid JSON.',
+        statusClass: answer.valid ? 'is-good' : 'is-bad'
+      }).then(function (text) {
+        var report = null;
+        try { report = JSON.parse(text); } catch (e) { return; }
+        if (report && !report.valid && report.error) {
+          result.insertBefore(T.make('p', 'tool-meta', 'The parser says: ' + report.error), result.children[1] || null);
+        }
+      });
+    }).catch(function (error) { T.showError(result, error); });
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -52,6 +52,12 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
+- Conversion endpoints, each storing its result in Storage for 24 hours: https://aisense.no/free-public-apis#convert
+- JSON to CSV guide: https://aisense.no/free-json-to-csv-api
+- CSV to JSON guide: https://aisense.no/free-csv-to-json-api
+- Table matching guide: https://aisense.no/free-table-matching-api
+- JSON formatter guide: https://aisense.no/free-json-formatter-api
+- JSON validator guide: https://aisense.no/free-json-validator-api
 
 ## Products
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Free public REST APIs - AISENSE - FREE PUBLIC API SERVICES</title>
-<meta name="description" content="Free public REST APIs with no API key and no sign-up: heartbeat monitoring, anonymous leases, Agent Wake, disposable agent inboxes, webhooks, storage, time, UUID, encoding, hashing, QR codes, IP tools and crypto lookups.">
+<meta name="description" content="Free public REST APIs with no API key and no sign-up: heartbeat monitoring, anonymous leases, Agent Wake, disposable agent inboxes, webhooks, storage, JSON and CSV conversion, time, UUID, encoding, hashing, QR codes, IP tools and crypto lookups.">
 <link rel="canonical" href="https://aisense.no/free-public-apis">
 
 <meta property="og:type" content="website">
@@ -44,7 +44,7 @@
     {
       "@type": "WebAPI",
       "name": "AI SENSE Free Public REST APIs",
-      "description": "REST endpoints for heartbeat monitoring, leases, queues, agent workflows, time, encoding, hashing, web lookups and crypto wallets. No account or API key.",
+      "description": "REST endpoints for heartbeat monitoring, leases, queues, agent workflows, JSON and CSV conversion, time, encoding, hashing, web lookups and crypto wallets. No account or API key.",
       "documentation": "https://aisense.no/free-public-apis",
       "termsOfService": "https://aisense.no/terms",
       "provider": { "@type": "Organization", "name": "AI SENSE AS" }
@@ -85,7 +85,7 @@
 
 <div class="hero">
   <h1>Free Public REST APIs</h1>
-  <p class="lede">Utility endpoints for time, randomness, encoding, hashing, web lookups, webhooks and crypto - with no API key, no sign-up and no cost. Drop a URL into curl, Python, JavaScript or an LLM tool definition and it works.</p>
+  <p class="lede">Utility endpoints for time, randomness, encoding, JSON and CSV conversion, hashing, web lookups, webhooks and crypto - with no API key, no sign-up and no cost. Drop a URL into curl, Python, JavaScript or an LLM tool definition and it works.</p>
   <ul class="badges">
     <li>No account or API key</li>
     <li>No sign-up</li>
@@ -127,6 +127,7 @@
     <li><a href="#time">Time</a></li>
     <li><a href="#random">Random</a></li>
     <li><a href="#transform">Transform</a></li>
+    <li><a href="#convert">Convert</a></li>
     <li><a href="#hash">Hash</a></li>
     <li><a href="#web">Web</a></li>
     <li><a href="#crypto">Crypto</a></li>
@@ -149,6 +150,11 @@
     <a href="/free-public-api-dns-name-api-endpoint"><strong>Temporary DNS Name API</strong><span>Point a public name at an address for 24 hours.</span></a>
     <a href="/free-public-api-ip-reverse-lookup-api-endpoint"><strong>IP Reverse Lookup API</strong><span>Look up country, location and timezone data.</span></a>
     <a href="/free-public-api-qr-code-encode-api-endpoint"><strong>QR Code API</strong><span>Encode and decode QR code images.</span></a>
+    <a href="/free-json-to-csv-api"><strong>JSON to CSV API</strong><span>Turn JSON records into a CSV file.</span></a>
+    <a href="/free-csv-to-json-api"><strong>CSV to JSON API</strong><span>Read CSV into JSON, every cell as text.</span></a>
+    <a href="/free-table-matching-api"><strong>Table Matching API</strong><span>Compare two tables on key columns.</span></a>
+    <a href="/free-json-formatter-api"><strong>JSON Formatter API</strong><span>Pretty print or minify, numbers untouched.</span></a>
+    <a href="/free-json-validator-api"><strong>JSON Validator API</strong><span>Check JSON syntax and keep the report.</span></a>
     <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512 and CRC32.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
@@ -161,7 +167,7 @@
   <p>Three service-wide behaviours decide how your error handling has to look. This page combines source-checked contracts with dated production observations. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.</p>
   <dl>
     <dt>The response key is named after the endpoint.</dt>
-    <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key.</dd>
+    <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key. The Convert endpoints are the exception: they store their result and answer with the Storage fields.</dd>
 
     <dt>Check both the HTTP status and the <code>error</code> field.</dt>
     <dd>Errors usually use <code>{"error": "message"}</code> with a non-2xx status. The legacy wallet-generation handlers can return an error object with HTTP 200. Workflow endpoints use non-2xx errors, including 409 for conflicts, 410 for expired records not yet removed, and 503 for temporary storage problems. Unknown or removed records return 404. Each endpoint lists its additional errors.</dd>
@@ -387,6 +393,81 @@ Response: Hello</code></pre>
 <pre><code>{ "payload": "iVBORw0KGgoAAAANSUhEUg..." }
 
 { "qrcode_content": "https://aisenseapi.com/" }</code></pre>
+</article>
+</section>
+
+<!-- CONVERT -->
+<section id="convert" aria-labelledby="convert-heading">
+<h2 id="convert-heading">Convert</h2>
+
+<p>All Convert endpoints are <code>POST</code> with a JSON body of at most 256 KB. None of them returns the result in the answer. Each one stores its result in <a href="/free-public-api-storage-api-endpoint">Storage</a> for 24 hours and answers with the Storage fields plus <code>content_type</code>, <code>filename</code> and <code>operation</code>. Read the result with a GET on <code>storage_url</code>. Anyone with that link can read it, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
+<p>The answer to the JSON to CSV example below, from a test run. The id and the expiry are different on every call:</p>
+<pre><code>{
+  "storage_id": "b5b3016f-52df-43a7-801c-7b7d0baa4b94",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/b5b3016f-52df-43a7-801c-7b7d0baa4b94",
+  "sha256_hash": "3e749b9bff583e347820dee8435476eca0ca58fe2e4639c53cc13c8cc9925c1c",
+  "bytes": 44,
+  "expire_timestamp": 1790760065,
+  "expire_datetime": "2026-09-30T09:21:05+00:00",
+  "content_type": "text/csv; charset=utf-8",
+  "filename": "result.csv",
+  "operation": "json_to_csv"
+}</code></pre>
+
+<article class="endpoint">
+<h3>JSON to CSV REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/json_to_csv</span></p>
+<p>JSON records to CSV, with the columns in the order you name them. Every cell is quoted, text such as <code>00123</code> stays text, and nested values are refused. Optional <code>delimiter</code> (comma, semicolon or tab) and <code>spreadsheet_safe</code>. <a href="/free-json-to-csv-api">Guide and browser tool</a>.</p>
+<pre><code>{"columns": ["customer_id", "name"], "rows": [{"customer_id": "00123", "name": "Nordlys AS"}], "delimiter": ";"}
+
+# stored as result.csv
+"customer_id";"name"
+"00123";"Nordlys AS"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>CSV to JSON REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/csv_to_json</span></p>
+<p>CSV text to JSON with the column names and one object per row. Every cell stays a string. The first line is the header, and malformed quoting or a row of the wrong width is refused rather than guessed at. <a href="/free-csv-to-json-api">Guide and browser tool</a>.</p>
+<pre><code>{"data": "customer_id,name\n00123,Nordlys AS\n"}
+
+# stored as result.json
+{"columns":["customer_id","name"],"rows":[{"customer_id":"00123","name":"Nordlys AS"}]}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Table Matching REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/table_match</span></p>
+<p>Compares two lists of rows on one or more pairs of key columns. Every row lands in <code>matched</code>, <code>only_left</code>, <code>only_right</code> or <code>ambiguous</code>, and duplicate keys are reported, never paired at random. Keys are compared exactly. <a href="/free-table-matching-api">Guide and browser tool</a>.</p>
+<pre><code>{"left": [{"id": "1"}, {"id": "2"}], "right": [{"id": "2"}, {"id": "3"}], "keys": [{"left": "id", "right": "id"}]}
+
+# stored as matches.json
+{"matched":[{"left_index":1,"right_index":0}],"only_left":[0],"only_right":[1],"ambiguous":[]}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>JSON Format REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/json_format</span></p>
+<p>Pretty prints or minifies JSON text sent as a string. Only whitespace changes, so number spelling, escapes, key order and duplicate keys stay as sent. Invalid JSON answers 400. <a href="/free-json-formatter-api">Guide and browser tool</a>.</p>
+<pre><code>{"data": "{\"price\":1.50,\"tags\":[\"a\"]}", "mode": "pretty"}
+
+# stored as result.json
+{
+  "price": 1.50,
+  "tags": [
+    "a"
+  ]
+}</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>JSON Validate REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/json_validate</span></p>
+<p>Checks JSON syntax. Invalid JSON is a result, not an error: the answer adds <code>valid</code>, and the stored report carries the parser message. <a href="/free-json-validator-api">Guide and browser tool</a>.</p>
+<pre><code>{"data": "{\"a\":1,}"}
+
+# stored as validation.json
+{"valid":false,"error":"Syntax error","input_bytes":8,"max_depth":128}</code></pre>
 </article>
 </section>
 
@@ -766,6 +847,8 @@ response = client.chat.completions.create(
 <p>Every endpoint has its own page with worked examples, response fields, the edge cases that matter and what the thing is actually good for.</p>
 <h3>Transform</h3>
 <div class="related-api-grid"><a href="/free-public-api-base64-encode-api-endpoint">Free Base64 Encode API Endpoint<span>Text and files to base64</span></a><a href="/free-public-api-base64-decode-api-endpoint">Free Base64 Decode API Endpoint<span>Three response modes by Accept</span></a><a href="/free-public-api-base58-encode-api-endpoint">Free Base58 Encode API Endpoint<span>No lookalike characters</span></a><a href="/free-public-api-base58-decode-api-endpoint">Free Base58 Decode API Endpoint<span>Always raw bytes</span></a><a href="/free-public-api-base32-encode-api-endpoint">Free Base32 Encode API Endpoint<span>Case insensitive output</span></a><a href="/free-public-api-base32-decode-api-endpoint">Free Base32 Decode API Endpoint<span>Lowercase and padding tolerant</span></a><a href="/free-public-api-jwt-encode-api-endpoint">Free JWT Encode API Endpoint<span>Sign HS256 claims</span></a><a href="/free-public-api-jwt-decode-api-endpoint">Free JWT Decode API Endpoint<span>Verify and read a token</span></a><a href="/free-public-api-qr-code-encode-api-endpoint">Free QR Code API Endpoint<span>Content into a QR image</span></a><a href="/free-public-api-qr-code-decode-api-endpoint">Free QR Code Decode API Endpoint<span>Read a QR image back</span></a><a href="/free-public-api-slugify-api-endpoint">Free Slugify API Endpoint<span>Text to a URL slug</span></a></div>
+<h3>Convert</h3>
+<div class="related-api-grid"><a href="/free-json-to-csv-api">Free JSON to CSV API<span>Records to a CSV file</span></a><a href="/free-csv-to-json-api">Free CSV to JSON API<span>Every cell stays text</span></a><a href="/free-table-matching-api">Free Table Matching API<span>Matched, missing and ambiguous rows</span></a><a href="/free-json-formatter-api">Free JSON Formatter API<span>Only the whitespace changes</span></a><a href="/free-json-validator-api">Free JSON Validator API<span>A stored report for every check</span></a></div>
 <h3>Hash</h3>
 <div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
@@ -811,6 +894,11 @@ response = client.chat.completions.create(
 <tr><td>Transform</td><td><code>/jwt_decode</code></td><td>POST</td><td><code>decoded_payload</code></td></tr>
 <tr><td>Transform</td><td><code>/qrcode_encode</code></td><td>POST</td><td><code>qrcode_image</code>, <code>image_type</code></td></tr>
 <tr><td>Transform</td><td><code>/qrcode_decode</code></td><td>POST</td><td><code>qrcode_content</code></td></tr>
+<tr><td>Convert</td><td><code>/json_to_csv</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code></td></tr>
+<tr><td>Convert</td><td><code>/csv_to_json</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code></td></tr>
+<tr><td>Convert</td><td><code>/table_match</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code></td></tr>
+<tr><td>Convert</td><td><code>/json_format</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code></td></tr>
+<tr><td>Convert</td><td><code>/json_validate</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code>, <code>valid</code></td></tr>
 <tr><td>Hash</td><td><code>/md5_hash</code></td><td>POST</td><td><code>md5_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha1_hash</code></td><td>POST</td><td><code>sha1_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>

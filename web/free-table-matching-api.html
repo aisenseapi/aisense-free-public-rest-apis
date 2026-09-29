@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Free table matching API: compare two tables by key | AI SENSE</title>
+<meta name="description" content="Compare two tables, CSV or JSON, on the key columns you choose. Find matching rows, rows missing from either side and ambiguous matches, in your browser or with one API call. No API key.">
+<link rel="canonical" href="https://aisense.no/free-table-matching-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free table matching API - AI SENSE">
+<meta property="og:description" content="Compare two tables, CSV or JSON, on the key columns you choose. Find matching rows, rows missing from either side and ambiguous matches, in your browser or with one API call. No API key.">
+<meta property="og:url" content="https://aisense.no/free-table-matching-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free table matching API",
+      "url": "https://aisense.no/free-table-matching-api",
+      "documentation": "https://aisense.no/free-table-matching-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Compare two tables, CSV or JSON, on the key columns you choose. Find matching rows, rows missing from either side and ambiguous matches, in your browser or with one API call. No API key.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/table_match",
+          "httpMethod": "POST",
+          "contentType": "application/json",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the table matching API free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens when a key appears more than once?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "When the key is in both tables, the rows are reported together as one ambiguous group, with the row numbers from both tables. The service never pairs duplicates at random."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it compare the other columns?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. A match means the key columns are equal. Comparing the remaining values cell by cell is not part of this endpoint."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does 00123 match 123?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Keys are compared exactly, with their type, and nothing is trimmed or converted."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Free table matching API"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">AISENSE</a>
+    <nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links">
+      <a href="/free-public-apis">Free public REST APIs</a>
+      <a href="/free-public-mcp-server">Free MCP server</a>
+      <a href="/custom-apis">Custom APIs</a>
+      <a href="/make-your-data-available-for-ai">AI data feed</a>
+      <a href="/ai-sense-posts">Posts</a>
+      <a href="/contact-us">Contact us</a>
+      <a href="/about">About</a>
+    </div></nav>
+  </div>
+</header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Free table matching API
+</nav>
+
+<div class="hero">
+  <h1>Free table matching API</h1>
+  <p class="lede">Paste two tables, choose the columns that identify a row, and see which rows match, which are missing from either side, and where a key is not unique. The form calls the same free API your code can call. The matching report waits in Storage for 24 hours.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/table_match \
+  -H "Content-Type: application/json" \
+  -d '{"left":[{"customer_id":"00123","name":"Nordlys AS"},{"customer_id":"00456","name":"Fjord &amp; Fjell"}],"right":[{"kundenummer":"00123","navn":"Nordlys AS"},{"kundenummer":"00999","navn":"Solvik"}],"keys":[{"left":"customer_id","right":"kundenummer"}]}'
+
+{
+  "storage_id": "727c3223-e9ea-4260-aab8-d7bd1ccbdcc0",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/727c3223-e9ea-4260-aab8-d7bd1ccbdcc0",
+  "sha256_hash": "e8a3a9c856db2397414e0e9d1a170bd33dc2a8bfe686385e94e1d75ecb0e7c78",
+  "bytes": 94,
+  "expire_timestamp": 1790760065,
+  "expire_datetime": "2026-09-30T09:21:05+00:00",
+  "content_type": "application/json",
+  "filename": "matches.json",
+  "operation": "table_match"
+}</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>No API key</span>
+      <span>No account</span>
+      <span>Exact key matching</span>
+      <span>Duplicates reported</span>
+      <span>5000 req / IP / 24h</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts to the same endpoint and shows the stored result. What you enter is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-grid">
+      <div class="tool-field">
+        <label for="tool-left">Left table</label>
+        <textarea id="tool-left" spellcheck="false">customer_id;name
+00123;Nordlys AS
+00456;Fjord &amp; Fjell</textarea>
+        <small>CSV with a header line, or a JSON list of objects. <input type="file" id="tool-left-file" accept=".csv,.tsv,.txt,.json"></small>
+      </div>
+      <div class="tool-field">
+        <label for="tool-right">Right table</label>
+        <textarea id="tool-right" spellcheck="false">kundenummer;navn
+00123;Nordlys AS
+00999;Solvik</textarea>
+        <small>CSV with a header line, or a JSON list of objects. <input type="file" id="tool-right-file" accept=".csv,.tsv,.txt,.json"></small>
+      </div>
+    </div>
+    <div class="tool-options">
+      <div class="tool-field">
+        <label for="tool-left-key">Left key column</label>
+        <select id="tool-left-key"></select>
+      </div>
+      <div class="tool-field">
+        <label for="tool-right-key">Right key column</label>
+        <select id="tool-right-key"></select>
+      </div>
+      <div class="tool-field">
+        <label for="tool-left-key2">Second left key</label>
+        <select id="tool-left-key2"></select>
+      </div>
+      <div class="tool-field">
+        <label for="tool-right-key2">Second right key</label>
+        <select id="tool-right-key2"></select>
+      </div>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary">Match the tables</button>
+    </div>
+    <p class="tool-note">Both tables go in one request of at most 256 KB. CSV cells are sent as text, so a key in a CSV table matches a JSON key only when the JSON value is a string.</p>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+  <div id="tool-report"></div>
+</div>
+
+<h2 id="how">How matching works</h2>
+<p>The report stored for the example at the top of the page:</p>
+<pre><code>{"matched":[{"left_index":0,"right_index":0}],"only_left":[1],"only_right":[1],"ambiguous":[]}</code></pre>
+<ul>
+  <li><strong>Keys are compared exactly.</strong> With two key pairs, both must be equal. Nothing is trimmed and case is kept, so <code>00123</code> does not match <code>123</code>, and the text <code>"1"</code> does not match the number <code>1</code>.</li>
+  <li><strong>A key that is not unique is reported, never paired at random.</strong> When a key value found in both tables appears more than once in either of them, all those rows go into one <code>ambiguous</code> group with <code>left_indices</code> and <code>right_indices</code>.</li>
+  <li><strong>Every row lands in exactly one list:</strong> <code>matched</code>, <code>only_left</code>, <code>only_right</code> or <code>ambiguous</code>. A row whose key is missing, null or empty never matches and is listed as only in its own table.</li>
+  <li><strong>Indices are zero-based row numbers</strong> in the tables you sent. The report does not copy your data, so keep the tables to read the rows.</li>
+  <li><strong>Matched means the keys are equal,</strong> not that the other fields are. Comparing the values cell by cell is not part of this endpoint.</li>
+</ul>
+
+<h2 id="api">The API</h2>
+<p><code>POST https://aisenseapi.com/services/v1/table_match</code> with <code>Content-Type: application/json</code>.</p>
+<table>
+  <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>left</code>, <code>right</code></td><td>yes</td><td>Lists of objects, one per row.</td></tr>
+    <tr><td><code>keys</code></td><td>yes</td><td>List of <code>{"left": column, "right": column}</code> pairs. All must match.</td></tr>
+  </tbody>
+</table>
+<p>Key values can be strings, integers or true and false. Numbers with decimals are refused as keys; send decimal values and large IDs as strings. The report is stored as <code>matches.json</code>.</p>
+
+<h2 id="storage">The answer is a Storage link</h2>
+<p>The endpoint never sends the converted file in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
+<table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the bytes.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored bytes.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>What the result is and the name to save it under.</td></tr>
+    <tr><td><code>operation</code></td><td>The endpoint that made it.</td></tr>
+  </tbody>
+</table>
+<p>The id and the expiry in the examples on this page come from a test run and are different on every call. The hash and the size are what the example request gives every time.</p>
+<p>Anyone with the link can read the result until it expires, so do not send personal or confidential data. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h2 id="limits">Limits</h2>
+<ul>
+  <li>The request body is at most 256 KB, both tables together.</li>
+  <li>At most 5000 rows per table, 100 fields per row and 100 key pairs.</li>
+  <li>The report is at most 2 MB.</li>
+</ul>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>The body is not a JSON object, a field is missing, unknown or has the wrong type, or the input breaks the rules above.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The request, the rows or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The <code>Content-Type</code> is not <code>application/json</code>.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Is the table matching API free?</h3>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day.</p>
+
+<h3>What happens when a key appears more than once?</h3>
+<p>When the key is in both tables, the rows are reported together as one ambiguous group, with the row numbers from both tables. The service never pairs duplicates at random.</p>
+
+<h3>Does it compare the other columns?</h3>
+<p>No. A match means the key columns are equal. Comparing the remaining values cell by cell is not part of this endpoint.</p>
+
+<h3>Does 00123 match 123?</h3>
+<p>No. Keys are compared exactly, with their type, and nothing is trimmed or converted.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-json-to-csv-api">JSON to CSV converter</a> and <a href="/free-csv-to-json-api">CSV to JSON converter</a></li>
+  <li><a href="/free-table-matching-api">Table matching</a>: compare two tables on key columns</li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#convert">All conversion endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var left = document.getElementById('tool-left');
+  var right = document.getElementById('tool-right');
+  var leftKey = document.getElementById('tool-left-key');
+  var rightKey = document.getElementById('tool-right-key');
+  var leftKey2 = document.getElementById('tool-left-key2');
+  var rightKey2 = document.getElementById('tool-right-key2');
+  var result = document.getElementById('tool-result');
+  var report = document.getElementById('tool-report');
+  if (!T || !form) { return; }
+
+  function fill(select, columns, optional) {
+    var keep = select.value;
+    T.clear(select);
+    if (optional) { select.appendChild(T.make('option', '', '(none)')).value = ''; }
+    columns.forEach(function (name) { select.appendChild(T.make('option', '', name)).value = name; });
+    if (keep && columns.indexOf(keep) !== -1) { select.value = keep; }
+  }
+
+  function columnsOf(textarea) {
+    try { return T.parseTable(textarea.value).columns; } catch (e) { return []; }
+  }
+
+  function refresh() {
+    var l = columnsOf(left);
+    var r = columnsOf(right);
+    fill(leftKey, l, false);
+    fill(rightKey, r, false);
+    fill(leftKey2, l, true);
+    fill(rightKey2, r, true);
+  }
+
+  function list(title, rows, render) {
+    if (!rows.length) { return; }
+    report.appendChild(T.make('h3', '', title + ' (' + rows.length + ')'));
+    var table = T.make('table', 'tool-table');
+    rows.slice(0, 50).forEach(function (item) {
+      var tr = T.make('tr');
+      render(item).forEach(function (cell) { tr.appendChild(T.make('td', '', cell)); });
+      table.appendChild(tr);
+    });
+    report.appendChild(table);
+    if (rows.length > 50) { report.appendChild(T.make('p', 'tool-note', 'The first 50 are shown. The stored report has all of them.')); }
+  }
+
+  T.fileInto(document.getElementById('tool-left-file'), left);
+  T.fileInto(document.getElementById('tool-right-file'), right);
+  left.addEventListener('input', refresh);
+  right.addEventListener('input', refresh);
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    T.clear(report);
+    var a, b, keys;
+    try {
+      a = T.parseTable(left.value);
+      b = T.parseTable(right.value);
+      keys = [{ left: leftKey.value, right: rightKey.value }];
+      if (leftKey2.value || rightKey2.value) {
+        if (!leftKey2.value || !rightKey2.value) { throw new Error('Choose both columns of the second key, or neither.'); }
+        keys.push({ left: leftKey2.value, right: rightKey2.value });
+      }
+    } catch (error) {
+      T.showError(result, error);
+      return;
+    }
+    var key = function (row, side) {
+      return keys.map(function (k) { return String(row[k[side]] === undefined ? '' : row[k[side]]); }).join(' | ');
+    };
+    T.busy(result, 'Matching...');
+    T.post('table_match', { left: a.rows, right: b.rows, keys: keys }).then(function (answer) {
+      return T.showStored(result, answer, { preview: true }).then(function (text) {
+        if (text === null) {
+          report.appendChild(T.make('p', 'tool-error', 'The report is stored, but this page could not read it back. Use the link above.'));
+          return;
+        }
+        var out = JSON.parse(text);
+        var counts = T.make('p', 'tool-counts');
+        [['Matched', out.matched.length], ['Only left', out.only_left.length], ['Only right', out.only_right.length], ['Ambiguous', out.ambiguous.length]].forEach(function (c) {
+          counts.appendChild(T.make('span', '', c[0] + ': ' + c[1]));
+        });
+        report.appendChild(counts);
+        list('Matched', out.matched, function (m) { return ['left row ' + m.left_index, 'right row ' + m.right_index, key(a.rows[m.left_index], 'left')]; });
+        list('Only in the left table', out.only_left, function (i) { return ['left row ' + i, key(a.rows[i], 'left')]; });
+        list('Only in the right table', out.only_right, function (i) { return ['right row ' + i, key(b.rows[i], 'right')]; });
+        list('Ambiguous', out.ambiguous, function (g) { return ['left rows ' + g.left_indices.join(', '), 'right rows ' + g.right_indices.join(', '), key(a.rows[g.left_indices[0]], 'left')]; });
+      });
+    }).catch(function (error) { T.showError(result, error); });
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>
