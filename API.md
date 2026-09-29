@@ -27,6 +27,7 @@ guess it.
 - [Random](#random)
 - [Transform](#transform)
 - [Convert](#convert)
+- [Images](#images)
 - [Hash](#hash)
 - [Web](#web)
 - [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
@@ -561,6 +562,102 @@ without a line or column. Duplicate keys are valid, and more than 127 nested
 lists or objects is invalid. The report's `max_depth` of 128 is the parser's
 limit, which counts the values inside the innermost list or object as one
 more level. The report does not contain the JSON itself.
+
+---
+
+## Images
+
+`image_convert` and `image_compress` take one image as `multipart/form-data`,
+in a field named `file`: a JPEG, PNG or WebP of at most 10 MB and 25
+megapixels. The format is read from the first bytes of the file, and an
+animated image is converted from its first frame. Like the Convert endpoints,
+they store the result in [Storage](#storage---24h-ttl) for 24 hours and answer
+with the Storage fields plus `operation`, `format`, `width`, `height`,
+`input_format` and `input_bytes`. A GET on `storage_url` returns the image
+with its image type.
+
+Every result is turned upright from its EXIF orientation, and EXIF, XMP, IPTC
+and comments are removed. The ICC colour profile is kept, and a CMYK JPEG
+becomes RGB. Nothing is resized. ImageMagick runs in a sandbox without network
+access, at most two images at a time; a third waits up to ten seconds and is
+then answered 503 with `Retry-After`. A conversion may take 45 seconds, and a
+result may be 8 MB.
+
+```json
+// Response to the image_convert request below, from a test run with a test
+// image of 1600 x 1200 pixels. The id, the expiry and the sizes differ.
+{
+  "storage_id": "1ddd4269-b51c-4209-a4de-6908926f672b",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/1ddd4269-b51c-4209-a4de-6908926f672b",
+  "sha256_hash": "97350f282284446cbb19db5a0695a654e0162fafd52db766fb12099b6497202d",
+  "bytes": 195648,
+  "expire_timestamp": 1790767674,
+  "expire_datetime": "2026-09-30T11:27:54+00:00",
+  "content_type": "image/webp",
+  "filename": "result.webp",
+  "operation": "image_convert",
+  "format": "webp",
+  "width": 1600,
+  "height": 1200,
+  "input_format": "jpeg",
+  "input_bytes": 641358
+}
+```
+
+| Status | When |
+|--------|------|
+| 400 | A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image |
+| 405 | The method is not `POST` |
+| 413 | The upload, its number of pixels or the result is over a limit |
+| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP |
+| 429 | The request budget or the day's Storage budget is used up |
+| 503 | Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now |
+
+Each endpoint has a guide with a browser tool:
+[image converter](https://aisense.no/free-image-converter-api) and
+[image compression](https://aisense.no/free-image-compression-api).
+
+---
+
+### `POST /image_convert`
+Converts between JPEG, PNG and WebP.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
+  -F "file=@photo.jpg" \
+  -F "format=webp"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG or WebP |
+| `format` | yes | `jpeg`, `png` or `webp`; `jpg` is read as `jpeg` |
+| `quality` | no | 40 to 95, for JPEG and WebP; 82 when left out |
+| `lossless` | no | `true` or `false`, for WebP only; lossless takes no quality |
+
+Transparency is kept in PNG and WebP and becomes white in a JPEG. PNG is
+lossless and takes no quality. WebP allows at most 16383 pixels per side.
+
+---
+
+### `POST /image_compress`
+Saves a JPEG, PNG or WebP again in its own format.
+
+```bash
+curl -s -X POST https://aisenseapi.com/services/v1/image_compress \
+  -F "file=@photo.jpg" \
+  -F "quality=70"
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | The image: JPEG, PNG or WebP |
+| `quality` | no | 40 to 95, for JPEG and WebP; 82 when left out. A PNG takes none |
+
+JPEG and WebP are saved again at the given quality, which is lossy. PNG is
+saved again losslessly at the strongest zlib level. A `format` field is
+refused. An image that was already compressed harder can come out larger;
+`bytes` and `input_bytes` in the answer show it.
 
 ---
 
@@ -1899,9 +1996,9 @@ it keeps working. `fix` is there for a caller that cannot read the reference
 at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
-The sweep is staged. Storage, the five Convert endpoints, Agent Queue,
-Heartbeat, Lease, Agent Wake and Agent Inbox carry a fix on every refusal
-today. The rest of the catalog
+The sweep is staged. Storage, the five Convert endpoints, the two Images
+endpoints, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
+fix on every refusal today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
 
 ### Input formats (POST endpoints)
@@ -1941,6 +2038,7 @@ operations use JSON with the fields documented in their own sections.
 | `/qrcode_decode` | `qrcode_content` |
 | `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
 | `/json_validate` | the same fields, plus `valid` |
+| `/image_convert`, `/image_compress` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
 | `/md5_hash` | `md5_hash` |
 | `/sha1_hash` | `sha1_hash` |
 | `/sha256_hash` | `sha256_hash` |

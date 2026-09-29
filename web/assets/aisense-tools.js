@@ -1,17 +1,19 @@
 /*
- * Shared browser code for the conversion tool pages.
+ * Shared browser code for the conversion and image tool pages.
  *
- * Every conversion is one POST to https://aisenseapi.com/services/v1/<name>.
- * The service stores the result in Storage for 24 hours and answers with a
- * link to it; the page then reads the result from that link to show it, and
- * the download button saves the same bytes. Text from the page or from the
- * service is always set with textContent, never as HTML.
+ * Every conversion is one POST to https://aisenseapi.com/services/v1/<name>,
+ * JSON for the text tools and multipart/form-data for the images. The service
+ * stores the result in Storage for 24 hours and answers with a link to it;
+ * the page then reads or shows the result from that link, and the download
+ * button saves the same bytes. Text from the page or from the service is
+ * always set with textContent, never as HTML.
  */
 (function () {
   'use strict';
 
   var API = 'https://aisenseapi.com/services/v1/';
   var LIMIT = 262144;
+  var FILE_LIMIT = 10485760;
   var PREVIEW = 20000;
 
   function make(tag, className, text) {
@@ -40,11 +42,28 @@
       tooBig.fix = 'Send fewer rows or less text in one request.';
       return Promise.reject(tooBig);
     }
-    return fetch(API + operation, {
+    return send(operation, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: body
-    }).then(function (response) {
+    });
+  }
+
+  /** POST one image as multipart/form-data, in a field named file, with the options as form fields. */
+  function postFile(operation, file, fields) {
+    if (file.size > FILE_LIMIT) {
+      var tooBig = new Error('The file is ' + bytes(file.size) + ', and the limit is 10 MB.');
+      tooBig.fix = 'Choose a smaller image.';
+      return Promise.reject(tooBig);
+    }
+    var form = new FormData();
+    form.append('file', file, file.name || 'image');
+    Object.keys(fields || {}).forEach(function (name) { form.append(name, String(fields[name])); });
+    return send(operation, { method: 'POST', body: form });
+  }
+
+  function send(operation, init) {
+    return fetch(API + operation, init).then(function (response) {
       return response.text().then(function (raw) {
         var data;
         try {
@@ -122,13 +141,17 @@
   /**
    * Show a stored result: its link, size and expiry, the download and copy
    * buttons, and, with options.preview, the first part of the text itself.
-   * Resolves with the stored text when a preview was asked for.
+   * With options.image the result is shown as an image straight from its
+   * Storage link. Resolves with the stored text when a preview was asked for.
    */
   function showStored(box, result, options) {
     options = options || {};
     clear(box);
     if (options.status) {
       box.appendChild(make('p', 'tool-status' + (options.statusClass ? ' ' + options.statusClass : ''), options.status));
+    }
+    if (options.summary) {
+      box.appendChild(make('p', 'tool-summary', options.summary));
     }
     var expires = new Date(result.expire_timestamp * 1000);
     box.appendChild(make('p', 'tool-meta',
@@ -146,6 +169,13 @@
     actions.appendChild(download);
     actions.appendChild(copyLink);
     box.appendChild(actions);
+
+    if (options.image) {
+      var image = make('img', 'tool-image-preview');
+      image.alt = 'The stored ' + result.filename;
+      image.src = result.storage_url;
+      box.appendChild(image);
+    }
 
     if (!options.preview) { return Promise.resolve(null); }
 
@@ -252,6 +282,70 @@
     window.addEventListener(name, function (e) { if (hasFiles(e)) { e.preventDefault(); } });
   });
 
+  /**
+   * The drop zone of an image page, the size of the one on the upload page.
+   * A click, Enter or Space opens the picker, a file can be dropped on the
+   * zone, and an image can be pasted anywhere on the page. onFile gets the
+   * File; nothing leaves the browser until the form is sent.
+   */
+  function imageDrop(zone, input, onFile) {
+    function take(file) {
+      if (file) { onFile(file); }
+    }
+    zone.addEventListener('click', function () { input.click(); });
+    zone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', function () {
+      take(input.files && input.files[0]);
+      input.value = '';
+    });
+    ['dragenter', 'dragover'].forEach(function (name) {
+      zone.addEventListener(name, function (e) {
+        if (!hasFiles(e)) { return; }
+        e.preventDefault();
+        zone.classList.add('is-over');
+      });
+    });
+    zone.addEventListener('dragleave', function () { zone.classList.remove('is-over'); });
+    zone.addEventListener('drop', function (e) {
+      zone.classList.remove('is-over');
+      if (!hasFiles(e)) { return; }
+      e.preventDefault();
+      take(e.dataTransfer.files[0]);
+    });
+    window.addEventListener('paste', function (e) {
+      var items = (e.clipboardData && e.clipboardData.items) || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
+          var blob = items[i].getAsFile();
+          if (blob) {
+            e.preventDefault();
+            take(new File([blob], 'pasted.' + (blob.type.split('/')[1] || 'png'), { type: blob.type }));
+          }
+          return;
+        }
+      }
+    });
+  }
+
+  /** Width and height of an image file, read by the browser, or null. */
+  function imageSize(file) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var image = new Image();
+      image.onload = function () {
+        URL.revokeObjectURL(url);
+        resolve({ width: image.naturalWidth, height: image.naturalHeight, url: URL.createObjectURL(file) });
+      };
+      image.onerror = function () {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      image.src = url;
+    });
+  }
+
   /** Comma, semicolon or tab, whichever the first line holds most of. */
   function guessDelimiter(text) {
     var first = String(text).split(/\r?\n/, 1)[0] || '';
@@ -331,11 +425,15 @@
     make: make,
     clear: clear,
     post: post,
+    postFile: postFile,
     stored: stored,
     showError: showError,
     showStored: showStored,
     busy: busy,
+    bytes: bytes,
     fileInto: fileInto,
+    imageDrop: imageDrop,
+    imageSize: imageSize,
     guessDelimiter: guessDelimiter,
     parseCsv: parseCsv,
     parseTable: parseTable

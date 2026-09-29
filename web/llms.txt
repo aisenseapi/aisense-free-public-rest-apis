@@ -58,6 +58,9 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Table matching guide: https://aisense.no/free-table-matching-api
 - JSON formatter guide: https://aisense.no/free-json-formatter-api
 - JSON validator guide: https://aisense.no/free-json-validator-api
+- Image endpoints for JPEG, PNG and WebP, each storing its result in Storage for 24 hours: https://aisense.no/free-public-apis#images
+- Image converter guide: https://aisense.no/free-image-converter-api
+- Image compression guide: https://aisense.no/free-image-compression-api
 
 ## Products
 
