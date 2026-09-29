@@ -189,7 +189,9 @@
       <textarea id="tool-input" spellcheck="false" aria-describedby="tool-input-help">customer_id;name
 00123;Nordlys AS
 00456;Fjord &amp; Fjell</textarea>
-      <small id="tool-input-help">The first line names the columns. Or choose a file: <input type="file" id="tool-file" accept=".csv,.tsv,.txt,text/csv,text/plain"></small>
+      <small id="tool-input-help">The first line names the columns.</small>
+      <div class="tool-drop" id="tool-drop" role="button" tabindex="0"><strong>Drop a CSV file here</strong> <small>or click to choose one</small></div>
+      <input type="file" id="tool-file" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden>
     </div>
     <div class="tool-options">
       <div class="tool-field">
@@ -334,7 +336,7 @@
     var guess = T.guessDelimiter(input.value);
     delimiter.value = guess === '\t' ? 'tab' : guess;
   });
-  T.fileInto(document.getElementById('tool-file'), input);
+  T.fileInto(document.getElementById('tool-drop'), document.getElementById('tool-file'), input);
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();

@@ -170,18 +170,87 @@
     });
   }
 
-  /** Read a chosen file as text into a textarea. */
-  function fileInto(input, textarea) {
-    input.addEventListener('change', function () {
-      var file = input.files && input.files[0];
+  function hasFiles(event) {
+    var types = event.dataTransfer && event.dataTransfer.types;
+    return !!types && Array.prototype.indexOf.call(types, 'Files') !== -1;
+  }
+
+  /**
+   * Bytes to text. A file that is not valid UTF-8 is read as Windows-1252,
+   * which is what a spreadsheet saving CSV on a Norwegian Windows machine
+   * usually writes, so the letters arrive as letters and not as replacement
+   * characters.
+   */
+  function decode(buffer) {
+    try {
+      return { text: new TextDecoder('utf-8', { fatal: true }).decode(buffer), legacy: false };
+    } catch (e) {
+      return { text: new TextDecoder('windows-1252').decode(buffer), legacy: true };
+    }
+  }
+
+  /**
+   * A small drop zone under a textarea, like the one on the upload page. A
+   * click, Enter or Space opens the file picker, and a file dropped on the
+   * zone or on the textarea is read into the textarea. Nothing leaves the
+   * browser until the form is sent.
+   */
+  function fileInto(zone, input, textarea) {
+    var note = zone.querySelector('small');
+
+    function say(text, bad) {
+      if (note) { note.textContent = text; }
+      zone.classList.toggle('is-bad', !!bad);
+    }
+
+    function read(file) {
       if (!file) { return; }
-      file.text().then(function (text) {
-        textarea.value = text;
+      if (file.size > LIMIT) {
+        say(file.name + ' is ' + bytes(file.size) + '. One request takes at most 256 KiB.', true);
+        return;
+      }
+      file.arrayBuffer().then(function (buffer) {
+        var result = decode(buffer);
+        textarea.value = result.text;
         textarea.dispatchEvent(new Event('input'));
+        say('Read ' + file.name + ', ' + bytes(file.size) + '.'
+          + (result.legacy ? ' It is not UTF-8, so it was read as Windows-1252.' : ''), false);
+      }, function () {
+        say('The browser could not read ' + file.name + '.', true);
       });
+    }
+
+    zone.addEventListener('click', function () { input.click(); });
+    zone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+    input.addEventListener('change', function () {
+      read(input.files && input.files[0]);
       input.value = '';
     });
+    [zone, textarea].forEach(function (target) {
+      ['dragenter', 'dragover'].forEach(function (name) {
+        target.addEventListener(name, function (e) {
+          if (!hasFiles(e)) { return; }
+          e.preventDefault();
+          zone.classList.add('is-over');
+        });
+      });
+      target.addEventListener('dragleave', function () { zone.classList.remove('is-over'); });
+      target.addEventListener('drop', function (e) {
+        zone.classList.remove('is-over');
+        if (!hasFiles(e)) { return; }
+        e.preventDefault();
+        read(e.dataTransfer.files[0]);
+      });
+    });
   }
+
+  // A file dropped anywhere else would make the browser open it and leave
+  // the page. Text dragged into a textarea still drops as usual.
+  ['dragover', 'drop'].forEach(function (name) {
+    window.addEventListener(name, function (e) { if (hasFiles(e)) { e.preventDefault(); } });
+  });
 
   /** Comma, semicolon or tab, whichever the first line holds most of. */
   function guessDelimiter(text) {
@@ -206,7 +275,7 @@
     var cell = '';
     var quoted = false;
     var i = 0;
-    text = String(text).replace(/^﻿/, '');
+    text = String(text).replace(/^\uFEFF/, '');
     while (i < text.length) {
       var c = text[i];
       if (quoted) {

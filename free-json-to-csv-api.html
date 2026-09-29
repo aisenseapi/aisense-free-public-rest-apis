@@ -190,7 +190,9 @@
   {"customer_id": "00123", "name": "Nordlys AS", "active": true},
   {"customer_id": "00456", "name": "Fjord &amp; Fjell", "active": false}
 ]</textarea>
-      <small id="tool-input-help">A list of flat objects, or an object with <code>rows</code>. Or choose a file: <input type="file" id="tool-file" accept=".json,application/json"></small>
+      <small id="tool-input-help">A list of flat objects, or an object with <code>rows</code>.</small>
+      <div class="tool-drop" id="tool-drop" role="button" tabindex="0"><strong>Drop a JSON file here</strong> <small>or click to choose one</small></div>
+      <input type="file" id="tool-file" accept=".json,application/json" hidden>
     </div>
     <div class="tool-options">
       <div class="tool-field">
@@ -363,7 +365,7 @@
     }
   }
 
-  T.fileInto(document.getElementById('tool-file'), input);
+  T.fileInto(document.getElementById('tool-drop'), document.getElementById('tool-file'), input);
   input.addEventListener('input', detect);
 
   form.addEventListener('submit', function (event) {
