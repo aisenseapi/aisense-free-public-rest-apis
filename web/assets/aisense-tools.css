@@ -1,5 +1,5 @@
-/* Shared styles for the conversion tool pages: JSON to CSV, CSV to JSON,
-   table matching, JSON formatter and JSON validator. */
+/* Shared styles for the tool pages: JSON to CSV, CSV to JSON, table
+   matching, the JSON formatter and validator, and the image tools. */
 
 .tool-lead-api { margin: 1.2rem 0 0; }
 .tool-lead-api .api-window { margin: .6rem 0 0; }
@@ -168,6 +168,28 @@
   border: 1px solid var(--border);
 }
 .tool-noscript { border-left: 4px solid var(--warn-border); background: var(--warn-bg); padding: .9rem 1rem; }
+/* The metadata viewer: what an image gives away, most sensitive first. */
+.tool-findings { margin: .2rem 0 .8rem; }
+.tool-findings ul { margin: .3rem 0 .4rem; padding-left: 1.2rem; }
+.tool-findings li { margin: .2rem 0; font-size: .9rem; }
+.tool-findings li.is-high strong { color: #b91c1c; }
+.tool-findings li.is-medium strong { color: #b45309; }
+/* The colour palette: a swatch per colour with its hex and share. */
+.tool-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: .6rem; margin: .4rem 0 .8rem; }
+.tool-swatch { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
+.tool-swatch span { display: block; height: 3.2rem; }
+.tool-swatch code { display: block; padding: .35rem .55rem 0; font-family: var(--mono); font-size: .82rem; color: var(--ink); }
+.tool-swatch small { display: block; padding: .1rem .55rem .45rem; font-size: .78rem; color: var(--muted); }
+.tool-placeholder { width: 8rem; height: auto; vertical-align: middle; margin-left: .4rem; border: 1px solid var(--border); border-radius: 6px; }
+.tool-swatches-static { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 1rem; }
+.tool-swatch-static {
+  padding: .45rem .7rem;
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: .8rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
+}
 @media (max-width: 720px) {
   .tool-card { padding: 1rem; }
   .tool-grid { grid-template-columns: 1fr; }

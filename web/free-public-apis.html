@@ -156,8 +156,12 @@
     <a href="/free-table-matching-api"><strong>Table Matching API</strong><span>Compare two tables on key columns.</span></a>
     <a href="/free-json-formatter-api"><strong>JSON Formatter API</strong><span>Pretty print or minify, numbers untouched.</span></a>
     <a href="/free-json-validator-api"><strong>JSON Validator API</strong><span>Check JSON syntax and keep the report.</span></a>
-    <a href="/free-image-converter-api"><strong>Image Converter API</strong><span>WebP, PNG and JPEG, with EXIF removed.</span></a>
+    <a href="/free-image-converter-api"><strong>Image Converter API</strong><span>HEIC, WebP, PNG and JPEG, with EXIF removed.</span></a>
     <a href="/free-image-compression-api"><strong>Image Compression API</strong><span>A smaller file in the same format.</span></a>
+    <a href="/free-image-metadata-viewer-api"><strong>Image Metadata API</strong><span>EXIF, GPS and XMP, with a privacy summary.</span></a>
+    <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
+    <a href="/free-image-color-palette-api"><strong>Colour Palette API</strong><span>Dominant colours, average and a placeholder.</span></a>
+    <a href="/free-favicon-generator-api"><strong>Favicon Generator API</strong><span>favicon.ico, PNG icons and a manifest as a ZIP.</span></a>
     <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512 and CRC32.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
@@ -478,8 +482,8 @@ Response: Hello</code></pre>
 <section id="images" aria-labelledby="images-heading">
 <h2 id="images-heading">Images</h2>
 
-<p>Both image endpoints are <code>POST</code> with <code>multipart/form-data</code>: the image in a field named <code>file</code>, a JPEG, PNG or WebP of at most 10 MB and 25 megapixels, and the options as form fields. Like the Convert endpoints, they store the result in <a href="/free-public-api-storage-api-endpoint">Storage</a> for 24 hours and answer with the Storage fields, plus <code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_format</code> and <code>input_bytes</code>.</p>
-<p>Every result is turned upright from its EXIF orientation, and EXIF, XMP, IPTC and comments are removed. The colour profile is kept. ImageMagick does the work in a sandbox without network access, two images at a time.</p>
+<p>All six image endpoints are <code>POST</code> with <code>multipart/form-data</code>: the image in a field named <code>file</code>, a JPEG, PNG or WebP of at most 10 MB, and the options as form fields. <code>image_convert</code> also reads HEIC. Like the Convert endpoints, they store the result in <a href="/free-public-api-storage-api-endpoint">Storage</a> for 24 hours and answer with the Storage fields, plus <code>operation</code> and what the result is.</p>
+<p><code>image_convert</code>, <code>image_compress</code>, <code>image_colors</code> and <code>image_favicon</code> decode the image, so it may be at most 25 megapixels. ImageMagick does that work in a sandbox without network access, two images at a time. Every converted image is turned upright, and EXIF, XMP, IPTC and comments are removed while the colour profile is kept. <code>image_metadata</code> and <code>image_strip</code> only read and rewrite the file, so they have no pixel limit and never change a pixel.</p>
 <p>The answer to the image_convert example below, from a test run with a test image of 1600 x 1200 pixels. The id, the expiry and the sizes differ from call to call and image to image:</p>
 <pre><code>{
   "storage_id": "1ddd4269-b51c-4209-a4de-6908926f672b",
@@ -501,7 +505,7 @@ Response: Hello</code></pre>
 <article class="endpoint">
 <h3>Image Convert REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/image_convert</span></p>
-<p>Converts between JPEG, PNG and WebP. <code>format</code> is required. <code>quality</code>, 40 to 95 and 82 by default, applies to JPEG and WebP, and <code>lossless=true</code> makes a lossless WebP. Transparent pixels become white in a JPEG. <a href="/free-image-converter-api">Guide and browser tool</a>.</p>
+<p>Converts between JPEG, PNG and WebP, and reads HEIC from an iPhone, turned the way the phone stored it. <code>format</code> is required. <code>quality</code>, 40 to 95 and 82 by default, applies to JPEG and WebP, and <code>lossless=true</code> makes a lossless WebP. Transparent pixels become white in a JPEG. <a href="/free-image-converter-api">Guide and browser tool</a>.</p>
 <pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
   -F "file=@photo.jpg" \
   -F "format=webp"</code></pre>
@@ -514,6 +518,41 @@ Response: Hello</code></pre>
 <pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_compress \
   -F "file=@photo.jpg" \
   -F "quality=70"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Image Metadata REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/image_metadata</span></p>
+<p>Reports what an image carries besides its pixels: EXIF with the GPS position in decimal degrees, XMP, IPTC, the colour profile, comments, thumbnails and data after the image, with a privacy summary. The report is stored as <code>metadata.json</code>, and the answer adds <code>format</code>, <code>width</code>, <code>height</code>, <code>gps</code> and <code>findings</code>. <a href="/free-image-metadata-viewer-api">Guide and browser tool</a>.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_metadata \
+  -F "file=@photo.jpg"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Image Strip REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/image_strip</span></p>
+<p>Removes EXIF, GPS, XMP, IPTC and comments without saving the image again: the image data is copied byte for byte. The colour profile is kept, and so is the orientation, written back alone. The answer adds <code>removed</code> and <code>kept</code>. <a href="/free-exif-remover-api">Guide and browser tool</a>.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_strip \
+  -F "file=@photo.jpg"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Image Colors REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/image_colors</span></p>
+<p>The dominant colours of an image with the share each covers, the average colour and a 16 pixel placeholder as a data URI, stored as <code>colors.json</code>. <code>count</code> is 2 to 16, and 8 by default. The answer adds <code>average</code>, <code>dominant</code> and <code>count</code>. <a href="/free-image-color-palette-api">Guide and browser tool</a>.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_colors \
+  -F "file=@photo.jpg" \
+  -F "count=6"</code></pre>
+</article>
+
+<article class="endpoint">
+<h3>Image Favicon REST API Endpoint</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/image_favicon</span></p>
+<p>A ZIP with favicon.ico, PNG icons from 16 to 512 pixels, an iOS icon, a web manifest and the head tags. <code>crop</code> is <code>fit</code>, <code>trim</code> or <code>center</code>, and <code>name</code> goes into the manifest. The answer adds <code>files</code>, <code>crop</code> and <code>upscaled</code>. <a href="/free-favicon-generator-api">Guide and browser tool</a>.</p>
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/image_favicon \
+  -F "file=@logo.png" \
+  -F "crop=trim" \
+  -F "name=Example site"</code></pre>
 </article>
 </section>
 
@@ -896,7 +935,7 @@ response = client.chat.completions.create(
 <h3>Convert</h3>
 <div class="related-api-grid"><a href="/free-json-to-csv-api">Free JSON to CSV API<span>Records to a CSV file</span></a><a href="/free-csv-to-json-api">Free CSV to JSON API<span>Every cell stays text</span></a><a href="/free-table-matching-api">Free Table Matching API<span>Matched, missing and ambiguous rows</span></a><a href="/free-json-formatter-api">Free JSON Formatter API<span>Only the whitespace changes</span></a><a href="/free-json-validator-api">Free JSON Validator API<span>A stored report for every check</span></a></div>
 <h3>Images</h3>
-<div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>WebP, PNG and JPEG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a></div>
+<div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>HEIC, WebP, PNG and JPEG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a><a href="/free-image-metadata-viewer-api">Free Image Metadata API<span>EXIF, GPS and XMP</span></a><a href="/free-exif-remover-api">Free EXIF Remover API<span>Pixels untouched</span></a><a href="/free-image-color-palette-api">Free Colour Palette API<span>Dominant colours</span></a><a href="/free-favicon-generator-api">Free Favicon Generator API<span>A ZIP of icons</span></a></div>
 <h3>Hash</h3>
 <div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
@@ -949,6 +988,10 @@ response = client.chat.completions.create(
 <tr><td>Convert</td><td><code>/json_validate</code></td><td>POST</td><td>Storage fields, <code>content_type</code>, <code>filename</code>, <code>operation</code>, <code>valid</code></td></tr>
 <tr><td>Images</td><td><code>/image_convert</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_format</code>, <code>input_bytes</code></td></tr>
 <tr><td>Images</td><td><code>/image_compress</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_format</code>, <code>input_bytes</code></td></tr>
+<tr><td>Images</td><td><code>/image_metadata</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>gps</code>, <code>findings</code></td></tr>
+<tr><td>Images</td><td><code>/image_strip</code></td><td>POST</td><td>Storage fields, <code>format</code>, <code>width</code>, <code>height</code>, <code>input_bytes</code>, <code>removed</code>, <code>kept</code></td></tr>
+<tr><td>Images</td><td><code>/image_colors</code></td><td>POST</td><td>Storage fields, <code>average</code>, <code>dominant</code>, <code>count</code></td></tr>
+<tr><td>Images</td><td><code>/image_favicon</code></td><td>POST</td><td>Storage fields, <code>files</code>, <code>crop</code>, <code>upscaled</code></td></tr>
 <tr><td>Hash</td><td><code>/md5_hash</code></td><td>POST</td><td><code>md5_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha1_hash</code></td><td>POST</td><td><code>sha1_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>
