@@ -661,7 +661,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
   gap: clamp(42px, 8vw, 105px);
   border-bottom: 1px solid var(--border);
 }
-.api-detail-hero h1 { margin-bottom: 20px; font-size: clamp(40px, 5.5vw, 64px); letter-spacing: -0.035em; }
+.api-detail-hero h1 { margin-bottom: 20px; font-size: clamp(40px, 5.5vw, 64px); letter-spacing: -0.035em; overflow-wrap: break-word; hyphens: auto; }
 .api-detail-hero .lede { margin-bottom: 24px; }
 .api-detail-hero .badges { margin-bottom: 0; }
 
@@ -966,12 +966,14 @@ td code { white-space: nowrap; }
   .connection-list { grid-template-columns: 1fr; }
   .connection-list article:last-child { grid-column: auto; }
   .article-cta .button-row { align-items: flex-start; }
-  .api-detail-hero, .api-doc-layout { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr), not 1fr: a plain 1fr column never gets narrower than its
+     widest code block, and the page scrolls sideways on a phone. */
+  .api-detail-hero, .api-doc-layout { grid-template-columns: minmax(0, 1fr); }
   .api-detail-hero { padding-top: 48px; gap: 38px; }
   .endpoint-banner { box-shadow: 9px 9px 0 var(--tint); }
   .on-this-page { display: none; }
   .api-doc-layout { padding-top: 42px; }
-  .use-case-grid, .related-api-grid, .endpoint-topic-grid { grid-template-columns: 1fr; }
+  .use-case-grid, .related-api-grid, .endpoint-topic-grid { grid-template-columns: minmax(0, 1fr); }
   .field-table td:first-child { white-space: normal; }
 }
 

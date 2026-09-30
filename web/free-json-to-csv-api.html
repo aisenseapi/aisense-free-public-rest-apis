@@ -235,7 +235,7 @@
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/json_to_csv</code> with <code>Content-Type: application/json</code>.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>columns</code></td><td>yes</td><td>List of column names, unique and not empty.</td></tr>
@@ -243,12 +243,12 @@
     <tr><td><code>delimiter</code></td><td>no</td><td><code>","</code> (default), <code>";"</code> or <code>"\t"</code>.</td></tr>
     <tr><td><code>spreadsheet_safe</code></td><td>no</td><td><code>true</code> or <code>false</code> (default).</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The result is stored as <code>result.csv</code>. Read it with a GET on <code>storage_url</code>; Storage serves it as <code>application/octet-stream</code>, so a browser saves it as a file.</p>
 
 <h2 id="storage">The answer is a Storage link</h2>
 <p>The endpoint never sends the converted file in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns the bytes.</td></tr>
@@ -257,7 +257,7 @@
     <tr><td><code>content_type</code>, <code>filename</code></td><td>What the result is and the name to save it under.</td></tr>
     <tr><td><code>operation</code></td><td>The endpoint that made it.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The id and the expiry in the examples on this page come from a test run and are different on every call. The hash and the size are what the example request gives every time.</p>
 <p>Anyone with the link can read the result until it expires, so do not send personal or confidential data. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
@@ -270,7 +270,7 @@
 
 <h2 id="errors">Errors</h2>
 <p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
-<table>
+<div class="table-wrap"><table>
   <thead><tr><th>Status</th><th>When</th></tr></thead>
   <tbody>
     <tr><td><code>400</code></td><td>The body is not a JSON object, a field is missing, unknown or has the wrong type, or the input breaks the rules above.</td></tr>
@@ -280,7 +280,7 @@
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h2 id="faq">Questions</h2>
 
