@@ -93,13 +93,18 @@
   border-radius: 10px;
   box-sizing: border-box;
 }
-.tool-card textarea:focus, .tool-card select:focus, .tool-card input[type="text"]:focus {
+/* Every field you type in looks the same whatever its type, so a number
+   field is not left with the browser's own border. */
+.tool-card textarea:focus, .tool-card select:focus,
+.tool-card input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]):focus {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
   background: #fff;
 }
-.tool-card select, .tool-card input[type="text"] {
+.tool-card select, .tool-card input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]) {
+  min-height: 2.5rem;
   padding: .5rem .6rem;
+  font-family: inherit;
   font-size: .9rem;
   color: var(--ink);
   background: #fff;
@@ -108,6 +113,8 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+.tool-card input[type="number"] { width: 8rem; }
+.tool-card input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--blue); }
 .tool-options { display: flex; flex-wrap: wrap; gap: 1rem 1.4rem; align-items: flex-end; margin-bottom: 1rem; }
 .tool-options .tool-field { margin-bottom: 0; }
 .tool-check { display: flex; gap: .45rem; align-items: center; font-size: .9rem; color: var(--body); }

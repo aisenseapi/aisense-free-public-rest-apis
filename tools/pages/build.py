@@ -1,4 +1,4 @@
-"""Regenerate the image tool pages, the two image guides and the /decide and
+"""Regenerate the image tool pages, the three image guides and the /decide and
 /chaos endpoint pages in web/.
 
 Run from anywhere: python tools/pages/build.py
@@ -19,6 +19,7 @@ RUNS = [
      os.path.join(DATA, 'results-heic.json'), os.path.join(DATA, 'results-resize.json')],
     ['make_post_photo_location.py', WEB, os.path.join(DATA, 'results-more.json')],
     ['make_post_favicon.py', WEB, os.path.join(DATA, 'results-more.json')],
+    ['make_post_convert.py', WEB, DATA],
     ['make_logic_pages.py', WEB, os.path.join(DATA, 'decide-examples.json')],
 ]
 

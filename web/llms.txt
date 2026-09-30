@@ -71,6 +71,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Colour palette guide: https://aisense.no/free-image-color-palette-api
 - Favicon generator guide: https://aisense.no/free-favicon-generator-api
 - Guide to favicon sizes and the files a website needs: https://aisense.no/favicon-sizes-and-the-files-a-website-needs
+- Guide to converting HEIC, WebP, PNG and JPG, and making images smaller: https://aisense.no/convert-heic-webp-png-and-jpg-images
 
 ## Products
 
