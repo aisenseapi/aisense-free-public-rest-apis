@@ -40,6 +40,7 @@ RELATED = '''<h2 id="related">Related tools</h2>
 <ul>
   <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li>Guide: <a href="/convert-heic-webp-png-and-jpg-images">how to convert HEIC, WebP, PNG and JPG, and make images smaller</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
   <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
@@ -313,7 +314,7 @@ def page(slug, title, description, h1, lede, badges, operation, tool_html, body_
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css">
-<link rel="stylesheet" href="/assets/aisense-tools.css">
+<link rel="stylesheet" href="/assets/aisense-tools.css?v=20260930">
 
 <script type="application/ld+json">
 %(ld)s
