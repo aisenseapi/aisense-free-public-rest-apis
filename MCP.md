@@ -1,7 +1,8 @@
 # AI SENSE Free Public MCP Server
 
-Production MCP discovery returned 32 workflow tools and three read-only
-resources on 23 September 2026. The deployed Queue REST smoke test passes 21
+Production MCP discovery returned 60 tools and three read-only resources on
+30 September 2026: 32 workflow tools and 28 tools that run the public REST
+endpoints. The deployed Queue REST smoke test passes 21
 checks. Use `tools/list` to inspect the server you connect to.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
@@ -10,11 +11,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.8.2`. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version
-`1.8.1` as active, verified on 15 September 2026, so the registry is one
-release behind the server until the next publish. Both numbers are the server
-release version, separate from the agent guide resource version.
+The server reports version `1.9.0`. The official MCP Registry lists
+`com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
+published 30 September 2026. Both numbers are the server release version,
+separate from the agent guide resource version, which is 1.4.0.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per 24 hours. This limit is shared with the public REST API and A2A.
@@ -95,9 +95,56 @@ proxy these tools either.
 | `read_dns_name` | Reads what a name points at and when it expires |
 | `update_dns_name` | Moves a name to another address without moving its expiry |
 | `delete_dns_name` | Removes a name before it expires |
+| `encode_data` | Encodes text as Base64, Base32 or Base58, or decodes it back to text or base64 bytes |
+| `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512 or CRC32 |
+| `verify_hash` | Checks text against a hash, with the algorithm read from the hash |
+| `generate_random` | Makes a random number, colour, GUID, password or passphrase |
+| `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
+| `convert_timestamp` | Converts a Unix time or a date text into other forms |
+| `list_timezones` | Lists timezones, optionally those at one UTC offset |
+| `lookup_network` | Reads your address or User-Agent, locates an IPv4 address or resolves a domain |
+| `validate_email` | Checks the syntax and mail records of an email address |
+| `validate_value` | Checks an IBAN, a card, a Norwegian organisation or account number, or a phone number |
+| `slugify_text` | Turns text into a URL slug |
+| `jwt_token` | Signs or verifies an HS256 JSON Web Token |
+| `create_qr_code` | Makes a QR code and answers the image |
+| `read_qr_code` | Reads the QR codes in an image |
+| `html_to_pdf` | Renders HTML to a PDF stored for 24 hours |
+| `crypto_wallet` | Reads a Bitcoin, Ethereum or Solana balance, or makes a test key pair |
+| `json_csv_convert` | Converts JSON rows to CSV or CSV to JSON rows, stored for 24 hours |
+| `json_check` | Formats or validates JSON text, stored for 24 hours |
+| `match_tables` | Matches the rows of two tables on key columns, stored for 24 hours |
+| `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |
+| `decide` | Answers typed questions from rules with probabilities and an action |
+| `simulate_failure` | Gives a chosen status, delay or broken answer on purpose |
+| `schedule_webhook` | Schedules a POST to a public URL, once or repeatedly |
+| `read_webhook_schedule` | Reads a scheduled webhook or waits for a change |
+| `cancel_webhook_schedule` | Cancels a scheduled webhook that has not finished |
+| `service_health` | Checks that the service answers |
+| `store_file` | Stores a file given as base64 for 24 hours and answers its link |
+| `read_stored_file` | Reads a stored object, image or file back |
 
 Each MCP tool has a schema returned by discovery. The REST function-calling
 catalog is a separate integration surface, not a copy of this list.
+
+## REST endpoints as tools
+
+The 28 tools from `encode_data` to `read_stored_file` run the same endpoint
+code as REST, in the same process, so they give the same answers, limits and
+error texts. An error result keeps the REST status in `status_code`. Related
+endpoints share one tool with a parameter, such as `hash_data` with
+`algorithm`, and `process_image` covers all seven image endpoints.
+
+Files go in as base64, up to about 190 KB because an MCP request is at most
+256 KB, or as a `storage_id`: store a larger file with REST
+`POST /services/v1/storage` first, or pass the `storage_id` an earlier tool
+returned, which lets image calls be chained. Tools that make a file store it
+for 24 hours and answer with its `storage_id` and `storage_url`, and
+`read_stored_file` returns it, as an image or an embedded resource of at most
+4 MB. The server never fetches a file from an address a caller gives it.
+
+REST and MCP share one budget of 5000 requests per client address per day,
+and one tool call counts once.
 
 ## Available resources
 

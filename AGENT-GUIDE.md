@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.3.2
+Resource version 1.4.0
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -21,10 +21,16 @@ This public server needs no account, API key or authentication header. Its tools
 | Ask one person or a group for a decision | Human Approval | One-use response links |
 | Hand off a value or short link | Temporary Data or URL | Readable by anyone holding the ID or link |
 | A public name for an address, for a day | Temporary DNS Name | A DNS record only: no tunnel, no hosting, no certificate |
+| Encode, hash, a random value, a time format | Utility tools | Computed on request, nothing stored |
+| Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
+| Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
+| Decide from rules you send | decide | Probabilities and an action, nothing stored |
+| Test how a client handles a failure | simulate_failure | A chosen status, delay or broken answer |
+| Call a URL later, once or repeatedly | Scheduled webhook | Public URLs only, within 24 hours |
 
 ## Tool catalog
 
-Catalog size: 32 MCP tools.
+Catalog size: 60 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -59,9 +65,37 @@ Catalog size: 32 MCP tools.
 - `read_dns_name` - Read what a name points at and when it expires.
 - `update_dns_name` - Move a name to another address without moving its expiry.
 - `delete_dns_name` - Remove a name before it expires.
+- `encode_data` - Encode text as Base64, Base32 or Base58, or decode it.
+- `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512 or CRC32.
+- `verify_hash` - Check text against a hash, with the algorithm read from the hash.
+- `generate_random` - Make a random number, colour, GUID, password or passphrase.
+- `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
+- `convert_timestamp` - Convert a Unix time or a date text into other forms.
+- `list_timezones` - List timezones, optionally those at one UTC offset.
+- `lookup_network` - Read your address or User-Agent, locate an IPv4 address, or resolve a domain.
+- `validate_email` - Check the syntax and mail records of an email address.
+- `validate_value` - Check an IBAN, a card, a Norwegian organisation or account number, or a phone number.
+- `slugify_text` - Turn text into a URL slug.
+- `jwt_token` - Sign or verify an HS256 JSON Web Token.
+- `create_qr_code` - Make a QR code image.
+- `read_qr_code` - Read the QR codes in an image.
+- `html_to_pdf` - Render HTML to a PDF stored for 24 hours.
+- `crypto_wallet` - Read a Bitcoin, Ethereum or Solana balance, or make a test key pair.
+- `json_csv_convert` - Convert JSON rows to CSV or CSV to JSON rows.
+- `json_check` - Format or validate JSON text.
+- `match_tables` - Match the rows of two tables on key columns.
+- `process_image` - Convert, compress, resize, inspect or strip an image, or make favicons from it.
+- `decide` - Answer typed questions from rules with probabilities and an action.
+- `simulate_failure` - Get a chosen status, delay or broken answer on purpose.
+- `schedule_webhook` - Schedule a POST to a public URL, once or repeatedly.
+- `read_webhook_schedule` - Read a scheduled webhook or wait for a change.
+- `cancel_webhook_schedule` - Cancel a scheduled webhook that has not finished.
+- `service_health` - Check that the service answers.
+- `store_file` - Store a file for 24 hours and get its link.
+- `read_stored_file` - Read a stored object, image or file back.
 <!-- mcp-tool-catalog:end -->
 
-Use `tools/list` for the exact input schemas. This catalog lists MCP tools, not the larger REST helper catalog. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
+Use `tools/list` for the exact input schemas. Every public REST endpoint can be reached through one of these tools. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
 
 ## Security and retries
 
@@ -156,3 +190,11 @@ REST paths:
 - GET https://aisenseapi.com/services/v1/dns/{slug} to read
 - POST https://aisenseapi.com/services/v1/dns/{slug}/update/{ip} to move it, with the token
 - POST https://aisenseapi.com/services/v1/dns/{slug}/delete to remove it, with the token
+
+## REST endpoints as tools
+
+The tools from `encode_data` to `read_stored_file` run the same code as the REST endpoints, so they give the same answers, limits and error texts. An error keeps the REST status in `status_code`. REST and MCP share one budget of 5000 requests per client address per day.
+
+Files go in as base64, up to about 190 KB through MCP, or as a `storage_id`. Store a larger file with REST POST https://aisenseapi.com/services/v1/storage first, or pass the `storage_id` an earlier tool returned, which lets image calls be chained. Tools that make a file store it for 24 hours and answer with its `storage_id` and `storage_url`, and `read_stored_file` returns it. Anyone holding a storage link can read the object, so never store secrets or personal data.
+
+`crypto_wallet` key pairs pass through this service. Use them for tests and small amounts only. `schedule_webhook` answers with a `schedule_id` that reads and cancels the job, so keep it private. `simulate_failure` returns an error result for statuses of 400 and above, which is the point of the tool.
