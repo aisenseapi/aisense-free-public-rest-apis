@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Public MCP Server for AI Agents | AI SENSE</title>
-<meta name="description" content="32 workflow tools, including Agent Queue and temporary DNS names, confirmed by production discovery on 24 September 2026. No account or API key.">
+<meta name="description" content="60 tools, including Agent Queue and temporary DNS names, confirmed by production discovery on 30 September 2026. No account or API key.">
 <link rel="canonical" href="https://aisense.no/free-public-mcp-server">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Public MCP Server for AI Agents">
-<meta property="og:description" content="32 workflow tools and three read-only resources confirmed by production discovery on 24 September 2026.">
+<meta property="og:description" content="60 tools and three read-only resources confirmed by production discovery on 30 September 2026.">
 <meta property="og:url" content="https://aisense.no/free-public-mcp-server">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
@@ -20,7 +20,7 @@
     {
       "@type": "TechArticle",
       "headline": "Free Public MCP Server for AI Agents",
-      "description": "Production discovery confirmed 32 workflow tools and three read-only resources on 24 September 2026.",
+      "description": "Production discovery confirmed 60 tools and three read-only resources on 30 September 2026.",
       "url": "https://aisense.no/free-public-mcp-server",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
@@ -67,7 +67,7 @@ response = client.responses.create(
         {
             "type": "mcp",
             "server_label": "aisense",
-            "server_description": "Public AI SENSE workflow tools.",
+            "server_description": "Public AI SENSE tools.",
             "server_url": "https://aisenseapi.com/mcp",
             "require_approval": "always",
         }
@@ -77,7 +77,7 @@ response = client.responses.create(
 
 print(response.output_text)</code></pre><p>The example asks for approval before every tool call. Use a per-tool approval policy when your client supports one.</p></section>
 <p>For tool selection, use the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/AGENT-GUIDE.md">canonical agent guide</a>. The <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/AGENT-QUICKSTART.md">agent quickstart</a> includes a complete Queue job and bounded retry decisions. Updating the embedded skill resource requires a separate deployment and verification.</p>
-<section id="tools"><h2>Workflow tools</h2><p>The 24 tools below and the <a href="#queue">eight Agent Queue tools</a> make up the 32-tool catalog confirmed by production discovery on 23 September 2026.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<section id="tools"><h2>Workflow tools</h2><p>The 24 tools below and the <a href="#queue">eight Agent Queue tools</a> are the 32 workflow tools. With the <a href="#rest-tools">28 REST tools</a> the catalog has 60 tools, confirmed by production discovery on 30 September 2026.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>get_current_time</td><td>Date, time and timestamp for a timezone</td></tr>
 <tr><td>generate_uuid</td><td>Random UUID version 4</td></tr>
 <tr><td>shorten_url</td><td>307.fi link with 24-hour expiry</td></tr><tr><td>create_dns_name</td><td>Public hostname for an address, for 24 hours</td></tr><tr><td>read_dns_name</td><td>What a name points at and when it expires</td></tr><tr><td>update_dns_name</td><td>Moves a name to another address, expiry unchanged</td></tr><tr><td>delete_dns_name</td><td>Removes a name before it expires</td></tr>
@@ -98,6 +98,36 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
 <tr><td>complete_lease</td><td>Small reusable result for later callers</td></tr>
 <tr><td>create_agent_inbox</td><td>Disposable mail address the agent can read</td></tr>
 <tr><td>read_agent_inbox</td><td>Cleaned messages with extracted codes and links</td></tr>
+</tbody></table></div></section>
+<section id="rest-tools"><h2>Every REST endpoint as a tool</h2><p>These 28 tools run the same code as the <a href="/free-public-apis">REST endpoints</a>, so they give the same answers, limits and error texts, and an error keeps the REST status in <code>status_code</code>. Files go in as base64, up to about 190 KB, or as a <code>storage_id</code> from <code>store_file</code> or an earlier tool, which lets image calls be chained. Results that are files are stored for 24 hours, and <code>read_stored_file</code> returns them. The server never fetches a file from an address you give it.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<tr><td>encode_data</td><td>Encodes text as Base64, Base32 or Base58, or decodes it back to text or base64 bytes</td></tr>
+<tr><td>hash_data</td><td>Hashes text with MD5, SHA-1, SHA-256, SHA-512 or CRC32</td></tr>
+<tr><td>verify_hash</td><td>Checks text against a hash, with the algorithm read from the hash</td></tr>
+<tr><td>generate_random</td><td>Makes a random number, colour, GUID, password or passphrase</td></tr>
+<tr><td>time_formats</td><td>Reads the time as Unix, microseconds, ISO 8601 and Swatch beats</td></tr>
+<tr><td>convert_timestamp</td><td>Converts a Unix time or a date text into other forms</td></tr>
+<tr><td>list_timezones</td><td>Lists timezones, optionally those at one UTC offset</td></tr>
+<tr><td>lookup_network</td><td>Reads your address or User-Agent, locates an IPv4 address or resolves a domain</td></tr>
+<tr><td>validate_email</td><td>Checks the syntax and mail records of an email address</td></tr>
+<tr><td>validate_value</td><td>Checks an IBAN, a card, a Norwegian organisation or account number, or a phone number</td></tr>
+<tr><td>slugify_text</td><td>Turns text into a URL slug</td></tr>
+<tr><td>jwt_token</td><td>Signs or verifies an HS256 JSON Web Token</td></tr>
+<tr><td>create_qr_code</td><td>Makes a QR code and answers the image</td></tr>
+<tr><td>read_qr_code</td><td>Reads the QR codes in an image</td></tr>
+<tr><td>html_to_pdf</td><td>Renders HTML to a PDF stored for 24 hours</td></tr>
+<tr><td>crypto_wallet</td><td>Reads a Bitcoin, Ethereum or Solana balance, or makes a test key pair</td></tr>
+<tr><td>json_csv_convert</td><td>Converts JSON rows to CSV or CSV to JSON rows, stored for 24 hours</td></tr>
+<tr><td>json_check</td><td>Formats or validates JSON text, stored for 24 hours</td></tr>
+<tr><td>match_tables</td><td>Matches the rows of two tables on key columns, stored for 24 hours</td></tr>
+<tr><td>process_image</td><td>Converts, compresses, resizes, inspects or strips an image, or makes favicons</td></tr>
+<tr><td>decide</td><td>Answers typed questions from rules with probabilities and an action</td></tr>
+<tr><td>simulate_failure</td><td>Gives a chosen status, delay or broken answer on purpose</td></tr>
+<tr><td>schedule_webhook</td><td>Schedules a POST to a public URL, once or repeatedly</td></tr>
+<tr><td>read_webhook_schedule</td><td>Reads a scheduled webhook or waits for a change</td></tr>
+<tr><td>cancel_webhook_schedule</td><td>Cancels a scheduled webhook that has not finished</td></tr>
+<tr><td>service_health</td><td>Checks that the service answers</td></tr>
+<tr><td>store_file</td><td>Stores a file given as base64 for 24 hours and answers its link</td></tr>
+<tr><td>read_stored_file</td><td>Reads a stored object, image or file back</td></tr>
 </tbody></table></div></section>
 <section id="agent-wake"><h2>Resume after an outside event</h2><p><code>create_agent_wake</code> uses the current <code>io.modelcontextprotocol/tasks</code> extension. It returns a task ID at once. The client calls <code>tasks/get</code> until the status reaches <code>completed</code>, <code>failed</code> or <code>cancelled</code>.</p><div class="table-wrap field-table"><table><thead><tr><th>Event</th><th>What completes the task</th></tr></thead><tbody><tr><td>webhook</td><td>The first POST, PUT or PATCH to its wake URL</td></tr><tr><td>human</td><td>A person submits the hosted form</td></tr><tr><td>time</td><td>The task is read after its wake timestamp</td></tr></tbody></table></div><p>Human tasks are created with <code>working</code>. The first status read returns <code>input_required</code> with a URL mode elicitation. The form link can be sent to a person on another device. It is a bearer link and does not verify the reviewer's identity.</p><p>The server supports <code>tasks/get</code>, <code>tasks/update</code> and <code>tasks/cancel</code>. It has no task listing. Task requests repeat the extension capability and send the task ID through <code>MCP-Name</code>.</p><p><a href="/free-public-api-agent-wake-api-endpoint">Read the Agent Wake guide and REST examples</a>.</p></section>
 <section id="heartbeat"><h2>Notice when a worker goes quiet</h2><p><code>create_heartbeat</code> sets an expected check-in interval, a grace period and one action for a missed deadline. The action can call a public webhook or wake an active Agent Wake webhook task.</p><p>Each <code>ping_heartbeat</code> call moves the next deadline. It never extends the fixed 24-hour lifetime. A missed action is attempted once. The Heartbeat ID is a 256-bit bearer secret used for status and ping, and the server offers no listing tool.</p><p><a href="/free-public-api-heartbeat-api-endpoint">Read the Heartbeat API guide</a>.</p></section>
