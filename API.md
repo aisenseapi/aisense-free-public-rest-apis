@@ -3,7 +3,7 @@
 > **Base URL:** `https://aisenseapi.com/services/v1`
 > **Authentication:** No account or API key. Queue operations require role-specific bearer tokens
 > **Cost:** Free
-> **Rate limit:** 5000 requests per IP per 24 hours
+> **Rate limit:** 5000 requests per IP per day, reset at midnight Norwegian time (Europe/Oslo)
 
 This document is the REST reference. The same service answers on two further
 protocols: the remote MCP server at `https://aisenseapi.com/mcp`, and Agent2Agent
@@ -369,10 +369,13 @@ Generates a QR code. The request field is `payload`, with `data` accepted as an 
 ---
 
 ### `POST /qrcode_decode`
-Accepts a Base64 image in the **`payload`** field, or a file upload
-(`qrcode_image` field, `multipart/form-data`). The image is a PNG, JPEG,
-GIF or WebP of at most 10 MB and 25 megapixels. Anything else, a PDF
-included, is refused with 415 before it is opened.
+Accepts a file upload (`qrcode_image` field, `multipart/form-data`) or a
+Base64 image in the **`payload`** field of a JSON body. The image is a PNG,
+JPEG, GIF or WebP of at most 10 MB and 25 megapixels as a file upload. A JSON
+body is at most 256 KiB (262 144 bytes) on every endpoint, and Base64 makes
+the image a third larger, so through `payload` the image can be about 190 KB.
+Send larger images as a file upload. Anything else, a PDF included, is
+refused with 415 before it is opened.
 
 ```json
 // Request
@@ -387,7 +390,7 @@ Several codes in one image come back one per line in the same string.
 | Status | When |
 |--------|------|
 | 400 | No payload, invalid base64, an image that does not open, or no code found |
-| 413 | Over 10 MB or 25 megapixels |
+| 413 | Over 10 MB or 25 megapixels, or a JSON body over 256 KiB |
 | 415 | Not a PNG, JPEG, GIF or WebP |
 | 503 | Two images are being worked on already (with `Retry-After`), or the decoding took more than 45 seconds |
 
@@ -894,7 +897,7 @@ A delay holds a place while it waits, at most four at a time from one address.
 When none is free the answer is a real 503 with `Retry-After: 1`, a `fix` and no
 `X-Chaos`. An unknown path or status is 404 with a `fix` listing the forms, and
 a delay over 10000 is 400. Nothing is stored, and chaos calls count towards the
-5000 requests per IP per 24 hours.
+5000 requests per IP per day.
 [Guide and a client test](https://aisense.no/free-public-api-chaos-api-endpoint).
 
 ---
@@ -1156,8 +1159,8 @@ content removed on notice stops being served at once.
 
 **Limits:** executable files (Windows, Linux and Mac programs, judged on their
 first bytes) are refused with `415` and never stored. Each IP may store 80 MB
-per 24 hours; past that a POST answers `429` until the counter resets at
-midnight UTC. A stored file is returned inline only as an image, audio, video
+per day; past that a POST answers `429` until the counter resets at
+midnight Norwegian time (Europe/Oslo). A stored file is returned inline only as an image, audio, video
 or PDF; anything else, SVG included, comes back as `application/octet-stream`.
 Content reported to abuse@aisense.no as unlawful or abusive is removed on
 notice.
@@ -2343,16 +2346,19 @@ and later scheduled physical cleanup are distinct.
 
 ### Rate limit
 
-The shared counter resets at server midnight through the deployed reset job.
-This is a calendar-day budget, not a rolling per-request 24-hour window.
+The shared counter resets at midnight Norwegian time (Europe/Oslo), which is 22:00 UTC
+in summer and 23:00 UTC in winter, through the deployed reset job. This is a
+calendar-day budget, not a rolling per-request 24-hour window. A `429`
+carries `Retry-After` with the seconds until the reset, and its `fix` says the
+same. The Storage budget of 80 MB per IP address resets at the same time.
 Queue creation has a separate fixed 24-hour quota window.
 
 
-**5000 requests per IP per 24 hours.** Exceeding it returns HTTP 429 in the
+**5000 requests per IP per day.** Exceeding it returns HTTP 429 in the
 same flat error shape as everything else:
 
 ```json
-{ "error": "Too many requests. The limit is 5000 per IP per 24 hours." }
+{ "error": "Too many requests. The limit is 5000 per IP per day." }
 ```
 
 ### CORS
