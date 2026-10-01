@@ -90,10 +90,11 @@
     <li>No account or API key</li>
     <li>No sign-up</li>
     <li>Free</li>
-    <li>5000 requests / IP / 24h</li>
+    <li>5000 requests / IP / day</li>
     <li>CORS enabled</li>
   </ul>
   <p><strong>Base URL:</strong> <code>https://aisenseapi.com/services/v1</code> - Open source client libraries and tests: <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a></p>
+  <p><strong>Rate limit:</strong> 5000 requests per IP address per day, REST and MCP together. The count resets at midnight Norwegian time (Europe/Oslo), which is 22:00 UTC in summer and 23:00 UTC in winter, and a 429 answer carries <code>Retry-After</code> with the seconds until then.</p>
 </div>
 
 <section class="callout" aria-labelledby="mcp-server-heading">

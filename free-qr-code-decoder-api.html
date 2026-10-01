@@ -27,7 +27,7 @@
       "url": "https://aisense.no/free-qr-code-decoder-api",
       "documentation": "https://aisense.no/free-public-api-qr-code-decode-api-endpoint",
       "termsOfService": "https://aisense.no/terms",
-      "description": "Machine to machine endpoint that reads the content out of a QR code or barcode image. POST a file or a base64 image and receive one field, qrcode_content. No API key, no account, 5000 requests per IP per 24 hours.",
+      "description": "Machine to machine endpoint that reads the content out of a QR code or barcode image. POST a file or a base64 image and receive one field, qrcode_content. No API key, no account, 5000 requests per IP per day.",
       "inLanguage": "en",
       "provider": {
         "@type": "Organization",
@@ -58,7 +58,7 @@
         {
           "@type": "Question",
           "name": "Is the free QR code decoder API really free?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. No API key, no account and no sign up. The only limit is 5000 requests per IP address per 24 hours, which is far above any normal machine to machine use." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. No API key, no account and no sign up. The only limit is 5000 requests per IP address per day, which is far above any normal machine to machine use." }
         },
         {
           "@type": "Question",
@@ -227,7 +227,7 @@
       <span>No API key</span>
       <span>No account</span>
       <span>JSON or multipart</span>
-      <span>5000 req / IP / 24h</span>
+      <span>5000 req / IP / day</span>
       <span>Nothing stored</span>
     </div>
   </div>
@@ -280,7 +280,7 @@
 <h2 id="limits">What it does and does not do</h2>
 <ul>
   <li><strong>Nothing is stored.</strong> The image is decoded inside the request and the temporary file is removed in the same call. There is no id and no shareable URL - if you want that, use the <a href="/upload">file uploader</a> instead.</li>
-  <li><strong>PNG, JPEG, GIF or WebP</strong>, at most 10 MB and 25 megapixels. A PDF is refused; send the page as an image instead.</li>
+  <li><strong>PNG, JPEG, GIF or WebP</strong>, at most 10 MB and 25 megapixels. A PDF is refused; send the page as an image instead. This page uploads the file, so the 10 MB applies. Through the API, base64 in a JSON body is limited by the 256 KiB body, about 190 KB of image.</li>
   <li><strong>Every code comes back.</strong> An image with several codes gives each on its own line in the one string.</li>
   <li><strong>Going the other way</strong> is the <a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode endpoint</a>, which turns text into a PNG.</li>
   <li><strong>The full parameter table and error contract</strong> are in the <a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode endpoint reference</a>.</li>

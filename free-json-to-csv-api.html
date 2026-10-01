@@ -61,7 +61,7 @@
           "name": "Is the JSON to CSV API free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day."
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per day, and stored results count against the Storage budget of 80 MB per IP address per day."
           }
         },
         {
@@ -171,7 +171,7 @@
       <span>No account</span>
       <span>JSON in, CSV out</span>
       <span>Stored for 24 hours</span>
-      <span>5000 req / IP / 24h</span>
+      <span>5000 req / IP / day</span>
     </div>
   </div>
 </div>
@@ -277,7 +277,7 @@
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The request, the rows or the result is over a limit.</td></tr>
     <tr><td><code>415</code></td><td>The <code>Content-Type</code> is not <code>application/json</code>.</td></tr>
-    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address per day, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
   </tbody>
 </table></div>
@@ -285,7 +285,7 @@
 <h2 id="faq">Questions</h2>
 
 <h3>Is the JSON to CSV API free?</h3>
-<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per day, and stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
 <h3>Does it keep leading zeros such as 00123?</h3>
 <p>Yes, when the value is sent as a JSON string. Every cell is written as text inside quotes, and nothing is converted to a number.</p>

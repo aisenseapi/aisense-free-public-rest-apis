@@ -61,7 +61,7 @@
           "name": "Is the JSON validator API free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day."
+            "text": "Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per day, and stored reports count against the Storage budget of 80 MB per IP address per day."
           }
         },
         {
@@ -172,7 +172,7 @@
       <span>No account</span>
       <span>Syntax check</span>
       <span>Report for every check</span>
-      <span>5000 req / IP / 24h</span>
+      <span>5000 req / IP / day</span>
     </div>
   </div>
 </div>
@@ -249,7 +249,7 @@
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The request, the rows or the result is over a limit.</td></tr>
     <tr><td><code>415</code></td><td>The <code>Content-Type</code> is not <code>application/json</code>.</td></tr>
-    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address per day, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The result could not be stored. Try again later.</td></tr>
   </tbody>
 </table>
@@ -257,7 +257,7 @@
 <h2 id="faq">Questions</h2>
 
 <h3>Is the JSON validator API free?</h3>
-<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored reports count against the Storage budget of 80 MB per IP address per day.</p>
+<p>Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per day, and stored reports count against the Storage budget of 80 MB per IP address per day.</p>
 
 <h3>Does it check against a JSON Schema?</h3>
 <p>No. It checks syntax only: whether the text is valid JSON.</p>

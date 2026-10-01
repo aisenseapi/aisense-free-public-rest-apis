@@ -202,7 +202,7 @@
 <ul>
   <li><strong>Anything you upload is public.</strong> The URL is unguessable, but it is not a password. Do not upload secrets, credentials or personal data.</li>
   <li><strong>It expires after 24 hours.</strong> This is for handing something over inside a task, not for hosting.</li>
-  <li><strong>The rate limit is 5000 requests per IP per 24 hours</strong>, which no ordinary use of this page will reach.</li>
+  <li><strong>The rate limit is 5000 requests per IP per day</strong>, which no ordinary use of this page will reach.</li>
 </ul>
 
 <h2 id="api">Doing the same from the command line</h2>
@@ -404,8 +404,8 @@ curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pr
         // limit and when it lifts is the difference between a dead end and a
         // wait.
         fail(item, track,
-          'Rate limit reached for your network: 5000 requests per IP per 24 hours. '
-          + 'It resets at midnight UTC. Everyone on this connection shares that budget, '
+          'Rate limit reached for your network: 5000 requests per IP per day. '
+          + 'It resets at midnight Norwegian time (Europe/Oslo). Everyone on this connection shares that budget, '
           + 'so a script elsewhere on the network can use it up.');
         return;
       }
