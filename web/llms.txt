@@ -11,6 +11,12 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 - MCP guide: https://aisense.no/free-public-mcp-server
 - Source and documentation: https://github.com/aisenseapi/aisense-free-public-rest-apis
 
+## Limits
+
+- 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day.
+- Both reset at midnight Norwegian time (Europe/Oslo), which is 22:00 UTC in summer and 23:00 UTC in winter. A 429 answer carries Retry-After with the seconds until then.
+- Stored results and files expire after 24 hours.
+
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp

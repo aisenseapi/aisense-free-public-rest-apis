@@ -29,7 +29,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Terms of Service - AISENSE - FREE PUBLIC API SERVICES</title>
-<meta name="description" content="Terms for the free public REST APIs from AI SENSE AS: no account required, 5000 requests per IP per 24 hours, 24-hour data expiry, provided as-is with no warranty or service level.">
+<meta name="description" content="Terms for the free public REST APIs from AI SENSE AS: no account required, 5000 requests per IP per day, 24-hour data expiry, provided as-is with no warranty or service level.">
 <link rel="canonical" href="https://aisense.no/terms">
 <meta name="robots" content="index,follow">
 
@@ -91,8 +91,8 @@
 <p>They are published under the MIT licence together with client libraries and tests at <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis">github.com/aisenseapi/aisense-free-public-rest-apis</a>. That licence covers the code we publish, not the operation of this service.</p>
 
 <h2 id="limits">Limits</h2>
-<p><strong>5000 requests per IP address per 24 hours.</strong> Beyond that you receive HTTP 429 until the shared counter resets at server midnight. This is not a rolling per-request window. The limit is a technical control. We may change it.</p>
-<p><strong>80 MB of stored data per IP address per 24 hours</strong> on /storage, counted on the same calendar day and reset together with the request counter. Executable files are refused at upload.</p>
+<p><strong>5000 requests per IP address per day.</strong> Beyond that you receive HTTP 429 until the shared counter resets at midnight Norwegian time (Europe/Oslo). This is not a rolling per-request window. The limit is a technical control. We may change it.</p>
+<p><strong>80 MB of stored data per IP address per day</strong> on /storage, counted on the same calendar day and reset together with the request counter. Executable files are refused at upload.</p>
 <p><strong>Active data has a 24-hour ceiling</strong> in <code>/storage</code>, <code>/url_shortener</code>, <code>/webhook_capture</code>, <code>/webhook_action</code>, <code>/agent_wake</code>, <code>/heartbeat</code>, <code>/lease</code>, <code>/inbox</code> and <code>/dns</code>. Agent Wake may use a shorter timeout. A Heartbeat terminal record can remain readable for another 24 hours after its target data has been removed. A Lease has a fixed absolute expiry 24 hours after the first acquisition, and renewals cannot extend it. Webhook Schedule keeps its final result for up to 24 hours after the delivery attempt.</p>
 
 <p>Agent Queue and all associated payloads, deduplication entries, completed jobs and failed jobs expire exactly 24 hours after queue creation. No activity extends that deadline. Each queue accepts up to 100 distinct jobs over its lifetime, 16 KiB of encoded JSON per payload and five claim attempts per job. New queues are limited to 20 per client IP per 24 hours. Queue REST deployment was verified on 9 September 2026.</p>

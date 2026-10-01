@@ -38,8 +38,9 @@ routes also return 404. Consult each endpoint for its additional errors.
 `base32_decode` return `application/octet-stream` unless you send
 `Accept: application/json`.
 
-**Rate limit:** 5000 requests per IP per 24 hours, then HTTP 429 in the same
-flat error shape.
+**Rate limit:** 5000 requests per IP per day, then HTTP 429 in the same
+flat error shape with `Retry-After` in seconds. The count resets at
+midnight Norwegian time (Europe/Oslo).
 
 ---
 
@@ -179,7 +180,9 @@ HS256 only.
 ```
 
 `qrcode_decode` also accepts a file upload in a `qrcode_image` field. The image
-is a PNG, JPEG, GIF or WebP of at most 10 MB and 25 megapixels.
+is a PNG, JPEG, GIF or WebP of at most 10 MB and 25 megapixels as a file
+upload. A JSON body is at most 256 KiB, so base64 in `payload` suits images up
+to about 190 KB.
 
 ---
 

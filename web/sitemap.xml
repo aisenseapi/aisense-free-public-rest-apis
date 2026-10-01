@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-09-09</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-09-30</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
@@ -25,7 +25,7 @@
   <url><loc>https://aisense.no/aamio</loc><lastmod>2026-09-17</lastmod></url>
   <url><loc>https://aisense.no/try-aamio</loc><lastmod>2026-09-17</lastmod></url>
   <url><loc>https://aisense.no/eighteen-days-of-mcp-traffic</loc><lastmod>2026-09-09</lastmod></url>
-  <url><loc>https://aisense.no/share-a-file-with-a-link</loc><lastmod>2026-09-13</lastmod></url>
+  <url><loc>https://aisense.no/share-a-file-with-a-link</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/we-read-55-agent-cards</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/the-address-is-public</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/put-your-content-where-ai-can-find-it</loc><lastmod>2026-09-04</lastmod></url>
@@ -33,8 +33,8 @@
   <url><loc>https://aisense.no/verifyum-private-file-proofs</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://aisense.no/about</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/contact-us</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/upload</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/free-qr-code-decoder-api</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://aisense.no/upload</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://aisense.no/free-qr-code-decoder-api</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/free-json-to-csv-api</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-csv-to-json-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-table-matching-api</loc><lastmod>2026-09-30</lastmod></url>
@@ -47,8 +47,8 @@
   <url><loc>https://aisense.no/free-exif-remover-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-image-color-palette-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-favicon-generator-api</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/terms</loc><lastmod>2026-09-13</lastmod></url>
-  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-09-12</lastmod></url>
+  <url><loc>https://aisense.no/terms</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/tokenizer-cost-study</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/smart-beehive-monitoring-system</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-08-20</lastmod></url>
@@ -64,7 +64,7 @@
   <url><loc>https://aisense.no/free-public-api-jwt-encode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-jwt-decode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-qr-code-encode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-qr-code-decode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-qr-code-decode-api-endpoint</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-slugify-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-md5-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-sha1-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
@@ -93,7 +93,7 @@
   <url><loc>https://aisense.no/free-public-api-html-to-pdf-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-email-validate-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-validate-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-storage-api-endpoint</loc><lastmod>2026-09-13</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-storage-api-endpoint</loc><lastmod>2026-10-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-url-shortener-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-webhook-capture-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-webhook-action-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>

@@ -165,8 +165,10 @@ non-2xx statuses, including 409 for conflicts and 410 for an expired record
 that has not yet been removed. Once removed, the same ID returns 404. Unknown
 routes also return 404. Consult each endpoint for its additional errors.
 
-**There is a rate limit: 5000 requests per IP per 24 hours.** Exceeding it
-returns HTTP 429 in the same flat error shape as everything else.
+**There is a rate limit: 5000 requests per IP per day.** Exceeding it
+returns HTTP 429 in the same flat error shape as everything else. The count
+resets at midnight Norwegian time (Europe/Oslo), 22:00 UTC in summer and 23:00
+UTC in winter, and the 429 carries `Retry-After` with the seconds until then.
 
 ---
 
@@ -539,7 +541,7 @@ curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-44665544
 
 Expires after 24 hours. Executable files (Windows, Linux and Mac programs,
 judged on their first bytes) are refused with `415`. Each IP may store 80 MB
-per 24 hours; past that a POST answers `429`. A stored file is returned inline
+per day; past that a POST answers `429`. A stored file is returned inline
 only as an image, audio, video or PDF; anything else, SVG included, comes back
 as a download.
 
@@ -650,7 +652,9 @@ curl -X POST https://aisenseapi.com/services/v1/qrcode_encode \
 ```
 
 `qrcode_decode` takes the same `payload` field (or a file upload) and returns
-`qrcode_content`. The image is a PNG, JPEG, GIF or WebP of at most 10 MB.
+`qrcode_content`. The image is a PNG, JPEG, GIF or WebP of at most 10 MB as a
+file upload. A JSON body is at most 256 KiB, so through `payload` the image
+can be about 190 KB.
 
 ---
 
@@ -881,7 +885,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 - Webhook Schedule keeps its final result for up to another 24 hours
 - Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
-- Rate limit: 5000 requests per IP per 24 hours
+- Rate limit: 5000 requests per IP per day
 
 ---
 
