@@ -352,6 +352,32 @@ class AISenseAPI:
         """BLAKE2b-256. Response key: ``blake2b_hash``."""
         return self._post("/blake2b_hash", {"data": data})
 
+    def hash_blake3(self, data: str) -> dict:
+        """BLAKE3, input at most 1 MiB. Response key: ``blake3_hash``."""
+        return self._post("/blake3_hash", {"data": data})
+
+    def hash_argon2id(self, password: str) -> dict:
+        """Argon2id password hash, 64 MiB, 3 passes; a new salted PHC string
+        every call. For test data: 200 operations per IP per day. Response
+        key: ``argon2id_hash``."""
+        return self._post("/argon2id_hash", {"password": password})
+
+    def hash_bcrypt(self, password: str) -> dict:
+        """bcrypt password hash, cost 12, input at most 72 bytes. Response
+        key: ``bcrypt_hash``."""
+        return self._post("/bcrypt_hash", {"password": password})
+
+    def hash_scrypt(self, password: str) -> dict:
+        """scrypt password hash, N 2^17, r 8, p 1; a PHC string. Response
+        key: ``scrypt_hash``."""
+        return self._post("/scrypt_hash", {"password": password})
+
+    def password_verify(self, password: str, hash: str) -> dict:
+        """Verify a password against an Argon2id, bcrypt or scrypt string.
+        The algorithm is read from the string. Answers ``match``,
+        ``algorithm`` and ``params``; a mismatch is a result, not an error."""
+        return self._post("/password_verify", {"password": password, "hash": hash})
+
     # ── Web ───────────────────────────────────────────────────────────────────
 
     def ping(self) -> dict:

@@ -919,12 +919,15 @@ the algorithm - not `hash`.**
 | `POST /sha3_256_hash` | `sha3_256_hash` | `8ca66ee6b2fe4bb928a8e3cd2f508de4...` |
 | `POST /sha3_512_hash` | `sha3_512_hash` | `0b8a44ac991e2b263e8623cfbeefc1cf...` |
 | `POST /blake2b_hash` | `blake2b_hash` | `8b7ca7d27d9fc55fa30abfe515b3afb2...` |
+| `POST /blake3_hash` | `blake3_hash` | `fbc2b0516ee8744d293b980779178a35...` |
 
 `crc32_checksum` is an **integer**, not a hex string. Whirlpool, SHA3-256,
-SHA3-512 and BLAKE2b-256 were added 2 October 2026. They hash the bytes as sent,
-with nothing trimmed, and an empty string is refused like everywhere in the
-family. BLAKE2b-256 is BLAKE2b with a 32 byte output, not the first half of
-BLAKE2b-512. None of these is a password hash.
+SHA3-512 and BLAKE2b-256 were added 2 October 2026 and BLAKE3 on 3 October.
+They hash the bytes as sent, with nothing trimmed, and an empty string is
+refused like everywhere in the family. BLAKE2b-256 is BLAKE2b with a 32 byte
+output, not the first half of BLAKE2b-512. BLAKE3 input is at most 1 MiB;
+larger files are hashed where they live. None of these is a password hash;
+those are below.
 
 ```json
 // POST /sha256_hash
@@ -966,6 +969,75 @@ you can see what the data actually hashes to. Unrecognized hash formats return
 { "data": "Hello", "hash": "8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef", "algorithm": "sha3_256" }
 -> { "match": true, "algorithm": "sha3_256", "computed": "8ca66ee6b2fe4bb928a8e3cd..." }
 ```
+
+`blake3` is named the same way; its 64 characters would otherwise read as
+SHA-256. `argon2id`, `bcrypt` and `scrypt` named here answer 400 with a fix
+pointing at `/password_verify`: their strings are salted and are not digests
+of the data.
+
+---
+
+### Password hashes: `POST /argon2id_hash`, `/bcrypt_hash`, `/scrypt_hash`
+
+Added 3 October 2026. Slow by design and salted, so every call gives a new
+string, and the string carries its own algorithm, salt and cost. Input is JSON
+`{"password": "..."}` (or `data`, like the rest of the family), or a
+`text/plain` body; 1 to 1024 bytes, and for bcrypt at most 72 bytes without a
+NUL, since bcrypt would silently cut a longer one. No file upload: a file is
+not a password.
+
+| Endpoint | Profile | Answer |
+|----------|---------|--------|
+| `POST /argon2id_hash` | 64 MiB, 3 passes, 1 lane, 32 byte hash | `{"argon2id_hash": "$argon2id$v=19$m=65536,t=3,p=1$...$..."}` |
+| `POST /bcrypt_hash` | cost 12 | `{"bcrypt_hash": "$2b$12$..."}`, 60 characters |
+| `POST /scrypt_hash` | N=2^17, r=8, p=1, 32 byte hash | `{"scrypt_hash": "$scrypt$ln=17,r=8,p=1$...$..."}` |
+
+```json
+// POST /argon2id_hash
+{ "password": "correct horse battery staple" }
+-> { "argon2id_hash": "$argon2id$v=19$m=65536,t=3,p=1$mWHnZ4Nxo3vEDMtb9cO7/A$PUXcfBGwUfBbXE1GgMiw4yPbY31fklKc0mRW99HBcsQ" }
+```
+
+The profiles are fixed and are the OWASP recommendations of 2026; the
+format is the PHC string for Argon2id and scrypt and the modular crypt
+string for bcrypt, so the result verifies with `password_verify` in PHP,
+`argon2-cffi` in Python, `bcrypt` anywhere, and most other libraries.
+
+**Use test data.** The hash is kept by nobody here, but the password travels
+to a public service, and a real password should be hashed inside the
+application that uses it. The point of these routes is to test, compare and
+generate vectors.
+
+**Cost and budgets.** One call is 100 to 230 ms of CPU, 250 to 580 times a
+SHA-256, so the routes have budgets beside the 5000 calls per day every
+address has: **200 password operations per IP address per day** (hashing and
+verifying together) answered with **429** past that, and **20 000 per day for
+everyone** answered with **503**, both with `Retry-After` until midnight Oslo
+time. The hashing runs one computation at a time in a process of its own;
+while that process is busy with another caller the answer is **503** with
+`Retry-After: 1` and `"reason": "busy"`, and when it is down for any reason
+**503** with `Retry-After: 5` and `"reason": "unavailable"`. Retry; nothing
+else in the API is affected.
+
+### `POST /password_verify`
+
+Verify a password against an Argon2id, bcrypt or scrypt string. JSON only:
+`{"password": "...", "hash": "..."}` (or `data`). The algorithm is read from
+the string, `$argon2id$`, `$2a$`/`$2b$`/`$2x$`/`$2y$` or `$scrypt$`, so a
+`$2y$` string made by PHP verifies here. An `algorithm` field, when sent,
+must agree with the string. A mismatch is a **result**, not an error.
+
+```json
+{ "password": "correct horse battery staple", "hash": "$2b$12$gn6ItEhVTwbuboZRi6NOZ.CDyi0awJjCpEvbnwwRP7kwJAJXJ4T5q" }
+-> { "match": true, "algorithm": "bcrypt", "params": { "cost": 12 } }
+```
+
+The cost is read from the string and must be within what this service
+produces: Argon2id up to m=65536, t=3, p=1; bcrypt cost 4 to 12; scrypt up to
+ln=17, r=8, p=1. A string that asks for more is **400** with a `fix`, so a
+caller cannot choose how much work a verification costs. A hex digest sent
+here is 400 with a pointer to `/hash_verify`. Verification draws on the same
+200 per day budget as hashing.
 
 ---
 
@@ -2324,6 +2396,10 @@ operations use JSON with the fields documented in their own sections.
 | `/sha3_256_hash` | `sha3_256_hash` |
 | `/sha3_512_hash` | `sha3_512_hash` |
 | `/blake2b_hash` | `blake2b_hash` |
+| `/blake3_hash` | `blake3_hash` |
+| `/argon2id_hash` | `argon2id_hash` |
+| `/bcrypt_hash` | `bcrypt_hash` |
+| `/scrypt_hash` | `scrypt_hash` |
 | `/ping` | `ping` |
 | `/health` | `status`, `microtimestamp` |
 | `/client_ip` | `ip` |
@@ -2333,6 +2409,7 @@ operations use JSON with the fields documented in their own sections.
 | `/domain_ip_lookup` | `domain`, `ip` |
 | `/email_validate` | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
 | `/hash_verify` | `match`, `algorithm`, `computed` |
+| `/password_verify` | `match`, `algorithm`, `params` |
 | `/slugify` | `slug` |
 | `/storage` (store) | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime` |
 | `/url_shortener` | `short_url`, `expire_timestamp` |

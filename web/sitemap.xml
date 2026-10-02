@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-09-09</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
@@ -16,7 +16,7 @@
   <url><loc>https://aisense.no/free-public-api-decide-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-image-resizer-api</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-chaos-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/four-more-hashes</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/four-more-hashes</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/convert-heic-webp-png-and-jpg-images</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/favicon-sizes-and-the-files-a-website-needs</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/remove-gps-location-and-exif-data-from-photos</loc><lastmod>2026-09-29</lastmod></url>
@@ -53,7 +53,7 @@
   <url><loc>https://aisense.no/tokenizer-cost-study</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/smart-beehive-monitoring-system</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/hashing-apis</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/hashing-apis</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/random-generator-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/time-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-base64-encode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
@@ -71,10 +71,14 @@
   <url><loc>https://aisense.no/free-public-api-sha1-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-sha256-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-sha512-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-sha3-256-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-sha3-512-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-blake2b-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
-  <url><loc>https://aisense.no/free-public-api-whirlpool-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-sha3-256-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-sha3-512-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-blake2b-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-blake3-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-argon2id-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-bcrypt-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-scrypt-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-whirlpool-hash-api-endpoint</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-crc32-checksum-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-hash-verify-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-uuid-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>

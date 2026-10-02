@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.4.1
+Resource version 1.4.2
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -66,8 +66,8 @@ Catalog size: 60 MCP tools.
 - `update_dns_name` - Move a name to another address without moving its expiry.
 - `delete_dns_name` - Remove a name before it expires.
 - `encode_data` - Encode text as Base64, Base32 or Base58, or decode it.
-- `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512 or BLAKE2b-256.
-- `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five.
+- `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
+- `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, colour, GUID, password or passphrase.
 - `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
 - `convert_timestamp` - Convert a Unix time or a date text into other forms.

@@ -58,6 +58,10 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `remove-gps-location-and-exif-data-from-photos.html` | `/remove-gps-location-and-exif-data-from-photos` |
 | `favicon-sizes-and-the-files-a-website-needs.html` | `/favicon-sizes-and-the-files-a-website-needs` |
 | `convert-heic-webp-png-and-jpg-images.html` | `/convert-heic-webp-png-and-jpg-images` |
+| `free-public-api-blake3-hash-api-endpoint.html` | `/free-public-api-blake3-hash-api-endpoint` |
+| `free-public-api-argon2id-hash-api-endpoint.html` | `/free-public-api-argon2id-hash-api-endpoint` |
+| `free-public-api-bcrypt-hash-api-endpoint.html` | `/free-public-api-bcrypt-hash-api-endpoint` |
+| `free-public-api-scrypt-hash-api-endpoint.html` | `/free-public-api-scrypt-hash-api-endpoint` |
 | `four-more-hashes.html` | `/four-more-hashes` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
