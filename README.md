@@ -32,8 +32,8 @@ retry decisions.
 
 The server reports version `1.9.2` and 60 tools: 32 workflow tools and 28
 that run the REST endpoints below. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
-published 30 September 2026.
+`com.aisenseapi/free-public-tools` version `1.9.2` as active and latest,
+published 2 October 2026 at 22:44 UTC.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write

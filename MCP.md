@@ -12,8 +12,8 @@ retry decisions.
 **Server URL:** `https://aisenseapi.com/mcp`
 
 The server reports version `1.9.2`. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
-published 30 September 2026. Both numbers are the server release version,
+`com.aisenseapi/free-public-tools` version `1.9.2` as active and latest,
+published 2 October 2026 at 22:44 UTC. Both numbers are the server release version,
 separate from the agent guide resource version, which is 1.4.2.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
