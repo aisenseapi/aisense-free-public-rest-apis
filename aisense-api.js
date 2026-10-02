@@ -368,6 +368,26 @@ export class AISenseAPI {
     return this.#post('/crc32_checksum', { data })
   }
 
+  /** Response key: `whirlpool_hash`, 128 hex characters. */
+  hashWhirlpool(data) {
+    return this.#post('/whirlpool_hash', { data })
+  }
+
+  /** Response key: `sha3_256_hash`. */
+  hashSHA3_256(data) {
+    return this.#post('/sha3_256_hash', { data })
+  }
+
+  /** Response key: `sha3_512_hash`. */
+  hashSHA3_512(data) {
+    return this.#post('/sha3_512_hash', { data })
+  }
+
+  /** BLAKE2b-256. Response key: `blake2b_hash`. */
+  hashBLAKE2b(data) {
+    return this.#post('/blake2b_hash', { data })
+  }
+
   // ── Web ───────────────────────────────────────────────────────────────────
 
   /** Connectivity check. Response key: `ping` (value `'pong'`). */

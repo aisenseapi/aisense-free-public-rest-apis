@@ -198,8 +198,14 @@ after the algorithm - never `hash`.**
 | `POST /sha256_hash` | `sha256_hash` | `185f8db32271fe25f561a6fc938b2e26...` |
 | `POST /sha512_hash` | `sha512_hash` | `3615f80c9d293ed7402687f94b22d58e...` |
 | `POST /crc32_checksum` | `crc32_checksum` | `4157704578` |
+| `POST /whirlpool_hash` | `whirlpool_hash` | `00acca7b4456c52a74c589d668b48e1b...` |
+| `POST /sha3_256_hash` | `sha3_256_hash` | `8ca66ee6b2fe4bb928a8e3cd2f508de4...` |
+| `POST /sha3_512_hash` | `sha3_512_hash` | `0b8a44ac991e2b263e8623cfbeefc1cf...` |
+| `POST /blake2b_hash` | `blake2b_hash` | `8b7ca7d27d9fc55fa30abfe515b3afb2...` |
 
-`crc32_checksum` is an **integer**, not a hex string.
+`crc32_checksum` is an **integer**, not a hex string. For `/hash_verify`, name
+the algorithm in an `algorithm` field for the four newer ones, since their
+lengths collide with SHA-256 and SHA-512.
 
 ---
 
@@ -741,6 +747,10 @@ return numbers; their smallest units stay inside the safe range.
 | `/sha256_hash` | POST | `sha256_hash` |
 | `/sha512_hash` | POST | `sha512_hash` |
 | `/crc32_checksum` | POST | `crc32_checksum` (integer) |
+| `/whirlpool_hash` | POST | `whirlpool_hash` |
+| `/sha3_256_hash` | POST | `sha3_256_hash` |
+| `/sha3_512_hash` | POST | `sha3_512_hash` |
+| `/blake2b_hash` | POST | `blake2b_hash` |
 | `/hash_verify` | POST | `match`, `algorithm`, `computed` |
 | `/ping` | GET | `ping` |
 | `/health` | GET | `status`, `microtimestamp` |

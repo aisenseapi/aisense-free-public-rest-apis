@@ -52,7 +52,7 @@
   <url><loc>https://aisense.no/tokenizer-cost-study</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/smart-beehive-monitoring-system</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-08-20</lastmod></url>
-  <url><loc>https://aisense.no/hashing-apis</loc><lastmod>2026-08-20</lastmod></url>
+  <url><loc>https://aisense.no/hashing-apis</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://aisense.no/random-generator-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/time-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-base64-encode-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
@@ -70,6 +70,10 @@
   <url><loc>https://aisense.no/free-public-api-sha1-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-sha256-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-sha512-hash-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-sha3-256-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-sha3-512-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-blake2b-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-whirlpool-hash-api-endpoint</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-crc32-checksum-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-hash-verify-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-uuid-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>

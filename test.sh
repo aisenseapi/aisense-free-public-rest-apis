@@ -238,6 +238,10 @@ has_value "SHA1"   POST "$BASE/sha1_hash"      '"sha1_hash":"f7ff9e8b7bb2e09b709
 has_value "SHA256" POST "$BASE/sha256_hash"    '"sha256_hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"' '{"data":"Hello"}'
 has_key   "SHA512" POST "$BASE/sha512_hash"    "sha512_hash" '{"data":"Hello"}'
 has_value "CRC32"  POST "$BASE/crc32_checksum" '"crc32_checksum":4157704578' '{"data":"Hello"}'
+has_value "Whirlpool" POST "$BASE/whirlpool_hash" '"whirlpool_hash":"00acca7b4456c52a74c589d668b48e1b3d33c9620a0a9b61635111aa92ed8488f21372e27b2122735e561491f8050ed2775a6fb55f7f8b24075d1166bf326bca"' '{"data":"Hello"}'
+has_value "SHA3-256"  POST "$BASE/sha3_256_hash" '"sha3_256_hash":"8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef"' '{"data":"Hello"}'
+has_value "SHA3-512"  POST "$BASE/sha3_512_hash" '"sha3_512_hash":"0b8a44ac991e2b263e8623cfbeefc1cffe8c1c0de57b3e2bf1673b4f35e660e89abd18afb7ac93cf215eba36dd1af67698d6c9ca3fdaaf734ffc4bd5a8e34627"' '{"data":"Hello"}'
+has_value "BLAKE2b"   POST "$BASE/blake2b_hash"  '"blake2b_hash":"8b7ca7d27d9fc55fa30abfe515b3afb24e3fe89fdd02e2ac92bca2c96680642e"' '{"data":"Hello"}'
 has_value "SHA256 (text/plain)" POST "$BASE/sha256_hash" '"sha256_hash":"185f8db3' 'Hello' 'text/plain'
 echo ""
 
@@ -615,6 +619,10 @@ has_value "Email validate (bad syntax is a result)" POST "$BASE/email_validate" 
 has_value "Hash verify (sha256 match)" POST "$BASE/hash_verify" '"match":true' '{"data":"Hello","hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"}'
 has_value "Hash verify (tampered digest)" POST "$BASE/hash_verify" '"match":false' '{"data":"Hello","hash":"185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381970"}'
 has_value "Hash verify (integer crc32)" POST "$BASE/hash_verify" '"algorithm":"crc32"' '{"data":"Hello","hash":4157704578}'
+has_value "Hash verify (named sha3_256)" POST "$BASE/hash_verify" '"match":true' '{"data":"Hello","hash":"8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef","algorithm":"sha3_256"}'
+has_value "Hash verify (sha3 unnamed reads as sha256, no match)" POST "$BASE/hash_verify" '"algorithm":"sha256"' '{"data":"Hello","hash":"8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef"}'
+request POST "$BASE/hash_verify" '{"data":"Hello","hash":"8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef","algorithm":"sha3_512"}'
+[ "$STATUS" = "400" ] && ok "Hash verify (wrong length for named algorithm -> 400)" || bad "Hash verify (named length)" "expected 400, got $STATUS"
 request POST "$BASE/hash_verify" '{"data":"Hello","hash":"abc123"}'
 [ "$STATUS" = "400" ] && ok "Hash verify (unknown length -> 400)" || bad "Hash verify (unknown length)" "expected 400, got $STATUS"
 

@@ -336,6 +336,22 @@ class AISenseAPI:
         """CRC32 checksum. Response key: ``crc32_checksum``, an integer, not a hex string."""
         return self._post("/crc32_checksum", {"data": data})
 
+    def hash_whirlpool(self, data: str) -> dict:
+        """Response key: ``whirlpool_hash``, 128 hex characters."""
+        return self._post("/whirlpool_hash", {"data": data})
+
+    def hash_sha3_256(self, data: str) -> dict:
+        """Response key: ``sha3_256_hash``."""
+        return self._post("/sha3_256_hash", {"data": data})
+
+    def hash_sha3_512(self, data: str) -> dict:
+        """Response key: ``sha3_512_hash``."""
+        return self._post("/sha3_512_hash", {"data": data})
+
+    def hash_blake2b(self, data: str) -> dict:
+        """BLAKE2b-256. Response key: ``blake2b_hash``."""
+        return self._post("/blake2b_hash", {"data": data})
+
     # ── Web ───────────────────────────────────────────────────────────────────
 
     def ping(self) -> dict:
