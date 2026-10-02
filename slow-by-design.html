@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Slow by Design: Argon2id, bcrypt and scrypt on a Free API - AI SENSE</title>
+<meta name="description" content="Password hashes cost the server real CPU on purpose, which is why few public APIs offer them. We added Argon2id, bcrypt, scrypt and BLAKE3 anyway: in a process of their own, one computation at a time, with a budget, and with every crash written down.">
+<link rel="canonical" href="https://aisense.no/slow-by-design">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Slow by Design: Argon2id, bcrypt and scrypt on a Free API">
+<meta property="og:description" content="A password hash is 100 to 230 ms of one core, 250 to 580 times a SHA-256. How we put that behind a free public endpoint without letting it take the server: a separate process, one job at a time, a daily budget, and a kill switch at ten seconds.">
+<meta property="og:url" content="https://aisense.no/slow-by-design">
+<meta property="article:published_time" content="2026-10-03">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Slow by Design: Argon2id, bcrypt and scrypt on a Free API",
+      "description": "The free public API gained Argon2id, bcrypt, scrypt and BLAKE3 on 3 October 2026. The three password hashes are the first endpoints here that cost the server CPU by design, so they run in a separate hardened process, one computation at a time, behind a daily budget, with a password_verify route that reads the algorithm and the cost from the string and refuses costs above the fixed profiles.",
+      "url": "https://aisense.no/slow-by-design",
+      "datePublished": "2026-10-03",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" },
+      "about": {
+        "@type": "WebAPI",
+        "name": "Hashing APIs",
+        "documentation": "https://aisense.no/hashing-apis",
+        "provider": { "@type": "Organization", "name": "AI SENSE AS" }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Slow by design", "item": "https://aisense.no/slow-by-design" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Slow by design</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 3 October 2026</p>
+  <h1>Slow by Design: Argon2id, bcrypt and scrypt on a Free API</h1>
+  <p class="article-deck">Yesterday the hash family went from five algorithms to nine. Today it gets four more: BLAKE3, and the three password hashes Argon2id, bcrypt and scrypt. The password hashes are different from everything else on this API. Every other call costs the server well under a millisecond. These cost it a tenth to a quarter of a second each, on purpose, and that is the whole reason a free public endpoint for them is unusual. This note is about how we offer them anyway.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">A password hash is supposed to be expensive. Argon2id fills 64 MiB of memory and walks it three times; bcrypt runs its key setup 4096 times; scrypt builds a 128 MiB table and reads it back in an order nobody can predict. That is what makes a stolen database slow to crack, and it is also what makes a public endpoint for it a gift to anyone who wants to spend your CPU. Nothing else we serve has that property, so we built something for it rather than adding four more lines to the router.</p>
+
+<h2>What was added</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Profile</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td><code>POST /argon2id_hash</code></td><td>64 MiB, 3 passes, 1 lane</td><td><code>$argon2id$v=19$m=65536,t=3,p=1$...$...</code>, a PHC string</td></tr>
+<tr><td><code>POST /bcrypt_hash</code></td><td>cost 12, at most 72 bytes</td><td><code>$2b$12$...</code>, 60 characters</td></tr>
+<tr><td><code>POST /scrypt_hash</code></td><td>N 2^17, r 8, p 1</td><td><code>$scrypt$ln=17,r=8,p=1$...$...</code>, a PHC string</td></tr>
+<tr><td><code>POST /password_verify</code></td><td>reads the string</td><td><code>match</code>, <code>algorithm</code> and the cost it read</td></tr>
+<tr><td><code>POST /blake3_hash</code></td><td>input up to 1 MiB</td><td>64 hex characters, the digest</td></tr>
+</tbody>
+</table></div>
+
+<p>The profiles are fixed and are what OWASP recommends in 2026. A new salt every call, so the same password gives a different string every time, and both strings verify. The formats are the ones everyone else writes, which matters more than it sounds: a string from <code>/bcrypt_hash</code> verifies in PHP, Python and Node, and a <code>$2y$</code> string that PHP made verifies here, with its cost read out of it.</p>
+
+<pre><code>POST /password_verify
+{"password":"correct horse battery staple","hash":"$2y$10$.pVh5j2t9bCDRJYB1DzZZODcgYcU9F8RXr8lO4XEYu2Y5wnRt.EoK"}
+{"match":true,"algorithm":"bcrypt","params":{"cost":10}}</code></pre>
+
+<p>Reading the cost from the string is also where the first door had to be closed. A verification costs exactly as much as the string says, so a caller who sends an Argon2id string with four gigabytes of memory in it would be asking us to try. We do not. Anything above the fixed profiles is refused before a single byte is hashed:</p>
+
+<pre><code>{"password":"x","hash":"$argon2id$v=19$m=4194304,t=10,p=4$...$..."}
+{"error":"Invalid input.","fix":"hash asks for m=4194304,t=10,p=4; this service verifies at most m=65536,t=3,p=1."}</code></pre>
+
+<h2>Measured on the box</h2>
+
+<p>Before writing a line of this we timed the profiles on the API server itself, with the same PHP build the service runs. It has two cores.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>One call</th><th>CPU time</th></tr></thead>
+<tbody>
+<tr><td>SHA-256 of 256 KB</td><td>0.4 ms</td></tr>
+<tr><td>Argon2id, 64 MiB, 3 passes</td><td>101 ms</td></tr>
+<tr><td>bcrypt, cost 12</td><td>191 ms</td></tr>
+<tr><td>scrypt, 128 MiB</td><td>232 ms</td></tr>
+</tbody>
+</table></div>
+
+<p>So one password hash is between 250 and 580 ordinary calls. The whole API served 303 575 calls yesterday in roughly five minutes of CPU; a thousand password hashes a day would add three. Volume is not the problem. Bursts are. The API runs on one shared service with four request workers, and a worker that is computing is a worker that answers nobody for the duration. Four scrypt calls arriving together would freeze every tenant on the machine for a quarter of a second, and a loop of them would hold the whole API down for as long as it ran. A PHP extension would have had the same problem, since it runs inside the same worker.</p>
+
+<h2>A process of its own</h2>
+
+<p>The four new algorithms are not computed by the API at all. They are computed by <code>aisense-hash-worker</code>, a small program written in Rust that listens on a Unix socket on the same machine and does nothing else. The API sends it one JSON line and gets one JSON line back, and while it waits the request worker is free to serve everyone else.</p>
+
+<p>Inside, the program is two processes. A supervisor owns the socket and never computes anything. A child, behind two pipes, does all the hashing, and it is the only process that ever touches input. That split is what makes the rules enforceable:</p>
+
+<ul>
+<li><b>One computation at a time.</b> A second caller is told <code>busy</code> in well under a millisecond and gets a 503 with <code>Retry-After: 1</code>. Nobody queues, nobody waits, and the worst case is one core.</li>
+<li><b>Ten seconds, then the child dies.</b> A job that passes the deadline has its process killed and reaped, the caller gets a timeout, and a fresh child answers the next request. Nothing a caller sends can hold the machine for longer than that.</li>
+<li><b>Memory is given back.</b> The child reports its resident size after every job and is replaced after 500 jobs or when it passes 400 MiB. It also sets its own address space limit of 768 MiB, so a leak ends in the allocator rather than in the kernel. Measured after today's first scrypt, the child sat at 0.9 MB.</li>
+<li><b>A crash costs one request.</b> If the child panics, aborts or is killed for memory, the supervisor answers that one job with an error, starts a new child, and writes a line about it. The API sees a 503 with a Retry-After, not an outage.</li>
+<li><b>The box comes first.</b> systemd holds the whole service to 768 MiB and 80 percent of one core, kills the child rather than the service when memory runs out, and marks it as the first thing to die if the machine itself runs short. It has no network, no capabilities and no write access anywhere but its own log line. A watchdog restarts it within 30 seconds if it stops answering its own ping.</li>
+</ul>
+
+<p>Every one of those events, start, stop, a child killed, a child crashed, a child replaced, is one line in the same event log the rest of the service writes, next to the restarts and reloads, so when a request log has a hole in it the cause is on the line above.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Budgets</p>
+  <h2>200 a day per address, 20 000 a day for everyone.</h2>
+  <p>On top of the 5000 calls every address already has. Hashing and verifying share the budget, past it the answer is 429 with a Retry-After until midnight Oslo time, and the shared ceiling makes the worst possible day about an hour of one core. BLAKE3 is fast and is not budgeted.</p>
+</div>
+
+<h2>Checked before writing</h2>
+
+<p>From outside, against the live service, in this order.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Step</th><th>What happened</th></tr></thead>
+<tbody>
+<tr><td>BLAKE3 of <code>abc</code></td><td><code>6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85</code>, the published vector, in 0.19 s round trip</td></tr>
+<tr><td>Argon2id hash</td><td>A PHC string with <code>m=65536,t=3,p=1</code> and a fresh salt, 0.33 s round trip</td></tr>
+<tr><td>Verify it</td><td><code>match: true</code>, the same parameters read back; the wrong password gives <code>match: false</code> as a result, not an error</td></tr>
+<tr><td>A <code>$2y$</code> string made by PHP at cost 10</td><td><code>match: true, cost: 10</code>, 0.22 s</td></tr>
+<tr><td>scrypt hash</td><td>A PHC string with <code>ln=17,r=8,p=1</code>, 0.47 s</td></tr>
+<tr><td>BLAKE3 named in <code>/hash_verify</code></td><td>Verified; a 64 character digest without a name is still read as SHA-256, as before</td></tr>
+<tr><td>Argon2id named in <code>/hash_verify</code></td><td>400 with a fix pointing at <code>/password_verify</code></td></tr>
+<tr><td>An Argon2id string asking for 4 GiB</td><td>400 with the ceiling in the fix, nothing computed</td></tr>
+<tr><td>The daemon after ten jobs</td><td>0 busy, 0 timeouts, 0 crashes, child at 0.9 MB, service at 0.8 MB</td></tr>
+</tbody>
+</table></div>
+
+<p>The round trips include TLS from a laptop in Norway; the hashing itself is the 100 to 230 ms above. The daemon's own test suite, 16 unit tests and 12 that start the real binary, makes the child sleep past its deadline, crash on command and leak 450 MiB on command, and checks that each of those costs exactly one request.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">What this is for</p>
+  <h2>Test data, fixtures and comparisons.</h2>
+  <p>The string is kept by nobody here, but the password travels to a public service, and a real password belongs to the application that uses it. These routes exist so you can generate test strings without installing a library first, verify what a legacy table holds, and settle an argument between two implementations with a third.</p>
+</div>
+
+<h2>Where it sits</h2>
+
+<p>The same four algorithms are on the free MCP server through <code>hash_data</code> and <code>verify_hash</code>, which now take the names <code>blake3</code>, <code>argon2id</code>, <code>bcrypt</code> and <code>scrypt</code>; the server reports version 1.9.2. The Python and JavaScript clients and the OpenAI tool definitions in the public repository have the calls, each algorithm has its own page, and the <a href="/hashing-apis#passwords">hashing guide</a> has the password section with the budgets. The worker's source, its unit file and its tests are in the production repository under <code>hash-worker/</code>.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Take one</p>
+  <h2>Thirteen hash endpoints, two verify routes, no account.</h2>
+  <p>Ten digests from MD5 to BLAKE3, three password hashes with fixed profiles, and a process of their own so the slow ones can be free without being a problem.</p>
+  <div class="button-row"><a href="/hashing-apis">The hashing guide</a> <a href="/free-public-api-argon2id-hash-api-endpoint">Argon2id</a> <a href="/free-public-mcp-server">The MCP server</a> <a href="/ai-sense-posts">More posts</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>

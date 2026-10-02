@@ -35,6 +35,12 @@
       "blogPost": [
         {
           "@type": "BlogPosting",
+          "headline": "Slow by Design: Argon2id, bcrypt and scrypt on a Free API",
+          "url": "https://aisense.no/slow-by-design",
+          "datePublished": "2026-10-03"
+        },
+        {
+          "@type": "BlogPosting",
           "headline": "Four More Hashes, and a Verify That Asks Which One",
           "url": "https://aisense.no/four-more-hashes",
           "datePublished": "2026-10-02"
@@ -176,6 +182,15 @@
 
 <section class="post-list" aria-labelledby="latest-posts">
   <h2 id="latest-posts" class="visually-hidden">Latest posts</h2>
+
+  <article class="post-card">
+    <div class="post-card-body">
+      <p class="post-meta"><span>Product note</span><time datetime="2026-10-03">3 October 2026</time></p>
+      <h2><a href="/slow-by-design">Slow by Design: Argon2id, bcrypt and scrypt on a Free API</a></h2>
+      <p>A password hash is 100 to 230 ms of one core, on purpose, which is why few public APIs offer one. We added three, and BLAKE3, in a process of their own: one computation at a time, a kill switch at ten seconds, a daily budget, and every crash written down.</p>
+      <a class="card-link" href="/slow-by-design">Read the product note</a>
+    </div>
+  </article>
 
   <article class="post-card">
     <div class="post-card-body">
