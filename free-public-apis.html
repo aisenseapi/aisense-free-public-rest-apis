@@ -166,7 +166,7 @@
     <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
     <a href="/free-image-color-palette-api"><strong>Colour Palette API</strong><span>Dominant colours, average and a placeholder.</span></a>
     <a href="/free-favicon-generator-api"><strong>Favicon Generator API</strong><span>favicon.ico, PNG icons and a manifest as a ZIP.</span></a>
-    <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512 and CRC32.</span></a>
+    <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, Whirlpool and CRC32.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
     <a href="/time-apis"><strong>Time APIs</strong><span>Get datetime, timestamp and timezone data.</span></a>
@@ -610,14 +610,18 @@ Response: Hello</code></pre>
 <tr><td><code>/sha1_hash</code></td><td><code>sha1_hash</code></td><td><code>f7ff9e8b7bb2e09b70935a5d785e0cc5d9d0abf0</code></td></tr>
 <tr><td><code>/sha256_hash</code></td><td><code>sha256_hash</code></td><td><code>185f8db32271fe25f561a6fc938b2e26...</code></td></tr>
 <tr><td><code>/sha512_hash</code></td><td><code>sha512_hash</code></td><td><code>3615f80c9d293ed7402687f94b22d58e...</code></td></tr>
+<tr><td><code>/sha3_256_hash</code></td><td><code>sha3_256_hash</code></td><td><code>8ca66ee6b2fe4bb928a8e3cd2f508de4...</code></td></tr>
+<tr><td><code>/sha3_512_hash</code></td><td><code>sha3_512_hash</code></td><td><code>0b8a44ac991e2b263e8623cfbeefc1cf...</code></td></tr>
+<tr><td><code>/blake2b_hash</code></td><td><code>blake2b_hash</code></td><td><code>8b7ca7d27d9fc55fa30abfe515b3afb2...</code></td></tr>
+<tr><td><code>/whirlpool_hash</code></td><td><code>whirlpool_hash</code></td><td><code>00acca7b4456c52a74c589d668b48e1b...</code></td></tr>
 <tr><td><code>/crc32_checksum</code></td><td><code>crc32_checksum</code></td><td><code>4157704578</code></td></tr>
 </tbody>
 </table>
 </div>
 
 <article class="endpoint">
-<h3>MD5, SHA1, SHA256 and SHA512 Hash REST API Endpoints</h3>
-<p class="sig"><span class="method post">POST</span> <span class="path">/md5_hash - /sha1_hash - /sha256_hash - /sha512_hash</span></p>
+<h3>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b and Whirlpool Hash REST API Endpoints</h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/md5_hash - /sha1_hash - /sha256_hash - /sha512_hash - /sha3_256_hash - /sha3_512_hash - /blake2b_hash - /whirlpool_hash</span></p>
 <pre><code>curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
   -H "Content-Type: application/json" -d '{"data": "Hello"}'
 
@@ -635,7 +639,7 @@ Response: { "crc32_checksum": 4157704578 }</code></pre>
 <article class="endpoint">
 <h3>Hash Verify REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/hash_verify</span></p>
-<p>Verify data against a hash from any endpoint above. The algorithm is recognized from the hash itself: an integer means crc32, hex strings map by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). A mismatch is a result with <code>match: false</code>, and <code>computed</code> is always included so the difference is visible. JSON only.</p>
+<p>Verify data against a hash from any endpoint above. Name the algorithm in an <code>algorithm</code> field when you know it, and always for sha3_256, sha3_512, blake2b and whirlpool, whose lengths collide with sha256 and sha512. Without the field the algorithm is recognized from the hash itself: an integer means crc32, hex strings map by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). A mismatch is a result with <code>match: false</code>, and <code>computed</code> is always included so the difference is visible. JSON only.</p>
 <pre><code>Request:  { "data": "Hello", "hash": "185f8db32271fe25f561a6fc938b2e26..." }
 
 Response: { "match": true, "algorithm": "sha256", "computed": "185f8db3..." }</code></pre>
@@ -973,7 +977,7 @@ response = client.chat.completions.create(
 <h3>Images</h3>
 <div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>HEIC, WebP, PNG and JPEG</span></a><a href="/free-heic-to-jpg-converter">Free HEIC to JPG Converter<span>iPhone photos to JPG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a><a href="/free-image-metadata-viewer-api">Free Image Metadata API<span>EXIF, GPS and XMP</span></a><a href="/free-exif-remover-api">Free EXIF Remover API<span>Pixels untouched</span></a><a href="/free-image-color-palette-api">Free Colour Palette API<span>Dominant colours</span></a><a href="/free-favicon-generator-api">Free Favicon Generator API<span>A ZIP of icons</span></a></div>
 <h3>Hash</h3>
-<div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-sha3-256-hash-api-endpoint">Free SHA3-256 Hash API Endpoint<span>64 hex, Keccak sponge</span></a><a href="/free-public-api-sha3-512-hash-api-endpoint">Free SHA3-512 Hash API Endpoint<span>128 hex, Keccak sponge</span></a><a href="/free-public-api-blake2b-hash-api-endpoint">Free BLAKE2b Hash API Endpoint<span>64 hex, fast</span></a><a href="/free-public-api-whirlpool-hash-api-endpoint">Free Whirlpool Hash API Endpoint<span>128 hex, ISO standard</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
 <div class="related-api-grid"><a href="/free-public-api-uuid-api-endpoint">Free UUID API Endpoint<span>Version 4 identifiers</span></a><a href="/free-public-api-guid-api-endpoint">Free GUID API Endpoint<span>The same value, GUID field</span></a><a href="/free-public-api-password-api-endpoint">Free Password API Endpoint<span>Length 6 to 128, default 12</span></a><a href="/free-public-api-passphrase-api-endpoint">Free Passphrase API Endpoint<span>Pronounceable, 2 to 12 groups</span></a><a href="/free-public-api-random-number-api-endpoint">Free Random Number API Endpoint<span>Inclusive bounds, echoed back</span></a><a href="/free-public-api-random-color-api-endpoint">Free Random Color API Endpoint<span>Six digit hex for CSS</span></a></div>
 <h3>Time</h3>
@@ -1035,6 +1039,10 @@ response = client.chat.completions.create(
 <tr><td>Hash</td><td><code>/sha1_hash</code></td><td>POST</td><td><code>sha1_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha256_hash</code></td><td>POST</td><td><code>sha256_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/sha512_hash</code></td><td>POST</td><td><code>sha512_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/sha3_256_hash</code></td><td>POST</td><td><code>sha3_256_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/sha3_512_hash</code></td><td>POST</td><td><code>sha3_512_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/blake2b_hash</code></td><td>POST</td><td><code>blake2b_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/whirlpool_hash</code></td><td>POST</td><td><code>whirlpool_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/crc32_checksum</code></td><td>POST</td><td><code>crc32_checksum</code></td></tr>
 <tr><td>Hash</td><td><code>/hash_verify</code></td><td>POST</td><td><code>match</code>, <code>algorithm</code>, <code>computed</code></td></tr>
 <tr><td>Web</td><td><code>/ping</code></td><td>GET</td><td><code>ping</code></td></tr>

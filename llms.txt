@@ -20,7 +20,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.9.0 with 60 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.0, published 30 September 2026
+- MCP server version 1.9.1 with 60 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.0, published 30 September 2026
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -60,6 +60,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
 - Decision endpoint, typed decisions with probabilities and confidence from rules you send, nothing stored: https://aisense.no/free-public-api-decide-api-endpoint
 - Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
+- Hashing guide, nine algorithms from MD5 to SHA3, BLAKE2b and Whirlpool with a verify endpoint, nothing stored: https://aisense.no/hashing-apis
 - Conversion endpoints, each storing its result in Storage for 24 hours: https://aisense.no/free-public-apis#convert
 - JSON to CSV guide: https://aisense.no/free-json-to-csv-api
 - CSV to JSON guide: https://aisense.no/free-csv-to-json-api
