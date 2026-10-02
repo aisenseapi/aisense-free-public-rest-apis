@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Four More Hashes, and a Verify That Asks Which One - AI SENSE</title>
+<meta name="description" content="SHA3-256, SHA3-512, BLAKE2b-256 and Whirlpool join MD5, SHA-1, SHA-256, SHA-512 and CRC32 in the free hashing API. Same inputs, same response shape, no API key. hash_verify can now be told which algorithm to use, and for the four new ones it has to be.">
+<link rel="canonical" href="https://aisense.no/four-more-hashes">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Four More Hashes, and a Verify That Asks Which One">
+<meta property="og:description" content="The free hashing API grows from five algorithms to nine. SHA3-256, SHA3-512, BLAKE2b-256 and Whirlpool, checked against the published test vectors before this was written, and a verify endpoint that takes the algorithm by name.">
+<meta property="og:url" content="https://aisense.no/four-more-hashes">
+<meta property="article:published_time" content="2026-10-02">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Four More Hashes, and a Verify That Asks Which One",
+      "description": "SHA3-256, SHA3-512, BLAKE2b-256 and Whirlpool were added to the free public hashing API on 2 October 2026, beside MD5, SHA-1, SHA-256, SHA-512 and CRC32. The hash_verify endpoint takes an algorithm field, optional for the first five and required for the four new ones, since a hash length no longer names one algorithm.",
+      "url": "https://aisense.no/four-more-hashes",
+      "datePublished": "2026-10-02",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" },
+      "about": {
+        "@type": "WebAPI",
+        "name": "Hashing APIs",
+        "documentation": "https://aisense.no/hashing-apis",
+        "provider": { "@type": "Organization", "name": "AI SENSE AS" }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Four more hashes", "item": "https://aisense.no/four-more-hashes" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Four more hashes</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 2 October 2026</p>
+  <h1>Four More Hashes, and a Verify That Asks Which One</h1>
+  <p class="article-deck">The free hashing API had five algorithms. Today it has nine: SHA3-256, SHA3-512, BLAKE2b-256 and Whirlpool join MD5, SHA-1, SHA-256, SHA-512 and CRC32. Same three ways to send input, same response shape, still no API key. The one thing that had to change was <code>hash_verify</code>, which can no longer tell from the length alone which hash it is looking at.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">Hashing is the quiet part of most pipelines. A file gets a fingerprint before it is stored, an integrity value is checked after a download, a record is compared to a copy somewhere else. The five algorithms we had covered most of that work, and the same three requests kept coming back anyway: a standard that asks for SHA-3, a catalog that stores Whirlpool fingerprints, and a client that wants BLAKE2 because it is fast and gives the same length as SHA-256. All three are answered now.</p>
+
+<h2>What was added</h2>
+
+<p>Four endpoints, each shaped exactly like the five before them. Send JSON with a <code>data</code> field, a <code>text/plain</code> body, or a file in a multipart field named <code>file</code>. The answer is one key, named after the endpoint, holding the hexadecimal digest.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Response key</th><th>Length</th><th>Use it when</th></tr></thead>
+<tbody>
+<tr><td><code>POST /sha3_256_hash</code></td><td><code>sha3_256_hash</code></td><td>64 hex</td><td>A standard asks for SHA-3, or you want a hash built on a different construction from SHA-2</td></tr>
+<tr><td><code>POST /sha3_512_hash</code></td><td><code>sha3_512_hash</code></td><td>128 hex</td><td>The same, with the longer output</td></tr>
+<tr><td><code>POST /blake2b_hash</code></td><td><code>blake2b_hash</code></td><td>64 hex</td><td>A fast fingerprint with the length of SHA-256</td></tr>
+<tr><td><code>POST /whirlpool_hash</code></td><td><code>whirlpool_hash</code></td><td>128 hex</td><td>Compatibility with systems that already store Whirlpool, such as some file catalogs and older archive tools</td></tr>
+</tbody>
+</table></div>
+
+<pre><code>curl -s -X POST https://aisenseapi.com/services/v1/sha3_256_hash \
+  -H "Content-Type: application/json" \
+  -d '{"data":"abc"}'
+
+{"sha3_256_hash":"3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532"}</code></pre>
+
+<p>The bytes are hashed as sent. Nothing is trimmed, and an empty input is refused with 400, the way the rest of the family refuses it. BLAKE2b-256 means BLAKE2b run with a 32 byte output, which is a different value from the first half of BLAKE2b-512; the name says which one you get. JSON bodies are accepted up to 256 KB, and a file travels as an upload. Nothing you send is stored. The request log keeps the status and how long the answer took, and no part of the input.</p>
+
+<h2>The length stopped being enough</h2>
+
+<p><code>hash_verify</code> compares data against a hash and tells you whether they agree. Until today it worked out the algorithm from the hash itself: an integer meant CRC32, and a hex string was mapped by length, 8 for CRC32, 32 for MD5, 40 for SHA-1, 64 for SHA-256 and 128 for SHA-512. That trick relied on every length naming exactly one algorithm, and the four new ones break it. SHA3-256 and BLAKE2b-256 are 64 characters like SHA-256. SHA3-512 and Whirlpool are 128 like SHA-512.</p>
+
+<p>So the endpoint takes an <code>algorithm</code> field. It is optional for the first five, where the old rule still applies, and required for the four new ones. Without it, a BLAKE2b hash is read as SHA-256, the comparison fails honestly, and the answer shows what the data hashes to under SHA-256 so the mistake is visible rather than silent.</p>
+
+<pre><code>POST /hash_verify
+{"data":"abc","hash":"bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319","algorithm":"blake2b"}
+{"match":true,"algorithm":"blake2b","computed":"bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319"}
+
+The same hash with no algorithm named: the length picks SHA-256
+{"data":"abc","hash":"bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319"}
+{"match":false,"algorithm":"sha256","computed":"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"}</code></pre>
+
+<p>A mismatch is a result, not an error, and <code>computed</code> is always included. An algorithm that is named but does not fit the hash is an error: a 64 character hash sent as <code>sha3_512</code> gets 400 with a <code>fix</code> saying that SHA3-512 hashes are 128 characters. The names are <code>md5</code>, <code>sha1</code>, <code>sha256</code>, <code>sha512</code>, <code>crc32</code>, <code>whirlpool</code>, <code>sha3_256</code>, <code>sha3_512</code> and <code>blake2b</code>, and the hyphenated spellings <code>sha3-256</code> and <code>sha3-512</code> are accepted too.</p>
+
+<h2>Checked before writing</h2>
+
+<p>We sent the string <code>abc</code> to each of the four endpoints from outside, on the live service, and compared the answers with the test vectors published for each algorithm: FIPS 202 for the two SHA-3 sizes, the Whirlpool reference, and the BLAKE2 reference implementation for the 32 byte output.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Digest of <code>abc</code></th><th>Against the published vector</th></tr></thead>
+<tbody>
+<tr><td><code>/sha3_256_hash</code></td><td><code>3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532</code></td><td>Match</td></tr>
+<tr><td><code>/sha3_512_hash</code></td><td><code>b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0</code></td><td>Match</td></tr>
+<tr><td><code>/blake2b_hash</code></td><td><code>bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319</code></td><td>Match</td></tr>
+<tr><td><code>/whirlpool_hash</code></td><td><code>4e2448a4c6f486bb16b6562c73b4020bf3043e3a731bce721ae1b303d97e6d4c7181eebdb6c57e277d0e34957114cbd6c797fc9d95d8b582d225292076d4eef5</code></td><td>Match</td></tr>
+</tbody>
+</table></div>
+
+<p>The same input as <code>text/plain</code> gave the same SHA3-256. <code>hash_verify</code> with <code>blake2b</code> named answered a match, the same hash with no name was read as SHA-256 and answered no match with the SHA-256 value shown, and a wrong length for a named algorithm was refused with 400 and a fix. Each answer came back in between 0.16 and 0.30 seconds from a laptop in Norway, over a fresh TLS connection every time, which is the connection cost rather than the hashing.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">What this is not</p>
+  <h2>None of the nine is a password hash.</h2>
+  <p>Argon2id, scrypt and bcrypt are slow by design and are not offered here. A hash is also not encryption, so it cannot be turned back into the input. When the input is confidential and the hash can be computed inside your own application, compute it there.</p>
+</div>
+
+<h2>MCP, clients and pages</h2>
+
+<p>The <code>hash_data</code> tool on the free MCP server takes all nine algorithm names, and <code>verify_hash</code> takes the optional <code>algorithm</code> the same way the REST endpoint does. The server reports version 1.9.1, and the agent guide it serves as a resource is at 1.4.1 with the same wording. In the public repository, the Python and JavaScript clients and the OpenAI tool definitions carry the four new functions, and each algorithm has its own page: <a href="/free-public-api-sha3-256-hash-api-endpoint">SHA3-256</a>, <a href="/free-public-api-sha3-512-hash-api-endpoint">SHA3-512</a>, <a href="/free-public-api-blake2b-hash-api-endpoint">BLAKE2b</a> and <a href="/free-public-api-whirlpool-hash-api-endpoint">Whirlpool</a>.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Take one</p>
+  <h2>Nine algorithms, one verify, no account.</h2>
+  <p>The hashing guide has every endpoint with its response key and the curl, text and file forms. The hash calls sit with the rest of the free public API, and the two MCP tools are on the same free server as the other tools.</p>
+  <div class="button-row"><a href="/hashing-apis">The hashing guide</a> <a href="/free-public-apis">The free public APIs</a> <a href="/free-public-mcp-server">The MCP server</a> <a href="/ai-sense-posts">More posts</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
