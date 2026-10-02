@@ -98,7 +98,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 9 September 2026.</small></p>
+  <p><small>Last updated 2 October 2026.</small></p>
 </div>
 
 <h2 id="controller">Who operates this service</h2>
@@ -110,7 +110,7 @@
 <h2 id="what">What we record</h2>
 
 <h3>Every request</h3>
-<p>One line in a server log: the time, your IP address, the HTTP method, the requested path with supported bearer credential segments redacted, the protocol, the content type and your browser or client's User-Agent string.</p>
+<p>One line in a server log, written when the answer has been sent: the time the request arrived, your IP address, the HTTP method, the requested path with supported bearer credential segments redacted, the protocol, the status code we answered with, the content type, your browser or client's User-Agent string, and how long the answer took.</p>
 <div class="warning">
   <p><strong>URL inputs can still enter the log.</strong> Bearer IDs for Storage, Capture, Approval, Schedule, Agent Wake, Heartbeat and Inbox are redacted in supported paths. Queue credentials belong in the Authorization header and Queue query strings are not logged. Other query strings and ordinary URL inputs can be recorded. Several endpoints take their input in the URL rather than in a request body - <code>/url_shortener/{url}</code> receives an entire target address, <code>/ip_reverse_lookup/{ip}</code> an IP address, <code>/domain_ip_lookup/{domain}</code> a domain name. Those values are written to the log along with the rest of the line. Do not put anything sensitive in a URL, here or anywhere else.</p>
 </div>
