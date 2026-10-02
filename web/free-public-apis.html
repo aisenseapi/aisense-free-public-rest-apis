@@ -166,7 +166,7 @@
     <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
     <a href="/free-image-color-palette-api"><strong>Colour Palette API</strong><span>Dominant colours, average and a placeholder.</span></a>
     <a href="/free-favicon-generator-api"><strong>Favicon Generator API</strong><span>favicon.ico, PNG icons and a manifest as a ZIP.</span></a>
-    <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, Whirlpool and CRC32.</span></a>
+    <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, BLAKE3, Whirlpool and CRC32, and the password hashes Argon2id, bcrypt and scrypt.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
     <a href="/time-apis"><strong>Time APIs</strong><span>Get datetime, timestamp and timezone data.</span></a>
@@ -614,13 +614,17 @@ Response: Hello</code></pre>
 <tr><td><code>/sha3_512_hash</code></td><td><code>sha3_512_hash</code></td><td><code>0b8a44ac991e2b263e8623cfbeefc1cf...</code></td></tr>
 <tr><td><code>/blake2b_hash</code></td><td><code>blake2b_hash</code></td><td><code>8b7ca7d27d9fc55fa30abfe515b3afb2...</code></td></tr>
 <tr><td><code>/whirlpool_hash</code></td><td><code>whirlpool_hash</code></td><td><code>00acca7b4456c52a74c589d668b48e1b...</code></td></tr>
+<tr><td><code>/blake3_hash</code></td><td><code>blake3_hash</code></td><td><code>fbc2b0516ee8744d293b980779178a35...</code></td></tr>
+<tr><td><code>/argon2id_hash</code></td><td><code>argon2id_hash</code></td><td><code>$argon2id$v=19$m=65536,t=3,p=1$...</code></td></tr>
+<tr><td><code>/bcrypt_hash</code></td><td><code>bcrypt_hash</code></td><td><code>$2b$12$...</code></td></tr>
+<tr><td><code>/scrypt_hash</code></td><td><code>scrypt_hash</code></td><td><code>$scrypt$ln=17,r=8,p=1$...</code></td></tr>
 <tr><td><code>/crc32_checksum</code></td><td><code>crc32_checksum</code></td><td><code>4157704578</code></td></tr>
 </tbody>
 </table>
 </div>
 
 <article class="endpoint">
-<h3>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b and Whirlpool Hash REST API Endpoints</h3>
+<h3>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, BLAKE3 and Whirlpool Hash REST API Endpoints, and Argon2id, bcrypt and scrypt Password Hashes</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/md5_hash - /sha1_hash - /sha256_hash - /sha512_hash - /sha3_256_hash - /sha3_512_hash - /blake2b_hash - /whirlpool_hash</span></p>
 <pre><code>curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
   -H "Content-Type: application/json" -d '{"data": "Hello"}'
@@ -1043,6 +1047,11 @@ response = client.chat.completions.create(
 <tr><td>Hash</td><td><code>/sha3_512_hash</code></td><td>POST</td><td><code>sha3_512_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/blake2b_hash</code></td><td>POST</td><td><code>blake2b_hash</code></td></tr>
 <tr><td>Hash</td><td><code>/whirlpool_hash</code></td><td>POST</td><td><code>whirlpool_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/blake3_hash</code></td><td>POST</td><td><code>blake3_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/argon2id_hash</code></td><td>POST</td><td><code>argon2id_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/bcrypt_hash</code></td><td>POST</td><td><code>bcrypt_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/scrypt_hash</code></td><td>POST</td><td><code>scrypt_hash</code></td></tr>
+<tr><td>Hash</td><td><code>/password_verify</code></td><td>POST</td><td><code>match</code>, <code>algorithm</code>, <code>params</code></td></tr>
 <tr><td>Hash</td><td><code>/crc32_checksum</code></td><td>POST</td><td><code>crc32_checksum</code></td></tr>
 <tr><td>Hash</td><td><code>/hash_verify</code></td><td>POST</td><td><code>match</code>, <code>algorithm</code>, <code>computed</code></td></tr>
 <tr><td>Web</td><td><code>/ping</code></td><td>GET</td><td><code>ping</code></td></tr>

@@ -351,6 +351,50 @@
         "required": ["data"]
       }
     }
+  },  {
+    "type": "function",
+    "function": {
+      "name": "hash_blake3",
+      "description": "BLAKE3 hash, input at most 1 MiB. Returns {\"blake3_hash\": \"...\"} - 64 hex characters. POST /blake3_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },  {
+    "type": "function",
+    "function": {
+      "name": "hash_argon2id",
+      "description": "Argon2id password hash, 64 MiB, 3 passes, a new salted PHC string every call. For test data: 200 operations per IP per day, 503 with Retry-After while the hashing process is busy. Returns {\"argon2id_hash\": \"$argon2id$v=19$m=65536,t=3,p=1$...\"}. POST /argon2id_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 1024 bytes. Use test data." } },
+        "required": ["password"]
+      }
+    }
+  },  {
+    "type": "function",
+    "function": {
+      "name": "hash_bcrypt",
+      "description": "bcrypt password hash, cost 12, input at most 72 bytes without NUL. For test data: 200 operations per IP per day. Returns {\"bcrypt_hash\": \"$2b$12$...\"}. POST /bcrypt_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 72 bytes. Use test data." } },
+        "required": ["password"]
+      }
+    }
+  },  {
+    "type": "function",
+    "function": {
+      "name": "hash_scrypt",
+      "description": "scrypt password hash, N 2^17, r 8, p 1, a PHC string. For test data: 200 operations per IP per day. Returns {\"scrypt_hash\": \"$scrypt$ln=17,r=8,p=1$...\"}. POST /scrypt_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 1024 bytes. Use test data." } },
+        "required": ["password"]
+      }
+    }
   },
   {
     "type": "function",
@@ -741,7 +785,7 @@
     "type": "function",
     "function": {
       "name": "hash_verify",
-      "description": "Verify data against a hash. Name the algorithm when you know it, and always for whirlpool, sha3_256, sha3_512 and blake2b. Without it the algorithm is recognized from the hash: an integer or non-eight-digit decimal string means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
+      "description": "Verify data against a digest. Name the algorithm when you know it, and always for whirlpool, sha3_256, sha3_512, blake2b and blake3; password hashes go to password_verify. Without it the algorithm is recognized from the hash: an integer or non-eight-digit decimal string means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
       "parameters": {
         "type": "object",
         "properties": {
@@ -759,12 +803,36 @@
           },
           "algorithm": {
             "type": "string",
-            "enum": ["md5", "sha1", "sha256", "sha512", "crc32", "whirlpool", "sha3_256", "sha3_512", "blake2b"],
+            "enum": ["md5", "sha1", "sha256", "sha512", "crc32", "whirlpool", "sha3_256", "sha3_512", "blake2b", "blake3"],
             "description": "Optional for the first five, required for the rest."
           }
         },
         "required": [
           "data",
+          "hash"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "password_verify",
+      "description": "Verify a password against an Argon2id, bcrypt or scrypt string. The algorithm is read from the string ($argon2id$, $2a$/$2b$/$2x$/$2y$, $scrypt$) and its cost must be within the fixed profiles, else HTTP 400. Returns {\"match\", \"algorithm\", \"params\"}; a mismatch is a result, not an error. Draws on the 200 per IP per day password budget. POST /password_verify",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "The password to check. Use test data."
+          },
+          "hash": {
+            "type": "string",
+            "description": "The Argon2id, bcrypt or scrypt string to check it against."
+          }
+        },
+        "required": [
+          "password",
           "hash"
         ]
       }

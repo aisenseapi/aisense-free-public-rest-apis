@@ -30,7 +30,7 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.9.1` and 60 tools: 32 workflow tools and 28
+The server reports version `1.9.2` and 60 tools: 32 workflow tools and 28
 that run the REST endpoints below. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
 published 30 September 2026.
@@ -600,9 +600,13 @@ curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
 ```
 
 `md5_hash` | `sha1_hash` | `sha256_hash` | `sha512_hash` | `crc32_checksum` |
-`whirlpool_hash` | `sha3_256_hash` | `sha3_512_hash` | `blake2b_hash`
+`whirlpool_hash` | `sha3_256_hash` | `sha3_512_hash` | `blake2b_hash` | `blake3_hash`
 
 `crc32_checksum` returns an integer, not a hex string.
+
+Password hashes, slow and salted, for test data, 200 operations per IP per
+day: `argon2id_hash` | `bcrypt_hash` | `scrypt_hash`, verified with
+`password_verify`, which reads the algorithm and the cost from the string.
 
 ---
 
@@ -845,7 +849,12 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Hash | `/sha3_256_hash` | POST | `sha3_256_hash` |
 | Hash | `/sha3_512_hash` | POST | `sha3_512_hash` |
 | Hash | `/blake2b_hash` | POST | `blake2b_hash` |
+| Hash | `/blake3_hash` | POST | `blake3_hash` |
+| Hash | `/argon2id_hash` | POST | `argon2id_hash` |
+| Hash | `/bcrypt_hash` | POST | `bcrypt_hash` |
+| Hash | `/scrypt_hash` | POST | `scrypt_hash` |
 | Hash | `/hash_verify` | POST | `match`, `algorithm`, `computed` |
+| Hash | `/password_verify` | POST | `match`, `algorithm`, `params` |
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |
 | Web | `/client_ip` | GET | `ip` |

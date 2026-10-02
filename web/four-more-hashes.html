@@ -128,7 +128,7 @@ The same hash with no algorithm named: the length picks SHA-256
 <div class="article-cta">
   <p class="eyebrow">What this is not</p>
   <h2>None of the nine is a password hash.</h2>
-  <p>Argon2id, scrypt and bcrypt are slow by design and are not offered here. A hash is also not encryption, so it cannot be turned back into the input. When the input is confidential and the hash can be computed inside your own application, compute it there.</p>
+  <p>Argon2id, scrypt and bcrypt are slow by design and were not offered when this was written. A hash is also not encryption, so it cannot be turned back into the input. When the input is confidential and the hash can be computed inside your own application, compute it there.</p><p><strong>Update, 3 October 2026:</strong> the three password hashes and BLAKE3 are now offered on their own routes, computed in a process of their own with a budget of 200 operations per address per day. The <a href="/hashing-apis#passwords">hashing guide</a> has the details.</p>
 </div>
 
 <h2>MCP, clients and pages</h2>

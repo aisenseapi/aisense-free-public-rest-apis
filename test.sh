@@ -242,6 +242,13 @@ has_value "Whirlpool" POST "$BASE/whirlpool_hash" '"whirlpool_hash":"00acca7b445
 has_value "SHA3-256"  POST "$BASE/sha3_256_hash" '"sha3_256_hash":"8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef"' '{"data":"Hello"}'
 has_value "SHA3-512"  POST "$BASE/sha3_512_hash" '"sha3_512_hash":"0b8a44ac991e2b263e8623cfbeefc1cffe8c1c0de57b3e2bf1673b4f35e660e89abd18afb7ac93cf215eba36dd1af67698d6c9ca3fdaaf734ffc4bd5a8e34627"' '{"data":"Hello"}'
 has_value "BLAKE2b"   POST "$BASE/blake2b_hash"  '"blake2b_hash":"8b7ca7d27d9fc55fa30abfe515b3afb24e3fe89fdd02e2ac92bca2c96680642e"' '{"data":"Hello"}'
+has_value "BLAKE3"    POST "$BASE/blake3_hash"   '"blake3_hash":"fbc2b0516ee8744d293b980779178a3508850fdcfe965985782c39601b65794f"' '{"data":"Hello"}'
+# The password hashes are salted, so only the prefix is fixed. One call each,
+# which counts against the 200 per day budget on those routes.
+has_value "Argon2id"  POST "$BASE/argon2id_hash" '"argon2id_hash":"$argon2id$v=19$m=65536,t=3,p=1$' '{"password":"correct horse battery staple"}'
+has_value "bcrypt"    POST "$BASE/bcrypt_hash"   '"bcrypt_hash":"$2b$12$' '{"password":"correct horse battery staple"}'
+has_value "scrypt"    POST "$BASE/scrypt_hash"   '"scrypt_hash":"$scrypt$ln=17,r=8,p=1$' '{"password":"correct horse battery staple"}'
+has_value "Password verify (bcrypt from PHP, cost 10)" POST "$BASE/password_verify" '"match":true' '{"password":"correct horse battery staple","hash":"$2y$10$.pVh5j2t9bCDRJYB1DzZZODcgYcU9F8RXr8lO4XEYu2Y5wnRt.EoK"}'
 has_value "SHA256 (text/plain)" POST "$BASE/sha256_hash" '"sha256_hash":"185f8db3' 'Hello' 'text/plain'
 echo ""
 

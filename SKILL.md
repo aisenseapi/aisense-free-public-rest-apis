@@ -202,10 +202,20 @@ after the algorithm - never `hash`.**
 | `POST /sha3_256_hash` | `sha3_256_hash` | `8ca66ee6b2fe4bb928a8e3cd2f508de4...` |
 | `POST /sha3_512_hash` | `sha3_512_hash` | `0b8a44ac991e2b263e8623cfbeefc1cf...` |
 | `POST /blake2b_hash` | `blake2b_hash` | `8b7ca7d27d9fc55fa30abfe515b3afb2...` |
+| `POST /blake3_hash` | `blake3_hash` | `fbc2b0516ee8744d293b980779178a35...` |
+| `POST /argon2id_hash` | `argon2id_hash` | `$argon2id$v=19$m=65536,t=3,p=1$...` |
+| `POST /bcrypt_hash` | `bcrypt_hash` | `$2b$12$...` |
+| `POST /scrypt_hash` | `scrypt_hash` | `$scrypt$ln=17,r=8,p=1$...` |
 
 `crc32_checksum` is an **integer**, not a hex string. For `/hash_verify`, name
-the algorithm in an `algorithm` field for the four newer ones, since their
-lengths collide with SHA-256 and SHA-512.
+the algorithm in an `algorithm` field for whirlpool, sha3_256, sha3_512,
+blake2b and blake3, since their lengths collide with SHA-256 and SHA-512.
+The three password hashes are salted, slow by design and for test data: 1 to
+1024 bytes (bcrypt at most 72), a new string every call, 200 operations per
+IP per day and 503 with Retry-After while the separate hashing process is
+busy. `POST /password_verify` with `password` and `hash` checks one; the
+algorithm and the cost are read from the string, and a cost above the fixed
+profiles is refused.
 
 ---
 
@@ -751,7 +761,12 @@ return numbers; their smallest units stay inside the safe range.
 | `/sha3_256_hash` | POST | `sha3_256_hash` |
 | `/sha3_512_hash` | POST | `sha3_512_hash` |
 | `/blake2b_hash` | POST | `blake2b_hash` |
+| `/blake3_hash` | POST | `blake3_hash` |
+| `/argon2id_hash` | POST | `argon2id_hash` |
+| `/bcrypt_hash` | POST | `bcrypt_hash` |
+| `/scrypt_hash` | POST | `scrypt_hash` |
 | `/hash_verify` | POST | `match`, `algorithm`, `computed` |
+| `/password_verify` | POST | `match`, `algorithm`, `params` |
 | `/ping` | GET | `ping` |
 | `/health` | GET | `status`, `microtimestamp` |
 | `/client_ip` | GET | `ip` |

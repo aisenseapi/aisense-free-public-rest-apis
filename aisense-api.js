@@ -388,6 +388,31 @@ export class AISenseAPI {
     return this.#post('/blake2b_hash', { data })
   }
 
+  /** BLAKE3, input at most 1 MiB. Response key: `blake3_hash`. */
+  hashBLAKE3(data) {
+    return this.#post('/blake3_hash', { data })
+  }
+
+  /** Argon2id password hash, 64 MiB, 3 passes; a new salted PHC string every call. For test data: 200 operations per IP per day. Response key: `argon2id_hash`. */
+  hashArgon2id(password) {
+    return this.#post('/argon2id_hash', { password })
+  }
+
+  /** bcrypt password hash, cost 12, input at most 72 bytes. Response key: `bcrypt_hash`. */
+  hashBcrypt(password) {
+    return this.#post('/bcrypt_hash', { password })
+  }
+
+  /** scrypt password hash, N 2^17, r 8, p 1; a PHC string. Response key: `scrypt_hash`. */
+  hashScrypt(password) {
+    return this.#post('/scrypt_hash', { password })
+  }
+
+  /** Verify a password against an Argon2id, bcrypt or scrypt string; the algorithm is read from the string. Answers match, algorithm and params. */
+  passwordVerify(password, hash) {
+    return this.#post('/password_verify', { password, hash })
+  }
+
   // ── Web ───────────────────────────────────────────────────────────────────
 
   /** Connectivity check. Response key: `ping` (value `'pong'`). */
