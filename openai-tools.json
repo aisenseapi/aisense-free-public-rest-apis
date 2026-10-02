@@ -307,6 +307,54 @@
   {
     "type": "function",
     "function": {
+      "name": "hash_whirlpool",
+      "description": "Whirlpool hash, 128 hex characters. Returns {\"whirlpool_hash\": \"...\"} - the key is whirlpool_hash, not hash. POST /whirlpool_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_sha3_256",
+      "description": "SHA3-256 hash. Returns {\"sha3_256_hash\": \"...\"} - the key is sha3_256_hash, not hash. POST /sha3_256_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_sha3_512",
+      "description": "SHA3-512 hash. Returns {\"sha3_512_hash\": \"...\"} - the key is sha3_512_hash, not hash. POST /sha3_512_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hash_blake2b",
+      "description": "BLAKE2b-256 hash. Returns {\"blake2b_hash\": \"...\"} - the key is blake2b_hash, not hash. POST /blake2b_hash",
+      "parameters": {
+        "type": "object",
+        "properties": { "data": { "type": "string", "description": "String to hash." } },
+        "required": ["data"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "ping",
       "description": "Connectivity check. Returns {\"ping\": \"pong\"} - the key is ping, not response. GET /ping",
       "parameters": { "type": "object", "properties": {}, "required": [] }
@@ -693,7 +741,7 @@
     "type": "function",
     "function": {
       "name": "hash_verify",
-      "description": "Verify data against a hash. The algorithm is recognized from the hash itself: an integer or non-eight-digit decimal string means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
+      "description": "Verify data against a hash. Name the algorithm when you know it, and always for whirlpool, sha3_256, sha3_512 and blake2b. Without it the algorithm is recognized from the hash: an integer or non-eight-digit decimal string means crc32 (the form /crc32_checksum returns), hex strings by length (8 crc32, 32 md5, 40 sha1, 64 sha256, 128 sha512). Returns {\"match\", \"algorithm\", \"computed\"} - computed is always included so a mismatch is debuggable. Unrecognized formats return HTTP 400. POST /hash_verify",
       "parameters": {
         "type": "object",
         "properties": {
@@ -708,6 +756,11 @@
               "integer"
             ],
             "description": "Expected hex digest or integer CRC32 checksum. Decimal strings are accepted except exactly eight digits, which are interpreted as hexadecimal. Use a JSON integer for an ambiguous CRC32."
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": ["md5", "sha1", "sha256", "sha512", "crc32", "whirlpool", "sha3_256", "sha3_512", "blake2b"],
+            "description": "Optional for the first five, required for the rest."
           }
         },
         "required": [

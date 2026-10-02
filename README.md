@@ -30,7 +30,7 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.9.0` and 60 tools: 32 workflow tools and 28
+The server reports version `1.9.1` and 60 tools: 32 workflow tools and 28
 that run the REST endpoints below. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
 published 30 September 2026.
@@ -599,7 +599,8 @@ curl -X POST https://aisenseapi.com/services/v1/sha256_hash \
 # -> { "sha256_hash": "185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969" }
 ```
 
-`md5_hash` | `sha1_hash` | `sha256_hash` | `sha512_hash` | `crc32_checksum`
+`md5_hash` | `sha1_hash` | `sha256_hash` | `sha512_hash` | `crc32_checksum` |
+`whirlpool_hash` | `sha3_256_hash` | `sha3_512_hash` | `blake2b_hash`
 
 `crc32_checksum` returns an integer, not a hex string.
 
@@ -840,6 +841,10 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Hash | `/sha256_hash` | POST | `sha256_hash` |
 | Hash | `/sha512_hash` | POST | `sha512_hash` |
 | Hash | `/crc32_checksum` | POST | `crc32_checksum` |
+| Hash | `/whirlpool_hash` | POST | `whirlpool_hash` |
+| Hash | `/sha3_256_hash` | POST | `sha3_256_hash` |
+| Hash | `/sha3_512_hash` | POST | `sha3_512_hash` |
+| Hash | `/blake2b_hash` | POST | `blake2b_hash` |
 | Hash | `/hash_verify` | POST | `match`, `algorithm`, `computed` |
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |

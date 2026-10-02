@@ -11,10 +11,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.9.0`. The official MCP Registry lists
+The server reports version `1.9.1`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.9.0` as active and latest,
 published 30 September 2026. Both numbers are the server release version,
-separate from the agent guide resource version, which is 1.4.0.
+separate from the agent guide resource version, which is 1.4.1.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -98,8 +98,8 @@ proxy these tools either.
 | `update_dns_name` | Moves a name to another address without moving its expiry |
 | `delete_dns_name` | Removes a name before it expires |
 | `encode_data` | Encodes text as Base64, Base32 or Base58, or decodes it back to text or base64 bytes |
-| `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512 or CRC32 |
-| `verify_hash` | Checks text against a hash, with the algorithm read from the hash |
+| `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512 or BLAKE2b-256 |
+| `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length |
 | `generate_random` | Makes a random number, colour, GUID, password or passphrase |
 | `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
 | `convert_timestamp` | Converts a Unix time or a date text into other forms |

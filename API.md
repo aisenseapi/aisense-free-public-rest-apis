@@ -915,8 +915,16 @@ the algorithm - not `hash`.**
 | `POST /sha256_hash` | `sha256_hash` | `185f8db32271fe25f561a6fc938b2e26...` |
 | `POST /sha512_hash` | `sha512_hash` | `3615f80c9d293ed7402687f94b22d58e...` |
 | `POST /crc32_checksum` | `crc32_checksum` | `4157704578` |
+| `POST /whirlpool_hash` | `whirlpool_hash` | `00acca7b4456c52a74c589d668b48e1b...` |
+| `POST /sha3_256_hash` | `sha3_256_hash` | `8ca66ee6b2fe4bb928a8e3cd2f508de4...` |
+| `POST /sha3_512_hash` | `sha3_512_hash` | `0b8a44ac991e2b263e8623cfbeefc1cf...` |
+| `POST /blake2b_hash` | `blake2b_hash` | `8b7ca7d27d9fc55fa30abfe515b3afb2...` |
 
-`crc32_checksum` is an **integer**, not a hex string.
+`crc32_checksum` is an **integer**, not a hex string. Whirlpool, SHA3-256,
+SHA3-512 and BLAKE2b-256 were added 2 October 2026. They hash the bytes as sent,
+with nothing trimmed, and an empty string is refused like everywhere in the
+family. BLAKE2b-256 is BLAKE2b with a 32 byte output, not the first half of
+BLAKE2b-512. None of these is a password hash.
 
 ```json
 // POST /sha256_hash
@@ -933,6 +941,13 @@ itself: an integer means crc32 in the form `/crc32_checksum` returns, and hex
 strings are mapped by length - 8 is crc32, 32 md5, 40 sha1, 64 sha256,
 128 sha512.
 
+Name the algorithm in an `algorithm` field when you know it, and always for
+`whirlpool`, `sha3_256`, `sha3_512` and `blake2b`, since a length no longer
+names one algorithm: SHA3-256 and BLAKE2b-256 are 64 hex characters like
+SHA-256, and SHA3-512 and Whirlpool are 128 like SHA-512. The hyphenated
+spellings `sha3-256` and `sha3-512` are accepted. With the field, a hash of the
+wrong length for that algorithm is **HTTP 400** with a `fix`.
+
 A mismatch is a **result**, not an error, and `computed` is always included so
 you can see what the data actually hashes to. Unrecognized hash formats return
 **HTTP 400**.
@@ -946,6 +961,10 @@ you can see what the data actually hashes to. Unrecognized hash formats return
 
 // Integer crc32, straight from /crc32_checksum
 { "data": "Hello", "hash": 4157704578 } -> { "match": true, "algorithm": "crc32", "computed": 4157704578 }
+
+// A named algorithm, required for the four newer ones
+{ "data": "Hello", "hash": "8ca66ee6b2fe4bb928a8e3cd2f508de4119c0895f22e011117e22cf9b13de7ef", "algorithm": "sha3_256" }
+-> { "match": true, "algorithm": "sha3_256", "computed": "8ca66ee6b2fe4bb928a8e3cd..." }
 ```
 
 ---
@@ -2301,6 +2320,10 @@ operations use JSON with the fields documented in their own sections.
 | `/sha256_hash` | `sha256_hash` |
 | `/sha512_hash` | `sha512_hash` |
 | `/crc32_checksum` | `crc32_checksum` (integer) |
+| `/whirlpool_hash` | `whirlpool_hash` |
+| `/sha3_256_hash` | `sha3_256_hash` |
+| `/sha3_512_hash` | `sha3_512_hash` |
+| `/blake2b_hash` | `blake2b_hash` |
 | `/ping` | `ping` |
 | `/health` | `status`, `microtimestamp` |
 | `/client_ip` | `ip` |
