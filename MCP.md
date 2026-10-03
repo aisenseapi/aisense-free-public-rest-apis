@@ -1,7 +1,7 @@
 # AI SENSE Free Public MCP Server
 
-Production MCP discovery returned 60 tools and three read-only resources on
-30 September 2026: 32 workflow tools and 28 tools that run the public REST
+Production MCP discovery returned 61 tools and three read-only resources on
+3 October 2026: 32 workflow tools and 29 tools that run the public REST
 endpoints. The deployed Queue REST smoke test passes 21
 checks. Use `tools/list` to inspect the server you connect to.
 
@@ -11,10 +11,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.9.2`. The official MCP Registry lists
+The server reports version `1.10.0`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.9.2` as active and latest,
-published 2 October 2026 at 22:44 UTC. Both numbers are the server release version,
-separate from the agent guide resource version, which is 1.4.2.
+published 2 October 2026 at 22:44 UTC. Both are server release versions,
+separate from the agent guide resource version, which is 1.5.0.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -132,7 +132,7 @@ catalog is a separate integration surface, not a copy of this list.
 
 ## REST endpoints as tools
 
-The 28 tools from `encode_data` to `read_stored_file` run the same endpoint
+The 29 tools from `encode_data` to `read_stored_file` run the same endpoint
 code as REST, in the same process, so they give the same answers, limits and
 error texts. An error result keeps the REST status in `status_code`. Related
 endpoints share one tool with a parameter, such as `hash_data` with

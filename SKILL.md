@@ -581,8 +581,8 @@ pilot. The four MCP equivalents are `create_dns_name`, `read_dns_name`,
 
 Everything above is REST. The same service is also on MCP at
 `https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
-version contains 60 tools, matching production discovery on 30 September 2026:
-the 32 workflow tools and 28 tools that run the REST endpoints above.
+version contains 61 tools, matching production discovery on 3 October 2026:
+the 32 workflow tools and 29 tools that run the REST endpoints above.
 
 A third protocol runs at its own URL:
 
