@@ -97,6 +97,21 @@ foreach ([$dir, $dir . '-total', $jammed] as $clean) {
     @rmdir($clean);
 }
 
+echo "\nHanding the line to slack_alert\n";
+// A stand-in that writes what it was given, one argument per line.
+$stub = rtrim(sys_get_temp_dir(), '/\\') . '/aisense-slack-stub-' . bin2hex(random_bytes(6));
+$seen = $stub . '.out';
+file_put_contents($stub . '.php', '<?php file_put_contents(' . var_export($seen, true) . ', implode("\n", array_slice($argv, 1))); exit(0);');
+$hostile = 'Someone: a$(touch /tmp/pwned)`id`;"x"\'y\' | & > <b>@d.no';
+$check(login_attempt_slack($hostile, [PHP_BINARY, $stub . '.php']) === '', 'a line is handed over and the stand-in reports success');
+$check((string) @file_get_contents($seen) === $hostile, 'it arrives as one argument, byte for byte, with no shell to run what is in it');
+file_put_contents($stub . '.php', '<?php fwrite(STDERR, "no token"); exit(3);');
+$why = login_attempt_slack('x', [PHP_BINARY, $stub . '.php']);
+$check(strpos($why, 'exited with 3') !== false && strpos($why, 'no token') !== false, 'a failure comes back with its exit code and what it said, for the error log');
+$check(strpos(login_attempt_slack('x', [$stub . '-missing']), 'not there or not executable') !== false, 'a missing slack_alert is reported, not run');
+@unlink($stub . '.php');
+@unlink($seen);
+
 echo "\nThe line Slack shows\n";
 $line = login_attempt_message('a<b>&c@d.no', new DateTime('2026-10-03 14:05:00', new DateTimeZone('Europe/Oslo')));
 $check(strpos($line, 'a&lt;b&gt;&amp;c@d.no') !== false, 'Slack markup in the address is written as entities');

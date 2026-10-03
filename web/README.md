@@ -85,7 +85,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `llms.txt` | `/llms.txt` - what the site offers, for language models |
 | `m2m-logs.php` | token-protected read access to this box's Apache logs for the operator dashboard; its header says what it may do |
 | `m2m-content-stats.php` | content counts included by `m2m-logs.php`; a direct request gets 404 |
-| `login-attempt.php` | tells Admin on Slack when someone uses the client login: the email address and the time, never the password. Reads the webhook URL from `/etc/aisense/www-slack-webhook` on the web box; 3 per address and 20 in total an hour |
+| `login-attempt.php` | tells Admin on Slack when someone uses the client login: the email address and the time, never the password. Hands the line to `/usr/local/bin/slack_alert` on the web box, with no shell and a 5 second limit; 3 per address and 20 in total an hour |
 | `robots.txt` | crawler directives and sitemap location |
 | `ab943e942b573e2b848e95e7ef80b550.txt` | the IndexNow key, which lets Bing and the other IndexNow search engines take URL submissions for aisense.no; public on purpose |
 | `sitemap.xml` | canonical URLs for search engines |
