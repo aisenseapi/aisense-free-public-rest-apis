@@ -85,7 +85,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 2 October 2026.</small></p>
+  <p><small>Last updated 3 October 2026.</small></p>
 </div>
 
 <h2 id="controller">Who operates this service</h2>
@@ -154,6 +154,7 @@
 <tr><td>Raw server access and MCP method logs</td><td>Temporary local copies are pruned after 14 days. Compressed archives are kept for approximately 24 months, with the cleanup threshold set to 744 days</td></tr>
 <tr><td>MCP daily summaries</td><td>No automatic expiry is configured for the daily summary files</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>
+<tr><td>Client login attempts</td><td>The email address and the time stay in our internal Slack channel until we delete them there. The counters that limit repeated attempts hold a hash of the IP address, not the address, and are kept for one hour</td></tr>
 </tbody>
 </table>
 </div>
@@ -177,6 +178,7 @@
 </div>
 <p>Creating a short link stores the destination mapping within this service and returns a <code>307.fi</code> URL. Creation does not contact the destination or send it to a separate redirect provider.</p>
 <p>No other free REST endpoint sends your supplied content to a fixed third party. An Agent Wake heartbeat action stays inside AI SENSE.</p>
+<p>The client login on <a href="/login">aisense.no/login</a> has no accounts behind it yet. When someone uses it, the email address typed into it and the time are sent to our internal Slack channel, so that we can see the attempt and offer access. The password is cleared in the browser and never sent anywhere, and the page says that you were not signed in.</p>
 
 <h2 id="cors">Calls from other websites</h2>
 <p>Our API responses permit cross-origin requests from any website, which is what makes the endpoints usable directly from browser JavaScript. A consequence worth stating plainly: if a site you visit calls our API from your browser, your IP address reaches us and is logged, even though you never visited us. We have no way to know which site that was, and we do not receive a referrer for it.</p>
@@ -187,7 +189,7 @@
 <p>You may complain to the Norwegian Data Protection Authority, Datatilsynet, at <a href="https://www.datatilsynet.no">datatilsynet.no</a>.</p>
 
 <h2 id="basis">Why we are allowed to do this</h2>
-<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
+<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The same applies to the address typed into the client login: someone asking for access may want to be contacted about it. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
 
 <h2 id="security">Security</h2>
 <p>All traffic is served over HTTPS. The service holds no account credentials because it issues none. Temporary data is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Treat these values as secrets. Anyone holding the right value can read the associated public state or result.</p>
