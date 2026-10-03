@@ -18,9 +18,9 @@ names the exact response key. The upstream API is not consistent about
 naming. /md5_hash returns "md5_hash", /ping returns "ping" and /random_color
 returns "random_color", so do not guess the key.
 
-Three endpoints return raw bytes instead of JSON (base64_decode, base58_decode
-and base32_decode). Those methods return str when the payload is valid UTF-8,
-and bytes otherwise.
+Five endpoints return raw bytes instead of JSON (base64_decode, base58_decode,
+base32_decode, hex_decode and base64url_decode). Those methods return str when
+the payload is valid UTF-8, and bytes otherwise.
 
 Failures arrive as {"error": "message"} with a real HTTP status, and this client
 raises AISenseAPIError carrying both.
@@ -268,8 +268,9 @@ class AISenseAPI:
         tagged ``"binary"``. Raw is the more useful default; use the JSON form
         when you need the tag.
 
-        /base64_decode is the only decoder that reads ``Accept``. Its Base58 and
-        Base32 siblings always answer raw bytes.
+        The hex and base64url decoders read ``Accept`` exactly as this one
+        does. The Base58 and Base32 decoders answer JSON on
+        ``Accept: application/json`` too, but have no text mode and no 406.
         """
         return self._request_binary("/base64_decode", {"data": data})
 
@@ -297,6 +298,46 @@ class AISenseAPI:
         """Decode Base32 and return the raw bytes. The service answers JSON when
         asked with ``Accept: application/json``; this method does not ask."""
         return self._request_binary("/base32_decode", {"data": data})
+
+    def hex_encode(self, data: str) -> dict:
+        """Response key: ``hex_encoded_data``, in lower case."""
+        return self._post("/hex_encode", {"data": data})
+
+    def hex_decode(self, data: str) -> Union[str, bytes]:
+        """Decode hex in either case, with an optional ``0x`` and spaces, and
+        return the raw bytes, as :meth:`base64_decode` does."""
+        return self._request_binary("/hex_decode", {"data": data})
+
+    def base64url_encode(self, data: str) -> dict:
+        """Response key: ``base64url_encoded_data``: the URL-safe alphabet,
+        ``-`` and ``_``, without padding, as JWT writes it."""
+        return self._post("/base64url_encode", {"data": data})
+
+    def base64url_decode(self, data: str) -> Union[str, bytes]:
+        """Decode base64url, with or without padding, and return the raw bytes,
+        as :meth:`base64_decode` does. ``+`` and ``/`` belong to
+        :meth:`base64_decode` and answer 400 here."""
+        return self._request_binary("/base64url_decode", {"data": data})
+
+    def url_encode(self, data: str) -> dict:
+        """Response key: ``url_encoded_data``. RFC 3986 percent-encoding: a
+        space is ``%20`` and only ``A-Z a-z 0-9 - _ . ~`` are left as they are."""
+        return self._post("/url_encode", {"data": data})
+
+    def url_decode(self, data: str) -> dict:
+        """Response key: ``url_decoded_data``. A ``+`` stays a ``+``, and the
+        result has to be UTF-8 text."""
+        return self._post("/url_decode", {"data": data})
+
+    def html_encode(self, data: str) -> dict:
+        """Response key: ``html_encoded_data``. ``& < > " '`` become
+        ``&amp; &lt; &gt; &quot; &#039;``."""
+        return self._post("/html_encode", {"data": data})
+
+    def html_decode(self, data: str) -> dict:
+        """Response key: ``html_decoded_data``. Every named HTML5 entity and
+        every numeric one back to its character."""
+        return self._post("/html_decode", {"data": data})
 
     def jwt_encode(self, payload: Union[dict, str], secret: str) -> dict:
         """Encode a payload into an HS256 JWT. Response key: ``jwt``.

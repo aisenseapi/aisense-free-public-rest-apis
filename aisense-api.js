@@ -20,9 +20,9 @@
  * /md5_hash returns `md5_hash`, /ping returns `ping` and /random_color returns
  * `random_color`, so do not guess the key.
  *
- * Three endpoints answer with raw bytes instead of JSON (base64Decode,
- * base58Decode and base32Decode); those resolve to a string when the payload is
- * valid UTF-8 and to a Uint8Array otherwise.
+ * Five endpoints answer with raw bytes instead of JSON (base64Decode,
+ * base58Decode, base32Decode, hexDecode and base64urlDecode); those resolve to a
+ * string when the payload is valid UTF-8 and to a Uint8Array otherwise.
  *
  * Failures arrive as `{"error": "message"}` with a real HTTP status, and this
  * client rejects with an AISenseAPIError carrying both.
@@ -285,8 +285,9 @@ export class AISenseAPI {
    * JSON therefore comes back tagged `'binary'`. Raw is the more useful
    * default; use the JSON form when you need the tag.
    *
-   * /base64_decode is the only decoder that reads `Accept`. Its Base58 and
-   * Base32 siblings always answer raw bytes.
+   * The hex and base64url decoders read `Accept` exactly as this one does. The
+   * Base58 and Base32 decoders answer JSON on `Accept: application/json` too,
+   * but have no text mode and no 406.
    */
   base64Decode(data) {
     return this.#requestBinary('/base64_decode', { data })
@@ -321,6 +322,58 @@ export class AISenseAPI {
    */
   base32Decode(data) {
     return this.#requestBinary('/base32_decode', { data })
+  }
+
+  /** Response key: `hex_encoded_data`, in lower case. */
+  hexEncode(data) {
+    return this.#post('/hex_encode', { data })
+  }
+
+  /**
+   * Decode hex in either case, with an optional `0x` and spaces, and return the
+   * raw bytes, as {@link base64Decode} does.
+   */
+  hexDecode(data) {
+    return this.#requestBinary('/hex_decode', { data })
+  }
+
+  /**
+   * Response key: `base64url_encoded_data`: the URL-safe alphabet, `-` and `_`,
+   * without padding, as JWT writes it.
+   */
+  base64urlEncode(data) {
+    return this.#post('/base64url_encode', { data })
+  }
+
+  /**
+   * Decode base64url, with or without padding, and return the raw bytes, as
+   * {@link base64Decode} does. `+` and `/` belong to base64Decode and answer 400.
+   */
+  base64urlDecode(data) {
+    return this.#requestBinary('/base64url_decode', { data })
+  }
+
+  /**
+   * Response key: `url_encoded_data`. RFC 3986 percent-encoding: a space is
+   * `%20` and only `A-Z a-z 0-9 - _ . ~` are left as they are.
+   */
+  urlEncode(data) {
+    return this.#post('/url_encode', { data })
+  }
+
+  /** Response key: `url_decoded_data`. A `+` stays a `+`, and the result has to be UTF-8 text. */
+  urlDecode(data) {
+    return this.#post('/url_decode', { data })
+  }
+
+  /** Response key: `html_encoded_data`. `& < > " '` become `&amp; &lt; &gt; &quot; &#039;`. */
+  htmlEncode(data) {
+    return this.#post('/html_encode', { data })
+  }
+
+  /** Response key: `html_decoded_data`. Every named HTML5 entity and every numeric one back to its character. */
+  htmlDecode(data) {
+    return this.#post('/html_decode', { data })
   }
 
   /**

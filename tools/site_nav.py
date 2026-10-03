@@ -27,6 +27,8 @@ import os
 import re
 import sys
 
+from agent_optimal import decorate as decorate_agent_optimal
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 WEB = os.path.join(os.path.dirname(HERE), 'web')
 
@@ -36,7 +38,7 @@ LATEST_POSTS = 5
 # no Cache-Control, so a browser may keep an old copy for hours; a new header
 # with the old CSS would show every menu open. Change this whenever the CSS
 # changes in a way the pages depend on, and run the script.
-CSS_VERSION = '20261003'
+CSS_VERSION = '20261003b'
 
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.
@@ -86,6 +88,14 @@ API_GROUPS = [
         ('/free-public-api-base58-decode-api-endpoint', 'Base58 decode'),
         ('/free-public-api-base32-encode-api-endpoint', 'Base32 encode'),
         ('/free-public-api-base32-decode-api-endpoint', 'Base32 decode'),
+        ('/free-public-api-base64url-encode-api-endpoint', 'base64url encode'),
+        ('/free-public-api-base64url-decode-api-endpoint', 'base64url decode'),
+        ('/free-public-api-hex-encode-api-endpoint', 'Hex encode'),
+        ('/free-public-api-hex-decode-api-endpoint', 'Hex decode'),
+        ('/free-public-api-url-encode-api-endpoint', 'URL encode'),
+        ('/free-public-api-url-decode-api-endpoint', 'URL decode'),
+        ('/free-public-api-html-encode-api-endpoint', 'HTML encode'),
+        ('/free-public-api-html-decode-api-endpoint', 'HTML decode'),
     ]),
     ('text', 'Text and tokens', '/free-public-apis#transform', [
         ('/free-public-api-slugify-api-endpoint', 'Slugify'),
@@ -277,6 +287,7 @@ def main():
         home = 'class="wordmark" href="/" aria-current="page"' in found.group(0)
         updated = source[:found.start()] + render(current, home) + source[found.end():]
         updated = CSS_RE.sub(CSS_LINK, updated)
+        updated = decorate_agent_optimal(updated, name)
         if updated == source:
             continue
         differ.append(name)

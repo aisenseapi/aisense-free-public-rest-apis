@@ -610,7 +610,7 @@ day: `argon2id_hash` | `bcrypt_hash` | `scrypt_hash`, verified with
 
 ---
 
-### Encoding - Base64, Base58, Base32, JWT, QR Code
+### Encoding - Base64, Base58, Base32, Hex, base64url, URL, HTML, JWT, QR Code
 
 ```bash
 # Encode
@@ -630,11 +630,34 @@ curl -X POST https://aisenseapi.com/services/v1/base64_decode \
 # -> { "type": "json", "decoded_data": { "key": "value" } }
 ```
 
-The three decoders (`base64_decode`, `base58_decode`, `base32_decode`) answer
-with `application/octet-stream` unless you send `Accept: application/json`.
-This is the one place the API is not JSON. `base64_decode` also answers
-`text/plain` and refuses an `Accept` it cannot serve with 406; the other two
-give the bytes for anything but JSON.
+The five byte decoders (`base64_decode`, `base58_decode`, `base32_decode`,
+`hex_decode`, `base64url_decode`) answer with `application/octet-stream` unless
+you send `Accept: application/json`. This is the one place the API is not JSON.
+`base64_decode`, `hex_decode` and `base64url_decode` also answer `text/plain`
+and refuse an `Accept` they cannot serve with 406; the other two give the bytes
+for anything but JSON.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/hex_encode \
+  -H "Content-Type: application/json" -d '{"data": "hello"}'
+# -> { "hex_encoded_data": "68656c6c6f" }
+
+curl -X POST https://aisenseapi.com/services/v1/base64url_encode \
+  -H "Content-Type: application/json" -d '{"data": "hello?"}'
+# -> { "base64url_encoded_data": "aGVsbG8_" }   (- and _, no padding, as in a JWT)
+
+curl -X POST https://aisenseapi.com/services/v1/url_encode \
+  -H "Content-Type: application/json" -d '{"data": "a b/c?é"}'
+# -> { "url_encoded_data": "a%20b%2Fc%3F%C3%A9" }
+
+curl -X POST https://aisenseapi.com/services/v1/html_encode \
+  -H "Content-Type: application/json" -d '{"data": "<b>Tom & Jerry</b>"}'
+# -> { "html_encoded_data": "&lt;b&gt;Tom &amp; Jerry&lt;/b&gt;" }
+```
+
+`url_decode` and `html_decode` answer JSON, `url_decoded_data` and
+`html_decoded_data`, since their result is text. `url_decode` leaves a `+` as a
+`+`.
 
 **JWT - `data` takes the claims as a JSON object, or as a string containing
 JSON.** Both forms produce the same token.
@@ -850,6 +873,14 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Transform | `/base58_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | Transform | `/base32_encode` | POST | `base32_encoded_data` |
 | Transform | `/base32_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| Transform | `/hex_encode` | POST | `hex_encoded_data` |
+| Transform | `/hex_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| Transform | `/base64url_encode` | POST | `base64url_encoded_data` |
+| Transform | `/base64url_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| Transform | `/url_encode` | POST | `url_encoded_data` |
+| Transform | `/url_decode` | POST | `url_decoded_data` |
+| Transform | `/html_encode` | POST | `html_encoded_data` |
+| Transform | `/html_decode` | POST | `html_decoded_data` |
 | Transform | `/slugify` | POST | `slug` |
 | Transform | `/jwt_encode` | POST | `jwt` |
 | Transform | `/jwt_decode` | POST | `decoded_payload` |

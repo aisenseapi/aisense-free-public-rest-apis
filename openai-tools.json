@@ -208,6 +208,158 @@
   {
     "type": "function",
     "function": {
+      "name": "hex_encode",
+      "description": "Encode text or bytes as lower-case hex. Returns {\"hex_encoded_data\": \"68656c6c6f\"}. POST /hex_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "hex_decode",
+      "description": "Decode hex, in either case, with an optional 0x and spaces. Returns raw bytes, or a typed envelope with Accept: application/json, like base64_decode. POST /hex_decode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Hex string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base64url_encode",
+      "description": "Encode text to base64url, the URL-safe alphabet with - and _ and no padding, as JWT, OAuth PKCE and WebAuthn write it. Returns {\"base64url_encoded_data\": \"SGVsbG8\"}. POST /base64url_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "base64url_decode",
+      "description": "Decode base64url, with or without padding. Returns raw bytes, or a typed envelope with Accept: application/json, like base64_decode. A + or / is HTTP 400; use base64_decode for those. POST /base64url_decode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "base64url string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "url_encode",
+      "description": "Percent-encode text for a URL path segment or query value (RFC 3986): a space becomes %20 and only A-Z a-z 0-9 - _ . ~ stay as they are. Returns {\"url_encoded_data\": \"a%20b%2Fc\"}. POST /url_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "url_decode",
+      "description": "Decode percent-encoding back to text. A + stays a +. Returns {\"url_decoded_data\": \"a b/c\"}. A % without two hex digits after it, or bytes that are not UTF-8, is HTTP 400. POST /url_decode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Percent-encoded string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "html_encode",
+      "description": "Escape text for HTML: & < > \" and ' become &amp; &lt; &gt; &quot; &#039;. Returns {\"html_encoded_data\": \"&lt;b&gt;\"}. POST /html_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "UTF-8 text to escape."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "html_decode",
+      "description": "Turn HTML entities back into characters, every named HTML5 entity and every numeric one. Returns {\"html_decoded_data\": \"<b>\"}. POST /html_decode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text with HTML entities."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "jwt_encode",
       "description": "Encode claims into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. data takes the claims as a JSON object directly, or as a string containing JSON - both produce the same token. A string that is not JSON returns HTTP 400. POST /jwt_encode",
       "parameters": {

@@ -49,8 +49,9 @@ non-2xx statuses, including 409 for conflicts and 410 for an expired record
 that has not yet been removed. Once removed, the same ID returns 404. Unknown
 routes also return 404. Consult each endpoint for its additional errors.
 
-**Not everything is JSON.** `base64_decode`, `base58_decode` and `base32_decode`
-answer with `application/octet-stream` unless you send `Accept: application/json`.
+**Not everything is JSON.** `base64_decode`, `base58_decode`, `base32_decode`,
+`hex_decode` and `base64url_decode` answer with `application/octet-stream`
+unless you send `Accept: application/json`.
 
 ---
 
@@ -397,6 +398,94 @@ Unlike `base64_decode` there is no `text/plain` mode and no 406: any other
 
 ```json
 { "data": "JBSWY3DP" } -> Hello
+```
+
+---
+
+### `POST /hex_encode`
+Any bytes in, lower-case hex out, added 3 October 2026. Like the seven below,
+it takes `data` in a JSON body or the raw body with any other content type, at
+most 1 MiB (HTTP 413 above that), and every refusal carries a `fix`.
+
+```json
+{ "data": "hello" } -> { "hex_encoded_data": "68656c6c6f" }
+```
+
+---
+
+### `POST /hex_decode`
+Hex in either case; a leading `0x` and spaces are allowed. Answers exactly as
+`base64_decode` does: the raw bytes, the typed envelope with
+`Accept: application/json`, text with `Accept: text/plain`, and 406 for any
+other `Accept`. An odd number of digits or a character that is not hex is
+HTTP 400 `Invalid hex input.`
+
+```json
+{ "data": "68656C6C6F" } -> hello
+```
+
+---
+
+### `POST /base64url_encode`
+The URL-safe alphabet of RFC 4648, section 5: `-` and `_` where base64 writes
+`+` and `/`, and no padding, as JWT, OAuth PKCE and WebAuthn write it.
+
+```json
+{ "data": "hello?" } -> { "base64url_encoded_data": "aGVsbG8_" }
+```
+
+---
+
+### `POST /base64url_decode`
+With or without `=` padding. Answers exactly as `base64_decode` does. A `+` or
+`/` is HTTP 400 `Invalid base64url input.`, with a fix pointing at
+`base64_decode`.
+
+```json
+{ "data": "aGVsbG8_" } -> hello?
+```
+
+---
+
+### `POST /url_encode`
+Percent-encoding for one path segment or query value (RFC 3986): every byte
+but `A-Z a-z 0-9 - _ . ~` becomes `%XX`, so a space is `%20` and a slash `%2F`.
+
+```json
+{ "data": "a b/c?é" } -> { "url_encoded_data": "a%20b%2Fc%3F%C3%A9" }
+```
+
+---
+
+### `POST /url_decode`
+Percent-encoding back to text. A `+` stays a `+`, since it means a space only
+in HTML form bodies. A `%` without two hex digits after it is HTTP 400
+`Invalid percent-encoding.`, and bytes that do not form UTF-8 text are HTTP 400
+`The decoded bytes are not UTF-8 text.`, with a fix pointing at `hex_decode`
+and `base64_decode`.
+
+```json
+{ "data": "a%20b%2Fc+%C3%A9" } -> { "url_decoded_data": "a b/c+é" }
+```
+
+---
+
+### `POST /html_encode`
+`& < > " '` become `&amp; &lt; &gt; &quot; &#039;`, so text can go into an HTML
+page or attribute as it is. Every `&` is encoded, an entity already in the text
+included. The input has to be UTF-8 text.
+
+```json
+{ "data": "<b>Tom & Jerry's</b>" } -> { "html_encoded_data": "&lt;b&gt;Tom &amp; Jerry&#039;s&lt;/b&gt;" }
+```
+
+---
+
+### `POST /html_decode`
+Every named HTML5 entity and every numeric one back to its character.
+
+```json
+{ "data": "&lt;b&gt; &amp; &eacute; &#233;" } -> { "html_decoded_data": "<b> & é é" }
 ```
 
 ---
@@ -2479,7 +2568,11 @@ operations use JSON with the fields documented in their own sections.
 | `/base64_encode` | `base64_encoded_data` |
 | `/base58_encode` | `base58_encoded_data` |
 | `/base32_encode` | `base32_encoded_data` |
-| `/base64_decode`, `/base58_decode`, `/base32_decode` | raw bytes, or `type` + `decoded_data` with `Accept: application/json` |
+| `/hex_encode` | `hex_encoded_data` |
+| `/base64url_encode` | `base64url_encoded_data` |
+| `/base64_decode`, `/base58_decode`, `/base32_decode`, `/hex_decode`, `/base64url_decode` | raw bytes, or `type` + `decoded_data` with `Accept: application/json` |
+| `/url_encode`, `/url_decode` | `url_encoded_data`, `url_decoded_data` |
+| `/html_encode`, `/html_decode` | `html_encoded_data`, `html_decoded_data` |
 | `/jwt_encode` | `jwt` |
 | `/jwt_decode` | `decoded_payload` |
 | `/qrcode_encode` | `qrcode_image`, `image_type` |
