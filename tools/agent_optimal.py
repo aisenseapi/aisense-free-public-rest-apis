@@ -17,7 +17,7 @@ SERVICES = {
     '/free-public-api-lease-api-endpoint': 'Lease',
 }
 
-BADGE = ('<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003b" '
+BADGE = ('<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003c" '
          'width="24" height="24" alt="Agent Optimal" '
          'title="Agent Optimal - Built for agent workflows. An AI SENSE label.">')
 
