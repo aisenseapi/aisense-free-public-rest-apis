@@ -994,7 +994,11 @@ td code { white-space: nowrap; }
 
 
 /* ---------------------------------------------------------------------------
- * Primary navigation: inline on desktop, a dropdown on narrow screens.
+ * Primary navigation: a menu bar with three menus on desktop, a panel with
+ * the same links one level at a time on phones and touch tablets.
+ *
+ * The header is written into every page by tools/site_nav.py, which is where
+ * the links are defined. Nothing here needs a script.
  *
  * Seven links do not fit a phone. They used to become a horizontally scrolling
  * strip with the scrollbar hidden, so five of the seven sat off screen with
@@ -1005,14 +1009,179 @@ td code { white-space: nowrap; }
  * of its children's width to its own content box, so at desktop widths the nav
  * measured zero and the links stacked into a column in the right margin.
  * Measured at 1280px. A plain div has no such behaviour and accepts
- * display:contents, which keeps the links as direct flex children of .site-nav
- * on desktop and leaves the old layout exactly as it was.
+ * display:contents, which keeps the items as direct flex children of .site-nav
+ * on desktop.
+ *
+ * The menus (3 October 2026) use the same device. Each one has a checkbox and
+ * a label: on desktop the label is the small arrow beside the item, which a
+ * keyboard reaches and opens with the space bar, while a pointer opens the menu
+ * by hovering. A checked menu shows only while focus is inside it, so tabbing
+ * past it closes it. On phones the same checkboxes open one level at a time.
+ *
+ * The bar needs 1024px of page width with the four arrows, and a scroll bar
+ * takes 15px more, measured at 1280px in Segoe UI. The panel takes over at 1100px,
+ * leaving room for wider fonts, and on any device without a hovering pointer,
+ * so the bar never wraps onto a second row where a menu would open over it.
  * ------------------------------------------------------------------------- */
 .site-menu-toggle,
 .site-menu-button { display: none; }
 .site-menu-links { display: contents; }
 
-@media (max-width: 640px) {
+.nav-item { position: relative; }
+.nav-panel { display: none; }
+.nav-list { list-style: none; margin: 0; padding: 0; }
+
+/*
+ * Out of sight rather than display:none, because a checkbox that is not
+ * rendered is not focusable, and the keyboard path runs through it.
+ */
+.nav-sub-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* A line under a link that says what is behind it, and a label over a list. */
+.nav-desc { display: block; margin-top: 1px; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.nav-panel-label {
+  max-width: none;
+  margin: 10px 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nav-sub-button { cursor: pointer; user-select: none; }
+.nav-sub-button::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+.nav-sub-toggle:checked + .nav-sub-button::before { transform: translateY(2px) rotate(-135deg); }
+.nav-sub-toggle:focus-visible + .nav-sub-button {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (min-width: 1101px) and (hover: hover), (min-width: 1101px) and (pointer: fine) {
+  .nav-item { display: flex; align-items: center; }
+
+  /*
+   * The item reaches down to the header's lower edge, so the pointer stays on
+   * it all the way from the label to the menu, which starts at that edge.
+   */
+  .nav-has-panel { padding: 14px 0; margin: -14px 0; }
+
+  .nav-sub-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 22px;
+    margin-left: 3px;
+    color: var(--muted, #64748b);
+  }
+
+  .nav-panel {
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: -16px;
+    z-index: 60;
+    width: max-content;
+    min-width: 230px;
+    max-width: 380px;
+    padding: 10px 16px 12px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    box-shadow: 0 14px 32px rgba(16, 24, 40, 0.16);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+  }
+
+  .nav-has-panel:hover > .nav-panel,
+  .nav-has-panel:focus-within > .nav-sub-toggle:checked ~ .nav-panel {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+  }
+
+  /* A menu near the right edge opens leftwards, so it stays on screen. */
+  .nav-item-end > .nav-panel { left: auto; right: -16px; }
+
+  /* The endpoint menu spans the header, measured from it rather than the item. */
+  .nav-item-wide { position: static; }
+  .nav-item-wide > .nav-panel {
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1132px, calc(100vw - 48px));
+    max-width: none;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    padding: 22px 26px 14px;
+  }
+
+  .nav-groups { columns: 5 180px; column-gap: 30px; }
+  .nav-group { break-inside: avoid; margin: 0 0 18px; }
+  .nav-group > .nav-sub-toggle,
+  .nav-group > .nav-sub-button { display: none; }
+  /* The category heading is a link to its guide, so it is coloured like one. */
+  .nav-group-title {
+    display: block;
+    margin: 0 0 4px;
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .nav-list a {
+    display: block;
+    margin: 0 -8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: var(--body);
+    line-height: 1.35;
+  }
+  .nav-list a:hover,
+  .nav-list a:focus-visible {
+    background: var(--tint);
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .nav-group-title:hover { color: var(--blue-dark); }
+
+  .nav-panel-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 24px;
+    max-width: none;
+    margin: 8px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .nav-panel-foot a { color: var(--blue); font-weight: 600; }
+}
+
+@media (max-width: 1100px), (hover: none) and (pointer: coarse) {
   /* The scroll strip is no longer wanted now the links live in a panel. */
   .site-nav {
     position: relative;
@@ -1021,10 +1190,7 @@ td code { white-space: nowrap; }
     flex-wrap: nowrap;
   }
 
-  /*
-   * Moved out of sight rather than display:none, because a checkbox that is
-   * not rendered is not focusable, and the keyboard path runs through it.
-   */
+  /* Out of sight rather than display:none, for the same reason as above. */
   .site-menu-toggle {
     position: absolute;
     width: 1px;
@@ -1086,13 +1252,17 @@ td code { white-space: nowrap; }
 
   .site-menu-links { display: none; }
 
+  /* Tall enough for every level opened at once; the panel scrolls inside. */
   .site-menu-toggle:checked ~ .site-menu-links {
     display: flex;
     flex-direction: column;
     position: absolute;
     right: 18px;
     top: calc(100% + 11px);
-    min-width: 236px;
+    width: min(340px, calc(100vw - 36px));
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 6px;
     background: #fff;
     border: 1px solid var(--border);
@@ -1101,18 +1271,72 @@ td code { white-space: nowrap; }
     z-index: 60;
   }
 
-  .site-menu-toggle:checked ~ .site-menu-links a {
+  .nav-item,
+  .nav-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .site-menu-links .nav-top {
     padding: 12px;
     border-radius: 7px;
     white-space: nowrap;
   }
 
-  .site-menu-toggle:checked ~ .site-menu-links a[aria-current="page"] { background: #eef4ff; }
+  .site-menu-links .nav-top[aria-current="page"] { background: #eef4ff; }
+
+  .nav-sub-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 7px;
+    color: var(--ink);
+  }
+  .nav-sub-button::before { width: 8px; height: 8px; border-width: 0 2px 2px 0; }
+  .nav-sub-toggle:checked + .nav-sub-button { background: var(--tint); }
+
+  .nav-panel {
+    grid-column: 1 / -1;
+    margin: 0 0 6px 12px;
+    padding-left: 10px;
+    border-left: 2px solid var(--tint);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  .nav-item > .nav-sub-toggle:checked ~ .nav-panel { display: block; }
+
+  .nav-group-title { padding: 10px 12px; color: var(--ink); font-weight: 600; }
+  .nav-group > .nav-list { display: none; grid-column: 1 / -1; padding: 0 0 6px 12px; }
+  .nav-group > .nav-sub-toggle:checked ~ .nav-list { display: block; }
+
+  /* Wrapped, not cut: the phone rules above keep nav links on one line. */
+  .nav-list a,
+  .nav-group-title {
+    display: block;
+    white-space: normal;
+  }
+  .nav-list a {
+    padding: 9px 12px;
+    border-radius: 7px;
+    color: var(--body);
+    line-height: 1.35;
+  }
+
+  .nav-panel-label { padding: 0 12px; }
+  .nav-panel-foot { margin: 2px 0 0; }
+  .nav-panel-foot a { display: block; padding: 10px 12px; color: var(--blue); font-weight: 600; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .site-menu-bars::before,
-  .site-menu-bars::after { transition: none; }
+  .site-menu-bars::after,
+  .nav-sub-button::before,
+  .nav-panel { transition: none; }
 }
 
 /* Try aamio: the live test page at /try-aamio. Every rule is scoped to a

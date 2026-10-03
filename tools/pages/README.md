@@ -24,6 +24,9 @@ the generators and the published pages still agree. The three posts add their
 card and sitemap line only when the page is not listed yet, so a card that
 needs new text is edited in `ai-sense-posts.html` itself.
 
+The site header in every page is written by `../site_nav.py`, so the header
+these scripts copy is the one it wrote. Run it after a build that adds a page.
+
 The tool pages take the site header and footer from
 `web/free-json-to-csv-api.html`, the posts from
 `web/a-name-that-answers-for-24-hours.html`, and the two endpoint pages from
