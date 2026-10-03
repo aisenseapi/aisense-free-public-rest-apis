@@ -25,3 +25,6 @@ RUNS = [
 
 for script, *args in RUNS:
     subprocess.run([sys.executable, os.path.join(HERE, script)] + args, check=True)
+
+# Last, so every page, these included, carries the current header and stylesheet link.
+subprocess.run([sys.executable, os.path.join(os.path.dirname(HERE), 'site_nav.py')], check=True)

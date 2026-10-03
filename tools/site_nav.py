@@ -15,7 +15,8 @@ web/assets/aisense.css under "Primary navigation".
 
 The latest posts are read from the blogPost list in web/ai-sense-posts.html,
 newest first, so adding a post there and running this updates every menu.
-Each page keeps the top-level item it marks as current, and the home page its
+It also sets the version on each page's link to assets/aisense.css, see
+CSS_VERSION. Each page keeps the top-level item it marks as current, and the home page its
 current wordmark; a page that marks none stays that way. Every link must point at a page in web/, or the script stops.
 
 Python 3, standard library only. Run from anywhere.
@@ -30,6 +31,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 WEB = os.path.join(os.path.dirname(HERE), 'web')
 
 LATEST_POSTS = 5
+
+# The version on every page's link to assets/aisense.css. The CSS is served with
+# no Cache-Control, so a browser may keep an old copy for hours; a new header
+# with the old CSS would show every menu open. Change this whenever the CSS
+# changes in a way the pages depend on, and run the script.
+CSS_VERSION = '20261003'
 
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.
@@ -157,6 +164,8 @@ CURRENT_OVERRIDES = {
 }
 
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
+CSS_RE = re.compile(r'<link rel="stylesheet" href="/assets/aisense\.css(?:\?v=[^"]*)?">')
+CSS_LINK = '<link rel="stylesheet" href="/assets/aisense.css?v=%s">' % CSS_VERSION
 
 
 def esc(text):
@@ -266,13 +275,14 @@ def main():
         marked = re.findall(r'<a (?:class="nav-top" )?href="([^"]+)" aria-current="page">', found.group(0))
         current = CURRENT_OVERRIDES.get(name, marked[0] if marked else None)
         home = 'class="wordmark" href="/" aria-current="page"' in found.group(0)
-        header = render(current, home)
-        if found.group(0) == header:
+        updated = source[:found.start()] + render(current, home) + source[found.end():]
+        updated = CSS_RE.sub(CSS_LINK, updated)
+        if updated == source:
             continue
         differ.append(name)
         if not check:
             with open(path, 'w', encoding='utf-8', newline='') as out:
-                out.write(source[:found.start()] + header + source[found.end():])
+                out.write(updated)
     if check:
         if differ:
             print('site_nav: %d page(s) carry an old header: %s' % (len(differ), ', '.join(differ)))
