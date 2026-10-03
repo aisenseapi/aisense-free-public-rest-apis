@@ -189,7 +189,7 @@ export class AISenseAPI {
   }
 
   /**
-   * Current datetime in an IANA time zone such as `Europe/Oslo`, summer time
+   * Current datetime in an IANA time zone such as `europe/oslo`, in any case, summer time
    * included. Keys: `datetime`, `timezone`, `abbreviation`, `utc_offset`,
    * `dst`, `unixtime`, `raw_offset`, `dst_offset`, `dst_from`, `dst_until`,
    * `day_of_week`, `day_of_year`, `week_number`, `utc_datetime`. An unknown

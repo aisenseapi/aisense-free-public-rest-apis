@@ -173,7 +173,7 @@ class AISenseAPI:
         ``"1"`` are NOT accepted by the API: they form a path that matches no
         route, so they answer 404.
 
-        ``timezone`` is an IANA name such as ``"Europe/Oslo"``, which follows
+        ``timezone`` is an IANA name such as ``"europe/oslo"``, in any case, which follows
         summer time; the answer then also has ``timezone``, ``abbreviation``,
         ``utc_offset``, ``dst``, ``unixtime``, ``raw_offset``, ``dst_offset``,
         ``dst_from``, ``dst_until``, ``day_of_week``, ``day_of_year``,

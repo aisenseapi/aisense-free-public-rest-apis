@@ -685,7 +685,7 @@ fixed at 1.
 ```bash
 curl https://aisenseapi.com/services/v1/datetime            # UTC
 curl https://aisenseapi.com/services/v1/datetime/+0200      # with offset
-curl https://aisenseapi.com/services/v1/datetime/Europe/Oslo  # a zone by name, summer time included
+curl https://aisenseapi.com/services/v1/datetime/europe/oslo  # a zone by name, summer time included
 curl https://aisenseapi.com/services/v1/ip_datetime         # the same, where your address is
 curl https://aisenseapi.com/services/v1/timestamp
 curl https://aisenseapi.com/services/v1/microtimestamp
@@ -695,7 +695,7 @@ curl https://aisenseapi.com/services/v1/swatchinternettime
 
 The offset is **four digits** with an optional sign - `+0200`, `-0530`,
 `0100` - or the same with a colon, `+02:00`. An hour-only value like `1` is not a
-valid route. A zone name such as `Europe/Oslo` follows summer time, which a fixed
+valid route. A zone name such as `europe/oslo`, in any case, follows summer time, which a fixed
 offset does not. Its answer has the offset in force, the standard offset,
 whether summer time is on and when it starts and ends, and the day and week
 numbers. `/ip_datetime[/{ip}]` answers the same for the zone an address is in,

@@ -93,7 +93,7 @@ non-create call, plus the matching token name above. Job-specific calls need
 | Endpoint | Returns |
 |----------|---------|
 | `GET /datetime[/{offset}]` | `{"datetime": "2026-08-16T11:44:35+02:00"}` |
-| `GET /datetime/Europe/Oslo` | `{"datetime": ..., "timezone": "Europe/Oslo", "abbreviation": "CEST", "utc_offset": "+02:00", "dst": true, "unixtime": ..., "raw_offset": 3600, "dst_offset": 3600, "dst_from": ..., "dst_until": ..., "day_of_week": ..., "day_of_year": ..., "week_number": ..., "utc_datetime": ...}` |
+| `GET /datetime/europe/oslo` | `{"datetime": ..., "timezone": "Europe/Oslo", "abbreviation": "CEST", "utc_offset": "+02:00", "dst": true, "unixtime": ..., "raw_offset": 3600, "dst_offset": 3600, "dst_from": ..., "dst_until": ..., "day_of_week": ..., "day_of_year": ..., "week_number": ..., "utc_datetime": ...}` |
 | `GET /ip_datetime[/{ip}]` | `{"ip": ...}` and the same fields for the zone the address is in; the caller's own without one. WorldTimeAPI's `/api/timezone/{zone}` is `/datetime/{zone}` here, `/api/ip` is `/ip_datetime` |
 | `GET /timestamp` | `{"timestamp": 1786873261}` |
 | `GET /microtimestamp` | `{"microtimestamp": 1786873474.745043}` |
