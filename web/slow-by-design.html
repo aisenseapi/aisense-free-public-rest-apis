@@ -109,7 +109,7 @@
 </tbody>
 </table></div>
 
-<p>So one password hash is between 250 and 580 ordinary calls. The whole API served 303 575 calls yesterday in roughly five minutes of CPU; a thousand password hashes a day would add three. Volume is not the problem. Bursts are. The API runs on one shared service with four request workers, and a worker that is computing is a worker that answers nobody for the duration. Four scrypt calls arriving together would freeze every tenant on the machine for a quarter of a second, and a loop of them would hold the whole API down for as long as it ran. A PHP extension would have had the same problem, since it runs inside the same worker.</p>
+<p>So one password hash is between 250 and 580 ordinary calls. A whole day of ordinary calls fits in a few minutes of CPU; a thousand password hashes a day would add about three. Volume is not the problem. Bursts are. The API runs on one shared service with four request workers, and a worker that is computing is a worker that answers nobody for the duration. Four scrypt calls arriving together would freeze every tenant on the machine for a quarter of a second, and a loop of them would hold the whole API down for as long as it ran. A PHP extension would have had the same problem, since it runs inside the same worker.</p>
 
 <h2>A process of its own</h2>
 

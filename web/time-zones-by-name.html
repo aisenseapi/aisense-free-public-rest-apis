@@ -11,7 +11,7 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Time Zones by Name, and a Home for WorldTimeAPI's Clients">
-<meta property="og:description" content="Most of what this API answers is the time, mostly to programs that were set up once and call forever. Two additions for them: zones by name on /datetime, and WorldTimeAPI's fields for everyone it left behind.">
+<meta property="og:description" content="Two additions to the time endpoints: zones by name on /datetime, which follow summer time where a fixed offset cannot, and WorldTimeAPI's fields for everyone it left behind.">
 <meta property="og:url" content="https://aisense.no/time-zones-by-name">
 <meta property="article:published_time" content="2026-10-03">
 <meta name="twitter:card" content="summary">
@@ -65,11 +65,11 @@
 <header class="article-header">
   <p class="eyebrow">Product note - 3 October 2026</p>
   <h1>Time Zones by Name, and a Home for WorldTimeAPI's Clients</h1>
-  <p class="article-deck">Most of what this API answers is the time. Of the 303 575 calls counted on 2 October, 96 percent asked for a timestamp or a date. Two additions today are for the programs behind those calls: <code>/datetime</code> takes a zone by name, which follows summer time where a fixed offset cannot, and WorldTimeAPI's fifteen fields answer under <code>/services/v1/worldtime</code> for every client that service left behind.</p>
+  <p class="article-deck">Two additions to the time endpoints today: <code>/datetime</code> takes a zone by name, which follows summer time where a fixed offset cannot, and WorldTimeAPI's fifteen fields answer under <code>/services/v1/worldtime</code> for every client that service left behind.</p>
 </header>
 
 <div class="article-body">
-<p class="article-lead">The time endpoints are called by software that was set up once and then left to run. In fourteen minutes this morning a Delphi application asked for <code>/timestamp</code> 1 212 times, clients that identify as the game ARK asked for <code>/microtimestamp</code> 175 times, Godot games asked for <code>/datetime</code> with a fixed offset 113 times, and ESP32 boards and okhttp clients came in between. Nobody changes code like that every season, which is the problem with a fixed offset.</p>
+<p class="article-lead">A clock is the kind of call that gets written once and then left to run: in an agent that stamps its records, a game server, a board on a wall. Nobody changes code like that every season, which is the problem with a fixed offset.</p>
 
 <h2>A fixed offset is wrong for half the year</h2>
 
@@ -80,7 +80,7 @@
 
 <p>Any IANA name works, in any case, including three-part names such as <code>America/Argentina/Buenos_Aires</code>. The answer by name says what the offset is right now and whether summer time is on, since that is the reason to ask by name. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
 
-<p>The offset forms are unchanged. About 29 000 calls a day, with an offset or without one, expect <code>{"datetime": ...}</code> and nothing else, and that is what they keep getting. <code>+02:00</code> with a colon is now accepted beside <code>+0200</code>, and an hour-only value such as <code>/datetime/1</code> is still not a route.</p>
+<p>The offset forms are unchanged. Clients that expect <code>{"datetime": ...}</code> and nothing else keep getting exactly that. <code>+02:00</code> with a colon is now accepted beside <code>+0200</code>, and an hour-only value such as <code>/datetime/1</code> is still not a route.</p>
 
 <h2>WorldTimeAPI's fields, under our paths</h2>
 
