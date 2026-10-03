@@ -30,9 +30,10 @@
 
 <!--
   There are no client accounts yet. The form posts only the email address to
-  /login-attempt.php, which tells Admin on Slack that someone tried; the
-  password is cleared and never leaves this page. The visitor is told they
-  were not signed in. Keep authentication endpoints, client IDs, tokens and
+  /login-attempt.php, which tells Admin on Slack that someone tried. The
+  password field has no name, so no submission can carry it, with or without
+  JavaScript, and the script clears it as well. The visitor is told they were
+  not signed in. Keep authentication endpoints, client IDs, tokens and
   validation logic out of this file.
 -->
 <main id="main-content" class="login-main">
@@ -54,7 +55,7 @@
         <p>Use the email address connected to your AI SENSE account.</p>
       </div>
 
-      <form class="login-form" id="login-form" aria-describedby="login-status">
+      <form class="login-form" id="login-form" method="post" action="/login-attempt.php" aria-describedby="login-status">
         <div class="form-field">
           <label for="login-email">Email address</label>
           <input id="login-email" name="email" type="email" autocomplete="username" placeholder="name@company.com" required maxlength="254">
@@ -65,7 +66,8 @@
             <label for="login-password">Password</label>
             <span>Forgot password?</span>
           </div>
-          <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Password">
+          <!-- No name attribute, so no form submission can carry the password. -->
+          <input id="login-password" type="password" autocomplete="current-password" placeholder="Password">
         </div>
 
         <!-- Hidden from people. A program that fills in every field fills this one too. -->
