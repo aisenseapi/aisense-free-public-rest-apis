@@ -81,8 +81,7 @@ class AgentOptimalTests(unittest.TestCase):
         self.assertEqual(paths[0].get('fill'), '#046bd2')
         self.assertEqual(paths[0].get('d'), 'M6 0h4v2H9v1h3l2 2v1h2v5h-2v2l-2 2H4l-2-2v-2H0V6h2V5l2-2h3V2H6z')
         self.assertEqual(paths[1].get('fill'), '#fff')
-        self.assertEqual(paths[1].get('fill-rule'), 'evenodd')
-        self.assertEqual(paths[1].get('d'), 'M7 5h2l3 8H9.8l-.55-2h-2.5l-.55 2H4zm.2 4h1.6L8 6.8z')
+        self.assertEqual(paths[1].get('d'), 'M4 6h3v3H4zM9 6h3v3H9zM6 11h4v1H6z')
 
     def test_16px_icon_has_no_padding_background_or_clipping(self):
         css = (WEB / 'assets/aisense.css').read_text(encoding='utf-8')
@@ -93,7 +92,7 @@ class AgentOptimalTests(unittest.TestCase):
         self.assertIn('width: 16px;', rule)
         self.assertIn('height: 16px;', rule)
         self.assertIn('width="16" height="16"', BADGE)
-        self.assertIn('v=20261003e', BADGE)
+        self.assertIn('v=20261003f', BADGE)
 
     def test_generated_pages_are_current(self):
         pages = list(WEB.glob('*.html'))

@@ -282,9 +282,9 @@ Lease. Other services remain unmarked, even when they are available through MCP.
 `../tools/site_nav.py` applies it to name links and the five service-page h1
 headings, including menu links and catalog cards. Ordinary prose links, code
 samples and metadata are unchanged. The icon is `assets/agent-optimal.svg`.
-The selected mark is variant 4, a blue robot silhouette with a large white A.
+The selected mark is variant 1, a blue robot with white square eyes and a mouth.
 It uses a 16 by 16 viewBox and is displayed at 16 px, with two flat paths and
-no small facial details. Keep the background transparent and padding at zero.
+no letter or fine metal details. Keep the background transparent and padding at zero.
 Do not round or clip the image box, since that cuts off the antenna and ears.
 The older detailed metal and round-ring designs are no longer used here.
 
