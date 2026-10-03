@@ -9,7 +9,7 @@ it does in a repository. Keep it out of the deployed tree.
 Plain HTML. No build step, no framework, no third-party requests. Open any file
 in a browser and it renders.
 
-129 HTML pages. The 76 endpoint pages share one naming pattern and are
+131 HTML pages. The 76 endpoint pages share one naming pattern and are
 collapsed into a single row here. Each one is listed in `sitemap.xml`.
 
 | File | URL |
@@ -67,6 +67,8 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `four-more-hashes.html` | `/four-more-hashes` |
 | `slow-by-design.html` | `/slow-by-design` |
 | `time-zones-by-name.html` | `/time-zones-by-name` |
+| `decide-speaks-clef.html` | `/decide-speaks-clef` - with its card, `assets/decide-speaks-clef.jpg` |
+| `try-decide.html` | `/try-decide` - a form that writes the /decide request, with `assets/try-decide.js` and `assets/try-decide.css` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - client login with no accounts behind it yet, excluded from search indexing; it posts only the email address to `login-attempt.php` |
