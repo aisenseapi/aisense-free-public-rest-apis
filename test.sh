@@ -122,11 +122,11 @@ has_key   "Datetime"                GET "$BASE/datetime"            "datetime"
 has_value "Datetime (offset +0200)" GET "$BASE/datetime/+0200"      "+02:00"
 has_value "Datetime (offset -0530)" GET "$BASE/datetime/-0530"      "-05:30"
 has_value "Datetime (offset +02:00)" GET "$BASE/datetime/+02:00"     "+02:00"
-has_value "Datetime (Europe/Oslo)"  GET "$BASE/datetime/Europe/Oslo" '"timezone":"Europe/Oslo"'
-has_value "Datetime (any case)"     GET "$BASE/datetime/europe/oslo" '"timezone":"Europe/Oslo"'
-request GET "$BASE/datetime/Europe/Pari"
+has_value "Datetime (europe/oslo)"  GET "$BASE/datetime/europe/oslo" '"timezone":"Europe/Oslo"'
+has_value "Datetime (capitals too)" GET "$BASE/datetime/Europe/Oslo" '"timezone":"Europe/Oslo"'
+request GET "$BASE/datetime/europe/pari"
 [ "$STATUS" = "400" ] && ok "Datetime (unknown zone) -> 400" || bad "Datetime (unknown zone)" "expected 400, got $STATUS"
-has_value "Datetime (zone fields)"   GET "$BASE/datetime/Europe/Oslo" '"dst_until":'
+has_value "Datetime (zone fields)"   GET "$BASE/datetime/europe/oslo" '"dst_until":'
 has_value "IP datetime (caller)"    GET "$BASE/ip_datetime"           '"ip":'
 has_value "IP datetime (address)"   GET "$BASE/ip_datetime/8.8.8.8"   '"ip":"8.8.8.8"'
 request GET "$BASE/ip_datetime/10.0.0.1"

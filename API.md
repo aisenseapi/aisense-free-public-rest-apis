@@ -76,14 +76,16 @@ GET /datetime/-0530
 { "datetime": "2026-08-16T11:44:35+02:00" }
 ```
 
-`zone` is an IANA name such as `Europe/Oslo`, `America/New_York` or
-`America/Argentina/Buenos_Aires`, in any case, added 3 October 2026. A fixed
+`zone` is an IANA zone name such as `europe/oslo`, `america/new_york` or
+`america/argentina/buenos_aires`, added 3 October 2026. Paths here are written
+in lower case; capitals are answered the same way, and the answer gives the
+name as the zone database writes it, `Europe/Oslo`. A fixed
 offset is wrong for half the year anywhere with summer time; a zone name
 follows the clock changes. The answer says what the offset is right now,
 whether summer time is in force and when it starts and ends:
 
 ```
-GET /datetime/Europe/Oslo
+GET /datetime/europe/oslo
 ```
 
 ```json
@@ -112,7 +114,7 @@ UTC, and `null` outside one. `raw_offset` is the standard offset and
 Moroccan Ramadan time as summer time with a negative offset, so `dst` is
 `true` and `dst_offset` is `-3600` then; `raw_offset + dst_offset` is the
 offset in force everywhere. `day_of_week` is `0` for Sunday, `day_of_year`
-starts at `1`, `week_number` is the ISO week. Old names such as `Europe/Kiev`
+starts at `1`, `week_number` is the ISO week. Old names such as `europe/kiev`
 are accepted.
 
 An unknown name is **HTTP 400** with a `fix`, never a silent UTC.
@@ -219,7 +221,7 @@ HTTP and HTTPS. Its answers are here under this API's own paths:
 
 | WorldTimeAPI | Here |
 |--------------|------|
-| `http://worldtimeapi.org/api/timezone/Europe/Oslo` | `https://aisenseapi.com/services/v1/datetime/Europe/Oslo` |
+| `http://worldtimeapi.org/api/timezone/Europe/Oslo` | `https://aisenseapi.com/services/v1/datetime/europe/oslo` |
 | `http://worldtimeapi.org/api/ip` | `https://aisenseapi.com/services/v1/ip_datetime` |
 | `http://worldtimeapi.org/api/ip/{address}` | `https://aisenseapi.com/services/v1/ip_datetime/{address}` |
 | `http://worldtimeapi.org/api/timezone` | `https://aisenseapi.com/services/v1/timezones`, objects with `timezone` and `offset` rather than plain names |
@@ -2413,6 +2415,15 @@ them apart would turn the endpoint into a lookup oracle for task ids.
 ---
 
 ## Common Conventions
+
+### Paths
+
+Every endpoint is `/services/v1/{name}`. Arguments travel as path segments or
+in the request body, never in the query string; `url_shortener` reads one only
+as part of the URL it shortens. Paths are written in lower case. An argument
+that ignores case, such as a zone name, is answered the same way in any case,
+and no endpoint redirects. A value whose case carries meaning, such as a
+base58 address, base64 data or a URL to shorten, is sent as it is.
 
 ### Refusals
 

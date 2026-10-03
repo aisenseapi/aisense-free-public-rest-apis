@@ -3,7 +3,7 @@
     "type": "function",
     "function": {
       "name": "get_datetime",
-      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. With timezone (an IANA name such as Europe/Oslo, summer time included) the answer also has timezone, abbreviation, utc_offset, dst, unixtime, raw_offset, dst_offset, dst_from, dst_until, day_of_week, day_of_year, week_number and utc_datetime. GET /datetime[/{offset}] or GET /datetime/{timezone}",
+      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. With timezone (an IANA name such as europe/oslo, in any case, summer time included) the answer also has timezone, abbreviation, utc_offset, dst, unixtime, raw_offset, dst_offset, dst_from, dst_until, day_of_week, day_of_year, week_number and utc_datetime. GET /datetime[/{offset}] or GET /datetime/{timezone}",
       "parameters": {
         "type": "object",
         "properties": {
@@ -14,7 +14,7 @@
           },
           "timezone": {
             "type": "string",
-            "description": "IANA time zone such as \"Europe/Oslo\", used instead of offset; follows summer time. An unknown name is HTTP 400."
+            "description": "IANA time zone such as \"europe/oslo\", in any case, used instead of offset; follows summer time. An unknown name is HTTP 400."
           }
         },
         "required": []
