@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="letter-title">
-  <title id="letter-title">Agent Optimal - robot silhouette with a large A</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="robot-title">
+  <title id="robot-title">Agent Optimal - simple robot</title>
   <path fill="#046bd2" d="M6 0h4v2H9v1h3l2 2v1h2v5h-2v2l-2 2H4l-2-2v-2H0V6h2V5l2-2h3V2H6z"/>
-  <path fill="#fff" fill-rule="evenodd" d="M7 5h2l3 8H9.8l-.55-2h-2.5l-.55 2H4zm.2 4h1.6L8 6.8z"/>
+  <path fill="#fff" d="M4 6h3v3H4zM9 6h3v3H9zM6 11h4v1H6z"/>
 </svg>
