@@ -114,6 +114,7 @@ proxy these tools either.
 | `html_to_pdf` | Renders HTML to a PDF stored for 24 hours |
 | `crypto_wallet` | Reads a Bitcoin, Ethereum or Solana balance, or makes a test key pair |
 | `json_csv_convert` | Converts JSON rows to CSV or CSV to JSON rows, stored for 24 hours |
+| `html_markdown_convert` | Converts HTML to Markdown without scripts, styles or forms, or Markdown to HTML that is safe to put in a page |
 | `json_check` | Formats or validates JSON text, stored for 24 hours |
 | `match_tables` | Matches the rows of two tables on key columns, stored for 24 hours |
 | `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |

@@ -204,6 +204,10 @@ has_value "URL Encode"    POST "$BASE/url_encode"    '"url_encoded_data":"a%20b%
 has_value "URL Decode"    POST "$BASE/url_decode"    '"url_decoded_data":"a b+c"'               '{"data":"a%20b+c"}'
 has_value "HTML Encode"   POST "$BASE/html_encode"   '"html_encoded_data":"&lt;b&gt;&amp;"'     '{"data":"<b>&"}'
 has_value "HTML Decode"   POST "$BASE/html_decode"   '"html_decoded_data":"<b>&"'               '{"data":"&lt;b&gt;&amp;"}'
+has_value "HTML to Markdown" POST "$BASE/html_to_markdown" '"markdown":"# Hi\n\nA **bold** word"' '{"data":"<h1>Hi</h1><p>A <b>bold</b> word</p><script>x()</script>"}'
+has_value "Markdown to HTML" POST "$BASE/markdown_to_html" '"html":"<p><strong>Bold</strong> &lt;b&gt;raw&lt;/b&gt;</p>"' '{"data":"**Bold** <b>raw</b>"}'
+request POST "$BASE/html_to_markdown" '{"html":"<p>x</p>"}'
+[ "$STATUS" = "400" ] && ok "HTML to Markdown (no data field) -> 400" || bad "HTML to Markdown (no data field)" "expected 400, got $STATUS"
 request POST "$BASE/base64url_decode" '{"data":"+/8="}'
 [ "$STATUS" = "400" ] && ok "Base64url Decode (+ and /) -> 400" || bad "Base64url Decode (+ and /)" "expected 400, got $STATUS"
 

@@ -490,6 +490,33 @@ Every named HTML5 entity and every numeric one back to its character.
 
 ---
 
+### `POST /html_to_markdown`
+A web page or any HTML to CommonMark with GitHub tables. Scripts, styles, the
+head, forms, SVG and media are left out, and text that would read as Markdown
+is escaped, so it reads back as the same text. `title` is the page's `<title>`,
+or `null`. The HTML is read the way a browser forgives it: unclosed `<p>` and
+`<li>` close themselves and stray end tags are ignored. At most 1 MiB and 40000
+start and end tags; tags inside scripts and styles do not count.
+
+```json
+{ "data": "<title>Release notes</title><h1>Version 2</h1><p>Now with <b>tables</b>.</p>" } -> { "markdown": "# Version 2\n\nNow with **tables**.", "title": "Release notes" }
+```
+
+---
+
+### `POST /markdown_to_html`
+CommonMark with GitHub tables, strikethrough, task lists and bare links, to an
+HTML fragment. Raw HTML in the Markdown is shown as text, and a link or image
+whose scheme is not http, https, mailto, tel or ftp, or a PNG, GIF, JPEG or
+WebP data URL for images, is shown as its text, so the HTML can go into a page
+as it is. At most 256 KiB and 20000 lines.
+
+```json
+{ "data": "**Bold** <b>raw</b>" } -> { "html": "<p><strong>Bold</strong> &lt;b&gt;raw&lt;/b&gt;</p>" }
+```
+
+---
+
 ### `POST /slugify`
 Text to URL slug, with Scandinavian letters and common Latin diacritics
 transliterated by a fixed table so the same input gives the same slug on every

@@ -13,8 +13,9 @@ the change.
 | `make_post_convert.py` | `convert-heic-webp-png-and-jpg-images.html`, plus its card and sitemap line; the sizes in it come from `data/` |
 | `make_logic_pages.py` | `free-public-api-decide-api-endpoint.html` and `free-public-api-chaos-api-endpoint.html` |
 | `make_codec_pages.py` | the eight pages for `hex_encode`, `hex_decode`, `base64url_encode`, `base64url_decode`, `url_encode`, `url_decode`, `html_encode` and `html_decode`; the examples were worked out with the service's own `libs/func_codec.php` |
+| `make_markdown_pages.py` | the two pages for `html_to_markdown` and `markdown_to_html`; the examples were worked out with the service's own `libs/func_markdown.php` |
 
-Run all six with Python 3 and nothing but the standard library:
+Run all seven with Python 3 and nothing but the standard library:
 
 ```sh
 python tools/pages/build.py
