@@ -686,8 +686,8 @@ fixed at 1.
 curl https://aisenseapi.com/services/v1/datetime            # UTC
 curl https://aisenseapi.com/services/v1/datetime/+0200      # with offset
 curl https://aisenseapi.com/services/v1/datetime/Europe/Oslo  # a zone by name, summer time included
-curl https://aisenseapi.com/api/timezone/Europe/Oslo        # WorldTimeAPI's path and fields
-curl https://aisenseapi.com/api/ip                          # the same, where your address is
+curl https://aisenseapi.com/services/v1/worldtime/timezone/Europe/Oslo  # WorldTimeAPI's fields
+curl https://aisenseapi.com/services/v1/worldtime/ip        # the same, where your address is
 curl https://aisenseapi.com/services/v1/timestamp
 curl https://aisenseapi.com/services/v1/microtimestamp
 curl https://aisenseapi.com/services/v1/timezones
@@ -700,10 +700,11 @@ valid route. A zone name such as `Europe/Oslo` follows summer time, which a fixe
 offset does not, and answers `timezone`, `abbreviation`, `utc_offset`, `dst` and
 `unixtime` beside `datetime`.
 
-`/api/timezone/...` and `/api/ip[/{address}]` answer WorldTimeAPI's paths and
-fifteen fields, so a client of worldtimeapi.org, which no longer answers, moves
-by changing the host to `https://aisenseapi.com`. HTTPS only. Add `.txt` for the
-text form.
+`/worldtime/timezone/...` and `/worldtime/ip[/{address}]` answer WorldTimeAPI's
+fifteen fields. A client of worldtimeapi.org, which no longer answers, replaces
+`http://worldtimeapi.org/api/` with
+`https://aisenseapi.com/services/v1/worldtime/` and keeps the rest of the path.
+HTTPS only. Add `.txt` for the text form.
 
 `/timezones` returns objects, not strings:
 `{"timezones": [{"timezone": "Europe/Oslo", "offset": "+0200"}, ...]}`.
@@ -831,7 +832,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 |----------|----------|--------|-----------------|
 | Time | `/datetime[/{offset}]` | GET | `datetime` |
 | Time | `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| Time | `/api/timezone[/{zone}]`, `/api/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields, or a list of zones |
+| Time | `/worldtime/timezone[/{zone}]`, `/worldtime/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields, or a list of zones |
 | Time | `/timestamp` | GET | `timestamp` |
 | Time | `/microtimestamp` | GET | `microtimestamp` |
 | Time | `/timezones[/{offset}]` | GET | `timezones` |

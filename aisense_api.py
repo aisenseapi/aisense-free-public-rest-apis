@@ -183,20 +183,16 @@ class AISenseAPI:
         return self._get(path)
 
     def get_worldtime(self, timezone: Optional[str] = None, ip: Optional[str] = None) -> dict:
-        """WorldTimeAPI's fifteen fields, from its own paths at the host root.
+        """WorldTimeAPI's fifteen fields, from ``/worldtime``.
 
         With ``timezone`` (``"Europe/Oslo"``) for that zone, with ``ip`` for
         where that address is, and with neither for where the caller is.
         """
         if timezone is not None:
-            path = f"/api/timezone/{timezone}"
-        elif ip is not None:
-            path = f"/api/ip/{ip}"
-        else:
-            path = "/api/ip"
-        # These paths sit at the host root, not under /services/v1.
-        root = self.base_url.split("/services/")[0]
-        return type(self)(root, self.timeout)._get(path)
+            return self._get(f"/worldtime/timezone/{timezone}")
+        if ip is not None:
+            return self._get(f"/worldtime/ip/{ip}")
+        return self._get("/worldtime/ip")
 
     def get_timestamp(self) -> dict:
         """Current Unix timestamp in seconds. Response key: ``timestamp``."""
