@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Time Zones by Name, and a Home for WorldTimeAPI's Paths - AI SENSE</title>
+<meta name="description" content="/datetime now takes an IANA zone such as Europe/Oslo, which follows summer time where a fixed offset cannot. And WorldTimeAPI's paths and fifteen fields answer at aisenseapi.com/api, so its clients move by changing the host.">
+<link rel="canonical" href="https://aisense.no/time-zones-by-name">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Time Zones by Name, and a Home for WorldTimeAPI's Paths">
+<meta property="og:description" content="Most of what this API answers is the time, mostly to programs that were set up once and call forever. Two additions for them: zones by name on /datetime, and WorldTimeAPI's paths for everyone it left behind.">
+<meta property="og:url" content="https://aisense.no/time-zones-by-name">
+<meta property="article:published_time" content="2026-10-03">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20260829b">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "Time Zones by Name, and a Home for WorldTimeAPI's Paths",
+      "description": "On 3 October 2026 the free /datetime endpoint gained IANA zone names such as Europe/Oslo beside fixed offsets, and aisenseapi.com began answering WorldTimeAPI's paths and fifteen fields at /api/timezone and /api/ip, over HTTPS, for clients of worldtimeapi.org, which no longer answers.",
+      "url": "https://aisense.no/time-zones-by-name",
+      "datePublished": "2026-10-03",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" },
+      "about": {
+        "@type": "WebAPI",
+        "name": "Time APIs",
+        "documentation": "https://aisense.no/time-apis",
+        "provider": { "@type": "Organization", "name": "AI SENSE AS" }
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "Time zones by name", "item": "https://aisense.no/time-zones-by-name" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts" aria-current="page">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">Time zones by name</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 3 October 2026</p>
+  <h1>Time Zones by Name, and a Home for WorldTimeAPI's Paths</h1>
+  <p class="article-deck">Most of what this API answers is the time. Of the 303 575 calls counted on 2 October, 96 percent asked for a timestamp or a date. Two additions today are for the programs behind those calls: <code>/datetime</code> takes a zone by name, which follows summer time where a fixed offset cannot, and WorldTimeAPI's paths and fifteen fields answer at <code>aisenseapi.com/api</code> for every client that service left behind.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">The time endpoints are called by software that was set up once and then left to run. In fourteen minutes this morning a Delphi application asked for <code>/timestamp</code> 1 212 times, clients that identify as the game ARK asked for <code>/microtimestamp</code> 175 times, Godot games asked for <code>/datetime</code> with a fixed offset 113 times, and ESP32 boards and okhttp clients came in between. Nobody changes code like that every season, which is the problem with a fixed offset.</p>
+
+<h2>A fixed offset is wrong for half the year</h2>
+
+<p><code>/datetime/+0200</code> is Oslo in summer. From 01:00 UTC on 25 October 2026, when Europe goes back to standard time, it is Oslo plus an hour, and it stays wrong until someone edits the offset. A zone name does not have that problem, because the zone carries its own rules:</p>
+
+<pre><code>GET /services/v1/datetime/Europe/Oslo
+{"datetime":"2026-10-03T11:12:16+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791018736}</code></pre>
+
+<p>Any IANA name works, in any case, including three-part names such as <code>America/Argentina/Buenos_Aires</code>. The answer by name says what the offset is right now and whether summer time is on, since that is the reason to ask by name. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
+
+<p>The offset forms are unchanged. About 29 000 calls a day, with an offset or without one, expect <code>{"datetime": ...}</code> and nothing else, and that is what they keep getting. <code>+02:00</code> with a colon is now accepted beside <code>+0200</code>, and an hour-only value such as <code>/datetime/1</code> is still not a route.</p>
+
+<h2>WorldTimeAPI's paths, at a new host</h2>
+
+<p>WorldTimeAPI was the clock in a great many ESP32 sketches, Arduino projects, games and scripts. It no longer answers: on 3 October 2026 every connection to worldtimeapi.org was reset, over HTTP and HTTPS, and from a second network as well. Its paths and its fifteen fields answer here, so a client moves by changing the start of the URL and nothing else.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Before</th><th>After</th></tr></thead>
+<tbody>
+<tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/api/timezone/Europe/Oslo</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/ip</code></td><td><code>https://aisenseapi.com/api/ip</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/timezone.txt</code></td><td><code>https://aisenseapi.com/api/timezone.txt</code></td></tr>
+</tbody>
+</table></div>
+
+<p>The fields are WorldTimeAPI's, with its names, types and order: the local and UTC time with microseconds, the offset in force, the standard offset, whether summer time is on and when the current period began and ends, the day of the week and of the year, the ISO week, the Unix time and the caller's address. The <code>.txt</code> form gives one <code>key: value</code> per line, and the errors use its words, <code>unknown location Europe/Pari</code>, with our fix beside them. <code>/api/ip</code> finds the zone of the caller's address in GeoLite2-City and caches it for an hour, so a board that asks every minute costs one lookup an hour.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">The one change you cannot skip</p>
+  <h2>HTTPS only.</h2>
+  <p>This host does not serve plain HTTP. An ESP32 sketch that used <code>http://worldtimeapi.org</code> with a <code>WiFiClient</code> moves to <code>https://</code> and a <code>WiFiClientSecure</code>; <code>client.setInsecure()</code> is enough to read a clock. The <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the five lines and every field.</p>
+</div>
+
+<h2>Checked before writing</h2>
+
+<p>From a laptop in Norway, against the live service, after the deploy.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Request</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td><code>/datetime/Europe/Oslo</code></td><td>CEST, <code>+02:00</code>, <code>dst: true</code>; <code>europe/oslo</code> gave the same canonical name</td></tr>
+<tr><td><code>/datetime/+0200</code> and <code>/datetime/+02:00</code></td><td><code>{"datetime": ...}</code> and nothing else, as before</td></tr>
+<tr><td><code>/datetime/Europe/Pari</code></td><td>400 with a fix; <code>/datetime/1</code> still 404</td></tr>
+<tr><td><code>/api/timezone</code></td><td>419 zone names; <code>/api/timezone/Europe</code> 58</td></tr>
+<tr><td><code>/api/timezone/Europe/Oslo</code></td><td>All fifteen fields; summer time from 29 March to 25 October 2026, 01:00 UTC both</td></tr>
+<tr><td><code>/api/timezone/America/Argentina/Buenos_Aires</code></td><td><code>-03:00</code>, abbreviation <code>-03</code>, no summer time</td></tr>
+<tr><td><code>/api/timezone/Australia/Lord_Howe</code></td><td><code>+10:30</code> and no summer time yet; its half-hour summer time begins at 15:30 UTC today, 02:00 on 4 October there</td></tr>
+<tr><td><code>/api/timezone/Europe/Kiev</code></td><td>The old name is accepted</td></tr>
+<tr><td><code>/api/timezone/Europe/Pari</code></td><td>404, <code>unknown location Europe/Pari</code>; as text, <code>Error: unknown location Europe/Pari</code></td></tr>
+<tr><td><code>/api/ip</code> and <code>/api/ip.txt</code></td><td>Europe/Oslo, fifteen fields</td></tr>
+<tr><td><code>/api/ip/2001:4860:4860::8888</code></td><td>America/Chicago, IPv6 included</td></tr>
+<tr><td><code>/api/ip/10.0.0.1</code>, <code>/api/ip/999.1.1.1</code></td><td>404 for a private address, 400 for a malformed one</td></tr>
+</tbody>
+</table></div>
+
+<p>The answers took 150 to 244 ms there and back, over a fresh TLS connection every time, which is almost all of it network. Not every public address has a zone in the database: <code>1.1.1.1</code> answered 404 rather than a guess, and asking by zone name is the way around that.</p>
+
+<h2>Where it sits</h2>
+
+<p>The <a href="/free-public-api-datetime-api-endpoint">datetime page</a> and the <a href="/time-apis">time guide</a> have zones by name, the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the paths, the fields and the ESP32 change, and the Python and JavaScript clients and the OpenAI tool definitions in the public repository have the new calls. The free MCP server's <code>get_current_time</code> already took a zone name and is unchanged. Every path counts towards the 5000 calls per address per day like the rest of the API.</p>
+
+<div class="article-cta">
+  <p class="eyebrow">Take one</p>
+  <h2>Change the host, keep the code.</h2>
+  <p>No account, no key, and the same fifteen fields your sketch already parses.</p>
+  <div class="button-row"><a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> <a href="/time-apis">The time guide</a> <a href="/free-public-apis">The free public APIs</a> <a href="/ai-sense-posts">More posts</a></div>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>

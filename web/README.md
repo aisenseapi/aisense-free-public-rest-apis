@@ -65,6 +65,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `free-public-api-scrypt-hash-api-endpoint.html` | `/free-public-api-scrypt-hash-api-endpoint` |
 | `four-more-hashes.html` | `/four-more-hashes` |
 | `slow-by-design.html` | `/slow-by-design` |
+| `time-zones-by-name.html` | `/time-zones-by-name` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - static shadow page, excluded from search indexing |
