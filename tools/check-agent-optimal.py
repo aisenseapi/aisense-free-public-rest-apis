@@ -64,30 +64,36 @@ class AgentOptimalTests(unittest.TestCase):
         finally:
             SERVICES[href] = label
 
-    def test_svg_is_self_contained_and_keeps_the_approved_a(self):
+    def test_svg_is_self_contained_and_uses_selected_16px_variant(self):
         asset = WEB / 'assets/agent-optimal.svg'
         root = ElementTree.parse(asset).getroot()
         self.assertEqual(root.tag, '{http://www.w3.org/2000/svg}svg')
+        self.assertEqual(root.get('width'), '16')
+        self.assertEqual(root.get('height'), '16')
+        self.assertEqual(root.get('viewBox'), '0 0 16 16')
         for node in root.iter():
-            self.assertNotIn(node.tag.rsplit('}', 1)[-1], ('script', 'image', 'foreignObject'))
+            self.assertIn(node.tag.rsplit('}', 1)[-1], ('svg', 'title', 'path'))
             for name, value in node.attrib.items():
                 if name.rsplit('}', 1)[-1] == 'href':
                     self.assertTrue(value.startswith('#'))
-        svg = asset.read_text(encoding='utf-8')
-        self.assertIn('rotate(-5 6.5 9)', svg)
-        self.assertIn('#b6bfc8', svg)
-        ring = root.find('{http://www.w3.org/2000/svg}circle')
-        self.assertIsNotNone(ring)
-        self.assertEqual(ring.get('stroke'), '#046bd2')
-        self.assertEqual(ring.get('stroke-width'), '3.5')
+        paths = root.findall('{http://www.w3.org/2000/svg}path')
+        self.assertEqual(len(paths), 2)
+        self.assertEqual(paths[0].get('fill'), '#046bd2')
+        self.assertEqual(paths[0].get('d'), 'M6 0h4v2H9v1h3l2 2v1h2v5h-2v2l-2 2H4l-2-2v-2H0V6h2V5l2-2h3V2H6z')
+        self.assertEqual(paths[1].get('fill'), '#fff')
+        self.assertEqual(paths[1].get('fill-rule'), 'evenodd')
+        self.assertEqual(paths[1].get('d'), 'M7 5h2l3 8H9.8l-.55-2h-2.5l-.55 2H4zm.2 4h1.6L8 6.8z')
 
-    def test_round_icon_has_no_old_square_background(self):
+    def test_16px_icon_has_no_padding_background_or_clipping(self):
         css = (WEB / 'assets/aisense.css').read_text(encoding='utf-8')
         rule = re.search(r'\.agent-optimal-mark\s*\{([^}]+)\}', css)[1]
         self.assertIn('padding: 0;', rule)
         self.assertIn('background: transparent;', rule)
-        self.assertIn('border-radius: 50%;', rule)
-        self.assertIn('v=20261003c', BADGE)
+        self.assertIn('border-radius: 0;', rule)
+        self.assertIn('width: 16px;', rule)
+        self.assertIn('height: 16px;', rule)
+        self.assertIn('width="16" height="16"', BADGE)
+        self.assertIn('v=20261003e', BADGE)
 
     def test_generated_pages_are_current(self):
         pages = list(WEB.glob('*.html'))

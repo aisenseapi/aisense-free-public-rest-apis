@@ -1,35 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="agent-optimal-ring-title">
-  <title id="agent-optimal-ring-title">Agent Optimal robot with an inset A and a blue outer ring</title>
-  <defs>
-    <linearGradient id="ao-metal" x1="18" y1="13" x2="48" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#edf2f7"/>
-      <stop offset=".48" stop-color="#dfe6ee"/>
-      <stop offset="1" stop-color="#bdc9d6"/>
-    </linearGradient>
-    <linearGradient id="ao-recess" x1="0" y1="0" x2="0" y2="18" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#b6bfc8"/>
-      <stop offset=".36" stop-color="#cfd6dd"/>
-      <stop offset="1" stop-color="#d9dfe6"/>
-    </linearGradient>
-    <path id="ao-mark" fill-rule="evenodd" d="M7 0h4l3.5 18h-4.1l-.55-4H4.9l-2.05 4H-1.5zm-.4 10.5h2.7l-.8-5.7z"/>
-    <clipPath id="ao-mark-clip">
-      <use href="#ao-mark" clip-rule="evenodd"/>
-    </clipPath>
-  </defs>
-  <circle id="ao-ring" cx="32" cy="32" r="30" fill="#8b949b" stroke="#046bd2" stroke-width="3.5"/>
-  <g transform="translate(.96 2.1) scale(.97)">
-  <path fill="#1e293b" d="M21 29h7v6h-7zM36 29h7v6h-7zM24 46h4v3h-4zM30 46h4v3h-4zM36 46h4v3h-4z"/>
-  <g fill="url(#ao-metal)">
-    <path d="M28 3h8v5h-2v5h-4V8h-2zM5 26h3v14H5l-2-2V28zM56 26h3l2 2v10l-2 2h-3z"/>
-    <path fill-rule="evenodd" d="M18 13h28l8 8v24l-9 9H19l-9-9V21zM21 29v6h7v-6zM36 29v6h7v-6zM24 46v3h4v-3zM30 46v3h4v-3zM36 46v3h4v-3z"/>
-  </g>
-  <path d="M10.3 30V21.2l7.9-7.9h27.6l7.9 7.9" fill="none" stroke="#fff" stroke-opacity=".52" stroke-width=".45"/>
-  <g transform="translate(28.75 16.2) scale(.5) rotate(-5 6.5 9)">
-    <use href="#ao-mark" transform="translate(.16 .64)" fill="#f8fafc"/>
-    <use href="#ao-mark" fill="#b4bdc7"/>
-    <g clip-path="url(#ao-mark-clip)">
-      <use href="#ao-mark" transform="translate(.34 .58)" fill="url(#ao-recess)"/>
-    </g>
-  </g>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="letter-title">
+  <title id="letter-title">Agent Optimal - robot silhouette with a large A</title>
+  <path fill="#046bd2" d="M6 0h4v2H9v1h3l2 2v1h2v5h-2v2l-2 2H4l-2-2v-2H0V6h2V5l2-2h3V2H6z"/>
+  <path fill="#fff" fill-rule="evenodd" d="M7 5h2l3 8H9.8l-.55-2h-2.5l-.55 2H4zm.2 4h1.6L8 6.8z"/>
 </svg>
