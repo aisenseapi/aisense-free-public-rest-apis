@@ -1,4 +1,4 @@
-"""The five Agent Optimal labels selected for the website.
+"""The six Agent Optimal labels selected for the website.
 
 This is an AI SENSE editorial label for agent workflows, not a certification
 or a production health signal. Used by site_nav.py after rendering the header.
@@ -15,6 +15,12 @@ SERVICES = {
     '/free-public-api-agent-inbox-api-endpoint': 'Agent Inbox',
     '/free-public-api-heartbeat-api-endpoint': 'Heartbeat',
     '/free-public-api-lease-api-endpoint': 'Lease',
+    '/free-public-api-decide-api-endpoint': 'Decide',
+}
+
+# Other names a name link to a service may use, such as the endpoint page's own title.
+ALIASES = {
+    '/free-public-api-decide-api-endpoint': ['Decision'],
 }
 
 BADGE = ('<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" '
@@ -44,14 +50,16 @@ def service_path(href):
 def mark_link(match):
     opening, body, closing = match.groups()
     href = HREF.search(opening)
-    service = SERVICES.get(service_path(href.group(1))) if href else None
+    path = service_path(href.group(1)) if href else None
+    service = SERVICES.get(path)
     if not service:
         return match.group(0)
     label = re.fullmatch(r'(<strong>)?([^<]+)(</strong>)?(<span\b.*)?', body, re.S)
     if not label or bool(label[1]) != bool(label[3]):
         return match.group(0)
     # Do not decorate prose links such as "Read the Agent Queue guide".
-    if not re.fullmatch(r'(?:Free )?' + re.escape(service) + r'(?: (?:REST )?API(?: Endpoint)?)?', label[2]):
+    names = '|'.join(re.escape(name) for name in [service] + ALIASES.get(path, []))
+    if not re.fullmatch(r'(?:Free )?(?:' + names + r')(?: (?:REST )?API(?: Endpoint)?)?', label[2]):
         return match.group(0)
     return opening + (label[1] or '') + marked_label(label[2]) + (label[3] or '') + (label[4] or '') + closing
 
