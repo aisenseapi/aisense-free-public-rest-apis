@@ -10,8 +10,14 @@ WEB = Path(__file__).resolve().parents[1] / 'web'
 
 
 class AgentOptimalTests(unittest.TestCase):
-    def test_only_the_five_approved_services(self):
-        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease'])
+    def test_only_the_six_approved_services(self):
+        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide'])
+
+    def test_an_alias_is_marked_and_prose_is_not(self):
+        marked = decorate('<a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a>', 'index.html')
+        self.assertEqual(marked.count(BADGE), 1)
+        prose = '<a href="/free-public-api-decide-api-endpoint">Read the Decision guide</a>'
+        self.assertEqual(decorate(prose, 'index.html'), prose)
 
     def test_name_links(self):
         for href, name in SERVICES.items():
@@ -103,7 +109,7 @@ class AgentOptimalTests(unittest.TestCase):
                 self.assertEqual(decorate(source, page.name), source)
                 header = re.search(r'<header class="site-header">.*?</header>', source, re.S)
                 if header:
-                    self.assertEqual(header[0].count(BADGE), 5)
+                    self.assertEqual(header[0].count(BADGE), len(SERVICES))
                 title = re.search(r'<h1\b[^>]*>.*?</h1>', source, re.S)
                 if title:
                     expected = 1 if '/' + page.stem in SERVICES else 0
