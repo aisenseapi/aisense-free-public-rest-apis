@@ -11,10 +11,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.10.0`. The official MCP Registry lists
+This source release reports version `1.11.0`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.9.2` as active and latest,
 published 2 October 2026 at 22:44 UTC. Both are server release versions,
-separate from the agent guide resource version, which is 1.5.0.
+separate from the agent guide resource version, which is 1.6.0 in this source release.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -118,7 +118,7 @@ proxy these tools either.
 | `json_check` | Formats or validates JSON text, stored for 24 hours |
 | `match_tables` | Matches the rows of two tables on key columns, stored for 24 hours |
 | `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |
-| `decide` | Answers typed questions from rules with probabilities and an action |
+| `decide` | Rules by default, optional Clef model with separate capacity limits when enabled |
 | `simulate_failure` | Gives a chosen status, delay or broken answer on purpose |
 | `schedule_webhook` | Schedules a POST to a public URL, once or repeatedly |
 | `read_webhook_schedule` | Reads a scheduled webhook or waits for a change |
@@ -148,6 +148,19 @@ for 24 hours and answer with its `storage_id` and `storage_url`, and
 
 REST and MCP share one budget of 5000 requests per client address per day,
 and one tool call counts once.
+
+### Decide model selection
+
+Decide keeps its rule engine when model is omitted or "rules". Explicit
+model "clef" uses instructions and criteria with noul, choice or score
+questions when the operator has enabled it. Default caps are 8 KiB and
+4 questions, 2 starts per UTC minute and 20 per UTC day per IP. All model
+callers share 6 starts per minute, 300 per UTC day and one in-flight call,
+with 10 seconds between starts and no waiting queue. The total transport
+deadline is 30 seconds. Model mode sends inputs to an external inference
+machine and does not produce an automatic action. Unknown models return 400,
+disabled or busy models 503. Numeric Retry-After is preserved as retry_after
+in structured errors. See the [Decide guide](https://aisense.no/free-public-api-decide-api-endpoint).
 
 ## Available resources
 

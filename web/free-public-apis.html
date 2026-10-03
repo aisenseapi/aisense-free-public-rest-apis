@@ -650,12 +650,12 @@ Response: { "html": "&lt;p&gt;&lt;strong&gt;Bold&lt;/strong&gt; &amp;lt;b&amp;gt
 <section id="logic" aria-labelledby="logic-heading">
 <h2 id="logic-heading">Logic</h2>
 
-<p>Two endpoints that store nothing. <code>/decide</code> answers typed questions from rules you send, and <code>/chaos</code> answers with a failure you pick, so a client can be tested against it.</p>
+<p><code>/decide</code> answers typed questions from rules by default, with optional model selection when enabled. <code>/chaos</code> answers with a failure you pick for client tests.</p>
 
 <article class="endpoint">
 <h3><a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/decide</span></p>
-<p>Send a <code>state</code> and named <code>questions</code>: <code>yes_no</code>, <code>choice</code> or <code>scale</code>, each with rules of a condition and a weight. Each answer has a probability, a <code>confidence</code>, an <code>action</code> of act, review or hold, and <code>because</code>, the rules that held. No model, so every number can be worked out by hand.</p>
+<p>Send a <code>state</code> and named rule <code>questions</code>: <code>yes_no</code>, <code>choice</code> or <code>scale</code>. Rule answers include probabilities, <code>confidence</code>, <code>action</code> and <code>because</code>. Omit <code>model</code> to keep this behavior. Optional <code>"model":"clef"</code> uses instructions and criteria, separate types and strict capacity limits, with no automatic action. Model mode must first be enabled by the operator. See the guide for its format, availability and data handling.</p>
 <pre><code>curl -s -X POST https://aisenseapi.com/services/v1/decide   -H "Content-Type: application/json"   -d '{"state": {"amount": 30}, "questions": {"refund": {"type": "yes_no", "bias": -1, "rules": [{"if": {"amount": {"lte": 50}}, "weight": 3}]}}}'</code></pre>
 <pre><code>{"answers": {"refund": {"type": "yes_no", "answer": "yes", "probability": 0.8808, "confidence": 0.7616, "action": "review", "because": [{"rule": 0, "weight": 3}]}}}</code></pre>
 </article>

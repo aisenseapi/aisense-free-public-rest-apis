@@ -1020,13 +1020,13 @@ pixels.
 
 ## Logic
 
-Two endpoints that store nothing. `/decide` answers typed questions from rules
-you send, and `/chaos` answers with a failure you pick, so a client can be
-tested against it.
+`/decide` answers typed questions from rules by default, with optional model
+selection when enabled. `/chaos` answers with a failure you pick for client tests.
 
 ### `POST /decide`
 
-Typed decisions from rules over a state you send. The body is a JSON object
+Omit `model` or use `"model":"rules"` for typed decisions from rules.
+This keeps the existing response unchanged. The body is a JSON object
 with `state`, the facts to decide on, and `questions`, 1 to 64 named questions.
 Each question has a `type`:
 
@@ -1073,8 +1073,48 @@ Limits: 64 KiB of JSON, 50 rules per list, 5000 tests and 8 levels of `any` and
 `not` in one request. A refusal has `error`, naming the field, and `fix`: 400
 for a wrong field or invalid JSON, 405 for any method but POST, 413 for a body
 or rule set over the limits, 415 unless the body is `application/json`. Nothing
-is stored, and the access log line holds the path and nothing from the body.
+from the request body is stored in rules mode. The access log records request
+metadata, not the body.
 [Guide and examples](https://aisense.no/free-public-api-decide-api-endpoint).
+
+#### Optional Clef model
+
+Set `"model":"clef"` and supply `state` plus named `questions`. Each question
+has `type`, `instructions` and `criteria`. This mode is disabled by default
+until the operator measures the backend. Disabled returns 503, unknown model
+returns 400. There is no fallback.
+
+| Type | Criteria | Answer |
+| --- | --- | --- |
+| `noul` | Object with `true` and `false` descriptions | Numeric `noul` in [0,1] |
+| `choice` | Object of named descriptions | `choice`, `probabilities`, `confidence` |
+| `score` | Ordered label list | Zero-based fractional `score`, `legend`, `probabilities`, `confidence` |
+
+~~~json
+{"model":"clef","state":{"message":"The production API is down."},"questions":{"urgent":{"type":"noul","instructions":"Is this urgent?","criteria":{"true":"An active production failure.","false":"Routine work."}}}}
+~~~
+
+The response includes `model`, `model_version`, `answers` and optional `usage`.
+Model confidence is not the rule confidence formula or a guarantee of accuracy.
+There is no `action` or `because`. Model questions do not accept rule fields.
+
+Default caps: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
+instruction and 512 per criterion. Per IP, 2 starts per UTC minute and 20 per
+UTC day. All models and sources share 6 starts per minute and 300 per UTC day,
+one in-flight call, no waiting queue and 10 seconds between starts. Connect
+deadline 2 seconds, total deadline 30 seconds, reply cap 32 KiB. Failed admitted
+calls count. Operators can tune these values after measurement.
+
+Quota refusals are 429, unavailable or busy models 503, failed or malformed
+upstream responses 502, timeout 504. Respect `Retry-After` where provided.
+An uncertain remote completion closes admission until operator recovery.
+Do not retry in a loop.
+
+Model state and questions go to the configured external inference machine.
+The API keeps IP-HMAC quota counters and aggregate timings, not bodies or
+answers. Backend data handling is separate and must be confirmed before public
+activation. Keep credentials and sensitive personal data out. Ordinary access
+logs still contain IP addresses. See [Privacy](https://aisense.no/privacy).
 
 ### `ANY /chaos/{status}[/{ms}]`
 
