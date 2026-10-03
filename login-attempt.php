@@ -18,9 +18,11 @@
  * browser posts the form itself, and gets a short HTML page with the same
  * answer.
  *
- * The Slack incoming webhook URL is read from /etc/aisense/www-slack-webhook,
- * root owned and readable by the web server, never from this repository. With
- * no such file nothing is sent and the visitor gets the same answer.
+ * The line goes to Slack through /usr/local/bin/slack_alert, the same writer
+ * the API box's alerts use, with the whole message as its one argument. It is
+ * started without a shell, so nothing in an address can become a command, and
+ * stopped after 5 seconds. Without it, or when it fails, the visitor gets the
+ * same answer and the web server's error log says why.
  *
  * Limits: one address may report 3 times an hour, and at most 20 lines an hour
  * reach Slack. Past that, when the hidden field a person cannot see is filled
@@ -36,7 +38,8 @@
 
 declare(strict_types=1);
 
-const LOGIN_ATTEMPT_WEBHOOK_FILE = '/etc/aisense/www-slack-webhook';
+const LOGIN_ATTEMPT_SLACK = '/usr/local/bin/slack_alert';
+const LOGIN_ATTEMPT_TIMEOUT = '/usr/bin/timeout';
 const LOGIN_ATTEMPT_PER_ADDRESS = 3;
 const LOGIN_ATTEMPT_PER_HOUR = 20;
 const LOGIN_ATTEMPT_ORIGINS = ['https://aisense.no', 'https://www.aisense.no'];
@@ -153,39 +156,34 @@ function login_attempt_message(string $email, DateTimeInterface $when): string
         . $when->format('j M Y H:i') . ' Oslo time. No account exists, and they were told so.';
 }
 
-/** Post one line to the Slack incoming webhook. False when it could not be sent. */
-function login_attempt_slack(string $url, string $text): bool
+/**
+ * Hand one line to slack_alert. The command and the message are separate
+ * arguments to the program itself, with no shell between, and timeout stops
+ * it after 5 seconds where timeout exists. Returns '' when it was sent, or why
+ * it was not. $command is the program and any arguments before the message;
+ * the test passes a stand-in.
+ */
+function login_attempt_slack(string $text, array $command = [LOGIN_ATTEMPT_SLACK]): string
 {
-    $payload = (string) json_encode(['text' => $text], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-    if (function_exists('curl_init')) {
-        $curl = curl_init($url);
-        curl_setopt_array($curl, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 5,
-        ]);
-        $answer = curl_exec($curl);
-        $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        curl_close($curl);
-        return $answer !== false && $status >= 200 && $status < 300;
+    if (!function_exists('proc_open')) {
+        return 'proc_open is not available to PHP here';
+    }
+    if (count($command) === 1 && !is_executable($command[0])) {
+        return $command[0] . ' is not there or not executable for the web server';
     }
 
-    $context = stream_context_create(['http' => [
-        'method' => 'POST',
-        'header' => "Content-Type: application/json\r\n",
-        'content' => $payload,
-        'timeout' => 5,
-        'ignore_errors' => true,
-    ]]);
-    $answer = @file_get_contents($url, false, $context);
-    $status = 0;
-    if (isset($http_response_header[0]) && preg_match('!^HTTP/\S+\s+(\d{3})!', $http_response_header[0], $m)) {
-        $status = (int) $m[1];
+    $argv = array_merge(is_executable(LOGIN_ATTEMPT_TIMEOUT) ? [LOGIN_ATTEMPT_TIMEOUT, '5'] : [], $command, [$text]);
+    $null = DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/null';
+    $process = @proc_open($argv, [0 => ['file', $null, 'r'], 1 => ['file', $null, 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) {
+        return 'it could not be started';
     }
-    return $answer !== false && $status >= 200 && $status < 300;
+
+    $errors = trim((string) stream_get_contents($pipes[2], 500));
+    fclose($pipes[2]);
+    $code = proc_close($process);
+
+    return $code === 0 ? '' : 'it exited with ' . $code . ($errors === '' ? '' : ': ' . $errors);
 }
 
 /** The short HTML page a browser without JavaScript shows after posting the form. */
@@ -249,15 +247,9 @@ function login_attempt_main(): void
     $dir = rtrim(sys_get_temp_dir(), '/') . '/aisense-login-attempts';
 
     if ($honeypot === '' && login_attempt_allowed($address, $dir, time())) {
-        $url = is_readable(LOGIN_ATTEMPT_WEBHOOK_FILE) ? trim((string) file_get_contents(LOGIN_ATTEMPT_WEBHOOK_FILE)) : '';
-
-        if (strpos($url, 'https://hooks.slack.com/') === 0) {
-            $text = login_attempt_message($email, new DateTime('now', new DateTimeZone('Europe/Oslo')));
-            if (!login_attempt_slack($url, $text)) {
-                error_log('login-attempt.php: the Slack webhook did not accept the message');
-            }
-        } else {
-            error_log('login-attempt.php: no Slack webhook in ' . LOGIN_ATTEMPT_WEBHOOK_FILE);
+        $failed = login_attempt_slack(login_attempt_message($email, new DateTime('now', new DateTimeZone('Europe/Oslo'))));
+        if ($failed !== '') {
+            error_log('login-attempt.php: nothing reached Slack, because ' . $failed);
         }
     }
 
