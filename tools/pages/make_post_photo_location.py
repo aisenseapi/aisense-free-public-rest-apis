@@ -56,7 +56,7 @@ FAQ = [
      'Turn Location off under Options in the share sheet when you share from Photos, or convert the HEIC file to JPEG with the free '
      'HEIC to JPG converter, which removes EXIF and GPS on the way.'),
     ('Is it free?',
-     'Yes. No account and no API key. The limit is 5000 requests per IP address per 24 hours.')
+     'Yes. No account and no API key. The limit is 5000 requests per IP address per day.')
 ]
 
 LD = OrderedDict([
