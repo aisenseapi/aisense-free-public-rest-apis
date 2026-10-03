@@ -3,67 +3,109 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Page not found - AI SENSE</title>
-<meta name="description" content="That page does not exist. Find the free public REST APIs, the MCP server and the rest of the AI SENSE site from here.">
-<meta name="robots" content="noindex, follow">
-
+<title>Free Markdown to HTML API Endpoint - Safe CommonMark Rendering | AI SENSE</title>
+<meta name="description" content="The free Markdown to HTML API endpoint renders CommonMark with GitHub tables, task lists and strikethrough into HTML that is safe to put in a page. No API key.">
+<link rel="canonical" href="https://aisense.no/free-public-api-markdown-to-html-api-endpoint">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Free Markdown to HTML API Endpoint">
+<meta property="og:description" content="The free Markdown to HTML API endpoint renders CommonMark with GitHub tables, task lists and strikethrough into HTML that is safe to put in a page. No API key.">
+<meta property="og:url" content="https://aisense.no/free-public-api-markdown-to-html-api-endpoint">
+<meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20261003e">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Free Markdown to HTML API Endpoint",
+      "description": "The free Markdown to HTML API endpoint renders CommonMark with GitHub tables, task lists and strikethrough into HTML that is safe to put in a page. No API key.",
+      "url": "https://aisense.no/free-public-api-markdown-to-html-api-endpoint",
+      "documentation": "https://aisense.no/free-public-apis#transform",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Markdown to HTML API Endpoint",
+          "item": "https://aisense.no/free-public-api-markdown-to-html-api-endpoint"
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 
 <body>
-
 <a class="skip-link" href="#main-content">Skip to content</a>
-
 <header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><div class="nav-item nav-has-panel nav-item-wide"><a class="nav-top" href="/free-public-apis">Free public REST APIs</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-apis"><label class="nav-sub-button" for="nav-sub-apis"><span class="visually-hidden">Show the API categories</span></label><div class="nav-panel"><div class="nav-groups"><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Agents and webhooks</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-agents"><label class="nav-sub-button" for="nav-sub-agents"><span class="visually-hidden">Show the agents and webhooks endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-agent-wake-api-endpoint">Agent <span class="agent-optimal-tail">Wake<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003e" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003e" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-inbox-api-endpoint">Agent <span class="agent-optimal-tail">Inbox<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003e" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003e" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-lease-api-endpoint"><span class="agent-optimal-tail">Lease<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003e" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a></li><li><a href="/free-public-api-webhook-action-api-endpoint">Webhook action</a></li><li><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook schedule</a></li><li><a href="/free-public-api-dns-name-api-endpoint">Temporary DNS names</a></li><li><a href="/free-public-api-decide-api-endpoint">Decide</a></li><li><a href="/free-public-api-chaos-api-endpoint">Chaos</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/time-apis">Time</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-time"><label class="nav-sub-button" for="nav-sub-time"><span class="visually-hidden">Show the time endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-datetime-api-endpoint">Datetime</a></li><li><a href="/free-public-api-ip-datetime-api-endpoint">IP datetime</a></li><li><a href="/free-public-api-timestamp-api-endpoint">Timestamp</a></li><li><a href="/free-public-api-microtimestamp-api-endpoint">Microtimestamp</a></li><li><a href="/free-public-api-timezones-api-endpoint">Timezones</a></li><li><a href="/free-public-api-timestamp-convert-api-endpoint">Timestamp convert</a></li><li><a href="/free-public-api-swatchinternettime-api-endpoint">Swatch Internet Time</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/hashing-apis">Hashing</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-hashing"><label class="nav-sub-button" for="nav-sub-hashing"><span class="visually-hidden">Show the hashing endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-sha256-hash-api-endpoint">SHA256</a></li><li><a href="/free-public-api-sha512-hash-api-endpoint">SHA512</a></li><li><a href="/free-public-api-sha3-256-hash-api-endpoint">SHA3-256</a></li><li><a href="/free-public-api-sha3-512-hash-api-endpoint">SHA3-512</a></li><li><a href="/free-public-api-blake2b-hash-api-endpoint">BLAKE2b</a></li><li><a href="/free-public-api-blake3-hash-api-endpoint">BLAKE3</a></li><li><a href="/free-public-api-md5-hash-api-endpoint">MD5</a></li><li><a href="/free-public-api-sha1-hash-api-endpoint">SHA1</a></li><li><a href="/free-public-api-whirlpool-hash-api-endpoint">Whirlpool</a></li><li><a href="/free-public-api-crc32-checksum-api-endpoint">CRC32</a></li><li><a href="/free-public-api-argon2id-hash-api-endpoint">Argon2id</a></li><li><a href="/free-public-api-bcrypt-hash-api-endpoint">bcrypt</a></li><li><a href="/free-public-api-scrypt-hash-api-endpoint">scrypt</a></li><li><a href="/free-public-api-hash-verify-api-endpoint">Hash verify</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/encoding-apis">Encoding</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-encoding"><label class="nav-sub-button" for="nav-sub-encoding"><span class="visually-hidden">Show the encoding endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-base64-encode-api-endpoint">Base64 encode</a></li><li><a href="/free-public-api-base64-decode-api-endpoint">Base64 decode</a></li><li><a href="/free-public-api-base58-encode-api-endpoint">Base58 encode</a></li><li><a href="/free-public-api-base58-decode-api-endpoint">Base58 decode</a></li><li><a href="/free-public-api-base32-encode-api-endpoint">Base32 encode</a></li><li><a href="/free-public-api-base32-decode-api-endpoint">Base32 decode</a></li><li><a href="/free-public-api-base64url-encode-api-endpoint">base64url encode</a></li><li><a href="/free-public-api-base64url-decode-api-endpoint">base64url decode</a></li><li><a href="/free-public-api-hex-encode-api-endpoint">Hex encode</a></li><li><a href="/free-public-api-hex-decode-api-endpoint">Hex decode</a></li><li><a href="/free-public-api-url-encode-api-endpoint">URL encode</a></li><li><a href="/free-public-api-url-decode-api-endpoint">URL decode</a></li><li><a href="/free-public-api-html-encode-api-endpoint">HTML encode</a></li><li><a href="/free-public-api-html-decode-api-endpoint">HTML decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#transform">Text and tokens</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-text"><label class="nav-sub-button" for="nav-sub-text"><span class="visually-hidden">Show the text and tokens endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-slugify-api-endpoint">Slugify</a></li><li><a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown</a></li><li><a href="/free-public-api-markdown-to-html-api-endpoint">Markdown to HTML</a></li><li><a href="/free-public-api-jwt-encode-api-endpoint">JWT encode</a></li><li><a href="/free-public-api-jwt-decode-api-endpoint">JWT decode</a></li><li><a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode</a></li><li><a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#convert">JSON and tables</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-data"><label class="nav-sub-button" for="nav-sub-data"><span class="visually-hidden">Show the json and tables endpoints</span></label><ul class="nav-list"><li><a href="/free-json-to-csv-api">JSON to CSV</a></li><li><a href="/free-csv-to-json-api">CSV to JSON</a></li><li><a href="/free-json-formatter-api">JSON formatter</a></li><li><a href="/free-json-validator-api">JSON validator</a></li><li><a href="/free-table-matching-api">Table matching</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#images">Images</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-images"><label class="nav-sub-button" for="nav-sub-images"><span class="visually-hidden">Show the images endpoints</span></label><ul class="nav-list"><li><a href="/free-image-converter-api">Image converter</a></li><li><a href="/free-heic-to-jpg-converter">HEIC to JPG</a></li><li><a href="/free-image-resizer-api">Image resizer</a></li><li><a href="/free-image-compression-api">Image compression</a></li><li><a href="/free-image-metadata-viewer-api">Image metadata</a></li><li><a href="/free-exif-remover-api">EXIF remover</a></li><li><a href="/free-image-color-palette-api">Colour palette</a></li><li><a href="/free-favicon-generator-api">Favicon generator</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Web and network</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-web"><label class="nav-sub-button" for="nav-sub-web"><span class="visually-hidden">Show the web and network endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-ping-api-endpoint">Ping</a></li><li><a href="/free-public-api-health-api-endpoint">Health</a></li><li><a href="/free-public-api-client-ip-api-endpoint">Client IP</a></li><li><a href="/free-public-api-user-agent-api-endpoint">User agent</a></li><li><a href="/free-public-api-ip-reverse-lookup-api-endpoint">IP reverse lookup</a></li><li><a href="/free-public-api-domain-ip-lookup-api-endpoint">Domain IP lookup</a></li><li><a href="/free-public-api-email-validate-api-endpoint">Email validation</a></li><li><a href="/free-public-api-validate-api-endpoint">Check digit validation</a></li><li><a href="/free-public-api-url-shortener-api-endpoint">URL shortener</a></li><li><a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF</a></li><li><a href="/free-public-api-storage-api-endpoint">Storage</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/random-generator-apis">Random</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-random"><label class="nav-sub-button" for="nav-sub-random"><span class="visually-hidden">Show the random endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-uuid-api-endpoint">UUID</a></li><li><a href="/free-public-api-guid-api-endpoint">GUID</a></li><li><a href="/free-public-api-password-api-endpoint">Password</a></li><li><a href="/free-public-api-passphrase-api-endpoint">Passphrase</a></li><li><a href="/free-public-api-random-number-api-endpoint">Random number</a></li><li><a href="/free-public-api-random-color-api-endpoint">Random colour</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#crypto">Crypto</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-crypto"><label class="nav-sub-button" for="nav-sub-crypto"><span class="visually-hidden">Show the crypto endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-bitcoin-balance-api-endpoint">Bitcoin balance</a></li><li><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Bitcoin wallet</a></li><li><a href="/free-public-api-ethereum-balance-api-endpoint">Ethereum balance</a></li><li><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Ethereum wallet</a></li><li><a href="/free-public-api-solana-balance-api-endpoint">Solana balance</a></li><li><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Solana wallet</a></li></ul></div></div><p class="nav-panel-foot"><a href="/free-public-apis">Every endpoint in one list</a><a href="/free-public-mcp-server">The same endpoints as MCP tools</a></p></div></div><div class="nav-item nav-has-panel"><a class="nav-top" href="/free-public-mcp-server">Free MCP server</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-mcp"><label class="nav-sub-button" for="nav-sub-mcp"><span class="visually-hidden">Show the agent protocol pages</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/free-public-mcp-server">MCP server</a></li><li><a href="/free-public-a2a-agent-endpoint">Agent2Agent (A2A)</a></li></ul></div></div><div class="nav-item"><a class="nav-top" href="/custom-apis">Custom APIs</a></div><div class="nav-item"><a class="nav-top" href="/make-your-data-available-for-ai">AI data feed</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/ai-sense-posts">Posts</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-posts"><label class="nav-sub-button" for="nav-sub-posts"><span class="visually-hidden">Show the latest posts</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/time-zones-by-name">Time Zones by Name, and a Home for WorldTimeAPI&#x27;s Clients</a></li><li><a href="/slow-by-design">Slow by Design: Argon2id, bcrypt and scrypt on a Free API</a></li><li><a href="/four-more-hashes">Four More Hashes, and a Verify That Asks Which One</a></li><li><a href="/convert-heic-webp-png-and-jpg-images">How to Convert HEIC, WebP, PNG and JPG Images for Free</a></li><li><a href="/favicon-sizes-and-the-files-a-website-needs">Favicon Sizes: The Files a Website Needs, and How to Make Them</a></li></ul><p class="nav-panel-foot"><a href="/ai-sense-posts">All posts</a></p></div></div><div class="nav-item"><a class="nav-top" href="/contact-us">Contact us</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/about">About</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-about"><label class="nav-sub-button" for="nav-sub-about"><span class="visually-hidden">Show the company and its services</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/about">About AI SENSE AS<span class="nav-desc">The company in Oslo behind the services</span></a></li></ul><p class="nav-panel-label">Services</p><ul class="nav-list"><li><a href="/free-public-apis">Free public REST APIs<span class="nav-desc">Utility endpoints with no account or key</span></a></li><li><a href="/free-public-mcp-server">Free MCP server<span class="nav-desc">Every endpoint as a tool for an AI agent</span></a></li><li><a href="/custom-apis">Custom APIs<span class="nav-desc">APIs and integrations built to order</span></a></li><li><a href="/make-your-data-available-for-ai">AI data feed<span class="nav-desc">Your text and documents in feeds AI can read</span></a></li><li><a href="/aamio">aamio<span class="nav-desc">Where agents that have never met exchange messages</span></a></li><li><a href="/verifyum">Verifyum<span class="nav-desc">Private file proofs on Solana Mainnet</span></a></li></ul></div></div></div></nav></div></header>
 
-<main id="main-content">
-
-<div class="posts-hero">
-  <p class="eyebrow">404</p>
-  <h1>That page is not here</h1>
-  <p class="lede">The address may be from an older version of this site, or it may simply be wrong. Everything below is one click away, and the API itself is unaffected.</p>
-</div>
-
-<section class="posts-cta" aria-labelledby="notfound-cta-title">
-  <p class="eyebrow">Most likely what you wanted</p>
-  <h2 id="notfound-cta-title">The free public REST APIs</h2>
-  <p>Every endpoint with request and response examples - time, hashing, encoding, QR codes, validation, temporary storage, URL shortening, webhooks and wallet generation. No key, no sign-up.</p>
-  <div class="button-row">
-    <a class="button button-primary" href="/free-public-apis">All endpoints</a>
-    <a class="button" href="/free-public-mcp-server">MCP server for agents</a>
-    <a class="button" href="/contact-us">Contact us</a>
-  </div>
-</section>
-
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">Markdown to HTML API Endpoint</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Transform - Text</p><h1 id="page-title">Free Markdown to HTML API Endpoint</h1><p class="lede">The free Markdown to HTML API endpoint renders CommonMark, with the GitHub tables, strikethrough, task lists and bare links agents write, into an HTML fragment. Raw HTML in the Markdown is shown as text and an unsafe link as its text, so the answer can go into a page as it is.</p><ul class="badges"><li>No API key</li><li>CommonMark and GitHub</li><li>Safe by design</li><li>One POST request</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Render Markdown</p><p class="sig"><span class="method post">POST</span><span class="path">/markdown_to_html</span></p><code>https://aisenseapi.com/services/v1/markdown_to_html</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="quick-start"><h2>Call the free Markdown to HTML API endpoint</h2><p>Post the Markdown under a <code>data</code> key:</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/markdown_to_html \
+  -H "Content-Type: application/json" \
+  -d '{"data": "# Report\n\n- **3** jobs done\n- [ ] one left\n\n| Job | Time |\n|---|--:|\n| sync | 2.1 s |"}'</code></pre><pre><code>{"html":"&lt;h1&gt;Report&lt;/h1&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;strong&gt;3&lt;/strong&gt; jobs done&lt;/li&gt;\n&lt;li&gt;&lt;input type=\"checkbox\" disabled=\"\" /&gt; one left&lt;/li&gt;\n&lt;/ul&gt;\n&lt;table&gt;\n&lt;thead&gt;\n&lt;tr&gt;\n&lt;th&gt;Job&lt;/th&gt;\n&lt;th style=\"text-align: right\"&gt;Time&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody&gt;\n&lt;tr&gt;\n&lt;td&gt;sync&lt;/td&gt;\n&lt;td style=\"text-align: right\"&gt;2.1 s&lt;/td&gt;\n&lt;/tr&gt;\n&lt;/tbody&gt;\n&lt;/table&gt;"}</code></pre><p>The <code>html</code> value is a fragment, with no <code>&lt;html&gt;</code> or <code>&lt;body&gt;</code> around it:</p><pre><code>&lt;h1&gt;Report&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;3&lt;/strong&gt; jobs done&lt;/li&gt;
+&lt;li&gt;&lt;input type="checkbox" disabled="" /&gt; one left&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Job&lt;/th&gt;
+&lt;th style="text-align: right"&gt;Time&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;sync&lt;/td&gt;
+&lt;td style="text-align: right"&gt;2.1 s&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre><p>To go the other way, use the <a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown API endpoint</a>.</p></section>
+<section id="safe"><h2>Safe to show</h2><p>The HTML can go into a page as it is, even when the Markdown came from someone else. Raw HTML in the Markdown is shown as text, never passed through, and a link or image whose scheme is not on a short list is shown as its text:</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/markdown_to_html \
+  -H "Content-Type: application/json" \
+  -d '{"data": "&lt;script&gt;alert(1)&lt;/script&gt; and [click](javascript:alert(1))"}'</code></pre><pre><code>{"html":"&lt;p&gt;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt; and click&lt;/p&gt;"}</code></pre><div class="table-wrap field-table"><table><thead><tr><th>Allowed</th><th>Where</th></tr></thead><tbody><tr><td><code>http:</code>, <code>https:</code> and relative URLs</td><td>links and images</td></tr><tr><td><code>mailto:</code>, <code>tel:</code>, <code>ftp:</code></td><td>links</td></tr><tr><td>PNG, GIF, JPEG and WebP data URLs</td><td>images</td></tr></tbody></table></div><p>Anything else, <code>javascript:</code>, <code>vbscript:</code>, <code>data:text/html</code> and SVG data included, however it is spelled or escaped, becomes text. Attribute values are escaped, so a title or URL cannot add an attribute of its own.</p></section>
+<section id="supported"><h2>What it reads</h2><div class="table-wrap field-table"><table><thead><tr><th>Markdown</th><th>HTML</th></tr></thead><tbody><tr><td><code>#</code> to <code>######</code>, or a line underlined with <code>===</code> or <code>---</code></td><td><code>&lt;h1&gt;</code> to <code>&lt;h6&gt;</code></td></tr><tr><td><code>*em*</code>, <code>**strong**</code>, <code>~~struck~~</code>, <code>`code`</code></td><td><code>&lt;em&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;del&gt;</code>, <code>&lt;code&gt;</code>, by the CommonMark rules</td></tr><tr><td><code>[text](url "title")</code>, <code>[text][ref]</code>, <code>&lt;https://...&gt;</code>, a bare <code>www.</code> or <code>https://</code> link</td><td><code>&lt;a href&gt;</code></td></tr><tr><td><code>![alt](src)</code></td><td><code>&lt;img&gt;</code> with its alt text</td></tr><tr><td><code>-</code>, <code>*</code>, <code>+</code>, <code>1.</code>, <code>1)</code>, <code>- [ ]</code> and <code>- [x]</code></td><td>lists, tight or loose, with start numbers and checkboxes</td></tr><tr><td><code>| a | b |</code> over <code>|:--|--:|</code></td><td>a table with its column alignment</td></tr><tr><td>fenced code with a language, indented code</td><td><code>&lt;pre&gt;&lt;code class="language-..."&gt;</code></td></tr><tr><td><code>&gt;</code>, <code>---</code>, two spaces or a backslash at a line end</td><td><code>&lt;blockquote&gt;</code>, <code>&lt;hr /&gt;</code>, <code>&lt;br /&gt;</code></td></tr></tbody></table></div></section>
+<section id="pdf"><h2>Markdown to PDF in one pipe</h2><p>The <a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF API endpoint</a> takes the html as its data and stores the PDF for 24 hours:</p><pre><code>curl -s -X POST https://aisenseapi.com/services/v1/markdown_to_html \
+  -H "Content-Type: text/markdown" --data-binary @report.md \
+  | jq '{data: .html}' \
+  | curl -s -X POST https://aisenseapi.com/services/v1/html2pdf \
+      -H "Content-Type: application/json" --data-binary @-</code></pre><p>The answer carries the <code>storage_url</code> of the PDF.</p></section>
+<section id="input"><h2>Sending the input</h2><p>Send the text as <code>{"data": "..."}</code> with <code>Content-Type: application/json</code>, or as the raw request body with any other content type, such as <code>text/markdown</code>. It has to be UTF-8.</p><p>Windows and old Mac line ends are read as line ends.</p></section>
+<section id="errors"><h2>Errors</h2><div class="table-wrap field-table"><table><thead><tr><th>Status</th><th>error</th><th>When</th></tr></thead><tbody><tr><td>400</td><td>No Markdown to convert.</td><td>No <code>data</code> string and no body</td></tr><tr><td>400</td><td>The Markdown is not UTF-8 text.</td><td>Text in another encoding, sent as it is</td></tr><tr><td>413</td><td>Data over 256 KiB.</td><td>More than 256 KiB in one request</td></tr><tr><td>413</td><td>Too many Markdown lines.</td><td>More than 20000 lines in one request</td></tr></tbody></table></div><p>Each refusal also carries <code>fix</code>, a sentence saying what to send instead.</p></section>
+<section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Reports from agents</h3><p>An agent writes Markdown, people read HTML: put its report in a page or an email as it comes back.</p></article><article><h3>Text people wrote</h3><p>Show comments and notes with their formatting, and without any HTML or script they slipped in.</p></article><article><h3>Documents to PDF</h3><p>Render a Markdown file here and hand the HTML to the HTML to PDF endpoint for a printable copy.</p></article></div></section>
+<section id="privacy"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>Nothing is stored. The Markdown to HTML answer is worked out while the request is open and the data is gone with it. The access log records the path and the status, not the body.</p></div><p>The base URL is <code>https://aisenseapi.com/services/v1</code>. There is no key, no account and no sign-up step. One request carries at most 256 KiB of Markdown and 20000 lines. The service-wide limit is 5000 requests per IP address per day. Every endpoint in the collection is listed on the <a href="/free-public-apis">Free public REST APIs</a> reference.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown API Endpoint<span>The other way, for reading pages</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF API Endpoint<span>Render the HTML to a PDF</span></a><a href="/free-public-api-html-encode-api-endpoint">HTML Encode API Endpoint<span>Escape one value for a page</span></a><a href="/free-public-apis">Free public REST APIs<span>Every endpoint in one place</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Quick start</a></li><li><a href="#safe">Safe to show</a></li><li><a href="#supported">What it reads</a></li><li><a href="#pdf">Markdown to PDF</a></li><li><a href="#input">Input</a></li><li><a href="#errors">Errors</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#privacy">Privacy</a></li><li><a href="#related">Related</a></li></ul></aside></div>
 </main>
 
-<footer class="site-footer">
-  <div class="inner">
-    <nav aria-label="Footer">
-      <ul>
-        <li><a href="/free-public-apis">Free public REST APIs</a></li>
-        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
-        <li><a href="/custom-apis">Custom APIs</a></li>
-        <li><a href="/ai-sense-posts">Posts</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact-us">Contact us</a></li>
-        <li><a href="/terms">Terms of Service</a></li>
-        <li><a href="/privacy">Privacy</a></li>
-      </ul>
-    </nav>
-    <address>
-      <strong>AI SENSE AS</strong><br>
-      Postboks 1202 Vika<br>
-      0110 Oslo<br>
-      Norway
-    </address>
-    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
-  </div>
-</footer>
-
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
 </body>
 </html>
