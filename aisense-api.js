@@ -188,6 +188,24 @@ export class AISenseAPI {
     return this.#get(offset !== undefined ? `/datetime/${offset}` : '/datetime')
   }
 
+  /**
+   * Current datetime in an IANA time zone such as `Europe/Oslo`, summer time
+   * included. Keys: `datetime`, `timezone`, `abbreviation`, `utc_offset`,
+   * `dst`, `unixtime`. An unknown name is a 400.
+   */
+  getDatetimeInZone(timezone) {
+    return this.#get(`/datetime/${timezone}`)
+  }
+
+  /**
+   * WorldTimeAPI's fifteen fields from its own paths at the host root: for a
+   * zone (`Europe/Oslo`), for an address, or with neither for the caller.
+   */
+  getWorldtime({ timezone, ip } = {}) {
+    const path = timezone !== undefined ? `/api/timezone/${timezone}` : ip !== undefined ? `/api/ip/${ip}` : '/api/ip'
+    return new this.constructor(this.baseUrl.split('/services/')[0]).#get(path)
+  }
+
   /** Current Unix timestamp in seconds. Response key: `timestamp`. */
   getTimestamp() {
     return this.#get('/timestamp')

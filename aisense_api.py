@@ -165,16 +165,38 @@ class AISenseAPI:
 
     # ── Time ──────────────────────────────────────────────────────────────────
 
-    def get_datetime(self, offset: Optional[str] = None) -> dict:
+    def get_datetime(self, offset: Optional[str] = None, timezone: Optional[str] = None) -> dict:
         """Current datetime in ISO 8601. Response key: ``datetime``.
 
-        ``offset`` must be a four-digit UTC offset such as ``"+0200"``,
-        ``"-0530"`` or ``"0100"``. Hour-only values like ``"1"`` are NOT
-        accepted by the API: they form a path that matches no route, so they
-        answer 404.
+        ``offset`` is a four-digit UTC offset such as ``"+0200"``,
+        ``"-0530"`` or ``"0100"``, or ``"+02:00"``. Hour-only values like
+        ``"1"`` are NOT accepted by the API: they form a path that matches no
+        route, so they answer 404.
+
+        ``timezone`` is an IANA name such as ``"Europe/Oslo"``, which follows
+        summer time; the answer then also has ``timezone``, ``abbreviation``,
+        ``utc_offset``, ``dst`` and ``unixtime``. An unknown name is a 400.
         """
+        if timezone is not None:
+            return self._get(f"/datetime/{timezone}")
         path = f"/datetime/{offset}" if offset is not None else "/datetime"
         return self._get(path)
+
+    def get_worldtime(self, timezone: Optional[str] = None, ip: Optional[str] = None) -> dict:
+        """WorldTimeAPI's fifteen fields, from its own paths at the host root.
+
+        With ``timezone`` (``"Europe/Oslo"``) for that zone, with ``ip`` for
+        where that address is, and with neither for where the caller is.
+        """
+        if timezone is not None:
+            path = f"/api/timezone/{timezone}"
+        elif ip is not None:
+            path = f"/api/ip/{ip}"
+        else:
+            path = "/api/ip"
+        # These paths sit at the host root, not under /services/v1.
+        root = self.base_url.split("/services/")[0]
+        return type(self)(root, self.timeout)._get(path)
 
     def get_timestamp(self) -> dict:
         """Current Unix timestamp in seconds. Response key: ``timestamp``."""

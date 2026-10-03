@@ -56,23 +56,42 @@ answer with `application/octet-stream` unless you send `Accept: application/json
 
 ## Time
 
-### `GET /datetime[/{offset}]`
-Current date and time in ISO 8601.
+### `GET /datetime[/{offset}]` and `GET /datetime/{zone}`
+Current date and time in ISO 8601, in UTC, at a fixed offset, or in a time zone
+by name.
 
-`offset` is a **four-digit** UTC offset with an optional sign. `+0200`, `-0530`
-and `0100` all work. An hour-only value such as `1` does **not** match the route
-and falls through to the unknown-path response.
+`offset` is a **four-digit** UTC offset with an optional sign, `+0200`, `-0530`
+or `0100`, or since 3 October 2026 the same with a colon, `+02:00`. An
+hour-only value such as `1` does **not** match the route and falls through to
+the unknown-path response. A four-digit offset out of range answers UTC.
 
 ```
 GET /datetime
 GET /datetime/+0200
+GET /datetime/+02:00
 GET /datetime/-0530
-GET /datetime/0100
 ```
 
 ```json
 { "datetime": "2026-08-16T11:44:35+02:00" }
 ```
+
+`zone` is an IANA name such as `Europe/Oslo`, `America/New_York` or
+`America/Argentina/Buenos_Aires`, in any case, added 3 October 2026. A fixed
+offset is wrong for half the year anywhere with summer time; a zone name
+follows the clock changes. The answer says what the offset is right now and
+whether summer time is in force:
+
+```
+GET /datetime/Europe/Oslo
+```
+
+```json
+{"datetime":"2026-10-03T12:41:07+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791024067}
+```
+
+An unknown name is **HTTP 400** with a `fix`, never a silent UTC.
+`/worldtime/timezone` below lists the names.
 
 ---
 
@@ -139,6 +158,59 @@ Unlike the older endpoints, bad input returns a real **HTTP 400**.
 ```
 
 `detected` is one of `unix`, `unix_ms`, `datetime`, `now`.
+
+---
+
+### WorldTimeAPI paths: `GET /api/timezone/...` and `GET /api/ip[/{address}]`
+The paths and the fifteen fields of WorldTimeAPI, which no longer answers,
+added 3 October 2026. They sit at the host root, so moving a client is a change
+of host and scheme: `http://worldtimeapi.org/api/...` becomes
+`https://aisenseapi.com/api/...`. Only HTTPS is served; a sketch that used plain
+HTTP on an ESP32 moves to `WiFiClientSecure` as well. The same paths also answer
+under `/services/v1/worldtime/`.
+
+| Path | Answer |
+|------|--------|
+| `/api/timezone` | every current zone name, a JSON list |
+| `/api/timezone/{area}` | the zones of one area, such as `Europe` |
+| `/api/timezone/{area}/{location}[/{region}]` | the fifteen fields for that zone |
+| `/api/ip` | the fifteen fields where the caller's address is |
+| `/api/ip/{address}` | the fifteen fields where that IPv4 or IPv6 address is |
+
+Add `.txt` to any of them for one `key: value` per line, null left empty.
+
+```json
+// GET /api/timezone/Europe/Oslo
+{
+  "abbreviation": "CEST",
+  "client_ip": "203.0.113.9",
+  "datetime": "2026-10-03T12:41:07.113157+02:00",
+  "day_of_week": 6,
+  "day_of_year": 276,
+  "dst": true,
+  "dst_from": "2026-03-29T01:00:00+00:00",
+  "dst_offset": 3600,
+  "dst_until": "2026-10-25T01:00:00+00:00",
+  "raw_offset": 3600,
+  "timezone": "Europe/Oslo",
+  "unixtime": 1791024067,
+  "utc_datetime": "2026-10-03T10:41:07.113157+00:00",
+  "utc_offset": "+02:00",
+  "week_number": 40
+}
+```
+
+`dst_from` and `dst_until` are the edges of the current summer time period in
+UTC, and `null` outside one. `raw_offset` is the standard offset and
+`dst_offset` what summer time adds, in seconds. `day_of_week` is `0` for
+Sunday, `day_of_year` starts at `1`, `week_number` is the ISO week. Old names
+such as `Europe/Kiev` are accepted. The zone of an address comes from
+GeoLite2-City, cached for an hour.
+
+An unknown zone is **404** with `{"error":"unknown location Europe/Pari"}`, as
+WorldTimeAPI answered, plus a `fix`; an address with no zone in the database is
+**404**, and a malformed one **400**. Calls count towards the 5000 per IP per
+day like everything under `/services/v1`.
 
 ---
 
@@ -2361,6 +2433,8 @@ operations use JSON with the fields documented in their own sections.
 | Endpoint | Response key(s) |
 |----------|-----------------|
 | `/datetime` | `datetime` |
+| `/datetime/{zone}` | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
+| `/api/timezone/{zone}`, `/api/ip[/{address}]` | `abbreviation`, `client_ip`, `datetime`, `day_of_week`, `day_of_year`, `dst`, `dst_from`, `dst_offset`, `dst_until`, `raw_offset`, `timezone`, `unixtime`, `utc_datetime`, `utc_offset`, `week_number` |
 | `/timestamp` | `timestamp` |
 | `/microtimestamp` | `microtimestamp` |
 | `/timezones` | `timezones` (array of objects) |
