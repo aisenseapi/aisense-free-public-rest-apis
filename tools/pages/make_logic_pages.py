@@ -123,16 +123,16 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 ''' + hero('Logic - Decisions', 'Free Decision API Endpoint',
            'Send the facts and your rules, and get typed decisions back: yes or no, one of several options, or a level on a scale. '
-           'Each answer has a probability, a confidence, a recommended action and the rules that produced it. There is no model inside, '
-           'so every number can be worked out by hand, and nothing is stored.',
-           ['No API key', 'One POST', 'Probabilities and confidence', 'Every number explained', 'Nothing stored'],
+           'Rules are the default and explain each answer. Optional model selection uses the same endpoint with a separate question format '
+           'and strict capacity limits. Clef is available only when enabled by the operator.',
+           ['No API key', 'One POST', 'Rules by default', 'Optional model selection'],
            'Decide', '<p class="sig"><span class="method post">POST</span><span class="path">/decide</span></p>', API + '/decide') + '''
 
 <div class="api-detail-body">
 
 <section id="quick-start"><h2>Call the free Decision API endpoint</h2><p>Send a <code>state</code>, the facts to decide on, and named <code>questions</code>. Each question has rules, and each rule is a condition and a weight. This one routes a support ticket and decides whether the refund can go through at once:</p>''' + example('ticket') + '''<p>The refund gets &minus;2 + 2 + 1 + 1 + 1 = 3, and sigmoid(3) = 0.9526. Its confidence, 0.9051, is above 0.9, so the action is <code>act</code>: it can go through without anyone looking. The team gets softmax over 3, 1 and 0, and a confidence of 0.7657 says <code>review</code>. <code>because</code> lists the rules that held, including the word "money" that pulled a little towards billing.</p></section>
 
-<section id="questions"><h2>Three kinds of question</h2>''' + table(['Type', 'Answers with', 'How it is worked out'], [
+<section id="questions"><h2>Three kinds of rule question</h2><p>Omit <code>model</code> or send <code>"model":"rules"</code> for the existing rule format. Its response is unchanged.</p>''' + table(['Type', 'Answers with', 'How it is worked out'], [
     ['<code>yes_no</code>', '<code>answer</code>, <code>probability</code>', 'sigmoid(<code>bias</code> + the weights of the rules that held)'],
     ['<code>choice</code>', '<code>choice</code>, <code>probabilities</code>', 'softmax over each option: its prior plus the weights of its rules that held'],
     ['<code>scale</code>', '<code>level</code>, <code>expected</code>, <code>probabilities</code>', 'a choice over ordered levels; <code>expected</code> counts the first level as 0'],
@@ -153,12 +153,28 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="errors"><h2>Errors</h2><p>Every refusal has <code>error</code>, naming the field, and <code>fix</code>, saying what to send instead. Nothing is stored whatever the outcome.</p>''' + table(['Status', 'When'], [
+<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. This mode is disabled by default until the operator has measured the backend. A disabled model returns 503. An unknown model returns 400. Neither falls back to rules.</p>''' + pre(json.dumps({
+    "model": "clef",
+    "state": {"message": "The production API returns HTTP 500 and blocks checkout."},
+    "questions": {"urgent": {
+        "type": "noul", "instructions": "Does this need urgent attention?",
+        "criteria": {"true": "An active production failure blocks business.", "false": "The issue can wait."}
+    }}
+}, indent=2)) + '''<p>This is a request example, not a measured production result. The response has <code>model</code>, <code>model_version</code>, <code>answers</code> and optional token <code>usage</code>.</p>''' + table(['Model type', 'Criteria', 'Answer'], [
+    ['<code>noul</code>', 'An object with descriptions named <code>true</code> and <code>false</code>', 'Numeric <code>noul</code> from 0 to 1, not a Boolean'],
+    ['<code>choice</code>', 'An object of named descriptions', '<code>choice</code>, <code>probabilities</code> and <code>confidence</code>'],
+    ['<code>score</code>', 'An ordered list of labels', '<code>score</code>, <code>legend</code>, <code>probabilities</code> and <code>confidence</code>'],
+]) + '''<p>A score starts at zero for the first label and can be fractional. Model confidence comes from the backend and does not use the rule formula above. Model answers have no <code>action</code> or <code>because</code>. Do not mix model criteria with <code>rules</code>, <code>act_at</code> or <code>review_at</code>. Model output can be wrong. Keep human approval for consequential actions.</p><h3>Model capacity limits</h3><p>Default limits are 8 KiB of JSON, 4 questions, 8 choices or score levels, 1024 UTF-8 bytes per instruction and 512 per criterion. Per IP, at most 2 starts per UTC minute and 20 per UTC calendar day. All callers and models share 6 starts per minute and 300 per UTC day. One model call can run at a time, with no waiting queue and at least 10 seconds between starts. The connection deadline is 2 seconds, the total deadline 30 seconds and the reply cap 32 KiB. Failed admitted calls count too. The operator can change these limits after measurement.</p><p>Respect <code>Retry-After</code> on timed refusals. Do not retry in a loop. If a timeout leaves the remote computation uncertain, model calls stay closed until an operator checks it. Rules remain available. Callers cannot choose the backend URL, model version or limits.</p></section>
+
+<section id="errors"><h2>Errors</h2><p>Refusals include <code>error</code> and <code>fix</code>. No request or answer body is saved by the Decide API. Model mode records counters and timing aggregates.</p>''' + table(['Status', 'When'], [
     ['400', 'A field is missing, of the wrong kind or out of range, or the body is not valid JSON. The error names the place, such as <code>questions.team.options.returns[0].weight</code>'],
     ['405', 'Any method but POST'],
-    ['413', 'The body is over 64 KiB, or the rules hold more than 5000 tests'],
+    ['413', 'The body is over 64 KiB for rules or the configured model byte limit, or the rules hold more than 5000 tests'],
     ['415', 'The body is not sent as <code>application/json</code>'],
-    ['429', 'The service-wide limit of 5000 requests per IP per day'],
+    ['429', 'The service-wide limit of 5000 requests per IP per day, or a model quota'],
+    ['502', 'The model backend returned an error, a malformed reply or a broken transfer'],
+    ['503', 'The model is disabled, busy, pacing new calls, unavailable or awaiting operator recovery'],
+    ['504', 'The model transport deadline was reached'],
 ]) + '''</section>
 
 <section id="use-cases"><h2>When rules fit</h2>''' + cards([
@@ -168,7 +184,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
     ('A cheap first layer', 'Answer the clear cases with rules, and hand only the uncertain ones to a model or a person.'),
 ]) + '''</section>
 
-<section id="privacy"><h2>Privacy and limits</h2><p>The state and the rules are tested inside the worker and gone when the answer is. Nothing is written, stored or sent anywhere, and the access log line holds the path and nothing from the body. Limits: 64 KiB of JSON, 64 questions, 100 options, 20 levels, 50 rules per list, weights from &minus;100 to 100, 5000 tests and 8 levels of <code>any</code> and <code>not</code> in one request. The service-wide ceiling is 5000 requests per IP per day.</p></section>
+<section id="privacy"><h2>Privacy and limits</h2><p>Rules run inside the API worker without sending the state to another service or saving the request body. Rule limits are 64 KiB of JSON, 64 questions, 100 options, 20 levels, 50 rules per list, weights from &minus;100 to 100, 5000 tests and 8 levels of <code>any</code> and <code>not</code>. The service-wide ceiling is 5000 requests per IP per Norwegian day.</p><p>Model mode sends state and questions to the configured external inference machine. The API keeps quota counters keyed by an IP HMAC and aggregate timings, not input or answer bodies. The backend has separate data handling that must be confirmed before public activation. Keep credentials and sensitive personal data out. Ordinary access logs still record IP addresses and other request metadata. See <a href="/privacy">Privacy</a>.</p></section>
 
 <section id="related"><h2>Related endpoints</h2>''' + related([
     ('/free-public-apis', 'Free public REST APIs', 'The full endpoint reference'),
@@ -224,12 +240,12 @@ DECIDE_SCRIPT = r'''
 '''
 
 page('free-public-api-decide-api-endpoint',
-     'Free Decision API Endpoint: Rules to Probabilities | AI SENSE',
+     'Free Decision API Endpoint: Rules and Model Selection | AI SENSE',
      'Send facts and weighted rules, get typed decisions back: yes or no, a choice or a scale, with probabilities, confidence and the rules that fired. Free, no key.',
      'Free Decision API Endpoint',
-     'Typed decisions from your own rules, with probabilities, a confidence, an action and the rules behind every number. No model, nothing stored.',
+     'Typed decisions from your own rules. Optional Clef model selection uses separate questions and capacity limits, when enabled.',
      'Free Decision API Endpoint',
-     'Answers yes_no, choice and scale questions from weighted rules over a state the caller sends, with probabilities, confidence, a recommended action and the rules that held. Nothing is stored.',
+     'Answers weighted rule questions by default. Optional Clef model mode supports noul, choice and score questions when enabled, with separate capacity limits.',
      'Decision API endpoint', DECIDE_MAIN, DECIDE_SCRIPT)
 
 # -- /chaos -------------------------------------------------------------------

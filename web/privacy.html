@@ -108,6 +108,10 @@
 <h3>Rate limiting</h3>
 <p>We count requests per IP address to enforce the published limit of 5000 per day. The counter is stored against the address. Since 12 September 2026 we also count the bytes each IP address stores through /storage, to enforce the limit of 80 MB per day. That counter is stored against the address in the same way and resets at the same time.</p>
 
+<h3>Optional decision models</h3>
+<p>The default rule mode of <code>/decide</code> runs inside the API worker and does not save request or answer bodies. Selecting a model such as Clef, when enabled, sends the state and questions to the configured external inference machine. The API records quota counters keyed by an IP HMAC and aggregate durations, outcomes, bytes and token counts. It does not save model input or answer bodies in this telemetry. Ordinary access logs still record IP addresses as described above.</p>
+<p>Model inference is disabled by default until capacity and the backend's separate data handling have been checked. Do not send credentials or sensitive personal data. The API's body-handling policy does not establish the external machine's retention policy.</p>
+
 <h3>What temporary endpoints store</h3>
 <p>The following endpoint groups hold temporary state or content:</p>
 <div class="table-wrap">
@@ -154,6 +158,7 @@
 <tr><td>Raw server access and MCP method logs</td><td>Temporary local copies are pruned after 14 days. Compressed archives are kept for approximately 24 months, with the cleanup threshold set to 744 days</td></tr>
 <tr><td>MCP daily summaries</td><td>No automatic expiry is configured for the daily summary files</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>
+<tr><td>Decision-model telemetry</td><td>Snapshots show up to seven UTC dates. Older aggregates and daily IP-HMAC counters are removed on the next state write. With no activity, older physical data can remain. No model bodies or answers are saved in these records</td></tr>
 <tr><td>Client login attempts</td><td>The email address and the time stay in our internal Slack channel until we delete them there. The counters that limit repeated attempts hold a hash of the IP address, not the address, and are kept for one hour</td></tr>
 </tbody>
 </table>

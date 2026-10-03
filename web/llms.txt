@@ -20,7 +20,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.10.0 with 61 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.2, published 2 October 2026 at 22:44 UTC
+- MCP has 61 tools. This source release is version 1.11.0 and requires deployment. The last verified production version was 1.10.0 on 3 October 2026. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.2, published 2 October 2026 at 22:44 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -58,7 +58,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
-- Decision endpoint, typed decisions with probabilities and confidence from rules you send, nothing stored: https://aisense.no/free-public-api-decide-api-endpoint
+- Decision endpoint, rules by default with the existing response unchanged. Optional model "clef" uses noul, choice and score questions with instructions and criteria, when enabled. Default model caps: 8 KiB, 4 questions, 2 starts/minute and 20/UTC day per IP, one shared in-flight call. No automatic action or fallback. Model inputs go to a configured external inference machine: https://aisense.no/free-public-api-decide-api-endpoint
 - Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
 - Time guide, datetime by IANA zone name with summer time, by IP address or by fixed offset, timestamps and the timezone list: https://aisense.no/time-apis
 - IP datetime guide, the time and summer time details where an IPv4 or IPv6 address is, or the caller's own, at https://aisenseapi.com/services/v1/ip_datetime: https://aisense.no/free-public-api-ip-datetime-api-endpoint
