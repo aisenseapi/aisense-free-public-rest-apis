@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Time Zones by Name, and a Home for WorldTimeAPI's Clients - AI SENSE</title>
-<meta name="description" content="/datetime now takes an IANA zone such as Europe/Oslo, which follows summer time where a fixed offset cannot. And WorldTimeAPI's fifteen fields answer under /services/v1/worldtime, with its own path after the prefix.">
+<meta name="description" content="/datetime now takes an IANA zone such as Europe/Oslo, which follows summer time where a fixed offset cannot, and /ip_datetime answers the same where an address is. Between them they answer what clients of WorldTimeAPI asked it for.">
 <link rel="canonical" href="https://aisense.no/time-zones-by-name">
 
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Time Zones by Name, and a Home for WorldTimeAPI's Clients">
-<meta property="og:description" content="Two additions to the time endpoints: zones by name on /datetime, which follow summer time where a fixed offset cannot, and WorldTimeAPI's fields for everyone it left behind.">
+<meta property="og:description" content="Two additions to the time endpoints: zones by name on /datetime, which follow summer time where a fixed offset cannot, and /ip_datetime for where an address is, with WorldTimeAPI's fields for everyone it left behind.">
 <meta property="og:url" content="https://aisense.no/time-zones-by-name">
 <meta property="article:published_time" content="2026-10-03">
 <meta name="twitter:card" content="summary">
@@ -25,7 +25,7 @@
     {
       "@type": "TechArticle",
       "headline": "Time Zones by Name, and a Home for WorldTimeAPI's Clients",
-      "description": "On 3 October 2026 the free /datetime endpoint gained IANA zone names such as Europe/Oslo beside fixed offsets, and /services/v1/worldtime began answering WorldTimeAPI's fifteen fields, with WorldTimeAPI's own path after the prefix, over HTTPS, for clients of worldtimeapi.org, which reset every connection we made that day.",
+      "description": "On 3 October 2026 the free /datetime endpoint gained IANA zone names such as Europe/Oslo beside fixed offsets, with the summer time fields a clock needs, and /ip_datetime began answering the same for the zone of an address, so clients of worldtimeapi.org, which reset every connection we made that day, find its fields under this API's own paths, over HTTPS.",
       "url": "https://aisense.no/time-zones-by-name",
       "datePublished": "2026-10-03",
       "inLanguage": "en",
@@ -65,7 +65,7 @@
 <header class="article-header">
   <p class="eyebrow">Product note - 3 October 2026</p>
   <h1>Time Zones by Name, and a Home for WorldTimeAPI's Clients</h1>
-  <p class="article-deck">Two additions to the time endpoints today: <code>/datetime</code> takes a zone by name, which follows summer time where a fixed offset cannot, and WorldTimeAPI's fifteen fields answer under <code>/services/v1/worldtime</code> for every client that service left behind.</p>
+  <p class="article-deck">Two additions to the time endpoints today: <code>/datetime</code> takes a zone by name, which follows summer time where a fixed offset cannot, and <code>/ip_datetime</code> answers the same where an address is. Between them they answer what every client WorldTimeAPI left behind asked it for.</p>
 </header>
 
 <div class="article-body">
@@ -76,31 +76,34 @@
 <p><code>/datetime/+0200</code> is Oslo in summer. From 01:00 UTC on 25 October 2026, when Europe goes back to standard time, it is Oslo plus an hour, and it stays wrong until someone edits the offset. A zone name does not have that problem, because the zone carries its own rules:</p>
 
 <pre><code>GET /services/v1/datetime/Europe/Oslo
-{"datetime":"2026-10-03T11:12:16+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791018736}</code></pre>
+{"datetime":"2026-10-03T12:11:28+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791022288,"raw_offset":3600,"dst_offset":3600,"dst_from":"2026-03-29T01:00:00+00:00","dst_until":"2026-10-25T01:00:00+00:00","day_of_week":6,"day_of_year":276,"week_number":40,"utc_datetime":"2026-10-03T10:11:28+00:00"}</code></pre>
 
-<p>Any IANA name works, in any case, including three-part names such as <code>America/Argentina/Buenos_Aires</code>. The answer by name says what the offset is right now and whether summer time is on, since that is the reason to ask by name. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
+<p>Any IANA name works, in any case, including three-part names such as <code>America/Argentina/Buenos_Aires</code>. The answer by name says what the offset is right now, whether summer time is on and when it began and ends, since that is the reason to ask by name, and the day and week numbers with it. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
 
 <p>The offset forms are unchanged. Clients that expect <code>{"datetime": ...}</code> and nothing else keep getting exactly that. <code>+02:00</code> with a colon is now accepted beside <code>+0200</code>, and an hour-only value such as <code>/datetime/1</code> is still not a route.</p>
 
 <h2>WorldTimeAPI's fields, under our paths</h2>
 
-<p>WorldTimeAPI was the clock in a great many ESP32 sketches, Arduino projects, games and scripts. On 3 October 2026 it did not answer us: every connection we made to worldtimeapi.org was reset, over HTTP and HTTPS, and from a second network as well. Its fifteen fields answer here under <code>/services/v1/worldtime</code>, and what follows that prefix is WorldTimeAPI's own path, so a client moves by replacing the start of the URL:</p>
+<p>WorldTimeAPI was the clock in a great many ESP32 sketches, Arduino projects, games and scripts. On 3 October 2026 it did not answer us: every connection we made to worldtimeapi.org was reset, over HTTP and HTTPS, and from a second network as well. Its fields answer here, under the paths the rest of this API uses:</p>
 
 <div class="table-wrap"><table>
 <thead><tr><th>WorldTimeAPI</th><th>Here</th></tr></thead>
 <tbody>
-<tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/services/v1/worldtime/timezone/Europe/Oslo</code></td></tr>
-<tr><td><code>http://worldtimeapi.org/api/ip</code></td><td><code>https://aisenseapi.com/services/v1/worldtime/ip</code></td></tr>
-<tr><td><code>http://worldtimeapi.org/api/timezone.txt</code></td><td><code>https://aisenseapi.com/services/v1/worldtime/timezone.txt</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/services/v1/datetime/Europe/Oslo</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/ip</code></td><td><code>https://aisenseapi.com/services/v1/ip_datetime</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/ip/8.8.8.8</code></td><td><code>https://aisenseapi.com/services/v1/ip_datetime/8.8.8.8</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/timezone</code></td><td><code>https://aisenseapi.com/services/v1/timezones</code></td></tr>
 </tbody>
 </table></div>
 
-<p>The fields are WorldTimeAPI's, with its names, types and order: the local and UTC time with microseconds, the offset in force, the standard offset, whether summer time is on and when the current period began and ends, the day of the week and of the year, the ISO week, the Unix time and the caller's address. The <code>.txt</code> form gives one <code>key: value</code> per line, and the errors use its words, <code>unknown location Europe/Pari</code>, with our fix beside them. <code>/worldtime/ip</code> finds the zone of the caller's address. Each worker caches the result by IP and reuses it for up to an hour. That is a refresh interval, not a deletion deadline. IP addresses in request paths can also appear in access logs.</p>
+<p>The field names and types are WorldTimeAPI's: the local and UTC time, the offset in force, the standard offset, whether summer time is on and when the current period began and ends, the day of the week and of the year, the ISO week and the Unix time. Three things differ. There is no <code>client_ip</code>; <code>/ip_datetime</code> answers <code>ip</code>, the address it looked up. The times end at the second, without microseconds. And every answer is JSON, with no <code>.txt</code> form. <code>/ip_datetime</code> finds the zone of an address with an address lookup. Each worker caches the result by IP and reuses it for up to an hour. That is a refresh interval, not a deletion deadline. IP addresses in request paths can also appear in access logs.</p>
+
+<p>For a few hours on 3 October the same fields also answered under <code>/services/v1/worldtime</code>, in WorldTimeAPI's own path layout. We took that down the same day. One path for each answer, in the structure every other endpoint follows, is easier to keep right than two.</p>
 
 <div class="article-cta">
   <p class="eyebrow">The one change you cannot skip</p>
   <h2>HTTPS only.</h2>
-  <p>This host does not serve plain HTTP. An ESP32 sketch that used <code>http://worldtimeapi.org</code> with a <code>WiFiClient</code> moves to <code>https://</code> and a <code>WiFiClientSecure</code>; the short example uses <code>client.setInsecure()</code>, which skips server certificate verification. Use CA certificate verification when your application needs to trust the returned time. The <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the five lines, the whole translation and every field.</p>
+  <p>This host does not serve plain HTTP. An ESP32 sketch that used <code>http://worldtimeapi.org</code> with a <code>WiFiClient</code> moves to <code>https://</code> and a <code>WiFiClientSecure</code>; the short example uses <code>client.setInsecure()</code>, which skips server certificate verification. Use CA certificate verification when your application needs to trust the returned time. The <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the sketch, the whole translation and every field.</p>
 </div>
 
 <h2>Checked before writing</h2>
@@ -110,31 +113,29 @@
 <div class="table-wrap"><table>
 <thead><tr><th>Request</th><th>Answer</th></tr></thead>
 <tbody>
-<tr><td><code>/datetime/Europe/Oslo</code></td><td>CEST, <code>+02:00</code>, <code>dst: true</code>; <code>europe/oslo</code> gave the same canonical name</td></tr>
+<tr><td><code>/datetime/Europe/Oslo</code></td><td>CEST, <code>+02:00</code>, <code>dst: true</code>, summer time from 29 March to 25 October 2026, 01:00 UTC both; <code>europe/oslo</code> gave the same canonical name</td></tr>
 <tr><td><code>/datetime/+0200</code> and <code>/datetime/+02:00</code></td><td><code>{"datetime": ...}</code> and nothing else, as before</td></tr>
 <tr><td><code>/datetime/Europe/Pari</code></td><td>400 with a fix; <code>/datetime/1</code> still 404</td></tr>
-<tr><td><code>/worldtime/timezone</code></td><td>419 zone names; <code>/worldtime/timezone/Europe</code> 58</td></tr>
-<tr><td><code>/worldtime/timezone/Europe/Oslo</code></td><td>All fifteen fields; summer time from 29 March to 25 October 2026, 01:00 UTC both</td></tr>
-<tr><td><code>/worldtime/timezone/America/Argentina/Buenos_Aires</code></td><td><code>-03:00</code>, abbreviation <code>-03</code>, no summer time</td></tr>
-<tr><td><code>/worldtime/timezone/Australia/Lord_Howe</code></td><td><code>+10:30</code> and no summer time yet; its half-hour summer time begins at 15:30 UTC today, 02:00 on 4 October there</td></tr>
-<tr><td><code>/worldtime/timezone/Europe/Kiev</code></td><td>The old name is accepted</td></tr>
-<tr><td><code>/worldtime/timezone/Europe/Pari</code></td><td>404, <code>unknown location Europe/Pari</code>; as text, <code>Error: unknown location Europe/Pari</code></td></tr>
-<tr><td><code>/worldtime/ip</code> and <code>/worldtime/ip.txt</code></td><td>Europe/Oslo, fifteen fields</td></tr>
-<tr><td><code>/worldtime/ip/2001:4860:4860::8888</code></td><td>America/Chicago, IPv6 included</td></tr>
-<tr><td><code>/worldtime/ip/10.0.0.1</code>, <code>/worldtime/ip/999.1.1.1</code></td><td>404 for a private address, 400 for a malformed one</td></tr>
+<tr><td><code>/datetime/America/Argentina/Buenos_Aires</code></td><td><code>-03:00</code>, abbreviation <code>-03</code>, no summer time</td></tr>
+<tr><td><code>/datetime/Australia/Lord_Howe</code></td><td><code>+10:30</code> and no summer time yet; its half-hour summer time begins at 15:30 UTC today, 02:00 on 4 October there</td></tr>
+<tr><td><code>/datetime/Europe/Kiev</code></td><td>The old name is accepted, <code>+03:00</code></td></tr>
+<tr><td><code>/timezones</code></td><td>419 zones, 58 of them under <code>Europe/</code></td></tr>
+<tr><td><code>/ip_datetime</code></td><td>Europe/Oslo: the address, then the same fourteen fields</td></tr>
+<tr><td><code>/ip_datetime/2001:4860:4860::8888</code></td><td>America/Chicago, IPv6 included</td></tr>
+<tr><td><code>/ip_datetime/10.0.0.1</code>, <code>/ip_datetime/999.1.1.1</code></td><td>404 for a private address, 400 for a malformed one</td></tr>
 </tbody>
 </table></div>
 
-<p>The answers took 142 to 245 ms there and back, over a fresh TLS connection every time, which is almost all of it network. Not every public address has a zone: <code>1.1.1.1</code> answered 404 rather than a guess, and asking by zone name is the way around that.</p>
+<p>The answers took 125 to 236 ms there and back, over a fresh TLS connection every time, which is almost all of it network. Not every public address has a zone: <code>1.1.1.1</code> answered 404 rather than a guess, and asking by zone name is the way around that.</p>
 
 <h2>Where it sits</h2>
 
-<p>The <a href="/free-public-api-datetime-api-endpoint">datetime page</a> and the <a href="/time-apis">time guide</a> have zones by name, the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the translation, the fields and the ESP32 change, and the Python and JavaScript clients and the OpenAI tool definitions in the public repository have the new calls. The free MCP server's <code>get_current_time</code> already took a zone name and is unchanged. Every path counts towards the 5000 calls per address per day like the rest of the API.</p>
+<p>The <a href="/free-public-api-datetime-api-endpoint">datetime page</a>, the <a href="/free-public-api-ip-datetime-api-endpoint">IP datetime page</a> and the <a href="/time-apis">time guide</a> have the details, the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the translation, the fields and the ESP32 change, and the Python and JavaScript clients and the OpenAI tool definitions in the public repository have the new calls. The free MCP server's <code>get_current_time</code> already took a zone name and is unchanged. Every path counts towards the 5000 calls per address per day like the rest of the API.</p>
 
 <div class="article-cta">
   <p class="eyebrow">Take one</p>
-  <h2>Replace the prefix, keep the parsing.</h2>
-  <p>No account, no key, and the same fifteen fields your sketch already reads.</p>
+  <h2>Change the URL, keep the parsing.</h2>
+  <p>No account, no key, and the field names your sketch already reads.</p>
   <div class="button-row"><a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> <a href="/time-apis">The time guide</a> <a href="/free-public-apis">The free public APIs</a> <a href="/ai-sense-posts">More posts</a></div>
 </div>
 </div>

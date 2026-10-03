@@ -93,8 +93,8 @@ non-create call, plus the matching token name above. Job-specific calls need
 | Endpoint | Returns |
 |----------|---------|
 | `GET /datetime[/{offset}]` | `{"datetime": "2026-08-16T11:44:35+02:00"}` |
-| `GET /datetime/Europe/Oslo` | `{"datetime": ..., "timezone": "Europe/Oslo", "abbreviation": "CEST", "utc_offset": "+02:00", "dst": true, "unixtime": ...}` |
-| `GET /worldtime/timezone/Europe/Oslo` | WorldTimeAPI's fifteen fields; `/worldtime/ip` for the caller's address, `.txt` for text. Translate `http://worldtimeapi.org/api/X` to `https://aisenseapi.com/services/v1/worldtime/X` |
+| `GET /datetime/Europe/Oslo` | `{"datetime": ..., "timezone": "Europe/Oslo", "abbreviation": "CEST", "utc_offset": "+02:00", "dst": true, "unixtime": ..., "raw_offset": 3600, "dst_offset": 3600, "dst_from": ..., "dst_until": ..., "day_of_week": ..., "day_of_year": ..., "week_number": ..., "utc_datetime": ...}` |
+| `GET /ip_datetime[/{ip}]` | `{"ip": ...}` and the same fields for the zone the address is in; the caller's own without one. WorldTimeAPI's `/api/timezone/{zone}` is `/datetime/{zone}` here, `/api/ip` is `/ip_datetime` |
 | `GET /timestamp` | `{"timestamp": 1786873261}` |
 | `GET /microtimestamp` | `{"microtimestamp": 1786873474.745043}` |
 | `GET /timezones[/{offset}]` | `{"timezones": [{"timezone": "Europe/Oslo", "offset": "+0200"}, ...]}` |
@@ -733,8 +733,8 @@ return numbers; their smallest units stay inside the safe range.
 | Endpoint | Method | Response key(s) |
 |----------|--------|-----------------|
 | `/datetime[/{offset}]` | GET | `datetime` |
-| `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| `/worldtime/timezone/{zone}`, `/worldtime/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields |
+| `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime`, `raw_offset`, `dst_offset`, `dst_from`, `dst_until`, `day_of_week`, `day_of_year`, `week_number`, `utc_datetime` |
+| `/ip_datetime[/{ip}]` | GET | `ip`, then the keys of `/datetime/{zone}` |
 | `/timestamp` | GET | `timestamp` |
 | `/microtimestamp` | GET | `microtimestamp` |
 | `/timezones[/{offset}]` | GET | `timezones` (array of objects) |

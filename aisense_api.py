@@ -175,24 +175,22 @@ class AISenseAPI:
 
         ``timezone`` is an IANA name such as ``"Europe/Oslo"``, which follows
         summer time; the answer then also has ``timezone``, ``abbreviation``,
-        ``utc_offset``, ``dst`` and ``unixtime``. An unknown name is a 400.
+        ``utc_offset``, ``dst``, ``unixtime``, ``raw_offset``, ``dst_offset``,
+        ``dst_from``, ``dst_until``, ``day_of_week``, ``day_of_year``,
+        ``week_number`` and ``utc_datetime``. An unknown name is a 400.
         """
         if timezone is not None:
             return self._get(f"/datetime/{timezone}")
         path = f"/datetime/{offset}" if offset is not None else "/datetime"
         return self._get(path)
 
-    def get_worldtime(self, timezone: Optional[str] = None, ip: Optional[str] = None) -> dict:
-        """WorldTimeAPI's fifteen fields, from ``/worldtime``.
+    def get_ip_datetime(self, ip: Optional[str] = None) -> dict:
+        """The time where an IPv4 or IPv6 address is, or the caller's own.
 
-        With ``timezone`` (``"Europe/Oslo"``) for that zone, with ``ip`` for
-        where that address is, and with neither for where the caller is.
+        Keys: ``ip``, then the same as ``get_datetime(timezone=...)``. An
+        address with no zone in the lookup, such as a private one, is a 404.
         """
-        if timezone is not None:
-            return self._get(f"/worldtime/timezone/{timezone}")
-        if ip is not None:
-            return self._get(f"/worldtime/ip/{ip}")
-        return self._get("/worldtime/ip")
+        return self._get(f"/ip_datetime/{ip}" if ip is not None else "/ip_datetime")
 
     def get_timestamp(self) -> dict:
         """Current Unix timestamp in seconds. Response key: ``timestamp``."""

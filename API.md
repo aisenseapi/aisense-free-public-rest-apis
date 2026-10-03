@@ -79,19 +79,71 @@ GET /datetime/-0530
 `zone` is an IANA name such as `Europe/Oslo`, `America/New_York` or
 `America/Argentina/Buenos_Aires`, in any case, added 3 October 2026. A fixed
 offset is wrong for half the year anywhere with summer time; a zone name
-follows the clock changes. The answer says what the offset is right now and
-whether summer time is in force:
+follows the clock changes. The answer says what the offset is right now,
+whether summer time is in force and when it starts and ends:
 
 ```
 GET /datetime/Europe/Oslo
 ```
 
 ```json
-{"datetime":"2026-10-03T12:41:07+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791024067}
+{
+  "datetime": "2026-10-03T12:41:07+02:00",
+  "timezone": "Europe/Oslo",
+  "abbreviation": "CEST",
+  "utc_offset": "+02:00",
+  "dst": true,
+  "unixtime": 1791024067,
+  "raw_offset": 3600,
+  "dst_offset": 3600,
+  "dst_from": "2026-03-29T01:00:00+00:00",
+  "dst_until": "2026-10-25T01:00:00+00:00",
+  "day_of_week": 6,
+  "day_of_year": 276,
+  "week_number": 40,
+  "utc_datetime": "2026-10-03T10:41:07+00:00"
+}
 ```
 
+`dst_from` and `dst_until` are the edges of the current summer time period in
+UTC, and `null` outside one. `raw_offset` is the standard offset and
+`dst_offset` what summer time adds, in seconds: `3600` almost everywhere,
+`1800` on Lord Howe Island. The zone database counts Irish winter time and
+Moroccan Ramadan time as summer time with a negative offset, so `dst` is
+`true` and `dst_offset` is `-3600` then; `raw_offset + dst_offset` is the
+offset in force everywhere. `day_of_week` is `0` for Sunday, `day_of_year`
+starts at `1`, `week_number` is the ISO week. Old names such as `Europe/Kiev`
+are accepted.
+
 An unknown name is **HTTP 400** with a `fix`, never a silent UTC.
-`/worldtime/timezone` below lists the names.
+[`/timezones`](#get-timezonesoffset) lists the names.
+
+---
+
+### `GET /ip_datetime[/{ip}]`
+The same fields as `/datetime/{zone}` for the time zone an IPv4 or IPv6
+address is in, after the address itself. Without an address, the caller's
+own. Added 3 October 2026.
+
+```
+GET /ip_datetime
+GET /ip_datetime/8.8.8.8
+```
+
+```json
+{"ip":"8.8.8.8","datetime":"2026-10-03T05:41:07-05:00","timezone":"America/Chicago","abbreviation":"CDT","utc_offset":"-05:00","dst":true,"unixtime":1791024067,"raw_offset":-21600,"dst_offset":3600,"dst_from":"2026-03-08T08:00:00+00:00","dst_until":"2026-11-01T07:00:00+00:00","day_of_week":6,"day_of_year":276,"week_number":40,"utc_datetime":"2026-10-03T10:41:07+00:00"}
+```
+
+The zone comes from an address lookup. Each worker holds the IP address and
+result in memory and reuses a result for up to an hour, or ten minutes when no
+zone was found. Expiry stops reuse, but entries can remain until replaced,
+removed to make room or the worker restarts. Requests are logged with the
+caller's IP and URL path, so an IP in `/ip_datetime/{ip}` can also appear in
+logs. See the [privacy policy](https://aisense.no/privacy) for log retention.
+
+Something that is not an address is **400** `Invalid IP address.`; an address
+with no zone in the lookup, such as a private one, is **404** `No time zone is
+known for this address.`, both with a `fix`.
 
 ---
 
@@ -161,67 +213,24 @@ Unlike the older endpoints, bad input returns a real **HTTP 400**.
 
 ---
 
-### `GET /worldtime/timezone[/...]` and `GET /worldtime/ip[/{address}]`
-The fifteen fields of WorldTimeAPI, added 3 October 2026, the day every
-connection we made to worldtimeapi.org was reset, over HTTP and HTTPS. What follows `/worldtime/` is WorldTimeAPI's own path, so
-moving a client is one replacement at the start of the URL:
+### Moving from WorldTimeAPI
+On 3 October 2026 every connection we made to worldtimeapi.org was reset, over
+HTTP and HTTPS. Its answers are here under this API's own paths:
 
 | WorldTimeAPI | Here |
 |--------------|------|
-| `http://worldtimeapi.org/api/timezone` | `https://aisenseapi.com/services/v1/worldtime/timezone` |
-| `http://worldtimeapi.org/api/timezone/Europe` | `https://aisenseapi.com/services/v1/worldtime/timezone/Europe` |
-| `http://worldtimeapi.org/api/timezone/Europe/Oslo` | `https://aisenseapi.com/services/v1/worldtime/timezone/Europe/Oslo` |
-| `http://worldtimeapi.org/api/ip` | `https://aisenseapi.com/services/v1/worldtime/ip` |
-| `http://worldtimeapi.org/api/ip/{address}` | `https://aisenseapi.com/services/v1/worldtime/ip/{address}` |
+| `http://worldtimeapi.org/api/timezone/Europe/Oslo` | `https://aisenseapi.com/services/v1/datetime/Europe/Oslo` |
+| `http://worldtimeapi.org/api/ip` | `https://aisenseapi.com/services/v1/ip_datetime` |
+| `http://worldtimeapi.org/api/ip/{address}` | `https://aisenseapi.com/services/v1/ip_datetime/{address}` |
+| `http://worldtimeapi.org/api/timezone` | `https://aisenseapi.com/services/v1/timezones`, objects with `timezone` and `offset` rather than plain names |
+| `http://worldtimeapi.org/api/timezone/Europe` | `/timezones`, keeping the names that start with `Europe/` |
+| any `.txt` form | none; every answer is JSON |
 
-Each also with `.txt` for one `key: value` per line, null left empty. Only
-HTTPS is served; a sketch that used plain HTTP on an ESP32 moves to
-`WiFiClientSecure` as well.
-
-| Path | Answer |
-|------|--------|
-| `/worldtime/timezone` | every current zone name, a JSON list |
-| `/worldtime/timezone/{area}` | the zones of one area, such as `Europe` |
-| `/worldtime/timezone/{area}/{location}[/{region}]` | the fifteen fields for that zone |
-| `/worldtime/ip` | the fifteen fields where the caller's address is |
-| `/worldtime/ip/{address}` | the fifteen fields where that IPv4 or IPv6 address is |
-
-```json
-// GET /worldtime/timezone/Europe/Oslo
-{
-  "abbreviation": "CEST",
-  "client_ip": "203.0.113.9",
-  "datetime": "2026-10-03T12:41:07.113157+02:00",
-  "day_of_week": 6,
-  "day_of_year": 276,
-  "dst": true,
-  "dst_from": "2026-03-29T01:00:00+00:00",
-  "dst_offset": 3600,
-  "dst_until": "2026-10-25T01:00:00+00:00",
-  "raw_offset": 3600,
-  "timezone": "Europe/Oslo",
-  "unixtime": 1791024067,
-  "utc_datetime": "2026-10-03T10:41:07.113157+00:00",
-  "utc_offset": "+02:00",
-  "week_number": 40
-}
-```
-
-`dst_from` and `dst_until` are the edges of the current summer time period in
-UTC, and `null` outside one. `raw_offset` is the standard offset and
-`dst_offset` what summer time adds, in seconds. `day_of_week` is `0` for
-Sunday, `day_of_year` starts at `1`, `week_number` is the ISO week. Old names
-such as `Europe/Kiev` are accepted. The zone of an address comes from an
-address lookup. Each worker holds the IP address and result in memory and reuses
-a result for up to an hour, or ten minutes when no zone was found. Expiry stops
-reuse, but entries can remain until replaced, removed to make room or the worker
-restarts. Requests are logged with the caller's IP and URL path, so an IP in
-/worldtime/ip/{address} can also appear in logs. See the [privacy policy](https://aisense.no/privacy) for log retention.
-
-An unknown zone is **404** with `{"error":"unknown location Europe/Pari"}`, as
-WorldTimeAPI answered, plus a `fix`; an address with no zone in the database is
-**404**, and a malformed one **400**. Calls count towards the 5000 per IP per
-day like everything else.
+Every WorldTimeAPI field is there under the same name and type except
+`client_ip`; `/ip_datetime` answers `ip`, the address it looked up. `datetime`
+and `utc_datetime` are to the second, without the microseconds WorldTimeAPI
+added, which ISO 8601 parsers read either way. Only HTTPS is served; a sketch
+that used plain HTTP on an ESP32 moves to `WiFiClientSecure` as well.
 
 ---
 
@@ -2444,8 +2453,8 @@ operations use JSON with the fields documented in their own sections.
 | Endpoint | Response key(s) |
 |----------|-----------------|
 | `/datetime` | `datetime` |
-| `/datetime/{zone}` | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| `/worldtime/timezone/{zone}`, `/worldtime/ip[/{address}]` | `abbreviation`, `client_ip`, `datetime`, `day_of_week`, `day_of_year`, `dst`, `dst_from`, `dst_offset`, `dst_until`, `raw_offset`, `timezone`, `unixtime`, `utc_datetime`, `utc_offset`, `week_number` |
+| `/datetime/{zone}` | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime`, `raw_offset`, `dst_offset`, `dst_from`, `dst_until`, `day_of_week`, `day_of_year`, `week_number`, `utc_datetime` |
+| `/ip_datetime[/{ip}]` | `ip`, then the fourteen keys of `/datetime/{zone}` |
 | `/timestamp` | `timestamp` |
 | `/microtimestamp` | `microtimestamp` |
 | `/timezones` | `timezones` (array of objects) |

@@ -3,7 +3,7 @@
     "type": "function",
     "function": {
       "name": "get_datetime",
-      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. With timezone (an IANA name such as Europe/Oslo, summer time included) the answer also has timezone, abbreviation, utc_offset, dst and unixtime. GET /datetime[/{offset}] or GET /datetime/{timezone}",
+      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. With timezone (an IANA name such as Europe/Oslo, summer time included) the answer also has timezone, abbreviation, utc_offset, dst, unixtime, raw_offset, dst_offset, dst_from, dst_until, day_of_week, day_of_year, week_number and utc_datetime. GET /datetime[/{offset}] or GET /datetime/{timezone}",
       "parameters": {
         "type": "object",
         "properties": {
@@ -24,18 +24,14 @@
   {
     "type": "function",
     "function": {
-      "name": "get_worldtime",
-      "description": "WorldTimeAPI's fifteen fields (abbreviation, client_ip, datetime, day_of_week, day_of_year, dst, dst_from, dst_offset, dst_until, raw_offset, timezone, unixtime, utc_datetime, utc_offset, week_number) for a zone, an address, or the caller's address. GET /worldtime/timezone/{timezone} or /worldtime/ip[/{ip}]. What follows /worldtime/ is WorldTimeAPI's own path.",
+      "name": "get_ip_datetime",
+      "description": "The time where an IPv4 or IPv6 address is: ip, then the same fields as get_datetime with a timezone (datetime, timezone, abbreviation, utc_offset, dst, unixtime, raw_offset, dst_offset, dst_from, dst_until, day_of_week, day_of_year, week_number, utc_datetime). Without ip, the caller's own address. An address with no known zone, such as a private one, is HTTP 404. GET /ip_datetime[/{ip}]",
       "parameters": {
         "type": "object",
         "properties": {
-          "timezone": {
-            "type": "string",
-            "description": "IANA name such as Europe/Oslo. Unknown is HTTP 404."
-          },
           "ip": {
             "type": "string",
-            "description": "IPv4 or IPv6 address. Omit both for the caller's own address."
+            "description": "IPv4 or IPv6 address. Omit for the caller's own address."
           }
         },
         "required": []

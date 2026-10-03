@@ -126,14 +126,11 @@ has_value "Datetime (Europe/Oslo)"  GET "$BASE/datetime/Europe/Oslo" '"timezone"
 has_value "Datetime (any case)"     GET "$BASE/datetime/europe/oslo" '"timezone":"Europe/Oslo"'
 request GET "$BASE/datetime/Europe/Pari"
 [ "$STATUS" = "400" ] && ok "Datetime (unknown zone) -> 400" || bad "Datetime (unknown zone)" "expected 400, got $STATUS"
-# WorldTimeAPI's fields; what follows /worldtime/ is WorldTimeAPI's own path.
-has_value "WorldTimeAPI (zone)"     GET "$BASE/worldtime/timezone/Europe/Oslo"     '"timezone":"Europe/Oslo"'
-has_value "WorldTimeAPI (fields)"   GET "$BASE/worldtime/timezone/Europe/Oslo"     '"week_number"'
-has_value "WorldTimeAPI (text)"     GET "$BASE/worldtime/timezone/Europe/Oslo.txt" 'timezone: Europe/Oslo'
-has_value "WorldTimeAPI (list)"     GET "$BASE/worldtime/timezone/Europe"          '"Europe/Oslo"'
-has_value "WorldTimeAPI (caller)"   GET "$BASE/worldtime/ip"                       '"client_ip"'
-request GET "$BASE/worldtime/timezone/Europe/Pari"
-[ "$STATUS" = "404" ] && ok "WorldTimeAPI (unknown zone) -> 404" || bad "WorldTimeAPI (unknown zone)" "expected 404, got $STATUS"
+has_value "Datetime (zone fields)"   GET "$BASE/datetime/Europe/Oslo" '"dst_until":'
+has_value "IP datetime (caller)"    GET "$BASE/ip_datetime"           '"ip":'
+has_value "IP datetime (address)"   GET "$BASE/ip_datetime/8.8.8.8"   '"ip":"8.8.8.8"'
+request GET "$BASE/ip_datetime/10.0.0.1"
+[ "$STATUS" = "404" ] && ok "IP datetime (private address) -> 404" || bad "IP datetime (private address)" "expected 404, got $STATUS"
 has_key   "Timestamp"               GET "$BASE/timestamp"           "timestamp"
 has_key   "Microtimestamp"          GET "$BASE/microtimestamp"      "microtimestamp"
 has_key   "Timezones"               GET "$BASE/timezones"           "timezones"

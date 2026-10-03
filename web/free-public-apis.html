@@ -169,7 +169,7 @@
     <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, BLAKE3, Whirlpool and CRC32, and the password hashes Argon2id, bcrypt and scrypt.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base32, Base58 and Base64.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
-    <a href="/time-apis"><strong>Time APIs</strong><span>Get datetime by zone, timestamp and timezone data, and WorldTimeAPI's paths.</span></a>
+    <a href="/time-apis"><strong>Time APIs</strong><span>Get datetime by zone or IP address, timestamps and timezone data.</span></a>
   </div>
 </section>
 
@@ -196,10 +196,19 @@
 <article class="endpoint">
 <h3>Datetime REST API Endpoint</h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/datetime[/{offset}] - /datetime/{zone}</span></p>
-<p>Current date and time in ISO 8601. The optional offset is a <strong>four-digit</strong> UTC offset with an optional sign - <code>+0200</code>, <code>-0530</code> or <code>0100</code> - or <code>+02:00</code>. An hour-only value such as <code>1</code> is not a valid route. An IANA zone such as <code>Europe/Oslo</code> follows summer time and answers <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code> and <code>unixtime</code> as well. WorldTimeAPI's fifteen fields answer at <code>/worldtime/timezone/...</code> and <code>/worldtime/ip</code>; the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page translates its paths.</p>
+<p>Current date and time in ISO 8601. The optional offset is a <strong>four-digit</strong> UTC offset with an optional sign - <code>+0200</code>, <code>-0530</code> or <code>0100</code> - or <code>+02:00</code>. An hour-only value such as <code>1</code> is not a valid route. An IANA zone such as <code>Europe/Oslo</code> follows summer time and answers the zone, its abbreviation, the offset in force, whether summer time is on and when it starts and ends, the day and week numbers and the time in UTC as well. Clients of WorldTimeAPI find which path answers each of theirs on the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page.</p>
 <pre><code>curl https://aisenseapi.com/services/v1/datetime/+0200
 
 { "datetime": "2026-08-16T11:44:35+02:00" }</code></pre>
+</article>
+
+<article class="endpoint">
+<h3><a href="/free-public-api-ip-datetime-api-endpoint">IP Datetime REST API Endpoint</a></h3>
+<p class="sig"><span class="method">GET</span> <span class="path">/ip_datetime[/{ip}]</span></p>
+<p>The time where an IPv4 or IPv6 address is: <span class="key">ip</span>, then the same fields as <code>/datetime/{zone}</code> for the zone an address lookup places it in. Without an address, the caller's own. An address with no zone known, such as a private one, is HTTP 404.</p>
+<pre><code>curl https://aisenseapi.com/services/v1/ip_datetime/8.8.8.8
+
+{"ip":"8.8.8.8","datetime":"2026-10-03T05:41:07-05:00","timezone":"America/Chicago","abbreviation":"CDT","utc_offset":"-05:00","dst":true, ...}</code></pre>
 </article>
 
 <article class="endpoint">
@@ -985,7 +994,7 @@ response = client.chat.completions.create(
 <h3>Random</h3>
 <div class="related-api-grid"><a href="/free-public-api-uuid-api-endpoint">Free UUID API Endpoint<span>Version 4 identifiers</span></a><a href="/free-public-api-guid-api-endpoint">Free GUID API Endpoint<span>The same value, GUID field</span></a><a href="/free-public-api-password-api-endpoint">Free Password API Endpoint<span>Length 6 to 128, default 12</span></a><a href="/free-public-api-passphrase-api-endpoint">Free Passphrase API Endpoint<span>Pronounceable, 2 to 12 groups</span></a><a href="/free-public-api-random-number-api-endpoint">Free Random Number API Endpoint<span>Inclusive bounds, echoed back</span></a><a href="/free-public-api-random-color-api-endpoint">Free Random Color API Endpoint<span>Six digit hex for CSS</span></a></div>
 <h3>Time</h3>
-<div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 with an offset</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
+<div class="related-api-grid"><a href="/free-public-api-timestamp-api-endpoint">Free Timestamp API Endpoint<span>Whole seconds since the epoch</span></a><a href="/free-public-api-microtimestamp-api-endpoint">Free Microtimestamp API Endpoint<span>Microsecond precision</span></a><a href="/free-public-api-datetime-api-endpoint">Free Datetime API Endpoint<span>ISO 8601 by zone or offset</span></a><a href="/free-public-api-ip-datetime-api-endpoint">Free IP Datetime API Endpoint<span>The time where an address is</span></a><a href="/free-public-api-timestamp-convert-api-endpoint">Free Timestamp Converter API Endpoint<span>Both directions at once</span></a><a href="/free-public-api-timezones-api-endpoint">Free Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-swatchinternettime-api-endpoint">Free Swatch Internet Time API Endpoint<span>Beats, no timezones</span></a></div>
 <h3>Web</h3>
 <div class="related-api-grid"><a href="/free-public-api-ping-api-endpoint">Free Ping API Endpoint<span>Fixed 15 byte liveness reply</span></a><a href="/free-public-api-health-api-endpoint">Free Health Check API Endpoint<span>Status plus the server clock</span></a><a href="/free-public-api-client-ip-api-endpoint">Free Client IP API Endpoint<span>The address we see you from</span></a><a href="/free-public-api-user-agent-api-endpoint">Free User Agent API Endpoint<span>Echo the header you sent</span></a><a href="/free-public-api-ip-reverse-lookup-api-endpoint">Free IP Reverse Lookup API Endpoint<span>Address to location data</span></a><a href="/free-public-api-domain-ip-lookup-api-endpoint">Free Domain IP Lookup API Endpoint<span>Hostname to address</span></a><a href="/free-public-api-html-to-pdf-api-endpoint">Free HTML to PDF API Endpoint<span>Render markup, collect a PDF</span></a><a href="/free-public-api-email-validate-api-endpoint">Free Email Validation API Endpoint<span>Syntax, domain and MX</span></a><a href="/free-public-api-validate-api-endpoint">Free Validation API Endpoint<span>Check digits and structure</span></a><a href="/free-public-api-storage-api-endpoint">Free Storage API Endpoint<span>24 hour key value store</span></a><a href="/free-public-api-url-shortener-api-endpoint">Free URL Shortener API Endpoint<span>Short links that expire</span></a><a href="/free-public-api-webhook-capture-api-endpoint">Free Webhook Capture API Endpoint<span>Inspect an inbound request</span></a><a href="/free-public-api-webhook-action-api-endpoint">Free Webhook Action API Endpoint<span>Human approval in a flow</span></a><a href="/free-public-api-webhook-schedule-api-endpoint">Free Webhook Schedule API Endpoint<span>Fire a request later</span></a><a href="/free-public-api-agent-wake-api-endpoint">Free Agent Wake API Endpoint<span>Resume after an outside event</span></a><a href="/free-public-api-heartbeat-api-endpoint">Free Heartbeat API Endpoint<span>Fire once when check-ins stop</span></a><a href="/free-public-api-lease-api-endpoint">Free Lease API Endpoint<span>Coordinate workers with fencing</span></a><a href="/free-public-api-agent-inbox-api-endpoint">Free Agent Inbox API Endpoint<span>Disposable mail an agent can read</span></a><a href="/free-public-api-dns-name-api-endpoint">Free Temporary DNS Name API Endpoint<span>A public name for an address, for a day</span></a></div>
 <h3>Crypto</h3>
@@ -1003,8 +1012,8 @@ response = client.chat.completions.create(
 </thead>
 <tbody>
 <tr><td>Time</td><td><code>/datetime[/{offset}]</code></td><td>GET</td><td><code>datetime</code></td></tr>
-<tr><td>Time</td><td><code>/datetime/{zone}</code></td><td>GET</td><td><code>datetime</code>, <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code>, <code>unixtime</code></td></tr>
-<tr><td>Time</td><td><code>/worldtime/timezone/{zone}</code>, <code>/worldtime/ip[/{address}]</code></td><td>GET</td><td>WorldTimeAPI's fifteen fields</td></tr>
+<tr><td>Time</td><td><code>/datetime/{zone}</code></td><td>GET</td><td><code>datetime</code>, <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code>, <code>unixtime</code>, <code>raw_offset</code>, <code>dst_offset</code>, <code>dst_from</code>, <code>dst_until</code>, <code>day_of_week</code>, <code>day_of_year</code>, <code>week_number</code>, <code>utc_datetime</code></td></tr>
+<tr><td>Time</td><td><code>/ip_datetime[/{ip}]</code></td><td>GET</td><td><code>ip</code>, then the keys of <code>/datetime/{zone}</code></td></tr>
 <tr><td>Time</td><td><code>/timestamp</code></td><td>GET</td><td><code>timestamp</code></td></tr>
 <tr><td>Time</td><td><code>/microtimestamp</code></td><td>GET</td><td><code>microtimestamp</code></td></tr>
 <tr><td>Time</td><td><code>/timezones[/{offset}]</code></td><td>GET</td><td><code>timezones</code></td></tr>
