@@ -38,7 +38,7 @@ LATEST_POSTS = 5
 # no Cache-Control, so a browser may keep an old copy for hours; a new header
 # with the old CSS would show every menu open. Change this whenever the CSS
 # changes in a way the pages depend on, and run the script.
-CSS_VERSION = '20261003c'
+CSS_VERSION = '20261003e'
 
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.

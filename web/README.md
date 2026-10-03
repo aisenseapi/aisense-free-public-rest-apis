@@ -282,11 +282,11 @@ Lease. Other services remain unmarked, even when they are available through MCP.
 `../tools/site_nav.py` applies it to name links and the five service-page h1
 headings, including menu links and catalog cards. Ordinary prose links, code
 samples and metadata are unchanged. The icon is `assets/agent-optimal.svg`.
-The robot sits in a grey disc with a blue outer ring. Its eyes and mouth have
-their own dark fill, so they stay distinct at small sizes. Its A is rotated
-five degrees counterclockwise and the inset tones have been blended 40 percent
-toward white. The SVG supplies the complete round badge. Do not add the old
-square CSS background or padding around it, or replace it with an older draft.
+The selected mark is variant 4, a blue robot silhouette with a large white A.
+It uses a 16 by 16 viewBox and is displayed at 16 px, with two flat paths and
+no small facial details. Keep the background transparent and padding at zero.
+Do not round or clip the image box, since that cuts off the antenna and ears.
+The older detailed metal and round-ring designs are no longer used here.
 
 Run `python tools/check-agent-optimal.py` from the documentation repository.
 Then run `python tools/site_nav.py --check`. The normal page build runs the
