@@ -75,10 +75,10 @@
 
 <p><code>/datetime/+0200</code> is Oslo in summer. From 01:00 UTC on 25 October 2026, when Europe goes back to standard time, it is Oslo plus an hour, and it stays wrong until someone edits the offset. A zone name does not have that problem, because the zone carries its own rules:</p>
 
-<pre><code>GET /services/v1/datetime/Europe/Oslo
+<pre><code>GET /services/v1/datetime/europe/oslo
 {"datetime":"2026-10-03T12:11:28+02:00","timezone":"Europe/Oslo","abbreviation":"CEST","utc_offset":"+02:00","dst":true,"unixtime":1791022288,"raw_offset":3600,"dst_offset":3600,"dst_from":"2026-03-29T01:00:00+00:00","dst_until":"2026-10-25T01:00:00+00:00","day_of_week":6,"day_of_year":276,"week_number":40,"utc_datetime":"2026-10-03T10:11:28+00:00"}</code></pre>
 
-<p>Any IANA name works, in any case, including three-part names such as <code>America/Argentina/Buenos_Aires</code>. The answer by name says what the offset is right now, whether summer time is on and when it began and ends, since that is the reason to ask by name, and the day and week numbers with it. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
+<p>Any IANA name works, in any case, including three-part names such as <code>america/argentina/buenos_aires</code>; we write paths in lower case, and the answer names the zone as the database does. The answer by name says what the offset is right now, whether summer time is on and when it began and ends, since that is the reason to ask by name, and the day and week numbers with it. An unknown name is a 400 with a fix rather than a quiet UTC, because a wrong hour that looks right is the exact failure this is meant to remove.</p>
 
 <p>The offset forms are unchanged. Clients that expect <code>{"datetime": ...}</code> and nothing else keep getting exactly that. <code>+02:00</code> with a colon is now accepted beside <code>+0200</code>, and an hour-only value such as <code>/datetime/1</code> is still not a route.</p>
 
@@ -89,7 +89,7 @@
 <div class="table-wrap"><table>
 <thead><tr><th>WorldTimeAPI</th><th>Here</th></tr></thead>
 <tbody>
-<tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/services/v1/datetime/Europe/Oslo</code></td></tr>
+<tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/services/v1/datetime/europe/oslo</code></td></tr>
 <tr><td><code>http://worldtimeapi.org/api/ip</code></td><td><code>https://aisenseapi.com/services/v1/ip_datetime</code></td></tr>
 <tr><td><code>http://worldtimeapi.org/api/ip/8.8.8.8</code></td><td><code>https://aisenseapi.com/services/v1/ip_datetime/8.8.8.8</code></td></tr>
 <tr><td><code>http://worldtimeapi.org/api/timezone</code></td><td><code>https://aisenseapi.com/services/v1/timezones</code></td></tr>
@@ -113,12 +113,12 @@
 <div class="table-wrap"><table>
 <thead><tr><th>Request</th><th>Answer</th></tr></thead>
 <tbody>
-<tr><td><code>/datetime/Europe/Oslo</code></td><td>CEST, <code>+02:00</code>, <code>dst: true</code>, summer time from 29 March to 25 October 2026, 01:00 UTC both; <code>europe/oslo</code> gave the same canonical name</td></tr>
+<tr><td><code>/datetime/europe/oslo</code></td><td>CEST, <code>+02:00</code>, <code>dst: true</code>, summer time from 29 March to 25 October 2026, 01:00 UTC both; <code>Europe/Oslo</code> with capitals gave the same answer</td></tr>
 <tr><td><code>/datetime/+0200</code> and <code>/datetime/+02:00</code></td><td><code>{"datetime": ...}</code> and nothing else, as before</td></tr>
-<tr><td><code>/datetime/Europe/Pari</code></td><td>400 with a fix; <code>/datetime/1</code> still 404</td></tr>
-<tr><td><code>/datetime/America/Argentina/Buenos_Aires</code></td><td><code>-03:00</code>, abbreviation <code>-03</code>, no summer time</td></tr>
-<tr><td><code>/datetime/Australia/Lord_Howe</code></td><td><code>+10:30</code> and no summer time yet; its half-hour summer time begins at 15:30 UTC today, 02:00 on 4 October there</td></tr>
-<tr><td><code>/datetime/Europe/Kiev</code></td><td>The old name is accepted, <code>+03:00</code></td></tr>
+<tr><td><code>/datetime/europe/pari</code></td><td>400 with a fix; <code>/datetime/1</code> still 404</td></tr>
+<tr><td><code>/datetime/america/argentina/buenos_aires</code></td><td><code>-03:00</code>, abbreviation <code>-03</code>, no summer time</td></tr>
+<tr><td><code>/datetime/australia/lord_howe</code></td><td><code>+10:30</code> and no summer time yet; its half-hour summer time begins at 15:30 UTC today, 02:00 on 4 October there</td></tr>
+<tr><td><code>/datetime/europe/kiev</code></td><td>The old name is accepted, <code>+03:00</code></td></tr>
 <tr><td><code>/timezones</code></td><td>419 zones, 58 of them under <code>Europe/</code></td></tr>
 <tr><td><code>/ip_datetime</code></td><td>Europe/Oslo: the address, then the same fourteen fields</td></tr>
 <tr><td><code>/ip_datetime/2001:4860:4860::8888</code></td><td>America/Chicago, IPv6 included</td></tr>
@@ -126,7 +126,7 @@
 </tbody>
 </table></div>
 
-<p>The answers took 125 to 236 ms there and back, over a fresh TLS connection every time, which is almost all of it network. Not every public address has a zone: <code>1.1.1.1</code> answered 404 rather than a guess, and asking by zone name is the way around that.</p>
+<p>The answers took 176 to 315 ms there and back, over a fresh TLS connection every time, which is almost all of it network. Not every public address has a zone: <code>1.1.1.1</code> answered 404 rather than a guess, and asking by zone name is the way around that.</p>
 
 <h2>Where it sits</h2>
 
