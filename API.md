@@ -162,8 +162,8 @@ Unlike the older endpoints, bad input returns a real **HTTP 400**.
 ---
 
 ### `GET /worldtime/timezone[/...]` and `GET /worldtime/ip[/{address}]`
-The fifteen fields of WorldTimeAPI, which no longer answers, added
-3 October 2026. What follows `/worldtime/` is WorldTimeAPI's own path, so
+The fifteen fields of WorldTimeAPI, added 3 October 2026, the day every
+connection we made to worldtimeapi.org was reset, over HTTP and HTTPS. What follows `/worldtime/` is WorldTimeAPI's own path, so
 moving a client is one replacement at the start of the URL:
 
 | WorldTimeAPI | Here |
@@ -212,7 +212,11 @@ UTC, and `null` outside one. `raw_offset` is the standard offset and
 `dst_offset` what summer time adds, in seconds. `day_of_week` is `0` for
 Sunday, `day_of_year` starts at `1`, `week_number` is the ISO week. Old names
 such as `Europe/Kiev` are accepted. The zone of an address comes from an
-address lookup, cached for an hour.
+address lookup. Each worker holds the IP address and result in memory and reuses
+a result for up to an hour, or ten minutes when no zone was found. Expiry stops
+reuse, but entries can remain until replaced, removed to make room or the worker
+restarts. Requests are logged with the caller's IP and URL path, so an IP in
+/worldtime/ip/{address} can also appear in logs. See the [privacy policy](https://aisense.no/privacy) for log retention.
 
 An unknown zone is **404** with `{"error":"unknown location Europe/Pari"}`, as
 WorldTimeAPI answered, plus a `fix`; an address with no zone in the database is

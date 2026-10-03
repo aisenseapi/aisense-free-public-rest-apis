@@ -701,7 +701,8 @@ offset does not, and answers `timezone`, `abbreviation`, `utc_offset`, `dst` and
 `unixtime` beside `datetime`.
 
 `/worldtime/timezone/...` and `/worldtime/ip[/{address}]` answer WorldTimeAPI's
-fifteen fields. A client of worldtimeapi.org, which no longer answers, replaces
+fifteen fields. A client of worldtimeapi.org, which reset every connection we made on
+3 October 2026, replaces
 `http://worldtimeapi.org/api/` with
 `https://aisenseapi.com/services/v1/worldtime/` and keeps the rest of the path.
 HTTPS only. Add `.txt` for the text form.
