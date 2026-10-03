@@ -20,7 +20,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.10.0 with 61 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.2, published 2 October 2026 at 22:44 UTC
+- MCP server version 1.11.0 with 61 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.9.2, published 2 October 2026 at 22:44 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -58,11 +58,13 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
-- Decision endpoint, typed decisions with probabilities and confidence from rules you send, nothing stored: https://aisense.no/free-public-api-decide-api-endpoint
+- Decision endpoint, rules by default with the existing response unchanged. Optional model "clef" uses noul, choice and score questions with instructions and criteria, when enabled. Default model caps: 8 KiB, 4 questions, 2 starts/minute and 20/UTC day per IP, one shared in-flight call. No automatic action or fallback. Model inputs go to a configured external inference machine: https://aisense.no/free-public-api-decide-api-endpoint
 - Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
 - Time guide, datetime by IANA zone name with summer time, by IP address or by fixed offset, timestamps and the timezone list: https://aisense.no/time-apis
 - IP datetime guide, the time and summer time details where an IPv4 or IPv6 address is, or the caller's own, at https://aisenseapi.com/services/v1/ip_datetime: https://aisense.no/free-public-api-ip-datetime-api-endpoint
 - WorldTimeAPI alternative, which of our paths answers each of its own: /api/timezone/{zone} is https://aisenseapi.com/services/v1/datetime/{zone}, /api/ip is https://aisenseapi.com/services/v1/ip_datetime and /api/timezone is https://aisenseapi.com/services/v1/timezones, JSON over HTTPS: https://aisense.no/worldtimeapi-alternative
+- Product note on Clef in Decide, added 3 October 2026: Cloudflare's open decision models beside the rule engine, switched on once measured: https://aisense.no/decide-speaks-clef
+- Try Decide in the browser: a form that writes the JSON request, which can be edited, and explains the answer in plain words: https://aisense.no/try-decide
 - Product note on time zones by name and a home for WorldTimeAPI's clients, added 3 October 2026, with the live checks: https://aisense.no/time-zones-by-name
 - Encoding guide, encode and decode Base64, base64url, hex, Base58 and Base32 bytes, URL percent-encoding and HTML entities, one POST each with the data in JSON or the raw body: https://aisense.no/encoding-apis
 - HTML to Markdown, a web page or any HTML as CommonMark with GitHub tables and the page title, without scripts, styles or forms, nothing stored: https://aisense.no/free-public-api-html-to-markdown-api-endpoint
