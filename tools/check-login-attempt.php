@@ -1,8 +1,9 @@
 <?php
 /**
  * Tests for web/login-attempt.php, which tells Admin on Slack when someone uses
- * the client login. Loaded from the command line, where its request part does
- * not run, so the functions are tested here and nothing reaches Slack.
+ * the client login, and for the form on web/login.html. The handler is loaded
+ * from the command line, where its request part does not run, so the functions
+ * are tested here and nothing reaches Slack.
  *
  * Run from anywhere with: php tools/check-login-attempt.php
  */
@@ -33,15 +34,27 @@ $check(!login_attempt_same_site(['HTTP_REFERER' => 'https://aisense.no.evil.exam
 $check(!login_attempt_same_site([]), 'with neither, the request is refused');
 
 echo "\nThe email address, and nothing else\n";
+$json = login_attempt_input('application/json', '{"email":"a@b.no","password":"hunter2","website":""}', []);
+$check($json === ['email' => 'a@b.no', 'website' => '', 'form' => false], 'from the script\'s JSON: the address and the hidden field, never the password');
+$form = login_attempt_input('application/x-www-form-urlencoded', 'email=a%40b.no', ['email' => 'a@b.no', 'password' => 'hunter2']);
+$check($form === ['email' => 'a@b.no', 'website' => '', 'form' => true], 'from a form post without JavaScript: the same, and marked as a form post');
+$check(login_attempt_input('application/json', 'not json', [])['email'] === '', 'a body that is not JSON carries no address');
 $check(login_attempt_email(['email' => ' name@company.com ']) === 'name@company.com', 'a valid address is kept, trimmed');
 $check(login_attempt_email(['email' => 'not an address']) === '', 'an invalid one is refused');
 $check(login_attempt_email(['email' => str_repeat('a', 250) . '@b.no']) === '', 'one over 254 characters is refused');
-$check(login_attempt_email(['email' => ['name@company.com']]) === '', 'something that is not a string is refused');
 $check(login_attempt_email([]) === '', 'no address is refused');
-$source = (string) file_get_contents(dirname(__DIR__) . '/web/login-attempt.php');
-$check(strpos($source, "\$input['password']") === false && strpos($source, '$_POST') === false, 'the handler never reads a password field');
+
+echo "\nThe form on /login\n";
 $page = (string) file_get_contents(dirname(__DIR__) . '/web/login.html');
-$check(preg_match('/JSON\.stringify\(\{\s*email:[^}]*\}\)/', $page) === 1 && preg_match('/JSON\.stringify\(\{[^}]*password/', $page) === 0, 'the page sends the email address and never the password');
+preg_match('/<input\b[^>]*\bid="login-password"[^>]*>/', $page, $password_field);
+$check(isset($password_field[0]) && strpos($password_field[0], 'name=') === false, 'the password field has no name, so no form submission can carry it');
+preg_match('/<form\b[^>]*\bid="login-form"[^>]*>/', $page, $form_tag);
+$check(isset($form_tag[0]) && strpos($form_tag[0], 'method="post"') !== false && strpos($form_tag[0], 'action="/login-attempt.php"') !== false, 'without JavaScript the form posts to the handler, so nothing lands in a URL');
+$check(preg_match('/JSON\.stringify\(\{\s*email:[^}]*\}\)/', $page) === 1 && preg_match('/JSON\.stringify\(\{[^}]*password/', $page) === 0, 'with JavaScript it sends the email address and never the password');
+
+echo "\nThe answer without JavaScript\n";
+$html = login_attempt_page('Client accounts are not open yet', 'a <b> & "c"');
+$check(strpos($html, 'a &lt;b&gt; &amp; &quot;c&quot;') !== false && strpos($html, 'href="/login"') !== false, 'a short page, its text escaped, with the way back');
 
 echo "\nThe limits\n";
 $dir = rtrim(sys_get_temp_dir(), '/\\') . '/aisense-login-check-' . bin2hex(random_bytes(6));
@@ -62,10 +75,24 @@ $check(!in_array(false, $others, true) && !login_attempt_allowed('198.51.100.99'
 touch($dir . '/' . hash('sha256', 'login-attempt|192.0.2.1') . '.json', $now - 7200);
 login_attempt_allowed('192.0.2.2', $dir, $now);
 $check(!is_file($dir . '/' . hash('sha256', 'login-attempt|192.0.2.1') . '.json'), 'an address file older than an hour is removed by the next visitor');
-$check(login_attempt_allowed('203.0.113.9', '/proc/no-such-dir/' . bin2hex(random_bytes(4)), $now), 'a directory that cannot be made counts as no limit, so the form still answers');
-foreach ([$dir, $dir . '-total'] as $clean) {
+
+// A limit that cannot be checked is a limit reached: Slack gets nothing. A
+// path under an ordinary file cannot become a directory on any system, where
+// /proc/... would be created as a real directory on Windows.
+$plain = $dir . '-plain-file';
+file_put_contents($plain, 'x');
+$blocked = [];
+for ($i = 0; $i < 25; $i++) {
+    $blocked[] = login_attempt_allowed('203.0.113.' . $i, $plain . '/counters', $now);
+}
+@unlink($plain);
+$check(!in_array(true, $blocked, true), 'with no directory for the counters, none of 25 attempts reaches Slack');
+$jammed = $dir . '-jammed';
+mkdir($jammed . '/all.json', 0700, true);
+$check(!login_attempt_allowed('203.0.113.50', $jammed, $now), 'with a counter file that cannot be opened, Slack gets nothing either');
+foreach ([$dir, $dir . '-total', $jammed] as $clean) {
     foreach ((array) glob($clean . '/*') as $file) {
-        @unlink((string) $file);
+        is_dir((string) $file) ? @rmdir((string) $file) : @unlink((string) $file);
     }
     @rmdir($clean);
 }
