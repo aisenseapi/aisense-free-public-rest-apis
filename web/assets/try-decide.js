@@ -487,12 +487,20 @@
     return (weight > 0 ? '+' : '') + weight;
   }
 
+  // The action says whether the answer given is clear-cut enough to act on, so
+  // the advice follows that answer: an act on a no means do not do it.
   function actionText(answer, question) {
     var act = question && typeof question.act_at === 'number' ? question.act_at : 0.9;
     var review = question && typeof question.review_at === 'number' ? question.review_at : 0.5;
-    if (answer.action === 'act') { return 'Next step: go ahead. Decide is sure enough to act, at ' + percent(act) + ' or more.'; }
-    if (answer.action === 'review') { return 'Next step: let a person check it first. Decide is between ' + percent(review) + ' and ' + percent(act) + ' sure.'; }
-    if (answer.action === 'hold') { return 'Next step: wait. Decide is less than ' + percent(review) + ' sure.'; }
+    var said = answer.type === 'yes_no' ? (answer.answer === 'yes' ? 'yes' : 'no') : (answer.type === 'choice' ? answer.choice : answer.level);
+    if (answer.action === 'act') {
+      if (answer.type === 'yes_no') {
+        return (said === 'yes' ? 'Next step: go ahead.' : 'Next step: do not go ahead.') + ' The ' + said + ' is clear-cut enough to act on, at ' + percent(act) + ' or more.';
+      }
+      return 'Next step: act on ' + said + '. It is clear-cut enough, at ' + percent(act) + ' or more.';
+    }
+    if (answer.action === 'review') { return 'Next step: let a person check the ' + (answer.type === 'yes_no' ? said : 'answer ' + said) + ' first. It is between ' + percent(review) + ' and ' + percent(act) + ' clear-cut.'; }
+    if (answer.action === 'hold') { return 'Next step: do nothing yet. It is less than ' + percent(review) + ' clear-cut, too close to act on either way.'; }
     return '';
   }
 
@@ -505,7 +513,7 @@
     box.appendChild(el('h3', { text: name.replace(/_/g, ' ') }));
     var why = [];
     if (answer.type === 'yes_no') {
-      box.appendChild(el('p', { class: 'decide-headline', text: (answer.answer === 'yes' ? 'Yes' : 'No') + ', with ' + percent(answer.probability) + ' for yes.' }));
+      box.appendChild(el('p', { class: 'decide-headline', text: (answer.answer === 'yes' ? 'Yes' : 'No') + ', with ' + percent(answer.probability) + ' for yes from the weights.' }));
       (answer.because || []).forEach(function (b) {
         var r = question && question.rules ? question.rules[b.rule] : null;
         why.push((r ? describeCondition(r.if) : 'rule ' + (b.rule + 1)) + ' (' + weightText(b.weight) + ')');
@@ -527,7 +535,8 @@
         why.push(group + ': ' + (r ? describeCondition(r.if) : 'rule ' + (b.rule + 1)) + ' (' + weightText(b.weight) + ')');
       });
     }
-    box.appendChild(el('p', { text: 'How sure: ' + percent(answer.confidence) + '. ' + actionText(answer, question) }));
+    box.appendChild(el('p', { text: actionText(answer, question) }));
+    box.appendChild(el('p', { class: 'decide-help', text: 'Clear-cut: ' + percent(answer.confidence) + '. This is how one-sided the weights are, not a measured chance that the rules are right.' }));
     if (why.length) {
       box.appendChild(el('p', { class: 'decide-why', text: 'Why: these rules held.' }));
       box.appendChild(list(why));
@@ -559,7 +568,7 @@
       box.appendChild(el('p', { text: 'Levels: ' + legend.map(function (label, i) { return label + ' ' + percent((answer.probabilities || [])[i] || 0); }).join(', ') + '.' }));
     }
     if (typeof answer.confidence === 'number') {
-      box.appendChild(el('p', { text: 'Clef\'s own confidence: ' + percent(answer.confidence) + '. The model gives no next step; keep a person in the loop for anything that matters.' }));
+      box.appendChild(el('p', { text: 'Clef\'s own confidence: ' + percent(answer.confidence) + '. It is the model\'s figure, not a guarantee that the answer is right, and the model gives no next step. Keep a person in the loop for anything that matters.' }));
     }
     return box;
   }

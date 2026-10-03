@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css?v=20261003e">
-<link rel="stylesheet" href="/assets/try-decide.css?v=20261003a">
+<link rel="stylesheet" href="/assets/try-decide.css?v=20261004a">
 
 <script type="application/ld+json">
 {
@@ -94,7 +94,7 @@
 <div class="article-body try-decide">
   <p class="try-status" id="decide-status" role="status">Loading the form...</p>
   <noscript><p class="try-status is-bad">This test runs in your browser and needs JavaScript.</p></noscript>
-  <p>Decide is a free API that answers a question from facts you send. With rules you say what pushes the answer which way, and Decide adds it up to a probability, how sure it is and a next step. With the Clef model you describe the situation in words instead, once the model is switched on. The request goes from this page straight to <code>https://aisenseapi.com/services/v1/decide</code>, and nothing is stored.</p>
+  <p>Decide is a free API that answers a question from facts you send. With rules you say what pushes the answer which way, and Decide adds it up to a probability, how clear-cut the weights are, and a next step for the answer it gives. With the Clef model you describe the situation in words instead, once the model is switched on. The request goes from this page straight to <code>https://aisenseapi.com/services/v1/decide</code>. With rules the API keeps neither the request nor the answer. As on every endpoint, the access log records each request with your address, and the daily request limit counts requests per address. A Clef call also sends the situation and the questions to our inference machine, and counts against the model quotas, which keep a hash of your address and the timings. See the <a href="/privacy">privacy page</a>.</p>
 
   <div class="try-tabs" role="tablist" aria-label="How Decide answers">
     <button type="button" role="tab" id="tab-rules" aria-controls="rules-panel" aria-selected="true">Rules</button>
@@ -109,7 +109,7 @@
   </section>
 
   <section class="try-panel" id="clef-panel" role="tabpanel" aria-labelledby="tab-clef" hidden>
-    <div class="api-note warning-note"><p>The Clef model is switched off until it has been measured on our own machine. You can build a request now, and the API will answer that the model is not on yet. Rules work today.</p></div>
+    <div class="api-note warning-note"><p>The Clef model is switched off until it has been measured on our own machine. You can build a request now, and the API will answer that the model is not on yet. Rules work today. A Clef call sends what you write to our inference machine, so leave out personal and confidential details.</p></div>
     <h2>1. Choose an example, or start blank</h2>
     <div class="decide-examples" id="clef-examples"></div>
     <h2>2. Fill in the setup</h2>
@@ -134,6 +134,6 @@
 
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
 
-<script src="/assets/try-decide.js?v=20261003a"></script>
+<script src="/assets/try-decide.js?v=20261004a"></script>
 </body>
 </html>
