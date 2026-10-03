@@ -3,7 +3,7 @@
     "type": "function",
     "function": {
       "name": "get_datetime",
-      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. GET /datetime[/{offset}]",
+      "description": "Current date and time in ISO 8601. Returns {\"datetime\": \"2026-08-16T11:44:35+02:00\"}. With timezone (an IANA name such as Europe/Oslo, summer time included) the answer also has timezone, abbreviation, utc_offset, dst and unixtime. GET /datetime[/{offset}] or GET /datetime/{timezone}",
       "parameters": {
         "type": "object",
         "properties": {
@@ -11,6 +11,31 @@
             "type": "string",
             "description": "Four-digit UTC offset with optional sign, e.g. \"+0200\", \"-0530\" or \"0100\". Hour-only values like \"1\" are NOT valid. Omit for UTC.",
             "pattern": "^[+-]?[0-9]{4}$"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA time zone such as \"Europe/Oslo\", used instead of offset; follows summer time. An unknown name is HTTP 400."
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_worldtime",
+      "description": "WorldTimeAPI's fifteen fields (abbreviation, client_ip, datetime, day_of_week, day_of_year, dst, dst_from, dst_offset, dst_until, raw_offset, timezone, unixtime, utc_datetime, utc_offset, week_number) for a zone, an address, or the caller's address. GET https://aisenseapi.com/api/timezone/{timezone} or /api/ip[/{ip}] at the host root, not under /services/v1.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "IANA name such as Europe/Oslo. Unknown is HTTP 404."
+          },
+          "ip": {
+            "type": "string",
+            "description": "IPv4 or IPv6 address. Omit both for the caller's own address."
           }
         },
         "required": []

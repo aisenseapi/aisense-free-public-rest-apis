@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free WorldTimeAPI Alternative - Same Paths and Fields | AI SENSE</title>
+<meta name="description" content="WorldTimeAPI no longer answers. The same paths, /api/timezone/Europe/Oslo and /api/ip, and the same fifteen fields answer free at aisenseapi.com over HTTPS. Change the host and keep the code.">
+<link rel="canonical" href="https://aisense.no/worldtimeapi-alternative">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free WorldTimeAPI Alternative - Same Paths and Fields"><meta property="og:description" content="WorldTimeAPI no longer answers. The same paths, /api/timezone/Europe/Oslo and /api/ip, and the same fifteen fields answer free at aisenseapi.com over HTTPS. Change the host and keep the code."><meta property="og:url" content="https://aisense.no/worldtimeapi-alternative"><meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="/assets/aisense.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free WorldTimeAPI Alternative","description":"WorldTimeAPI's paths and fifteen fields, free over HTTPS at aisenseapi.com: /api/timezone, /api/timezone/{area}/{location}, /api/ip and /api/ip/{address}, each with a .txt form.","url":"https://aisense.no/worldtimeapi-alternative","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"WebPage","name":"Free WorldTimeAPI Alternative","description":"Documentation for the WorldTimeAPI-compatible paths at aisenseapi.com, with every field and the change an ESP32 sketch needs.","url":"https://aisense.no/worldtimeapi-alternative","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"WorldTimeAPI Alternative","item":"https://aisense.no/worldtimeapi-alternative"}]}]}</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><a href="/free-public-apis" aria-current="page">Free public REST APIs</a><a href="/free-public-mcp-server">Free MCP server</a><a href="/custom-apis">Custom APIs</a><a href="/make-your-data-available-for-ai">AI data feed</a><a href="/ai-sense-posts">Posts</a><a href="/contact-us">Contact us</a><a href="/about">About</a></div></nav></div></header>
+<main id="main-content" class="api-detail-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/free-public-apis">Free public REST APIs</a></li><li aria-current="page">WorldTimeAPI Alternative</li></ol></nav>
+<section class="api-detail-hero" aria-labelledby="page-title"><div><p class="eyebrow">Time - WorldTimeAPI paths</p><h1 id="page-title">Free WorldTimeAPI Alternative</h1><p class="lede">WorldTimeAPI was the clock behind a great many ESP32 sketches, Arduino projects, games and scripts, and it no longer answers: on 3 October 2026 every connection to worldtimeapi.org, over HTTP and HTTPS, was reset. Its paths and its fifteen fields answer here, free and without a key. Change the host, keep the code.</p><ul class="badges"><li>No API key</li><li>Same paths</li><li>Same fifteen fields</li><li>JSON or .txt</li></ul></div><div class="endpoint-banner"><p class="endpoint-banner-label">Time in a zone</p><p class="sig"><span class="method">GET</span><span class="path">/api/timezone/Europe/Oslo</span></p><code>https://aisenseapi.com/api/timezone/Europe/Oslo</code></div></section>
+<div class="api-doc-layout"><article class="api-doc">
+<section id="quick-start"><h2>Move a client in one line</h2><p>Replace the start of the URL and nothing else. The path after <code>/api/</code> stays as it was:</p><div class="table-wrap"><table><thead><tr><th>Before</th><th>After</th></tr></thead><tbody><tr><td><code>http://worldtimeapi.org/api/timezone/Europe/Oslo</code></td><td><code>https://aisenseapi.com/api/timezone/Europe/Oslo</code></td></tr><tr><td><code>http://worldtimeapi.org/api/ip</code></td><td><code>https://aisenseapi.com/api/ip</code></td></tr><tr><td><code>http://worldtimeapi.org/api/timezone.txt</code></td><td><code>https://aisenseapi.com/api/timezone.txt</code></td></tr></tbody></table></div><pre><code>curl https://aisenseapi.com/api/timezone/Europe/Oslo</code></pre><pre><code>{
+  "abbreviation": "CEST",
+  "client_ip": "203.0.113.9",
+  "datetime": "2026-10-03T12:41:07.113157+02:00",
+  "day_of_week": 6,
+  "day_of_year": 276,
+  "dst": true,
+  "dst_from": "2026-03-29T01:00:00+00:00",
+  "dst_offset": 3600,
+  "dst_until": "2026-10-25T01:00:00+00:00",
+  "raw_offset": 3600,
+  "timezone": "Europe/Oslo",
+  "unixtime": 1791024067,
+  "utc_datetime": "2026-10-03T10:41:07.113157+00:00",
+  "utc_offset": "+02:00",
+  "week_number": 40
+}</code></pre><p>One change is not optional: this host answers HTTPS only. A sketch that fetched <code>http://worldtimeapi.org</code> over a plain <code>WiFiClient</code> has to use <code>https://</code> and a <code>WiFiClientSecure</code>, shown below.</p></section>
+<section id="paths"><h2>The paths</h2><div class="table-wrap"><table><thead><tr><th>Path</th><th>Answer</th></tr></thead><tbody><tr><td><code>/api/timezone</code></td><td>Every current zone name, as a JSON list</td></tr><tr><td><code>/api/timezone/{area}</code></td><td>The zones of one area, such as <code>Europe</code> or <code>America</code></td></tr><tr><td><code>/api/timezone/{area}/{location}[/{region}]</code></td><td>The fifteen fields for that zone, such as <code>America/Argentina/Buenos_Aires</code></td></tr><tr><td><code>/api/ip</code></td><td>The fifteen fields where your address is</td></tr><tr><td><code>/api/ip/{address}</code></td><td>The fifteen fields where that IPv4 or IPv6 address is</td></tr></tbody></table></div><p>Add <code>.txt</code> to any of them for one <code>key: value</code> per line, with a null left empty. Zone names match in any case and old names are accepted. The same paths also answer under <code>/services/v1/worldtime/</code> for anyone who keeps every call under one prefix.</p><pre><code>curl https://aisenseapi.com/api/timezone/Europe/Oslo.txt</code></pre><pre><code>abbreviation: CEST
+client_ip: 203.0.113.9
+datetime: 2026-10-03T12:41:07.113157+02:00
+day_of_week: 6
+day_of_year: 276
+dst: true
+dst_from: 2026-03-29T01:00:00+00:00
+dst_offset: 3600
+dst_until: 2026-10-25T01:00:00+00:00
+raw_offset: 3600
+timezone: Europe/Oslo
+unixtime: 1791024067
+utc_datetime: 2026-10-03T10:41:07.113157+00:00
+utc_offset: +02:00
+week_number: 40</code></pre></section>
+<section id="response"><h2>The fifteen fields</h2><div class="table-wrap field-table"><table><thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead><tbody><tr><td>abbreviation</td><td>string</td><td>The local abbreviation, such as CEST, EDT or IST, or a numeric one such as -03 where the database has no letters.</td></tr><tr><td>client_ip</td><td>string</td><td>The address the request came from, also on /api/ip/{address}.</td></tr><tr><td>datetime</td><td>string</td><td>Local date and time, ISO 8601 with microseconds and the offset.</td></tr><tr><td>day_of_week</td><td>integer</td><td>0 for Sunday to 6 for Saturday.</td></tr><tr><td>day_of_year</td><td>integer</td><td>Local day of the year, starting at 1.</td></tr><tr><td>dst</td><td>boolean</td><td>Whether summer time is in force.</td></tr><tr><td>dst_from</td><td>string or null</td><td>When the current summer time period began, in UTC. null when dst is false.</td></tr><tr><td>dst_offset</td><td>integer</td><td>Seconds summer time adds now: 3600 almost everywhere, 1800 on Lord Howe Island, 0 outside summer time.</td></tr><tr><td>dst_until</td><td>string or null</td><td>When the current summer time period ends, in UTC. null when dst is false.</td></tr><tr><td>raw_offset</td><td>integer</td><td>The standard offset from UTC in seconds, without summer time.</td></tr><tr><td>timezone</td><td>string</td><td>The zone name in its usual case. Old names such as Europe/Kiev are accepted.</td></tr><tr><td>unixtime</td><td>integer</td><td>Seconds since 1970-01-01 UTC.</td></tr><tr><td>utc_datetime</td><td>string</td><td>The same moment in UTC, ending in +00:00.</td></tr><tr><td>utc_offset</td><td>string</td><td>The offset in force now, as +HH:MM, summer time included.</td></tr><tr><td>week_number</td><td>integer</td><td>The ISO 8601 week.</td></tr></tbody></table></div><p>The names, types and meanings are WorldTimeAPI's, and so is the order, alphabetical. Slashes in zone names are not escaped, so code that looks for <code>Europe/Oslo</code> in the body as text still finds it.</p></section>
+<section id="esp32"><h2>On an ESP32</h2><p>The usual sketch called <code>http.begin("http://worldtimeapi.org/api/timezone/Europe/Oslo")</code>. Over HTTPS the call takes a secure client. The shortest version skips certificate checks, which is acceptable for reading a clock and nothing more:</p><pre><code>#include &lt;WiFiClientSecure.h&gt;
+#include &lt;HTTPClient.h&gt;
+
+WiFiClientSecure client;
+client.setInsecure();          // or client.setCACert(...) to check the certificate
+
+HTTPClient http;
+http.begin(client, "https://aisenseapi.com/api/timezone/Europe/Oslo");
+int code = http.GET();
+String body = http.getString();
+http.end();</code></pre><p>Parsing does not change: the fields are the ones the sketch already reads. For an ESP8266 the class is <code>BearSSL::WiFiClientSecure</code> with the same <code>setInsecure()</code>.</p></section>
+<section id="errors"><h2>Errors, in WorldTimeAPI's words</h2><div class="table-wrap"><table><thead><tr><th>Case</th><th>Status</th><th>Body</th></tr></thead><tbody><tr><td>Unknown zone</td><td>404</td><td><code>{"error":"unknown location Europe/Pari","fix":"..."}</code>, or <code>Error: unknown location Europe/Pari</code> as text</td></tr><tr><td>Address with no zone in the database</td><td>404</td><td><code>{"error":"unknown location for ip ...","fix":"..."}</code></td></tr><tr><td>Malformed address</td><td>400</td><td><code>{"error":"malformed ip","fix":"..."}</code></td></tr><tr><td>Over 5000 calls from one address in a day</td><td>429</td><td>With <code>Retry-After</code> until midnight Oslo time</td></tr></tbody></table></div><p>The <code>error</code> text is the one WorldTimeAPI sent; the <code>fix</code> beside it is ours and says what to send instead.</p></section>
+<section id="how-it-works"><h2>Where the answers come from</h2><p>Zone names and their rules come from the time zone database built into the server's PHP, which is updated with PHP releases. The zone of an address comes from GeoLite2-City, read locally and cached for an hour per address, so a device that asks every minute costs one lookup an hour. Nothing you send is stored; the request log keeps the status and how long the answer took.</p><p>If you only need a zone you already know, <a href="/free-public-api-datetime-api-endpoint">/datetime/Europe/Oslo</a> answers a shorter object with the offset in force and whether summer time is on.</p></section>
+<section id="privacy"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>The address in <code>/api/ip/{address}</code> is looked up and not kept. Looking up someone else's address tells you roughly where on the map it is registered, which is all a time zone needs and all the database knows.</p></div><p>Every path shares the service-wide ceiling of 5000 requests per IP address per day. No key, no account and no sign-up. The whole catalogue is on <a href="/free-public-apis">Free public REST APIs</a>.</p></section>
+<section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/time-apis">Time APIs<span>Every time endpoint in one place</span></a><a href="/free-public-api-datetime-api-endpoint">Datetime API Endpoint<span>ISO 8601 by zone or offset</span></a><a href="/free-public-api-timezones-api-endpoint">Timezones API Endpoint<span>IANA zones and live offsets</span></a><a href="/free-public-api-timestamp-api-endpoint">Timestamp API Endpoint<span>Whole seconds since the epoch</span></a></div></section>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Move a client</a></li><li><a href="#paths">Paths</a></li><li><a href="#response">Fields</a></li><li><a href="#esp32">ESP32</a></li><li><a href="#errors">Errors</a></li><li><a href="#how-it-works">Where answers come from</a></li><li><a href="#privacy">Privacy</a></li></ul></aside></div>
+</main>
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
+</body></html>
