@@ -65,7 +65,7 @@ FAQ = [
      'Resize it to the size it is shown at, then compress it. Our 1600 x 1200 test photo went from %s to %s bytes '
      'at half the width.' % (number(PHOTO), number(RESIZE['bytes']))),
     ('Are these converters free?',
-     'Yes. No account and no API key. The limit is 5000 requests per IP address per 24 hours, and 80 MB of stored '
+     'Yes. No account and no API key. The limit is 5000 requests per IP address per day, and 80 MB of stored '
      'results per IP address per day.')
 ]
 

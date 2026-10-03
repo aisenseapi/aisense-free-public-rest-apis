@@ -158,7 +158,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
     ['405', 'Any method but POST'],
     ['413', 'The body is over 64 KiB, or the rules hold more than 5000 tests'],
     ['415', 'The body is not sent as <code>application/json</code>'],
-    ['429', 'The service-wide limit of 5000 requests per IP per 24 hours'],
+    ['429', 'The service-wide limit of 5000 requests per IP per day'],
 ]) + '''</section>
 
 <section id="use-cases"><h2>When rules fit</h2>''' + cards([
@@ -168,7 +168,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
     ('A cheap first layer', 'Answer the clear cases with rules, and hand only the uncertain ones to a model or a person.'),
 ]) + '''</section>
 
-<section id="privacy"><h2>Privacy and limits</h2><p>The state and the rules are tested inside the worker and gone when the answer is. Nothing is written, stored or sent anywhere, and the access log line holds the path and nothing from the body. Limits: 64 KiB of JSON, 64 questions, 100 options, 20 levels, 50 rules per list, weights from &minus;100 to 100, 5000 tests and 8 levels of <code>any</code> and <code>not</code> in one request. The service-wide ceiling is 5000 requests per IP per 24 hours.</p></section>
+<section id="privacy"><h2>Privacy and limits</h2><p>The state and the rules are tested inside the worker and gone when the answer is. Nothing is written, stored or sent anywhere, and the access log line holds the path and nothing from the body. Limits: 64 KiB of JSON, 64 questions, 100 options, 20 levels, 50 rules per list, weights from &minus;100 to 100, 5000 tests and 8 levels of <code>any</code> and <code>not</code> in one request. The service-wide ceiling is 5000 requests per IP per day.</p></section>
 
 <section id="related"><h2>Related endpoints</h2>''' + related([
     ('/free-public-apis', 'Free public REST APIs', 'The full endpoint reference'),
@@ -306,7 +306,7 @@ CHAOS_MAIN = '''<main id="main-content" class="api-detail-main">
     ['404', 'A path that is not one of the forms, or a status chaos does not answer with. The <code>fix</code> lists the statuses and events'],
     ['400', 'A delay over 10000 milliseconds'],
     ['503 without <code>X-Chaos</code>', 'No place free for a delay, with <code>Retry-After: 1</code>'],
-    ['429', 'The service-wide limit of 5000 requests per IP per 24 hours, which chaos calls count towards'],
+    ['429', 'The service-wide limit of 5000 requests per IP per day, which chaos calls count towards'],
 ]) + '''</section>
 
 <section id="use-cases"><h2>What to test with it</h2>''' + cards([
@@ -316,7 +316,7 @@ CHAOS_MAIN = '''<main id="main-content" class="api-detail-main">
     ('Agents and tools', 'That an agent reads an error, backs off and reports it, instead of trying the same thing forever.'),
 ]) + '''</section>
 
-<section id="privacy"><h2>Privacy and limits</h2><p>Nothing is written or stored. The body and the query string are not read, but the access log line records the path and any query string, as it does for every request, so keep anything private out of the query. Delays run up to 10000 milliseconds, four at a time from one address, and every call counts towards the service-wide 5000 requests per IP per 24 hours.</p></section>
+<section id="privacy"><h2>Privacy and limits</h2><p>Nothing is written or stored. The body and the query string are not read, but the access log line records the path and any query string, as it does for every request, so keep anything private out of the query. Delays run up to 10000 milliseconds, four at a time from one address, and every call counts towards the service-wide 5000 requests per IP per day.</p></section>
 
 <section id="related"><h2>Related endpoints</h2>''' + related([
     ('/free-public-apis', 'Free public REST APIs', 'The full endpoint reference'),

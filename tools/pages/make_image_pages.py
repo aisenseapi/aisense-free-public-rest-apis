@@ -105,7 +105,7 @@ def errors(formats, bad_request, unavailable):
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
     <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a %s.</td></tr>
-    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address in 24 hours, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address per day, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>%s</td></tr>
   </tbody>
 </table>''' % (bad_request, formats, unavailable)
@@ -399,7 +399,7 @@ def page(slug, title, description, h1, lede, badges, operation, tool_html, body_
     print('wrote', slug + '.html', len(out.encode('utf-8')), 'bytes')
 
 
-FAQ_FREE = 'Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per 24 hours, and stored results count against the Storage budget of 80 MB per IP address per day.'
+FAQ_FREE = 'Yes. No API key, no account and no sign up. The limit is 5000 requests per IP address per day, and stored results count against the Storage budget of 80 MB per IP address per day.'
 
 
 def wrap_tables(body):
@@ -473,7 +473,7 @@ page(
     'Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.',
     'Free image converter: HEIC, WebP, PNG and JPEG',
     'Drop an image and choose WebP, PNG or JPEG. HEIC photos from an iPhone work too. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.',
-    ['No API key', 'No account', 'HEIC, WebP, PNG and JPEG', 'EXIF removed', '5000 req / IP / 24h'],
+    ['No API key', 'No account', 'HEIC, WebP, PNG and JPEG', 'EXIF removed', '5000 req / IP / day'],
     'image_convert',
     '''  <form id="tool-form">
 ''' + drop('JPEG, PNG, WebP or HEIC', ACCEPT_HEIC) + '''
@@ -765,7 +765,7 @@ page(
     'Make a JPEG, PNG or WebP smaller in your browser or with one API call, in the same format. EXIF and GPS data are removed and the colour profile is kept. No API key.',
     'Free image compression API',
     'Drop a JPEG, PNG or WebP and get it back in the same format, saved again to be smaller, with the camera and GPS data removed. The form calls the same free API your code can call: one POST, no API key and no account. The result waits in Storage for 24 hours.',
-    ['No API key', 'No account', 'Same format out', 'EXIF removed', '5000 req / IP / 24h'],
+    ['No API key', 'No account', 'Same format out', 'EXIF removed', '5000 req / IP / day'],
     'image_compress',
     '''  <form id="tool-form">
 ''' + DROP + '''
