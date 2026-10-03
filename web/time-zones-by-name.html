@@ -25,7 +25,7 @@
     {
       "@type": "TechArticle",
       "headline": "Time Zones by Name, and a Home for WorldTimeAPI's Clients",
-      "description": "On 3 October 2026 the free /datetime endpoint gained IANA zone names such as Europe/Oslo beside fixed offsets, and /services/v1/worldtime began answering WorldTimeAPI's fifteen fields, with WorldTimeAPI's own path after the prefix, over HTTPS, for clients of worldtimeapi.org, which no longer answers.",
+      "description": "On 3 October 2026 the free /datetime endpoint gained IANA zone names such as Europe/Oslo beside fixed offsets, and /services/v1/worldtime began answering WorldTimeAPI's fifteen fields, with WorldTimeAPI's own path after the prefix, over HTTPS, for clients of worldtimeapi.org, which reset every connection we made that day.",
       "url": "https://aisense.no/time-zones-by-name",
       "datePublished": "2026-10-03",
       "inLanguage": "en",
@@ -84,7 +84,7 @@
 
 <h2>WorldTimeAPI's fields, under our paths</h2>
 
-<p>WorldTimeAPI was the clock in a great many ESP32 sketches, Arduino projects, games and scripts. It no longer answers: on 3 October 2026 every connection to worldtimeapi.org was reset, over HTTP and HTTPS, and from a second network as well. Its fifteen fields answer here under <code>/services/v1/worldtime</code>, and what follows that prefix is WorldTimeAPI's own path, so a client moves by replacing the start of the URL:</p>
+<p>WorldTimeAPI was the clock in a great many ESP32 sketches, Arduino projects, games and scripts. On 3 October 2026 it did not answer us: every connection we made to worldtimeapi.org was reset, over HTTP and HTTPS, and from a second network as well. Its fifteen fields answer here under <code>/services/v1/worldtime</code>, and what follows that prefix is WorldTimeAPI's own path, so a client moves by replacing the start of the URL:</p>
 
 <div class="table-wrap"><table>
 <thead><tr><th>WorldTimeAPI</th><th>Here</th></tr></thead>
@@ -95,12 +95,12 @@
 </tbody>
 </table></div>
 
-<p>The fields are WorldTimeAPI's, with its names, types and order: the local and UTC time with microseconds, the offset in force, the standard offset, whether summer time is on and when the current period began and ends, the day of the week and of the year, the ISO week, the Unix time and the caller's address. The <code>.txt</code> form gives one <code>key: value</code> per line, and the errors use its words, <code>unknown location Europe/Pari</code>, with our fix beside them. <code>/worldtime/ip</code> finds the zone of the caller's address in an address lookup and caches it for an hour, so a board that asks every minute costs one lookup an hour.</p>
+<p>The fields are WorldTimeAPI's, with its names, types and order: the local and UTC time with microseconds, the offset in force, the standard offset, whether summer time is on and when the current period began and ends, the day of the week and of the year, the ISO week, the Unix time and the caller's address. The <code>.txt</code> form gives one <code>key: value</code> per line, and the errors use its words, <code>unknown location Europe/Pari</code>, with our fix beside them. <code>/worldtime/ip</code> finds the zone of the caller's address. Each worker caches the result by IP and reuses it for up to an hour. That is a refresh interval, not a deletion deadline. IP addresses in request paths can also appear in access logs.</p>
 
 <div class="article-cta">
   <p class="eyebrow">The one change you cannot skip</p>
   <h2>HTTPS only.</h2>
-  <p>This host does not serve plain HTTP. An ESP32 sketch that used <code>http://worldtimeapi.org</code> with a <code>WiFiClient</code> moves to <code>https://</code> and a <code>WiFiClientSecure</code>; <code>client.setInsecure()</code> is enough to read a clock. The <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the five lines, the whole translation and every field.</p>
+  <p>This host does not serve plain HTTP. An ESP32 sketch that used <code>http://worldtimeapi.org</code> with a <code>WiFiClient</code> moves to <code>https://</code> and a <code>WiFiClientSecure</code>; the short example uses <code>client.setInsecure()</code>, which skips server certificate verification. Use CA certificate verification when your application needs to trust the returned time. The <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page has the five lines, the whole translation and every field.</p>
 </div>
 
 <h2>Checked before writing</h2>
