@@ -3,23 +3,31 @@
  * login-attempt.php - tell Admin on Slack when someone uses the client login.
  *
  * There are no client accounts yet. The form on /login stays, and when someone
- * submits it the page posts the email address here, and this sends one line to
- * the private Slack channel: the address and the time. Admin asked for it on
+ * submits it the email address comes here, and this sends one line to the
+ * private Slack channel: the address and the time. Admin asked for it on
  * 3 October 2026, to see whether anyone uses the form.
  *
- * The password is never sent. The page leaves it out of the request and this
- * file ignores it if it comes: a form that forwarded passwords would collect
- * people's passwords, and many use the same one elsewhere. The page tells the
- * visitor plainly that they were not signed in.
+ * The password is never sent. Its field on the page has no name, so no form
+ * submission can carry it, with or without JavaScript; the page's script
+ * clears it as well, and this file ignores a password field if one comes.
+ * A form that forwarded passwords would collect people's passwords, and many
+ * use the same one elsewhere. The visitor is told plainly that they were not
+ * signed in.
+ *
+ * The page's script posts JSON and gets JSON back. Without JavaScript the
+ * browser posts the form itself, and gets a short HTML page with the same
+ * answer.
  *
  * The Slack incoming webhook URL is read from /etc/aisense/www-slack-webhook,
  * root owned and readable by the web server, never from this repository. With
  * no such file nothing is sent and the visitor gets the same answer.
  *
  * Limits: one address may report 3 times an hour, and at most 20 lines an hour
- * reach Slack. Past that, and when the hidden field a person cannot see is
- * filled in, the visitor gets the same answer and Slack nothing. A hash of the
- * address and the times are kept for an hour to count, nothing else.
+ * reach Slack. Past that, when the hidden field a person cannot see is filled
+ * in, and when the counters cannot be read or written, the visitor gets the
+ * same answer and Slack nothing: a limit that cannot be checked is treated as
+ * reached. A hash of the address and the times are kept for an hour to count,
+ * nothing else.
  *
  * Runs on the web box's PHP 7.4: no str_contains, no match, no nullsafe.
  * tools/check-login-attempt.php loads it from the command line, where the
@@ -51,7 +59,25 @@ function login_attempt_same_site(array $server): bool
     return false;
 }
 
-/** The email address from the request body, or '' when there is no valid one. */
+/**
+ * What the request carried: the email address and the hidden field, from a
+ * JSON body or from a form post, and whether it was a form post. Nothing else
+ * is taken, a password field included.
+ */
+function login_attempt_input(string $content_type, string $raw, array $post): array
+{
+    $form = stripos($content_type, 'application/json') === false;
+    $source = $form ? $post : json_decode($raw, true);
+    $source = is_array($source) ? $source : [];
+
+    return [
+        'email' => isset($source['email']) && is_string($source['email']) ? $source['email'] : '',
+        'website' => isset($source['website']) && is_string($source['website']) ? $source['website'] : '',
+        'form' => $form,
+    ];
+}
+
+/** The email address, or '' when there is no valid one. */
 function login_attempt_email(array $input): string
 {
     $email = isset($input['email']) && is_string($input['email']) ? trim($input['email']) : '';
@@ -65,13 +91,14 @@ function login_attempt_email(array $input): string
 
 /**
  * Count one attempt for this address and in total over the last hour, and say
- * whether it may reach Slack. Files that cannot be written count as no limit
- * reached, so a full disk never makes the form stop answering.
+ * whether it may reach Slack. When the counters cannot be read or written the
+ * answer is no, so a broken disk cannot be used to flood Slack; the visitor's
+ * answer does not depend on it.
  */
 function login_attempt_allowed(string $address, string $dir, int $now): bool
 {
     if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
-        return true;
+        return false;
     }
 
     $allowed = true;
@@ -83,24 +110,27 @@ function login_attempt_allowed(string $address, string $dir, int $now): bool
     foreach ($files as $name => $limit) {
         $handle = @fopen($dir . '/' . $name, 'c+');
         if ($handle === false) {
-            continue;
+            return false;
         }
-        if (flock($handle, LOCK_EX)) {
-            $times = json_decode((string) stream_get_contents($handle), true);
-            $times = array_values(array_filter(is_array($times) ? $times : [], function ($t) use ($now) {
-                return is_int($t) && $t > $now - 3600;
-            }));
-            if (count($times) >= $limit) {
-                $allowed = false;
-            }
-            $times[] = $now;
-            rewind($handle);
-            ftruncate($handle, 0);
-            fwrite($handle, (string) json_encode($times));
-            fflush($handle);
-            flock($handle, LOCK_UN);
+        if (!flock($handle, LOCK_EX)) {
+            fclose($handle);
+            return false;
         }
+        $times = json_decode((string) stream_get_contents($handle), true);
+        $times = array_values(array_filter(is_array($times) ? $times : [], function ($t) use ($now) {
+            return is_int($t) && $t > $now - 3600;
+        }));
+        if (count($times) >= $limit) {
+            $allowed = false;
+        }
+        $times[] = $now;
+        $data = (string) json_encode($times);
+        $written = rewind($handle) && ftruncate($handle, 0) && fwrite($handle, $data) === strlen($data) && fflush($handle);
+        flock($handle, LOCK_UN);
         fclose($handle);
+        if (!$written) {
+            return false;
+        }
     }
 
     // An address file left by someone who never comes back is removed by the
@@ -158,12 +188,35 @@ function login_attempt_slack(string $url, string $text): bool
     return $answer !== false && $status >= 200 && $status < 300;
 }
 
-function login_attempt_send(int $status, array $body): void
+/** The short HTML page a browser without JavaScript shows after posting the form. */
+function login_attempt_page(string $title, string $text): string
+{
+    $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+    $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+
+    return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<meta name="robots" content="noindex"><title>' . $title . ' - AI SENSE</title><link rel="stylesheet" href="/assets/aisense.css"></head>'
+        . '<body class="login-page"><main id="main-content" class="login-main"><section class="login-shell"><div class="login-intro">'
+        . '<p class="eyebrow">AI SENSE client portal</p><h1>' . $title . '</h1><p class="lede">' . $text . '</p>'
+        . '<p><a href="/login">Back to the login page</a>, or write to <a href="mailto:support@aisense.no">support@aisense.no</a>.</p>'
+        . '</div></section></main></body></html>';
+}
+
+function login_attempt_send(int $status, array $body, bool $form): void
 {
     http_response_code($status);
-    header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     header('X-Content-Type-Options: nosniff');
+
+    if ($form) {
+        header('Content-Type: text/html; charset=utf-8');
+        echo $status === 200
+            ? login_attempt_page('Client accounts are not open yet', 'You are not signed in. We received the email address you typed, never the password, and may contact you about access.')
+            : login_attempt_page('You are not signed in', (string) $body['fix']);
+        exit;
+    }
+
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode($body, JSON_UNESCAPED_SLASHES);
     exit;
 }
@@ -172,23 +225,26 @@ function login_attempt_main(): void
 {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
         header('Allow: POST');
-        login_attempt_send(405, ['error' => 'Method not allowed', 'fix' => 'The login form on /login posts here. There is nothing to read.']);
+        login_attempt_send(405, ['error' => 'Method not allowed', 'fix' => 'The login form on /login posts here. There is nothing to read.'], false);
     }
+
+    $input = login_attempt_input(
+        isset($_SERVER['CONTENT_TYPE']) ? (string) $_SERVER['CONTENT_TYPE'] : '',
+        (string) file_get_contents('php://input', false, null, 0, 4096),
+        $_POST
+    );
 
     if (!login_attempt_same_site($_SERVER)) {
-        login_attempt_send(403, ['error' => 'Not from this site', 'fix' => 'Use the form on https://aisense.no/login.']);
+        login_attempt_send(403, ['error' => 'Not from this site', 'fix' => 'Use the form on https://aisense.no/login.'], $input['form']);
     }
-
-    $input = json_decode((string) file_get_contents('php://input', false, null, 0, 4096), true);
-    $input = is_array($input) ? $input : [];
 
     $email = login_attempt_email($input);
     if ($email === '') {
-        login_attempt_send(400, ['error' => 'Invalid email address', 'fix' => 'Type the email address connected to your AI SENSE account, such as name@company.com.']);
+        login_attempt_send(400, ['error' => 'Invalid email address', 'fix' => 'Type the email address connected to your AI SENSE account, such as name@company.com.'], $input['form']);
     }
 
     // The field a person cannot see. Filled in, it was not a person.
-    $honeypot = isset($input['website']) && is_string($input['website']) ? trim($input['website']) : '';
+    $honeypot = trim($input['website']);
     $address = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
     $dir = rtrim(sys_get_temp_dir(), '/') . '/aisense-login-attempts';
 
@@ -205,7 +261,7 @@ function login_attempt_main(): void
         }
     }
 
-    login_attempt_send(200, ['ok' => true]);
+    login_attempt_send(200, ['ok' => true], $input['form']);
 }
 
 if (PHP_SAPI !== 'cli') {
