@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Public MCP Server for AI Agents | AI SENSE</title>
-<meta name="description" content="60 tools, including Agent Queue and temporary DNS names, confirmed by production discovery on 30 September 2026. No account or API key.">
+<meta name="description" content="61 tools, including Agent Queue and temporary DNS names, confirmed by production discovery on 3 October 2026. No account or API key.">
 <link rel="canonical" href="https://aisense.no/free-public-mcp-server">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Public MCP Server for AI Agents">
-<meta property="og:description" content="60 tools and three read-only resources confirmed by production discovery on 30 September 2026.">
+<meta property="og:description" content="61 tools and three read-only resources confirmed by production discovery on 3 October 2026.">
 <meta property="og:url" content="https://aisense.no/free-public-mcp-server">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20261003e">
@@ -20,7 +20,7 @@
     {
       "@type": "TechArticle",
       "headline": "Free Public MCP Server for AI Agents",
-      "description": "Production discovery confirmed 60 tools and three read-only resources on 30 September 2026.",
+      "description": "Production discovery confirmed 61 tools and three read-only resources on 3 October 2026.",
       "url": "https://aisense.no/free-public-mcp-server",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "AI SENSE AS" },
@@ -77,7 +77,7 @@ response = client.responses.create(
 
 print(response.output_text)</code></pre><p>The example asks for approval before every tool call. Use a per-tool approval policy when your client supports one.</p></section>
 <p>For tool selection, use the <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/AGENT-GUIDE.md">canonical agent guide</a>. The <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/blob/main/AGENT-QUICKSTART.md">agent quickstart</a> includes a complete Queue job and bounded retry decisions. Updating the embedded skill resource requires a separate deployment and verification.</p>
-<section id="tools"><h2>Workflow tools</h2><p>The 24 tools below and the <a href="#queue">eight Agent Queue tools</a> are the 32 workflow tools. With the <a href="#rest-tools">28 REST tools</a> the catalog has 60 tools, confirmed by production discovery on 30 September 2026.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<section id="tools"><h2>Workflow tools</h2><p>The 24 tools below and the <a href="#queue">eight Agent Queue tools</a> are the 32 workflow tools. With the <a href="#rest-tools">29 REST tools</a> the catalog has 61 tools, confirmed by production discovery on 3 October 2026.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>get_current_time</td><td>Date, time and timestamp for a timezone</td></tr>
 <tr><td>generate_uuid</td><td>Random UUID version 4</td></tr>
 <tr><td>shorten_url</td><td>307.fi link with 24-hour expiry</td></tr><tr><td>create_dns_name</td><td>Public hostname for an address, for 24 hours</td></tr><tr><td>read_dns_name</td><td>What a name points at and when it expires</td></tr><tr><td>update_dns_name</td><td>Moves a name to another address, expiry unchanged</td></tr><tr><td>delete_dns_name</td><td>Removes a name before it expires</td></tr>
@@ -99,7 +99,7 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
 <tr><td>create_agent_inbox</td><td>Disposable mail address the agent can read</td></tr>
 <tr><td>read_agent_inbox</td><td>Cleaned messages with extracted codes and links</td></tr>
 </tbody></table></div></section>
-<section id="rest-tools"><h2>Every REST endpoint as a tool</h2><p>These 28 tools run the same code as the <a href="/free-public-apis">REST endpoints</a>, so they give the same answers, limits and error texts, and an error keeps the REST status in <code>status_code</code>. Files go in as base64, up to about 190 KB, or as a <code>storage_id</code> from <code>store_file</code> or an earlier tool, which lets image calls be chained. Results that are files are stored for 24 hours, and <code>read_stored_file</code> returns them. The server never fetches a file from an address you give it.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
+<section id="rest-tools"><h2>Every REST endpoint as a tool</h2><p>These 29 tools run the same code as the <a href="/free-public-apis">REST endpoints</a>, so they give the same answers, limits and error texts, and an error keeps the REST status in <code>status_code</code>. Files go in as base64, up to about 190 KB, or as a <code>storage_id</code> from <code>store_file</code> or an earlier tool, which lets image calls be chained. Results that are files are stored for 24 hours, and <code>read_stored_file</code> returns them. The server never fetches a file from an address you give it.</p><div class="table-wrap field-table"><table><thead><tr><th>Tool</th><th>Result</th></tr></thead><tbody>
 <tr><td>encode_data</td><td>Encodes text as Base64, Base32 or Base58, or decodes it back to text or base64 bytes</td></tr>
 <tr><td>hash_data</td><td>Hashes text with MD5, SHA-1, SHA-256, SHA-512 or CRC32</td></tr>
 <tr><td>verify_hash</td><td>Checks text against a hash, with the algorithm read from the hash</td></tr>
