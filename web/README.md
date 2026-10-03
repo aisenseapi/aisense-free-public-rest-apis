@@ -38,6 +38,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `random-generator-apis.html` | `/random-generator-apis` |
 | `time-apis.html` | `/time-apis` |
 | `worldtimeapi-alternative.html` | `/worldtimeapi-alternative` |
+| `free-public-api-ip-datetime-api-endpoint.html` | `/free-public-api-ip-datetime-api-endpoint` |
 | `custom-apis.html` | `/custom-apis` |
 | `upload.html` | `/upload` |
 | `tokenizer-cost-study.html` | `/tokenizer-cost-study` |

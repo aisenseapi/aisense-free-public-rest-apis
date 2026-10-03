@@ -686,8 +686,7 @@ fixed at 1.
 curl https://aisenseapi.com/services/v1/datetime            # UTC
 curl https://aisenseapi.com/services/v1/datetime/+0200      # with offset
 curl https://aisenseapi.com/services/v1/datetime/Europe/Oslo  # a zone by name, summer time included
-curl https://aisenseapi.com/services/v1/worldtime/timezone/Europe/Oslo  # WorldTimeAPI's fields
-curl https://aisenseapi.com/services/v1/worldtime/ip        # the same, where your address is
+curl https://aisenseapi.com/services/v1/ip_datetime         # the same, where your address is
 curl https://aisenseapi.com/services/v1/timestamp
 curl https://aisenseapi.com/services/v1/microtimestamp
 curl https://aisenseapi.com/services/v1/timezones
@@ -697,15 +696,16 @@ curl https://aisenseapi.com/services/v1/swatchinternettime
 The offset is **four digits** with an optional sign - `+0200`, `-0530`,
 `0100` - or the same with a colon, `+02:00`. An hour-only value like `1` is not a
 valid route. A zone name such as `Europe/Oslo` follows summer time, which a fixed
-offset does not, and answers `timezone`, `abbreviation`, `utc_offset`, `dst` and
-`unixtime` beside `datetime`.
+offset does not. Its answer has the offset in force, the standard offset,
+whether summer time is on and when it starts and ends, and the day and week
+numbers. `/ip_datetime[/{ip}]` answers the same for the zone an address is in,
+the caller's own without one.
 
-`/worldtime/timezone/...` and `/worldtime/ip[/{address}]` answer WorldTimeAPI's
-fifteen fields. A client of worldtimeapi.org, which reset every connection we made on
-3 October 2026, replaces
-`http://worldtimeapi.org/api/` with
-`https://aisenseapi.com/services/v1/worldtime/` and keeps the rest of the path.
-HTTPS only. Add `.txt` for the text form.
+A client of worldtimeapi.org, which reset every connection we made on
+3 October 2026, finds its answers here: `/api/timezone/{zone}` is
+`/datetime/{zone}`, `/api/ip[/{address}]` is `/ip_datetime[/{ip}]` and
+`/api/timezone` is `/timezones`, all JSON over HTTPS. The
+[translation table](API.md#moving-from-worldtimeapi) has the details.
 
 `/timezones` returns objects, not strings:
 `{"timezones": [{"timezone": "Europe/Oslo", "offset": "+0200"}, ...]}`.
@@ -832,8 +832,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Category | Endpoint | Method | Response key(s) |
 |----------|----------|--------|-----------------|
 | Time | `/datetime[/{offset}]` | GET | `datetime` |
-| Time | `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| Time | `/worldtime/timezone[/{zone}]`, `/worldtime/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields, or a list of zones |
+| Time | `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime`, `raw_offset`, `dst_offset`, `dst_from`, `dst_until`, `day_of_week`, `day_of_year`, `week_number`, `utc_datetime` |
+| Time | `/ip_datetime[/{ip}]` | GET | `ip`, then the keys of `/datetime/{zone}` |
 | Time | `/timestamp` | GET | `timestamp` |
 | Time | `/microtimestamp` | GET | `microtimestamp` |
 | Time | `/timezones[/{offset}]` | GET | `timezones` |

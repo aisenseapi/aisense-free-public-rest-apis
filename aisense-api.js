@@ -191,18 +191,21 @@ export class AISenseAPI {
   /**
    * Current datetime in an IANA time zone such as `Europe/Oslo`, summer time
    * included. Keys: `datetime`, `timezone`, `abbreviation`, `utc_offset`,
-   * `dst`, `unixtime`. An unknown name is a 400.
+   * `dst`, `unixtime`, `raw_offset`, `dst_offset`, `dst_from`, `dst_until`,
+   * `day_of_week`, `day_of_year`, `week_number`, `utc_datetime`. An unknown
+   * name is a 400.
    */
   getDatetimeInZone(timezone) {
     return this.#get(`/datetime/${timezone}`)
   }
 
   /**
-   * WorldTimeAPI's fifteen fields from `/worldtime`: for a
-   * zone (`Europe/Oslo`), for an address, or with neither for the caller.
+   * The time where an IPv4 or IPv6 address is, or the caller's own without
+   * one. Keys: `ip`, then the same as `getDatetimeInZone`. An address with no
+   * zone in the lookup, such as a private one, is a 404.
    */
-  getWorldtime({ timezone, ip } = {}) {
-    return this.#get(timezone !== undefined ? `/worldtime/timezone/${timezone}` : ip !== undefined ? `/worldtime/ip/${ip}` : '/worldtime/ip')
+  getIpDatetime(ip) {
+    return this.#get(ip !== undefined ? `/ip_datetime/${ip}` : '/ip_datetime')
   }
 
   /** Current Unix timestamp in seconds. Response key: `timestamp`. */
