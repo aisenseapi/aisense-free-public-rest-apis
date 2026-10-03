@@ -76,6 +76,18 @@ class AgentOptimalTests(unittest.TestCase):
         svg = asset.read_text(encoding='utf-8')
         self.assertIn('rotate(-5 6.5 9)', svg)
         self.assertIn('#b6bfc8', svg)
+        ring = root.find('{http://www.w3.org/2000/svg}circle')
+        self.assertIsNotNone(ring)
+        self.assertEqual(ring.get('stroke'), '#046bd2')
+        self.assertEqual(ring.get('stroke-width'), '3.5')
+
+    def test_round_icon_has_no_old_square_background(self):
+        css = (WEB / 'assets/aisense.css').read_text(encoding='utf-8')
+        rule = re.search(r'\.agent-optimal-mark\s*\{([^}]+)\}', css)[1]
+        self.assertIn('padding: 0;', rule)
+        self.assertIn('background: transparent;', rule)
+        self.assertIn('border-radius: 50%;', rule)
+        self.assertIn('v=20261003c', BADGE)
 
     def test_generated_pages_are_current(self):
         pages = list(WEB.glob('*.html'))
