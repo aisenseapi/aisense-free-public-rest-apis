@@ -94,7 +94,7 @@ non-create call, plus the matching token name above. Job-specific calls need
 |----------|---------|
 | `GET /datetime[/{offset}]` | `{"datetime": "2026-08-16T11:44:35+02:00"}` |
 | `GET /datetime/Europe/Oslo` | `{"datetime": ..., "timezone": "Europe/Oslo", "abbreviation": "CEST", "utc_offset": "+02:00", "dst": true, "unixtime": ...}` |
-| `GET https://aisenseapi.com/api/timezone/Europe/Oslo` | WorldTimeAPI's fifteen fields; `/api/ip` for the caller's address, `.txt` for text |
+| `GET /worldtime/timezone/Europe/Oslo` | WorldTimeAPI's fifteen fields; `/worldtime/ip` for the caller's address, `.txt` for text. Translate `http://worldtimeapi.org/api/X` to `https://aisenseapi.com/services/v1/worldtime/X` |
 | `GET /timestamp` | `{"timestamp": 1786873261}` |
 | `GET /microtimestamp` | `{"microtimestamp": 1786873474.745043}` |
 | `GET /timezones[/{offset}]` | `{"timezones": [{"timezone": "Europe/Oslo", "offset": "+0200"}, ...]}` |
@@ -734,7 +734,7 @@ return numbers; their smallest units stay inside the safe range.
 |----------|--------|-----------------|
 | `/datetime[/{offset}]` | GET | `datetime` |
 | `/datetime/{zone}` | GET | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| `/api/timezone/{zone}`, `/api/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields, at the host root |
+| `/worldtime/timezone/{zone}`, `/worldtime/ip[/{address}]` | GET | WorldTimeAPI's fifteen fields |
 | `/timestamp` | GET | `timestamp` |
 | `/microtimestamp` | GET | `microtimestamp` |
 | `/timezones[/{offset}]` | GET | `timezones` (array of objects) |

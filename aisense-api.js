@@ -198,12 +198,11 @@ export class AISenseAPI {
   }
 
   /**
-   * WorldTimeAPI's fifteen fields from its own paths at the host root: for a
+   * WorldTimeAPI's fifteen fields from `/worldtime`: for a
    * zone (`Europe/Oslo`), for an address, or with neither for the caller.
    */
   getWorldtime({ timezone, ip } = {}) {
-    const path = timezone !== undefined ? `/api/timezone/${timezone}` : ip !== undefined ? `/api/ip/${ip}` : '/api/ip'
-    return new this.constructor(this.baseUrl.split('/services/')[0]).#get(path)
+    return this.#get(timezone !== undefined ? `/worldtime/timezone/${timezone}` : ip !== undefined ? `/worldtime/ip/${ip}` : '/worldtime/ip')
   }
 
   /** Current Unix timestamp in seconds. Response key: `timestamp`. */

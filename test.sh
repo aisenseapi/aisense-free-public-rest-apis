@@ -126,14 +126,13 @@ has_value "Datetime (Europe/Oslo)"  GET "$BASE/datetime/Europe/Oslo" '"timezone"
 has_value "Datetime (any case)"     GET "$BASE/datetime/europe/oslo" '"timezone":"Europe/Oslo"'
 request GET "$BASE/datetime/Europe/Pari"
 [ "$STATUS" = "400" ] && ok "Datetime (unknown zone) -> 400" || bad "Datetime (unknown zone)" "expected 400, got $STATUS"
-# WorldTimeAPI's own paths, at the host root rather than under /services/v1.
-HOST_ROOT="${BASE%/services/v1}"
-has_value "WorldTimeAPI (zone)"     GET "$HOST_ROOT/api/timezone/Europe/Oslo"     '"timezone":"Europe/Oslo"'
-has_value "WorldTimeAPI (fields)"   GET "$HOST_ROOT/api/timezone/Europe/Oslo"     '"week_number"'
-has_value "WorldTimeAPI (text)"     GET "$HOST_ROOT/api/timezone/Europe/Oslo.txt" 'timezone: Europe/Oslo'
-has_value "WorldTimeAPI (list)"     GET "$HOST_ROOT/api/timezone/Europe"          '"Europe/Oslo"'
-has_value "WorldTimeAPI (caller)"   GET "$HOST_ROOT/api/ip"                       '"client_ip"'
-request GET "$HOST_ROOT/api/timezone/Europe/Pari"
+# WorldTimeAPI's fields; what follows /worldtime/ is WorldTimeAPI's own path.
+has_value "WorldTimeAPI (zone)"     GET "$BASE/worldtime/timezone/Europe/Oslo"     '"timezone":"Europe/Oslo"'
+has_value "WorldTimeAPI (fields)"   GET "$BASE/worldtime/timezone/Europe/Oslo"     '"week_number"'
+has_value "WorldTimeAPI (text)"     GET "$BASE/worldtime/timezone/Europe/Oslo.txt" 'timezone: Europe/Oslo'
+has_value "WorldTimeAPI (list)"     GET "$BASE/worldtime/timezone/Europe"          '"Europe/Oslo"'
+has_value "WorldTimeAPI (caller)"   GET "$BASE/worldtime/ip"                       '"client_ip"'
+request GET "$BASE/worldtime/timezone/Europe/Pari"
 [ "$STATUS" = "404" ] && ok "WorldTimeAPI (unknown zone) -> 404" || bad "WorldTimeAPI (unknown zone)" "expected 404, got $STATUS"
 has_key   "Timestamp"               GET "$BASE/timestamp"           "timestamp"
 has_key   "Microtimestamp"          GET "$BASE/microtimestamp"      "microtimestamp"

@@ -161,26 +161,33 @@ Unlike the older endpoints, bad input returns a real **HTTP 400**.
 
 ---
 
-### WorldTimeAPI paths: `GET /api/timezone/...` and `GET /api/ip[/{address}]`
-The paths and the fifteen fields of WorldTimeAPI, which no longer answers,
-added 3 October 2026. They sit at the host root, so moving a client is a change
-of host and scheme: `http://worldtimeapi.org/api/...` becomes
-`https://aisenseapi.com/api/...`. Only HTTPS is served; a sketch that used plain
-HTTP on an ESP32 moves to `WiFiClientSecure` as well. The same paths also answer
-under `/services/v1/worldtime/`.
+### `GET /worldtime/timezone[/...]` and `GET /worldtime/ip[/{address}]`
+The fifteen fields of WorldTimeAPI, which no longer answers, added
+3 October 2026. What follows `/worldtime/` is WorldTimeAPI's own path, so
+moving a client is one replacement at the start of the URL:
+
+| WorldTimeAPI | Here |
+|--------------|------|
+| `http://worldtimeapi.org/api/timezone` | `https://aisenseapi.com/services/v1/worldtime/timezone` |
+| `http://worldtimeapi.org/api/timezone/Europe` | `https://aisenseapi.com/services/v1/worldtime/timezone/Europe` |
+| `http://worldtimeapi.org/api/timezone/Europe/Oslo` | `https://aisenseapi.com/services/v1/worldtime/timezone/Europe/Oslo` |
+| `http://worldtimeapi.org/api/ip` | `https://aisenseapi.com/services/v1/worldtime/ip` |
+| `http://worldtimeapi.org/api/ip/{address}` | `https://aisenseapi.com/services/v1/worldtime/ip/{address}` |
+
+Each also with `.txt` for one `key: value` per line, null left empty. Only
+HTTPS is served; a sketch that used plain HTTP on an ESP32 moves to
+`WiFiClientSecure` as well.
 
 | Path | Answer |
 |------|--------|
-| `/api/timezone` | every current zone name, a JSON list |
-| `/api/timezone/{area}` | the zones of one area, such as `Europe` |
-| `/api/timezone/{area}/{location}[/{region}]` | the fifteen fields for that zone |
-| `/api/ip` | the fifteen fields where the caller's address is |
-| `/api/ip/{address}` | the fifteen fields where that IPv4 or IPv6 address is |
-
-Add `.txt` to any of them for one `key: value` per line, null left empty.
+| `/worldtime/timezone` | every current zone name, a JSON list |
+| `/worldtime/timezone/{area}` | the zones of one area, such as `Europe` |
+| `/worldtime/timezone/{area}/{location}[/{region}]` | the fifteen fields for that zone |
+| `/worldtime/ip` | the fifteen fields where the caller's address is |
+| `/worldtime/ip/{address}` | the fifteen fields where that IPv4 or IPv6 address is |
 
 ```json
-// GET /api/timezone/Europe/Oslo
+// GET /worldtime/timezone/Europe/Oslo
 {
   "abbreviation": "CEST",
   "client_ip": "203.0.113.9",
@@ -204,13 +211,13 @@ Add `.txt` to any of them for one `key: value` per line, null left empty.
 UTC, and `null` outside one. `raw_offset` is the standard offset and
 `dst_offset` what summer time adds, in seconds. `day_of_week` is `0` for
 Sunday, `day_of_year` starts at `1`, `week_number` is the ISO week. Old names
-such as `Europe/Kiev` are accepted. The zone of an address comes from
-GeoLite2-City, cached for an hour.
+such as `Europe/Kiev` are accepted. The zone of an address comes from an
+address lookup, cached for an hour.
 
 An unknown zone is **404** with `{"error":"unknown location Europe/Pari"}`, as
 WorldTimeAPI answered, plus a `fix`; an address with no zone in the database is
 **404**, and a malformed one **400**. Calls count towards the 5000 per IP per
-day like everything under `/services/v1`.
+day like everything else.
 
 ---
 
@@ -2434,7 +2441,7 @@ operations use JSON with the fields documented in their own sections.
 |----------|-----------------|
 | `/datetime` | `datetime` |
 | `/datetime/{zone}` | `datetime`, `timezone`, `abbreviation`, `utc_offset`, `dst`, `unixtime` |
-| `/api/timezone/{zone}`, `/api/ip[/{address}]` | `abbreviation`, `client_ip`, `datetime`, `day_of_week`, `day_of_year`, `dst`, `dst_from`, `dst_offset`, `dst_until`, `raw_offset`, `timezone`, `unixtime`, `utc_datetime`, `utc_offset`, `week_number` |
+| `/worldtime/timezone/{zone}`, `/worldtime/ip[/{address}]` | `abbreviation`, `client_ip`, `datetime`, `day_of_week`, `day_of_year`, `dst`, `dst_from`, `dst_offset`, `dst_until`, `raw_offset`, `timezone`, `unixtime`, `utc_datetime`, `utc_offset`, `week_number` |
 | `/timestamp` | `timestamp` |
 | `/microtimestamp` | `microtimestamp` |
 | `/timezones` | `timezones` (array of objects) |

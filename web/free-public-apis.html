@@ -196,7 +196,7 @@
 <article class="endpoint">
 <h3>Datetime REST API Endpoint</h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/datetime[/{offset}] - /datetime/{zone}</span></p>
-<p>Current date and time in ISO 8601. The optional offset is a <strong>four-digit</strong> UTC offset with an optional sign - <code>+0200</code>, <code>-0530</code> or <code>0100</code> - or <code>+02:00</code>. An hour-only value such as <code>1</code> is not a valid route. An IANA zone such as <code>Europe/Oslo</code> follows summer time and answers <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code> and <code>unixtime</code> as well. WorldTimeAPI's paths answer at <code>https://aisenseapi.com/api/timezone/...</code> and <code>/api/ip</code>; see the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a>.</p>
+<p>Current date and time in ISO 8601. The optional offset is a <strong>four-digit</strong> UTC offset with an optional sign - <code>+0200</code>, <code>-0530</code> or <code>0100</code> - or <code>+02:00</code>. An hour-only value such as <code>1</code> is not a valid route. An IANA zone such as <code>Europe/Oslo</code> follows summer time and answers <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code> and <code>unixtime</code> as well. WorldTimeAPI's fifteen fields answer at <code>/worldtime/timezone/...</code> and <code>/worldtime/ip</code>; the <a href="/worldtimeapi-alternative">WorldTimeAPI alternative</a> page translates its paths.</p>
 <pre><code>curl https://aisenseapi.com/services/v1/datetime/+0200
 
 { "datetime": "2026-08-16T11:44:35+02:00" }</code></pre>
@@ -1004,7 +1004,7 @@ response = client.chat.completions.create(
 <tbody>
 <tr><td>Time</td><td><code>/datetime[/{offset}]</code></td><td>GET</td><td><code>datetime</code></td></tr>
 <tr><td>Time</td><td><code>/datetime/{zone}</code></td><td>GET</td><td><code>datetime</code>, <code>timezone</code>, <code>abbreviation</code>, <code>utc_offset</code>, <code>dst</code>, <code>unixtime</code></td></tr>
-<tr><td>Time</td><td><code>/api/timezone/{zone}</code>, <code>/api/ip[/{address}]</code></td><td>GET</td><td>WorldTimeAPI's fifteen fields</td></tr>
+<tr><td>Time</td><td><code>/worldtime/timezone/{zone}</code>, <code>/worldtime/ip[/{address}]</code></td><td>GET</td><td>WorldTimeAPI's fifteen fields</td></tr>
 <tr><td>Time</td><td><code>/timestamp</code></td><td>GET</td><td><code>timestamp</code></td></tr>
 <tr><td>Time</td><td><code>/microtimestamp</code></td><td>GET</td><td><code>microtimestamp</code></td></tr>
 <tr><td>Time</td><td><code>/timezones[/{offset}]</code></td><td>GET</td><td><code>timezones</code></td></tr>
