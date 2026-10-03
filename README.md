@@ -659,6 +659,22 @@ curl -X POST https://aisenseapi.com/services/v1/html_encode \
 `html_decoded_data`, since their result is text. `url_decode` leaves a `+` as a
 `+`.
 
+**HTML and Markdown.** `html_to_markdown` turns a page or any HTML into
+CommonMark and answers `markdown` and the page `title`, without scripts,
+styles or forms. `markdown_to_html` answers `html` that is safe to put in a
+page: raw HTML in the Markdown is shown as text, and a link with an unsafe
+scheme as its text. Both take the JSON `data` string or the raw body.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/html_to_markdown \
+  -H "Content-Type: application/json" -d '{"data": "<h1>Hi</h1><p>A <b>bold</b> word</p>"}'
+# -> { "markdown": "# Hi\n\nA **bold** word", "title": null }
+
+curl -X POST https://aisenseapi.com/services/v1/markdown_to_html \
+  -H "Content-Type: application/json" -d '{"data": "**Bold** <b>raw</b>"}'
+# -> { "html": "<p><strong>Bold</strong> &lt;b&gt;raw&lt;/b&gt;</p>" }
+```
+
 **JWT - `data` takes the claims as a JSON object, or as a string containing
 JSON.** Both forms produce the same token.
 
@@ -881,6 +897,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Transform | `/url_decode` | POST | `url_decoded_data` |
 | Transform | `/html_encode` | POST | `html_encoded_data` |
 | Transform | `/html_decode` | POST | `html_decoded_data` |
+| Transform | `/html_to_markdown` | POST | `markdown`, `title` |
+| Transform | `/markdown_to_html` | POST | `html` |
 | Transform | `/slugify` | POST | `slug` |
 | Transform | `/jwt_encode` | POST | `jwt` |
 | Transform | `/jwt_decode` | POST | `decoded_payload` |

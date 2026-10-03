@@ -360,6 +360,44 @@
   {
     "type": "function",
     "function": {
+      "name": "html_to_markdown",
+      "description": "Turn a web page or any HTML into Markdown, CommonMark with GitHub tables, leaving out scripts, styles, forms and media. Returns {\"markdown\", \"title\"}, title being the page title or null. At most 1 MiB and 40000 tags. POST /html_to_markdown",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The HTML."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "markdown_to_html",
+      "description": "Render Markdown, CommonMark with GitHub tables, strikethrough, task lists and bare links, to an HTML fragment that is safe to put in a page: raw HTML is shown as text and a link with an unsafe scheme as its text. Returns {\"html\"}. At most 256 KiB and 20000 lines. POST /markdown_to_html",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The Markdown."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "jwt_encode",
       "description": "Encode claims into an HS256 JWT. Returns {\"jwt\": \"eyJ0eXAi...\"}. data takes the claims as a JSON object directly, or as a string containing JSON - both produce the same token. A string that is not JSON returns HTTP 400. POST /jwt_encode",
       "parameters": {

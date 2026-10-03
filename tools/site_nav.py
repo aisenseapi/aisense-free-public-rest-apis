@@ -99,6 +99,8 @@ API_GROUPS = [
     ]),
     ('text', 'Text and tokens', '/free-public-apis#transform', [
         ('/free-public-api-slugify-api-endpoint', 'Slugify'),
+        ('/free-public-api-html-to-markdown-api-endpoint', 'HTML to Markdown'),
+        ('/free-public-api-markdown-to-html-api-endpoint', 'Markdown to HTML'),
         ('/free-public-api-jwt-encode-api-endpoint', 'JWT encode'),
         ('/free-public-api-jwt-decode-api-endpoint', 'JWT decode'),
         ('/free-public-api-qr-code-encode-api-endpoint', 'QR code encode'),

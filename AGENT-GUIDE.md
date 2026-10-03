@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.4.2
+Resource version 1.5.0
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -21,7 +21,7 @@ This public server needs no account, API key or authentication header. Its tools
 | Ask one person or a group for a decision | Human Approval | One-use response links |
 | Hand off a value or short link | Temporary Data or URL | Readable by anyone holding the ID or link |
 | A public name for an address, for a day | Temporary DNS Name | A DNS record only: no tunnel, no hosting, no certificate |
-| Encode, hash, a random value, a time format | Utility tools | Computed on request, nothing stored |
+| Encode, hash, a random value, a time format, HTML to Markdown and back | Utility tools | Computed on request, nothing stored |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules you send | decide | Probabilities and an action, nothing stored |
@@ -30,7 +30,7 @@ This public server needs no account, API key or authentication header. Its tools
 
 ## Tool catalog
 
-Catalog size: 60 MCP tools.
+Catalog size: 61 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -65,7 +65,7 @@ Catalog size: 60 MCP tools.
 - `read_dns_name` - Read what a name points at and when it expires.
 - `update_dns_name` - Move a name to another address without moving its expiry.
 - `delete_dns_name` - Remove a name before it expires.
-- `encode_data` - Encode text as Base64, Base32 or Base58, or decode it.
+- `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding or as HTML entities, or decode it.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, colour, GUID, password or passphrase.
@@ -82,6 +82,7 @@ Catalog size: 60 MCP tools.
 - `html_to_pdf` - Render HTML to a PDF stored for 24 hours.
 - `crypto_wallet` - Read a Bitcoin, Ethereum or Solana balance, or make a test key pair.
 - `json_csv_convert` - Convert JSON rows to CSV or CSV to JSON rows.
+- `html_markdown_convert` - Convert HTML to Markdown, leaving out scripts, styles and forms, or Markdown to HTML that is safe to put in a page.
 - `json_check` - Format or validate JSON text.
 - `match_tables` - Match the rows of two tables on key columns.
 - `process_image` - Convert, compress, resize, inspect or strip an image, or make favicons from it.

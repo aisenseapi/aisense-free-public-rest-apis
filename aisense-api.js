@@ -376,6 +376,16 @@ export class AISenseAPI {
     return this.#post('/html_decode', { data })
   }
 
+  /** Response keys: `markdown` and `title`. HTML to CommonMark, without scripts, styles or forms. */
+  htmlToMarkdown(data) {
+    return this.#post('/html_to_markdown', { data })
+  }
+
+  /** Response key: `html`. Markdown to HTML that is safe to put in a page: raw HTML is shown as text. */
+  markdownToHtml(data) {
+    return this.#post('/markdown_to_html', { data })
+  }
+
   /**
    * Encode a payload into an HS256 JWT. Response key: `jwt`.
    *

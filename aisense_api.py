@@ -339,6 +339,16 @@ class AISenseAPI:
         every numeric one back to its character."""
         return self._post("/html_decode", {"data": data})
 
+    def html_to_markdown(self, data: str) -> dict:
+        """Response keys: ``markdown`` and ``title``. HTML to CommonMark,
+        without scripts, styles or forms."""
+        return self._post("/html_to_markdown", {"data": data})
+
+    def markdown_to_html(self, data: str) -> dict:
+        """Response key: ``html``. Markdown to HTML that is safe to put in a
+        page: raw HTML is shown as text."""
+        return self._post("/markdown_to_html", {"data": data})
+
     def jwt_encode(self, payload: Union[dict, str], secret: str) -> dict:
         """Encode a payload into an HS256 JWT. Response key: ``jwt``.
 
