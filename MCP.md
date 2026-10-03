@@ -97,7 +97,7 @@ proxy these tools either.
 | `read_dns_name` | Reads what a name points at and when it expires |
 | `update_dns_name` | Moves a name to another address without moving its expiry |
 | `delete_dns_name` | Removes a name before it expires |
-| `encode_data` | Encodes text as Base64, Base32 or Base58, or decodes it back to text or base64 bytes |
+| `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding or HTML entities, or decodes it back to text or base64 bytes |
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
 | `generate_random` | Makes a random number, colour, GUID, password or passphrase |

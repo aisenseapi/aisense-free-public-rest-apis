@@ -1,7 +1,7 @@
 # Page generators
 
-The eight image tool pages, the three image guides and the `/decide` and `/chaos`
-endpoint pages in `web/` are generated.
+The eight image tool pages, the three image guides, the `/decide` and `/chaos`
+endpoint pages and the eight encoding endpoint pages in `web/` are generated.
 Change the generator or its data here, not the HTML, or the next build undoes
 the change.
 
@@ -12,8 +12,9 @@ the change.
 | `make_post_favicon.py` | `favicon-sizes-and-the-files-a-website-needs.html`, plus its card and sitemap line |
 | `make_post_convert.py` | `convert-heic-webp-png-and-jpg-images.html`, plus its card and sitemap line; the sizes in it come from `data/` |
 | `make_logic_pages.py` | `free-public-api-decide-api-endpoint.html` and `free-public-api-chaos-api-endpoint.html` |
+| `make_codec_pages.py` | the eight pages for `hex_encode`, `hex_decode`, `base64url_encode`, `base64url_decode`, `url_encode`, `url_decode`, `html_encode` and `html_decode`; the examples were worked out with the service's own `libs/func_codec.php` |
 
-Run all five with Python 3 and nothing but the standard library:
+Run all six with Python 3 and nothing but the standard library:
 
 ```sh
 python tools/pages/build.py

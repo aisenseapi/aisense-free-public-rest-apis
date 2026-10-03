@@ -196,6 +196,16 @@ has_value "Base58 Encode" POST "$BASE/base58_encode" '"base58_encoded_data":"9Aj
 has_value "Base58 Decode" POST "$BASE/base58_decode" 'Hello'                                    '{"data":"9Ajdvzr"}'
 has_value "Base32 Encode" POST "$BASE/base32_encode" '"base32_encoded_data":"JBSWY3DP"'         '{"data":"Hello"}'
 has_value "Base32 Decode" POST "$BASE/base32_decode" 'Hello'                                    '{"data":"JBSWY3DP"}'
+has_value "Hex Encode"    POST "$BASE/hex_encode"    '"hex_encoded_data":"68656c6c6f"'          '{"data":"hello"}'
+has_value "Hex Decode"    POST "$BASE/hex_decode"    'hello'                                    '{"data":"68656C6C6F"}'
+has_value "Base64url Encode" POST "$BASE/base64url_encode" '"base64url_encoded_data":"aGVsbG8_"' '{"data":"hello?"}'
+has_value "Base64url Decode" POST "$BASE/base64url_decode" 'hello?'                             '{"data":"aGVsbG8_"}'
+has_value "URL Encode"    POST "$BASE/url_encode"    '"url_encoded_data":"a%20b%2Fc"'           '{"data":"a b/c"}'
+has_value "URL Decode"    POST "$BASE/url_decode"    '"url_decoded_data":"a b+c"'               '{"data":"a%20b+c"}'
+has_value "HTML Encode"   POST "$BASE/html_encode"   '"html_encoded_data":"&lt;b&gt;&amp;"'     '{"data":"<b>&"}'
+has_value "HTML Decode"   POST "$BASE/html_decode"   '"html_decoded_data":"<b>&"'               '{"data":"&lt;b&gt;&amp;"}'
+request POST "$BASE/base64url_decode" '{"data":"+/8="}'
+[ "$STATUS" = "400" ] && ok "Base64url Decode (+ and /) -> 400" || bad "Base64url Decode (+ and /)" "expected 400, got $STATUS"
 
 # jwt_encode requires data to be a STRING. Assert the rejection too, because a
 # client passing an object is the single most common mistake against this API.

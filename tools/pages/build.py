@@ -1,5 +1,6 @@
-"""Regenerate the image tool pages, the three image guides and the /decide and
-/chaos endpoint pages in web/.
+"""Regenerate the image tool pages, the three image guides, the /decide and
+/chaos endpoint pages and the eight encoding endpoint pages added on
+3 October 2026 in web/.
 
 Run from anywhere: python tools/pages/build.py
 Then check that git status shows only the pages you meant to change, and copy
@@ -21,6 +22,7 @@ RUNS = [
     ['make_post_favicon.py', WEB, os.path.join(DATA, 'results-more.json')],
     ['make_post_convert.py', WEB, DATA],
     ['make_logic_pages.py', WEB, os.path.join(DATA, 'decide-examples.json')],
+    ['make_codec_pages.py', WEB],
 ]
 
 for script, *args in RUNS:

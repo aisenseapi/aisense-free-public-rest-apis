@@ -34,9 +34,9 @@ non-2xx statuses, including 409 for conflicts and 410 for an expired record
 that has not yet been removed. Once removed, the same ID returns 404. Unknown
 routes also return 404. Consult each endpoint for its additional errors.
 
-**3. Not everything is JSON.** `base64_decode`, `base58_decode` and
-`base32_decode` return `application/octet-stream` unless you send
-`Accept: application/json`.
+**3. Not everything is JSON.** `base64_decode`, `base58_decode`,
+`base32_decode`, `hex_decode` and `base64url_decode` return
+`application/octet-stream` unless you send `Accept: application/json`.
 
 **Rate limit:** 5000 requests per IP per day, then HTTP 429 in the same
 flat error shape with `Retry-After` in seconds. The count resets at
@@ -135,11 +135,20 @@ All POST. Accept JSON, plain text (`Content-Type: text/plain`), or file upload.
 | `POST /base64_encode` | `{"data": "Hello world"}` | `{"base64_encoded_data": "SGVsbG8gd29ybGQ="}` |
 | `POST /base58_encode` | `{"data": "Hello"}` | `{"base58_encoded_data": "9Ajdvzr"}` |
 | `POST /base32_encode` | `{"data": "Hello"}` | `{"base32_encoded_data": "JBSWY3DP"}` |
+| `POST /hex_encode` | `{"data": "hello"}` | `{"hex_encoded_data": "68656c6c6f"}` |
+| `POST /base64url_encode` | `{"data": "hello?"}` | `{"base64url_encoded_data": "aGVsbG8_"}`: `-` and `_`, no padding |
+| `POST /url_encode` | `{"data": "a b/c"}` | `{"url_encoded_data": "a%20b%2Fc"}`: RFC 3986, a space as `%20` |
+| `POST /url_decode` | `{"data": "a%20b+c"}` | `{"url_decoded_data": "a b+c"}`: a `+` stays a `+` |
+| `POST /html_encode` | `{"data": "<b>&</b>"}` | `{"html_encoded_data": "&lt;b&gt;&amp;&lt;/b&gt;"}` |
+| `POST /html_decode` | `{"data": "&lt;b&gt; &eacute;"}` | `{"html_decoded_data": "<b> é"}` |
 
 ### Decoding
 
-`base64_decode`, `base58_decode` and `base32_decode` all take `{"data": "..."}`
-and return **the raw decoded bytes** as `application/octet-stream`.
+`base64_decode`, `base58_decode`, `base32_decode`, `hex_decode` and
+`base64url_decode` all take `{"data": "..."}` and return **the raw decoded
+bytes** as `application/octet-stream`. `hex_decode` takes either case, a
+leading `0x` and spaces; `base64url_decode` takes the URL-safe alphabet with or
+without padding and answers 400 for `+` or `/`.
 
 Send `Accept: application/json` to get a typed envelope instead:
 
@@ -751,6 +760,12 @@ return numbers; their smallest units stay inside the safe range.
 | `/base64_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | `/base58_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | `/base32_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/hex_encode` | POST | `hex_encoded_data` |
+| `/hex_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/base64url_encode` | POST | `base64url_encoded_data` |
+| `/base64url_decode` | POST | raw bytes, or `type` + `decoded_data` |
+| `/url_encode`, `/url_decode` | POST | `url_encoded_data`, `url_decoded_data` |
+| `/html_encode`, `/html_decode` | POST | `html_encoded_data`, `html_decoded_data` |
 | `/slugify` | POST | `slug` |
 | `/jwt_encode` | POST | `jwt` |
 | `/jwt_decode` | POST | `decoded_payload` |
