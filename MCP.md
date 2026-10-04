@@ -10,10 +10,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.12.0`. The official MCP Registry lists
+The server reports version `1.12.1`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.11.1` as active and latest,
 published 4 October 2026 at 08:08 UTC. Both are server release versions,
-separate from the agent guide resource version, which is 1.7.0.
+separate from the agent guide resource version, which is 1.7.1.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -152,7 +152,9 @@ and one tool call counts once.
 
 Decide keeps its rule engine when model is omitted or "rules". The explicit
 models "clef", "nimble" and "tev1" use instructions and criteria with noul,
-choice or score questions. Model requests allow 8 KiB, 3 KiB for tev1, and 4
+choice or score questions. tev1 is the smallest and fastest, tested by its
+maker in English only, and suits short, direct questions. Model requests
+allow 8 KiB, 3 KiB for tev1, and 4
 questions, and each IP may make
 60 per UTC minute and 1000 per UTC day. Model mode processes the submitted state
 and questions and does not produce an automatic action. Unknown models return

@@ -1079,7 +1079,9 @@ metadata, not the body.
 
 Set `model` to `"clef"`, `"nimble"` or `"tev1"` and supply `state` plus named
 `questions`. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from
-Together AI, and all three answer the same question types. Each question has
+Together AI, and all three answer the same question types. Tev1 is the
+smallest and fastest. Together AI tested it in English only, and it suits
+short, direct questions. Each question has
 `type`, `instructions` and `criteria`. An unknown model returns 400. There is
 no fallback to rules or to another model.
 
