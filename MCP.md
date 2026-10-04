@@ -99,7 +99,7 @@ proxy these tools either.
 | `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding or HTML entities, or decodes it back to text or base64 bytes |
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
-| `generate_random` | Makes a random number, colour, GUID, password or passphrase |
+| `generate_random` | Makes a random number, color, GUID, password or passphrase |
 | `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
 | `convert_timestamp` | Converts a Unix time or a date text into other forms |
 | `list_timezones` | Lists timezones, optionally those at one UTC offset |

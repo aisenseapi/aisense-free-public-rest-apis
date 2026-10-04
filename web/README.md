@@ -297,9 +297,9 @@ navigation pass last, so regenerated pages retain the mark. Mirror the asset,
 CSS and updated HTML into the website branch when publishing. Do not publish
 this README or the build tools there.
 
-### Colours and typography
+### Colors and typography
 
-Colours and typography come from the live site's own Astra/Elementor globals, so
+Colors and typography come from the live site's own Astra/Elementor globals, so
 these pages sit next to the WordPress ones without reading as a different
 property:
 

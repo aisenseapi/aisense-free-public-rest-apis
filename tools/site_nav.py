@@ -120,7 +120,7 @@ API_GROUPS = [
         ('/free-image-compression-api', 'Image compression'),
         ('/free-image-metadata-viewer-api', 'Image metadata'),
         ('/free-exif-remover-api', 'EXIF remover'),
-        ('/free-image-color-palette-api', 'Colour palette'),
+        ('/free-image-color-palette-api', 'Color palette'),
         ('/free-favicon-generator-api', 'Favicon generator'),
     ]),
     ('web', 'Web and network', '/free-public-apis#web', [
@@ -142,7 +142,7 @@ API_GROUPS = [
         ('/free-public-api-password-api-endpoint', 'Password'),
         ('/free-public-api-passphrase-api-endpoint', 'Passphrase'),
         ('/free-public-api-random-number-api-endpoint', 'Random number'),
-        ('/free-public-api-random-color-api-endpoint', 'Random colour'),
+        ('/free-public-api-random-color-api-endpoint', 'Random color'),
     ]),
     ('crypto', 'Crypto', '/free-public-apis#crypto', [
         ('/free-public-api-bitcoin-balance-api-endpoint', 'Bitcoin balance'),

@@ -151,7 +151,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <pre><code>%(metadata)s</code></pre>
 
-<p>The full report is stored as JSON for 24 hours. It has every EXIF tag by name, the XMP and IPTC fields, the colour profile, and the privacy list with a reason for each item.</p>
+<p>The full report is stored as JSON for 24 hours. It has every EXIF tag by name, the XMP and IPTC fields, the color profile, and the privacy list with a reason for each item.</p>
 
 <div class="article-cta">
   <p class="eyebrow">Try it</p>
@@ -166,7 +166,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <p>The <a href="/free-exif-remover-api">free EXIF remover</a> does it differently. It walks the blocks of the file, leaves out EXIF, GPS, XMP, IPTC, comments, thumbnails and anything after the end of the image, and copies the compressed image data byte for byte. The pixels are exactly the ones you sent. We checked that by decoding a progressive JPEG before and after: not one pixel differed.</p>
 
-<p>Two things are kept on purpose. The colour profile stays, so the colours look the same. And if the camera marked the photo as turned, a new EXIF block with the orientation alone is written back, so it still shows the right way up.</p>
+<p>Two things are kept on purpose. The color profile stays, so the colors look the same. And if the camera marked the photo as turned, a new EXIF block with the orientation alone is written back, so it still shows the right way up.</p>
 
 <p>For the test photo above, the file went from %(before)s to %(after)s bytes. The %(saved)s bytes of EXIF were all that went, because that was all we had put in. A photo from a phone also carries a maker note and a thumbnail, so more goes.</p>
 
@@ -176,7 +176,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <p>An iPhone saves photos as HEIC unless the setting is changed. HEIC carries the same EXIF, GPS included, and many websites and programs cannot open it at all.</p>
 
-<p>The <a href="/free-heic-to-jpg-converter">free HEIC to JPG converter</a> takes HEIC and gives back a JPEG, PNG or WebP. On the way it removes EXIF, XMP and comments, keeps the colour profile, which on a recent iPhone is Display P3, and turns the picture the way the phone stored it. That last part is easy to get wrong. An iPhone records the turn twice, once for HEIC readers and once in EXIF, and a converter that applies both turns a portrait sideways. We test ours with a file built the way an iPhone builds one.</p>
+<p>The <a href="/free-heic-to-jpg-converter">free HEIC to JPG converter</a> takes HEIC and gives back a JPEG, PNG or WebP. On the way it removes EXIF, XMP and comments, keeps the color profile, which on a recent iPhone is Display P3, and turns the picture the way the phone stored it. That last part is easy to get wrong. An iPhone records the turn twice, once for HEIC readers and once in EXIF, and a converter that applies both turns a portrait sideways. We test ours with a file built the way an iPhone builds one.</p>
 
 <p>On the iPhone itself, two settings are worth knowing:</p>
 
@@ -194,7 +194,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 <div class="table-wrap"><table>
 <thead><tr><th>Endpoint</th><th>What it does</th></tr></thead>
 <tbody>
-<tr><td><code>POST /services/v1/image_metadata</code></td><td>The report: EXIF, GPS, XMP, IPTC, colour profile and the privacy list</td></tr>
+<tr><td><code>POST /services/v1/image_metadata</code></td><td>The report: EXIF, GPS, XMP, IPTC, color profile and the privacy list</td></tr>
 <tr><td><code>POST /services/v1/image_strip</code></td><td>The same file without its metadata, pixels untouched</td></tr>
 <tr><td><code>POST /services/v1/image_convert</code></td><td>HEIC, JPEG, PNG or WebP to JPEG, PNG or WebP, with the metadata removed</td></tr>
 </tbody>

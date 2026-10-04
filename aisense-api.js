@@ -246,7 +246,7 @@ export class AISenseAPI {
     return this.#get(`/random_number/${from}/${to}`)
   }
 
-  /** Random hex colour. Response key: `random_color`. */
+  /** Random hex color. Response key: `random_color`. */
   getRandomColor() {
     return this.#get('/random_color')
   }

@@ -68,7 +68,7 @@ Catalog size: 61 MCP tools.
 - `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding or as HTML entities, or decode it.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
-- `generate_random` - Make a random number, colour, GUID, password or passphrase.
+- `generate_random` - Make a random number, color, GUID, password or passphrase.
 - `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
 - `convert_timestamp` - Convert a Unix time or a date text into other forms.
 - `list_timezones` - List timezones, optionally those at one UTC offset.

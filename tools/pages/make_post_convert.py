@@ -50,7 +50,7 @@ CSS = source.split('<link rel="stylesheet" href="', 1)[1].split('"', 1)[0]
 FAQ = [
     ('How do I convert HEIC to JPG on Windows?',
      'Drop the photo on the free HEIC to JPG converter in any browser. Nothing has to be installed, and the JPG keeps '
-     'its colours, comes out the right way up and leaves the GPS position behind.'),
+     'its colors, comes out the right way up and leaves the GPS position behind.'),
     ('How do I convert WebP to JPG?',
      'Choose JPG on the free image converter and drop the WebP on it. For a picture with transparent parts choose PNG '
      'instead, since JPG turns transparency white.'),
@@ -140,7 +140,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <p>An iPhone has saved photos as HEIC since iOS 11, unless the camera is set to Most Compatible. HEIC is small, but many upload forms and programs cannot open it, and Windows needs extra extensions from the Microsoft Store to show it. A JPG opens everywhere.</p>
 
-<p>The <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> turns the photo the right way up once, although an iPhone records the turn twice, keeps the Display P3 colour profile so the colours stay the same, and removes the GPS position. The JPG is usually a little larger than the HEIC: in our test, %(heic_in)s bytes of HEIC became %(heic_out)s bytes of JPG at quality 82. That is the price of a format everything can read.</p>
+<p>The <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> turns the photo the right way up once, although an iPhone records the turn twice, keeps the Display P3 color profile so the colors stay the same, and removes the GPS position. The JPG is usually a little larger than the HEIC: in our test, %(heic_in)s bytes of HEIC became %(heic_out)s bytes of JPG at quality 82. That is the price of a format everything can read.</p>
 
 <h2>WebP to JPG or PNG</h2>
 
@@ -179,7 +179,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 <ul>
   <li><strong>Turns the picture upright</strong> from the orientation a phone writes in the EXIF data.</li>
   <li><strong>Removes EXIF, XMP, IPTC and comments</strong>, so the GPS position, the camera and the date do not follow the picture. The <a href="/remove-gps-location-and-exif-data-from-photos">guide to the location in photos</a> explains what that data can tell.</li>
-  <li><strong>Keeps the colour profile</strong>, so the colours stay the same. A CMYK JPEG becomes RGB.</li>
+  <li><strong>Keeps the color profile</strong>, so the colors stay the same. A CMYK JPEG becomes RGB.</li>
   <li><strong>Takes the first frame</strong> of an animated image.</li>
   <li><strong>Never enlarges</strong> a picture on a resize unless you ask for it.</li>
 </ul>

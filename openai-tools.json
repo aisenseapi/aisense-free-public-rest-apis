@@ -99,7 +99,7 @@
     "type": "function",
     "function": {
       "name": "get_random_color",
-      "description": "Random hex colour. Returns {\"random_color\": \"#9b6bbf\"}. GET /random_color",
+      "description": "Random hex color. Returns {\"random_color\": \"#9b6bbf\"}. GET /random_color",
       "parameters": { "type": "object", "properties": {}, "required": [] }
     }
   },
