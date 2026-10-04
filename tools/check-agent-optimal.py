@@ -10,13 +10,18 @@ WEB = Path(__file__).resolve().parents[1] / 'web'
 
 
 class AgentOptimalTests(unittest.TestCase):
-    def test_only_the_six_approved_services(self):
-        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide'])
+    def test_only_the_approved_services(self):
+        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action'])
 
     def test_an_alias_is_marked_and_prose_is_not(self):
         marked = decorate('<a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a>', 'index.html')
         self.assertEqual(marked.count(BADGE), 1)
         prose = '<a href="/free-public-api-decide-api-endpoint">Read the Decision guide</a>'
+        self.assertEqual(decorate(prose, 'index.html'), prose)
+        for label in ('Webhook Action REST API Endpoint', 'Human Approval API Endpoint'):
+            marked = decorate('<a href="/free-public-api-webhook-action-api-endpoint">' + label + '</a>', 'index.html')
+            self.assertEqual(marked.count(BADGE), 1)
+        prose = '<a href="/free-public-api-webhook-action-api-endpoint">Read the Webhook Action API guide</a>'
         self.assertEqual(decorate(prose, 'index.html'), prose)
 
     def test_name_links(self):
