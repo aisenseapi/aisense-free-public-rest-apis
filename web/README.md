@@ -277,13 +277,15 @@ from `ai-sense-posts.html`, and add its canonical URL to `sitemap.xml`.
 
 The robot after a service name is AI SENSE's own label for services built for
 agent workflows. It is not independent certification or a live health signal.
-The approved set is Agent Wake, Agent Queue, Agent Inbox, Heartbeat, Lease and
-Decide, which answers with an action an agent can follow. Other services remain
+The approved set is Agent Wake, Agent Queue, Agent Inbox, Heartbeat, Lease,
+Decide, which answers with an action an agent can follow, and Webhook action,
+where an agent asks a person and waits for the answer. Other services remain
 unmarked, even when they are available through MCP.
 
 `../tools/agent_optimal.py` owns the list, the other names a link may use (the
-Decide page is titled Decision) and the generated markup. `../tools/site_nav.py`
-applies it to name links and the six service-page h1 headings, including menu links and catalog cards. Ordinary prose links, code
+Decide page is titled Decision, and Webhook action is also called Webhook Action
+and Human Approval) and the generated markup. `../tools/site_nav.py`
+applies it to name links and the seven service-page h1 headings, including menu links and catalog cards. Ordinary prose links, code
 samples and metadata are unchanged. The icon is `assets/agent-optimal.svg`.
 The selected mark is variant 1, a blue robot with white square eyes and a mouth.
 It uses a 16 by 16 viewBox and is displayed at 16 px, with two flat paths and

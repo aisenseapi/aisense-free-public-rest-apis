@@ -1,4 +1,4 @@
-"""The six Agent Optimal labels selected for the website.
+"""The seven Agent Optimal labels selected for the website.
 
 This is an AI SENSE editorial label for agent workflows, not a certification
 or a production health signal. Used by site_nav.py after rendering the header.
@@ -16,11 +16,13 @@ SERVICES = {
     '/free-public-api-heartbeat-api-endpoint': 'Heartbeat',
     '/free-public-api-lease-api-endpoint': 'Lease',
     '/free-public-api-decide-api-endpoint': 'Decide',
+    '/free-public-api-webhook-action-api-endpoint': 'Webhook action',
 }
 
 # Other names a name link to a service may use, such as the endpoint page's own title.
 ALIASES = {
     '/free-public-api-decide-api-endpoint': ['Decision'],
+    '/free-public-api-webhook-action-api-endpoint': ['Webhook Action', 'Human Approval'],
 }
 
 BADGE = ('<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" '
