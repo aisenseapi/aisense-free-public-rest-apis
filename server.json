@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "com.aisenseapi/free-public-tools",
   "title": "AI SENSE Free Public Tools",
-  "description": "60 public tools: queues, inboxes, webhooks, approvals, DNS, images, PDF, hashing and more.",
+  "description": "61 public tools: queues, inboxes, webhooks, approvals, DNS, images, PDF, Markdown, hashing and more.",
   "repository": {
     "url": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
     "source": "github"
   },
-  "version": "1.9.2",
+  "version": "1.11.1",
   "remotes": [
     {
       "type": "streamable-http",
