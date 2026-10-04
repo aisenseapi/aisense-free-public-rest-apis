@@ -445,20 +445,39 @@
 
   // ---------- tabs ----------
 
+  // /try-decide#clef opens the Clef tab, so a link can point straight at it,
+  // and choosing a tab keeps the address in step for sharing.
   var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      tabs.forEach(function (other) {
-        var selected = other === tab;
-        other.setAttribute('aria-selected', String(selected));
-        other.tabIndex = selected ? 0 : -1;
-        document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
-      });
-      mode = tab.id === 'tab-clef' ? 'clef' : 'rules';
-      redraw();
-      writeJson(true);
-      clearAnswer();
+
+  function showTab(tab, fromAddress) {
+    tabs.forEach(function (other) {
+      var selected = other === tab;
+      other.setAttribute('aria-selected', String(selected));
+      other.tabIndex = selected ? 0 : -1;
+      document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
     });
+    mode = tab.id === 'tab-clef' ? 'clef' : 'rules';
+    redraw();
+    writeJson(true);
+    clearAnswer();
+    if (!fromAddress && window.history && history.replaceState) {
+      history.replaceState(null, '', mode === 'clef' ? '#clef' : location.pathname + location.search);
+    }
+  }
+
+  function tabFromAddress() {
+    var name = location.hash.replace(/^#/, '').toLowerCase();
+    if (name === 'clef') { return document.getElementById('tab-clef'); }
+    if (name === 'rules') { return document.getElementById('tab-rules'); }
+    return null;
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () { showTab(tab, false); });
+  });
+  window.addEventListener('hashchange', function () {
+    var tab = tabFromAddress();
+    if (tab && tab.getAttribute('aria-selected') !== 'true') { showTab(tab, true); }
   });
 
   // ---------- the answer in plain words ----------
@@ -576,13 +595,16 @@
   function refusal(status, body, retryAfter) {
     var box = el('div', { class: 'decide-result is-refused' });
     var error = body && body.error ? String(body.error) : 'The API answered with status ' + status + '.';
+    var wait = retryAfter ? ' Try again in ' + retryAfter + ' seconds.' : ' Try again later.';
     var headline = 'The API said no: ' + error;
-    if (status === 503 && /disabled/.test(error)) {
-      headline = 'The Clef model is switched off for now. It opens once it has been measured on our own machine. Rules work today.';
-    } else if (status === 429) {
-      headline = 'Too many model calls just now. ' + (retryAfter ? 'Try again in ' + retryAfter + ' seconds.' : 'Try again later.');
+    if (status === 429) {
+      headline = 'The request limit is reached for now.' + wait;
     } else if (status === 503) {
-      headline = 'The model is busy or not reachable right now. ' + (retryAfter ? 'Try again in ' + retryAfter + ' seconds.' : 'Try again later.');
+      headline = 'The Clef model is not available right now. Rules work today.' + wait;
+    } else if (status === 502) {
+      headline = 'The model request could not be completed. Try again later.';
+    } else if (status === 504) {
+      headline = 'The model request took too long and timed out. Try again later.';
     }
     box.appendChild(el('p', { class: 'decide-headline', text: headline }));
     if (body && body.fix) { box.appendChild(el('p', { text: 'What to do: ' + body.fix })); }
@@ -661,4 +683,6 @@
   clearAnswer();
   sendButton.disabled = false;
   document.getElementById('decide-status').textContent = 'Ready. Pick an example or fill in your own.';
+  var linked = tabFromAddress();
+  if (linked && linked.id !== 'tab-rules') { showTab(linked, true); }
 }());

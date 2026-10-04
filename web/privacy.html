@@ -109,8 +109,8 @@
 <p>We count requests per IP address to enforce the published limit of 5000 per day. The counter is stored against the address. Since 12 September 2026 we also count the bytes each IP address stores through /storage, to enforce the limit of 80 MB per day. That counter is stored against the address in the same way and resets at the same time.</p>
 
 <h3>Optional decision models</h3>
-<p>The default rule mode of <code>/decide</code> runs inside the API worker and does not save request or answer bodies. Selecting a model such as Clef, when enabled, sends the state and questions to the configured external inference machine. The API records quota counters keyed by an IP HMAC and aggregate durations, outcomes, bytes and token counts. It does not save model input or answer bodies in this telemetry. Ordinary access logs still record IP addresses as described above.</p>
-<p>Model inference is disabled by default until capacity and the backend's separate data handling have been checked. Do not send credentials or sensitive personal data. The API's body-handling policy does not establish the external machine's retention policy.</p>
+<p>The default rule mode of <code>/decide</code> computes the answer in the API itself and does not save request or answer bodies. Selecting a model such as Clef sends the state and questions to the model service, which processes them to produce the answer. The model service receives only the state and questions, not your IP address or other request details. The API records usage counters keyed by an IP HMAC and aggregate durations, outcomes, bytes and token counts. It does not save model input or answer bodies. Ordinary access logs still record IP addresses as described above.</p>
+<p>Do not send credentials or sensitive personal data in model requests.</p>
 
 <h3>What temporary endpoints store</h3>
 <p>The following endpoint groups hold temporary state or content:</p>
