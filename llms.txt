@@ -58,7 +58,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
-- Decision endpoint, rules by default with the existing response unchanged. Optional model "clef" uses noul, choice and score questions with instructions and criteria. Model requests: 8 KiB, 4 questions, 10 per minute and 200 per UTC day per IP. No automatic action or fallback. Model mode processes the submitted text: https://aisense.no/free-public-api-decide-api-endpoint
+- Decision endpoint, rules by default with the existing response unchanged. Optional model "clef" uses noul, choice and score questions with instructions and criteria. Model requests: 8 KiB, 4 questions, 60 per minute and 1000 per UTC day per IP. No automatic action or fallback. Model mode processes the submitted text: https://aisense.no/free-public-api-decide-api-endpoint
 - Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
 - Time guide, datetime by IANA zone name with summer time, by IP address or by fixed offset, timestamps and the timezone list: https://aisense.no/time-apis
 - IP datetime guide, the time and summer time details where an IPv4 or IPv6 address is, or the caller's own, at https://aisenseapi.com/services/v1/ip_datetime: https://aisense.no/free-public-api-ip-datetime-api-endpoint
