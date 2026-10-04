@@ -4,8 +4,8 @@
  *
  * Two forms. Rules: facts, one question and weighted rules, answered by the
  * rule engine. Clef: a situation in words and a question with what each answer
- * means, answered by the Clef model once it is switched on. Everything a
- * visitor types is put on the page as text, never as markup. The request goes
+ * means, answered by the Clef model. Everything a visitor types is put on the
+ * page as text, never as markup. The request goes
  * from this tab straight to the free API; this page stores nothing.
  */
 (function () {
@@ -600,7 +600,7 @@
     if (status === 429) {
       headline = 'The request limit is reached for now.' + wait;
     } else if (status === 503) {
-      headline = 'The Clef model is not available right now. Rules work today.' + wait;
+      headline = 'The Clef model is not available right now. Rules still work.' + wait;
     } else if (status === 502) {
       headline = 'The model request could not be completed. Try again later.';
     } else if (status === 504) {
