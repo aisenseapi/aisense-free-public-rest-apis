@@ -64,6 +64,7 @@
   --bad-bg:        #fee2e2;
   --bad-ink:       #991b1b;
   --expected-ink:  #92400e;
+  --panel-bg:      #152238;
 
   --sans:  Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen-Sans, Ubuntu, Cantarell, Helvetica, Arial, sans-serif;
   --slab:  "Roboto Slab", Georgia, "Times New Roman", serif;
@@ -652,7 +653,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .product-proof-panel {
   padding: clamp(28px, 5vw, 45px);
   border-radius: 11px;
-  background: #152238;
+  background: var(--panel-bg);
   color: #e2e8f0;
   box-shadow: 18px 18px 0 var(--tint);
 }
@@ -1487,10 +1488,12 @@ td code { white-space: nowrap; }
  * is dropped, so the page follows the system again. The menus still need no
  * script; only this button does.
  *
- * The two dark blocks below hold the same values: one for a dark system with
- * no choice made, one for the dark choice. Keep them identical. Components
- * that are dark in both themes - code, the API window, the endpoint banner,
- * the proof panel and the blue band - keep their own colors. The product
+ * The dark palette is a muted green-grey, not the blue slate most dark sites
+ * use, and the blue buttons and red wordmark stay as they are. The two dark
+ * blocks below hold the same values: one for a dark system with no choice
+ * made, one for the dark choice. Keep them identical. Code, the API window,
+ * the endpoint banner and the proof panel are dark in both themes and take
+ * the green-grey here, while the blue band keeps its own colors. The product
  * feature on the home page keeps the light palette, because its logo is
  * drawn for a light card.
  * ------------------------------------------------------------------------- */
@@ -1517,25 +1520,26 @@ td code { white-space: nowrap; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg:            #0d1520;
-    --surface:       #131d2b;
-    --surface-glass: rgba(19, 29, 43, 0.82);
-    --field-bg:      #0f1926;
-    --tint:          #172233;
-    --border:        #2a3a4f;
-    --hairline:      #1c2838;
-    --current-bg:    #1b2b45;
-    --page-glow:     #101c2c;
-    --ink:           #e6edf5;
-    --body:          #c3cfdc;
-    --muted:         #93a4b8;
-    --near-black:    #f1f5f9;
-    --blue:          #6cb6ff;
-    --blue-dark:     #9ccfff;
+    --bg:            #0e1613;
+    --surface:       #131e1a;
+    --surface-glass: rgba(19, 30, 26, 0.82);
+    --field-bg:      #101a16;
+    --tint:          #17241f;
+    --border:        #2b3c35;
+    --hairline:      #1c2a24;
+    --current-bg:    #1b3029;
+    --page-glow:     #101c18;
+    --ink:           #e6efea;
+    --body:          #c2d0c9;
+    --muted:         #94a89f;
+    --near-black:    #f0f5f2;
+    --blue:          #6bc1e8;
+    --blue-dark:     #a3dcf2;
     --accent:        #1f6fc5;
     --accent-dark:   #1a5fa9;
-    --code-bg:       #1e293b;
+    --code-bg:       #1b2a24;
     --code-fg:       #e2e8f0;
+    --panel-bg:      #15221d;
     --warn-bg:       #2a2111;
     --warn-border:   #f59e0b;
     --ok:            #4ade80;
@@ -1565,25 +1569,26 @@ td code { white-space: nowrap; }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg:            #0d1520;
-  --surface:       #131d2b;
-  --surface-glass: rgba(19, 29, 43, 0.82);
-  --field-bg:      #0f1926;
-  --tint:          #172233;
-  --border:        #2a3a4f;
-  --hairline:      #1c2838;
-  --current-bg:    #1b2b45;
-  --page-glow:     #101c2c;
-  --ink:           #e6edf5;
-  --body:          #c3cfdc;
-  --muted:         #93a4b8;
-  --near-black:    #f1f5f9;
-  --blue:          #6cb6ff;
-  --blue-dark:     #9ccfff;
+  --bg:            #0e1613;
+  --surface:       #131e1a;
+  --surface-glass: rgba(19, 30, 26, 0.82);
+  --field-bg:      #101a16;
+  --tint:          #17241f;
+  --border:        #2b3c35;
+  --hairline:      #1c2a24;
+  --current-bg:    #1b3029;
+  --page-glow:     #101c18;
+  --ink:           #e6efea;
+  --body:          #c2d0c9;
+  --muted:         #94a89f;
+  --near-black:    #f0f5f2;
+  --blue:          #6bc1e8;
+  --blue-dark:     #a3dcf2;
   --accent:        #1f6fc5;
   --accent-dark:   #1a5fa9;
-  --code-bg:       #1e293b;
+  --code-bg:       #1b2a24;
   --code-fg:       #e2e8f0;
+  --panel-bg:      #15221d;
   --warn-bg:       #2a2111;
   --warn-border:   #f59e0b;
   --ok:            #4ade80;
