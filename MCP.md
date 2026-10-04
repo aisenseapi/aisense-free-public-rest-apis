@@ -156,8 +156,8 @@ model "clef" uses instructions and criteria with noul, choice or score
 questions. Model requests allow 8 KiB and 4 questions, and each IP may make
 2 per UTC minute and 20 per UTC day. Model mode processes the submitted state
 and questions and does not produce an automatic action. Unknown models return
-400. A model that is not open or temporarily unavailable returns 503, and a
-reached limit 429. Numeric Retry-After is preserved as retry_after in
+400. A model that is temporarily unavailable returns 503, and a reached
+limit 429. Numeric Retry-After is preserved as retry_after in
 structured errors. Do not retry automatically. See the [Decide guide](https://aisense.no/free-public-api-decide-api-endpoint).
 
 ## Available resources
