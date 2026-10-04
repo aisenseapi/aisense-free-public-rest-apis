@@ -53,6 +53,7 @@ API_GROUPS = [
         ('/free-public-api-webhook-action-api-endpoint', 'Webhook action'),
         ('/free-public-api-webhook-schedule-api-endpoint', 'Webhook schedule'),
         ('/free-public-api-dns-name-api-endpoint', 'Temporary DNS names'),
+        ('/free-public-api-semantic-search-api-endpoint', 'Semantic search'),
         ('/free-public-api-decide-api-endpoint', 'Decide'),
         ('/free-public-api-chaos-api-endpoint', 'Chaos'),
     ]),

@@ -1,13 +1,13 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, IBAN/card/phone/Norwegian org and account number validation, temporary DNS names that expire after 24 hours, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, semantic search of short agent notes by meaning across wording and languages, IBAN/card/phone/Norwegian org and account number validation, temporary DNS names that expire after 24 hours, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
 license: MIT
 ---
 
 # Free Public REST APIs - AI SENSE AS
 
 **Base URL:** `https://aisenseapi.com/services/v1`
-No account or API key. Queue operations require the role token issued at creation. Hosted by AI SENSE AS, Oslo.
+No account or API key. Queue and semantic search operations require the role tokens issued at creation. Hosted by AI SENSE AS, Oslo.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
@@ -83,6 +83,34 @@ MCP tools: `create_agent_queue`, `read_agent_queue`, `enqueue_agent_queue_job`,
 non-create call, plus the matching token name above. Job-specific calls need
 `job_id`. See `MCP.md#agent-queue` for full arguments and
 `API.md#agent-queue---temporary-work-for-multiple-workers` for response shapes.
+
+## Semantic search
+
+Create with `GET /semantic_search`, or `POST /semantic_search` with
+`{"model": "qwen3-embedding-4b"}` in place of the default `bge-m3`. Save the
+returned `collection_id`, `read_token` and `write_token`. Tokens are issued only
+at creation and go in `Authorization: Bearer TOKEN`, never in URLs.
+
+| REST operation | Token | Body |
+| --- | --- | --- |
+| `GET /semantic_search/{id}` | Read | None. Returns model, counts and expiry |
+| `POST /semantic_search/{id}/notes` | Write | `notes`: 1 to 32 objects with `text` and optional `key` |
+| `POST /semantic_search/{id}/search` | Read | `query`, optional `limit` 1..10, default 3 |
+| `POST /semantic_search/{id}/notes/{note_id}/delete` | Write | None |
+
+A search answers `results` with `note_id`, `key`, `text` and `score`, best
+first. The score is cosine similarity plus 0.1 per shared identifier and minus
+0.1 per kind of identifier where the note holds only others. It is not a
+probability, and results are suggestions, not decisions. With `bge-m3` a top
+score below about 0.6 was a likely miss in our tests. Limits: fixed 24-hour
+lifetime, 500 notes over it, deleted notes included, 2000 characters per note,
+500 per search, 20 new collections per client IP per 24 hours, and 60 model
+calls per minute and 1000 per UTC day per IP for adding and searching. Keep
+secrets and sensitive personal data out of notes.
+
+MCP tools: `create_semantic_search`, `add_semantic_search_notes`,
+`query_semantic_search`, `read_semantic_search`, `delete_semantic_search_note`.
+See `MCP.md#semantic-search` and `API.md#semantic-search---find-notes-by-meaning`.
 
 ## Time
 
