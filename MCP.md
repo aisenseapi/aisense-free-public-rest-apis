@@ -13,7 +13,7 @@ retry decisions.
 The server reports version `1.13.0`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.13.0` as active and latest,
 published 4 October 2026 at 20:47 UTC. Both are server release versions,
-separate from the agent guide resource version, which is 1.8.0.
+separate from the agent guide resource version, which is 1.8.1.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -542,7 +542,8 @@ others of that kind and none of the search's. Each code prefix, such as `DEMO-`
 in `DEMO-57`, is one kind and numbers of three or more digits are another. The
 score is not a probability, and the results are ranked suggestions, not a
 decision that a match exists. With `bge-m3` a top score below about 0.6 was a
-likely miss in our tests, as guidance and not a guarantee.
+likely miss in our tests, as guidance and not a guarantee. A higher score is
+no proof of a match: check identifiers such as order numbers in the result text.
 
 The collection expires exactly 24 hours after creation. At most 500 notes can
 be added over that lifetime, deleted notes included, and each client IP may
