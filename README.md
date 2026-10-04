@@ -813,7 +813,10 @@ console.log((await api.ipReverseLookup('8.8.8.8')).country)
 
 Both clients return the parsed response, and every method's docstring names the
 exact response key. They also raise a clear error when a path does not exist,
-rather than letting the debug echo surface as a JSON parse failure.
+rather than letting the debug echo surface as a JSON parse failure. They cover
+every endpoint in API.md, which `tools/check-sdk-coverage.py` checks along with
+`openai-tools.json`. The image methods upload the file as multipart/form-data,
+and the failure simulator returns what the API sent instead of raising.
 
 **LLM function calling (OpenAI, Gemini, Mistral, ...)**
 ```python
@@ -852,6 +855,8 @@ it will use these APIs as tools automatically.
 | [`SKILL.md`](SKILL.md) | Claude skill file |
 | [`test.sh`](test.sh) | Asserts on response bodies and statuses; exits `1` on failure (CI-friendly) |
 | [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
+| [`tools/check-sdk-coverage.py`](tools/check-sdk-coverage.py) | Fails when an endpoint in API.md is missing from a client or from `openai-tools.json` |
+| [`tools/check-sdk-requests.py`](tools/check-sdk-requests.py) | Runs both clients against a local stub and checks each request for the newer endpoints |
 | [`tools/pages/`](tools/pages/) | Generators for the image tool pages and the three image guides in `web/` |
 
 `test.sh` asserts on response bodies as well as status codes. Bodies are the

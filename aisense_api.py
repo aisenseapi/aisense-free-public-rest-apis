@@ -18,6 +18,10 @@ names the exact response key. The upstream API is not consistent about
 naming. /md5_hash returns "md5_hash", /ping returns "ping" and /random_color
 returns "random_color", so do not guess the key.
 
+The image methods take the image as bytes or a path and upload it as
+multipart/form-data. simulate_failure returns what the API sent, status and
+body as text, instead of raising on the failure it asked for.
+
 Five endpoints return raw bytes instead of JSON (base64_decode, base58_decode,
 base32_decode, hex_decode and base64url_decode). Those methods return str when
 the payload is valid UTF-8, and bytes otherwise.
@@ -36,8 +40,10 @@ Neither shape appeared when this client was last checked against production, on
 """
 
 import json
+import os
 import urllib.error
 import urllib.request
+import uuid
 from typing import Any, Optional, Union
 
 BASE_URL = "https://aisenseapi.com/services/v1"
@@ -96,8 +102,15 @@ class AISenseAPI:
             # read it rather than letting urllib swallow the reason.
             return err.code, err.headers.get("Content-Type", ""), err.read()
 
-    def _request(self, path: str, method: str = "GET", payload: Any = None, token: Optional[str] = None) -> dict:
-        status, _content_type, raw = self._read(path, method, payload, token=token)
+    def _request(
+        self,
+        path: str,
+        method: str = "GET",
+        payload: Any = None,
+        token: Optional[str] = None,
+        content_type: str = "application/json",
+    ) -> dict:
+        status, _content_type, raw = self._read(path, method, payload, content_type, token=token)
         text = raw.decode("utf-8", "replace")
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
@@ -163,6 +176,37 @@ class AISenseAPI:
     def _delete(self, path: str) -> dict:
         return self._request(path, "DELETE")
 
+    def _upload(self, path: str, file: Union[bytes, bytearray, str], fields: Optional[dict] = None) -> dict:
+        """POST one image as the multipart field ``file``, with text fields.
+
+        ``file`` is the image bytes, or a path to read them from. Fields that
+        are None are not sent, and booleans go as ``true`` or ``false``.
+        """
+        if isinstance(file, str):
+            with open(file, "rb") as handle:
+                content = handle.read()
+            filename = os.path.basename(file) or "image"
+        else:
+            content = bytes(file)
+            filename = "image"
+        filename = filename.replace('"', "").replace("\r", "").replace("\n", "")
+        boundary = "aisense-" + uuid.uuid4().hex
+        parts = []
+        for key, value in (fields or {}).items():
+            if value is None:
+                continue
+            if isinstance(value, bool):
+                value = "true" if value else "false"
+            parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{key}"\r\n\r\n{value}\r\n'.encode())
+        parts.append(
+            f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+            "Content-Type: application/octet-stream\r\n\r\n".encode()
+            + content
+            + b"\r\n"
+        )
+        parts.append(f"--{boundary}--\r\n".encode())
+        return self._request(path, "POST", b"".join(parts), content_type=f"multipart/form-data; boundary={boundary}")
+
     # ── Time ──────────────────────────────────────────────────────────────────
 
     def get_datetime(self, offset: Optional[str] = None, timezone: Optional[str] = None) -> dict:
@@ -213,6 +257,16 @@ class AISenseAPI:
         """Swatch Internet Time. Response keys: ``beat`` (e.g. ``"@444"``) and ``date``."""
         return self._get("/swatchinternettime")
 
+    def timestamp_convert(self, data: Union[str, int], offset: Optional[str] = None) -> dict:
+        """One time value in every form: unix seconds or milliseconds, ISO 8601,
+        RFC 2822 or ``"now"``. Response keys: ``input``, ``detected``,
+        ``timestamp``, ``datetime``, ``rfc2822``, ``utc_datetime``. ``offset``
+        is a four-digit UTC offset as for ``get_datetime``. Bad input is a 400."""
+        body: dict = {"data": data}
+        if offset is not None:
+            body["offset"] = offset
+        return self._post("/timestamp_convert", body)
+
     # ── Random ────────────────────────────────────────────────────────────────
 
     def get_random_number(self, from_: Optional[int] = None, to: Optional[int] = None) -> dict:
@@ -247,6 +301,13 @@ class AISenseAPI:
         Response keys: ``password`` and ``password_length``.
         """
         path = f"/password/{length}" if length is not None else "/password"
+        return self._get(path)
+
+    def get_passphrase(self, groups: Optional[int] = None) -> dict:
+        """Pronounceable passphrase of ``groups`` hyphenated groups, 4 by
+        default and 2 to 12. Response keys: ``passphrase``, ``groups``,
+        ``length`` and ``entropy_bits``."""
+        path = f"/passphrase/{groups}" if groups is not None else "/passphrase"
         return self._get(path)
 
     # ── Transform ─────────────────────────────────────────────────────────────
@@ -349,6 +410,11 @@ class AISenseAPI:
         page: raw HTML is shown as text."""
         return self._post("/markdown_to_html", {"data": data})
 
+    def slugify(self, data: str) -> dict:
+        """Response key: ``slug``. Scandinavian letters and Latin diacritics
+        are transliterated; text with nothing to slug is a 400."""
+        return self._post("/slugify", {"data": data})
+
     def jwt_encode(self, payload: Union[dict, str], secret: str) -> dict:
         """Encode a payload into an HS256 JWT. Response key: ``jwt``.
 
@@ -444,6 +510,17 @@ class AISenseAPI:
         The algorithm is read from the string. Answers ``match``,
         ``algorithm`` and ``params``; a mismatch is a result, not an error."""
         return self._post("/password_verify", {"password": password, "hash": hash})
+
+    def hash_verify(self, data: str, hash: Union[str, int], algorithm: Optional[str] = None) -> dict:
+        """Verify data against a digest. Response keys: ``match``,
+        ``algorithm`` and ``computed``; a mismatch is a result, not an error.
+        Name the ``algorithm`` when you know it, and always for whirlpool,
+        sha3_256, sha3_512, blake2b and blake3. A CRC32 can be the integer
+        ``crc32_checksum`` answers."""
+        body: dict = {"data": data, "hash": hash}
+        if algorithm is not None:
+            body["algorithm"] = algorithm
+        return self._post("/hash_verify", body)
 
     # ── Web ───────────────────────────────────────────────────────────────────
 
@@ -885,6 +962,224 @@ class AISenseAPI:
         if visibility_timeout is not None:
             body["visibility_timeout"] = visibility_timeout
         return self._post(f"/queue/{queue_id}/jobs/{job_id}/renew", body, token=worker_token)
+
+    def email_validate(self, data: str) -> dict:
+        """Check an email address: syntax, then DNS. Response keys: ``email``,
+        ``valid_syntax``, ``domain``, ``has_mx``, ``mx_hosts`` and
+        ``has_address_record``. A failing address is a result with
+        ``valid_syntax`` False. The mailbox itself is never contacted."""
+        return self._post("/email_validate", {"data": data})
+
+    def validate(self, type: str, data: str) -> dict:
+        """Check a business number by arithmetic: ``type`` is ``"iban"``,
+        ``"card"``, ``"orgnr"``, ``"kontonummer"`` or ``"phone"``. Response
+        keys: ``type``, ``valid`` and the checks for that type. An invalid value
+        is a result with ``valid`` False; nothing is looked up in a register,
+        and a card number is never echoed back."""
+        return self._post(f"/validate/{type}", {"data": data})
+
+    def dns_create(self, ip: str) -> dict:
+        """A public DNS name for ``ip`` for 24 hours,
+        ``aisense-<slug>.53for24h.com``. Response keys: ``name``, ``slug``,
+        ``ip``, ``record``, ``ttl``, ``nameservers``, ``expire_at`` and
+        ``dns_token``, shown once. ``ip`` must be a public address."""
+        return self._get(f"/dns/{ip}")
+
+    def dns_read(self, slug: str) -> dict:
+        """Read a DNS name by its ``slug``: its address and expiry, all public
+        in DNS anyway."""
+        return self._get(f"/dns/{slug}")
+
+    def dns_update(self, slug: str, ip: str, dns_token: str) -> dict:
+        """Move a DNS name to another public ``ip``. The expiry does not move.
+        ``dns_token`` goes in the Authorization header."""
+        return self._post(f"/dns/{slug}/update/{ip}", {}, token=dns_token)
+
+    def dns_delete(self, slug: str, dns_token: str) -> dict:
+        """Remove a DNS name before it expires. ``dns_token`` goes in the
+        Authorization header."""
+        return self._post(f"/dns/{slug}/delete", {}, token=dns_token)
+
+    def html_to_pdf(self, html: str, options: Optional[dict] = None) -> dict:
+        """Render HTML to a PDF stored for 24 hours. Response keys: the
+        Storage fields ``storage_id``, ``storage_url``, ``sha256_hash``,
+        ``bytes`` and ``expire_timestamp``; a GET on ``storage_url`` returns the
+        PDF. ``options`` may set ``page-size``, ``orientation`` and the four
+        margins such as ``margin-top``. The renderer has no network, so inline
+        images, styles and fonts."""
+        body: dict = {"html": html}
+        if options is not None:
+            body["options"] = options
+        return self._post("/html2pdf", body)
+
+    # ── Convert ───────────────────────────────────────────────────────────────
+
+    # These store their result for 24 hours and answer with the Storage fields
+    # (storage_id, storage_url, sha256_hash, bytes, expire_timestamp,
+    # expire_datetime) plus content_type, filename and operation. Read the
+    # result with storage_get or a GET on storage_url.
+
+    def json_to_csv(
+        self, columns: list, rows: list, delimiter: Optional[str] = None, spreadsheet_safe: Optional[bool] = None
+    ) -> dict:
+        """JSON rows to CSV, stored as result.csv. ``columns`` names the
+        columns and their order. ``delimiter`` is ``","``, ``";"`` or
+        ``"\\t"``, and ``spreadsheet_safe`` guards cells a spreadsheet would
+        run as formulas."""
+        body: dict = {"columns": columns, "rows": rows}
+        if delimiter is not None:
+            body["delimiter"] = delimiter
+        if spreadsheet_safe is not None:
+            body["spreadsheet_safe"] = spreadsheet_safe
+        return self._post("/json_to_csv", body)
+
+    def csv_to_json(self, data: str, delimiter: Optional[str] = None) -> dict:
+        """CSV text to ``{columns, rows}``, stored as result.json. Every cell
+        stays a string."""
+        body: dict = {"data": data}
+        if delimiter is not None:
+            body["delimiter"] = delimiter
+        return self._post("/csv_to_json", body)
+
+    def table_match(self, left: list, right: list, keys: list) -> dict:
+        """Match two lists of rows on ``keys``, pairs such as
+        ``{"left": "id", "right": "customer_id"}``. Stored as matches.json with
+        ``matched``, ``only_left``, ``only_right`` and ``ambiguous``,
+        positions only."""
+        return self._post("/table_match", {"left": left, "right": right, "keys": keys})
+
+    def json_format(self, data: str, mode: Optional[str] = None, indent: Optional[int] = None) -> dict:
+        """Pretty-print or compact JSON text, stored as result.json; only
+        whitespace changes. ``mode`` is ``"pretty"`` or ``"compact"``,
+        ``indent`` 2 or 4."""
+        body: dict = {"data": data}
+        if mode is not None:
+            body["mode"] = mode
+        if indent is not None:
+            body["indent"] = indent
+        return self._post("/json_format", body)
+
+    def json_validate(self, data: str) -> dict:
+        """Check that JSON text parses. Adds ``valid`` to the Storage fields;
+        invalid JSON is a result, and validation.json holds the parser's
+        message."""
+        return self._post("/json_validate", {"data": data})
+
+    # ── Images ────────────────────────────────────────────────────────────────
+
+    # Each takes one JPEG, PNG or WebP of at most 10 MB as ``file``: the bytes,
+    # or a path to read them from. It is sent as multipart/form-data. The
+    # result is stored for 24 hours, and the answer has the Storage fields
+    # plus operation and what the result is.
+
+    def image_convert(
+        self, file: Union[bytes, str], format: str, quality: Optional[int] = None, lossless: Optional[bool] = None
+    ) -> dict:
+        """Convert to ``format`` ``"jpeg"``, ``"png"`` or ``"webp"``; reads
+        HEIC too. ``quality`` is 40 to 95, and ``lossless`` is for WebP. Adds
+        ``format``, ``width``, ``height``, ``input_format`` and
+        ``input_bytes``."""
+        return self._upload("/image_convert", file, {"format": format, "quality": quality, "lossless": lossless})
+
+    def image_compress(self, file: Union[bytes, str], quality: Optional[int] = None) -> dict:
+        """Save again in its own format: JPEG and WebP at ``quality`` 40 to
+        95, PNG losslessly. Compare ``bytes`` with ``input_bytes``."""
+        return self._upload("/image_compress", file, {"quality": quality})
+
+    def image_resize(
+        self,
+        file: Union[bytes, str],
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        fit: Optional[str] = None,
+        upscale: Optional[bool] = None,
+        format: Optional[str] = None,
+        quality: Optional[int] = None,
+        lossless: Optional[bool] = None,
+    ) -> dict:
+        """A new size inside a box of ``width`` and/or ``height``, aspect
+        ratio kept; reads HEIC too. ``fit`` is ``"contain"``, or ``"cover"``
+        with both sides. Adds ``input_width``, ``input_height``, ``fit`` and
+        ``upscaled``."""
+        return self._upload(
+            "/image_resize",
+            file,
+            {
+                "width": width,
+                "height": height,
+                "fit": fit,
+                "upscale": upscale,
+                "format": format,
+                "quality": quality,
+                "lossless": lossless,
+            },
+        )
+
+    def image_metadata(self, file: Union[bytes, str]) -> dict:
+        """What the image carries besides its pixels, with a privacy list,
+        stored as metadata.json. Adds ``format``, ``width``, ``height``,
+        ``gps`` and ``findings``."""
+        return self._upload("/image_metadata", file)
+
+    def image_strip(self, file: Union[bytes, str]) -> dict:
+        """Remove EXIF, XMP, IPTC and comments without saving the image
+        again. Adds ``format``, ``width``, ``height``, ``input_bytes``,
+        ``removed`` and ``kept``."""
+        return self._upload("/image_strip", file)
+
+    def image_colors(self, file: Union[bytes, str], count: Optional[int] = None) -> dict:
+        """The dominant colors, ``count`` 2 to 16 and 8 by default, stored as
+        colors.json. Adds ``average``, ``dominant`` and ``count``."""
+        return self._upload("/image_colors", file, {"count": count})
+
+    def image_favicon(self, file: Union[bytes, str], crop: Optional[str] = None, name: Optional[str] = None) -> dict:
+        """A favicon set as favicon.zip. ``crop`` is ``"fit"``, ``"trim"`` or
+        ``"center"``, and ``name`` is the site name for the manifest. Adds
+        ``files``, ``crop`` and ``upscaled``."""
+        return self._upload("/image_favicon", file, {"crop": crop, "name": name})
+
+    # ── Logic ─────────────────────────────────────────────────────────────────
+
+    def decide(self, state: dict, questions: dict, model: Optional[str] = None) -> dict:
+        """Typed answers about ``state``. Without ``model``, or with
+        ``"rules"``, each question is yes_no, choice or scale with weighted
+        rules, and its answer carries ``probability``, ``confidence``,
+        ``action`` and ``because``. With ``"clef"``, ``"nimble"`` or
+        ``"tev1"`` the questions are noul, choice or score with
+        ``instructions`` and ``criteria``, and the answer is the model's own.
+        tev1 is the smallest and fastest, tested in English only, for short,
+        direct questions. Response key: ``answers``, with ``model`` and
+        ``model_version`` for a model. The format:
+        https://aisense.no/free-public-api-decide-api-endpoint"""
+        body: dict = {"state": state, "questions": questions}
+        if model is not None:
+            body["model"] = model
+        return self._post("/decide", body)
+
+    def simulate_failure(self, outcome: Union[str, int], delay_ms: Optional[int] = None) -> dict:
+        """A failure on purpose, to test a client: ``outcome`` is a status from
+        200 to 504, or ``"html"``, ``"empty"`` or ``"wrongtype"``, after
+        ``delay_ms`` of 0 to 10000.
+
+        Unlike the other methods this one does not raise on the answer it
+        asked for. It returns ``status``, ``content_type``, ``retry_after``,
+        ``chaos`` and ``body``, the body as text, so the handling under test
+        sees what came back.
+        """
+        path = f"/chaos/{outcome}/{delay_ms}" if delay_ms is not None else f"/chaos/{outcome}"
+        req = urllib.request.Request(f"{self.base_url}{path}", method="GET")
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout + 11) as resp:
+                status, headers, raw = resp.status, resp.headers, resp.read()
+        except urllib.error.HTTPError as err:
+            status, headers, raw = err.code, err.headers, err.read()
+        return {
+            "status": status,
+            "content_type": headers.get("Content-Type"),
+            "retry_after": headers.get("Retry-After"),
+            "chaos": headers.get("X-Chaos"),
+            "body": raw.decode("utf-8", "replace"),
+        }
 
     # ── Crypto ────────────────────────────────────────────────────────────────
 
