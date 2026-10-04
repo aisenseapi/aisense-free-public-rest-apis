@@ -1,9 +1,8 @@
 # AI SENSE Free Public MCP Server
 
-Production MCP discovery returned 61 tools and three read-only resources on
-3 October 2026: 32 workflow tools and 29 tools that run the public REST
-endpoints. The deployed Queue REST smoke test passes 21
-checks. Use `tools/list` to inspect the server you connect to.
+The server offers workflow tools, one tool for each public REST endpoint and
+three read-only resources. Use `tools/list` to inspect the server you connect
+to.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
@@ -132,7 +131,7 @@ catalog is a separate integration surface, not a copy of this list.
 
 ## REST endpoints as tools
 
-The 29 tools from `encode_data` to `read_stored_file` run the same endpoint
+The tools from `encode_data` to `read_stored_file` run the same endpoint
 code as REST, in the same process, so they give the same answers, limits and
 error texts. An error result keeps the REST status in `status_code`. Related
 endpoints share one tool with a parameter, such as `hash_data` with

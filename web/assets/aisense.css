@@ -498,6 +498,11 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .feed-feature .eyebrow { color: #bae6fd; }
 .feed-feature h2 { color: #fff; font-size: clamp(34px, 5vw, 56px); line-height: 1.14; }
 .feed-feature > div:last-child p { color: #e0f2fe; }
+/* Links and the Agent Optimal robot on the blue band: white text, and a white edge round the blue robot. */
+.feed-feature p a { color: #fff; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.feed-feature p a:hover, .feed-feature p a:focus { color: #e0f2fe; }
+.feed-feature a:focus-visible { outline-color: #fff; }
+.feed-feature .agent-optimal-mark { filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff); }
 
 .product-feature {
   margin: 100px 0;

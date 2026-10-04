@@ -212,9 +212,7 @@ the production tool list changes.
 
 `free-public-apis.html` is maintained alongside [`../API.md`](../API.md).
 Check both against the current implementation when request or response formats
-change. Keep dated live checks distinct from source-only features. Queue REST checks
-and 28-tool discovery were verified on 9 September 2026. The refreshed embedded
-agent guide still requires its own deployment and resource-read verification. No generator for this page is included in this repository.
+change. Keep dated live checks distinct from source-only features. No generator for this page is included in this repository.
 
 The eight image tool pages, the three image guides, the `/decide` and
 `/chaos` endpoint pages and the eight hex, base64url, URL and HTML endpoint
