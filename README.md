@@ -29,7 +29,7 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.12.0`. It offers the workflow tools and one
+The server reports version `1.12.1`. It offers the workflow tools and one
 tool for each REST endpoint below. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.11.1` as active and latest,
 published 4 October 2026 at 08:08 UTC.

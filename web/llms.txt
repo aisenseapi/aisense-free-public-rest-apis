@@ -20,7 +20,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.12.0. Official MCP Registry: com.aisenseapi/free-public-tools version 1.11.1, published 4 October 2026 at 08:08 UTC
+- MCP server version 1.12.1. Official MCP Registry: com.aisenseapi/free-public-tools version 1.11.1, published 4 October 2026 at 08:08 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -58,7 +58,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 - Agent Queue guide: https://aisense.no/free-public-api-agent-queue-api-endpoint
 - Agent Inbox guide: https://aisense.no/free-public-api-agent-inbox-api-endpoint
 - Temporary DNS names guide: https://aisense.no/free-public-api-dns-name-api-endpoint
-- Decision endpoint, rules by default with the existing response unchanged. Optional models "clef", "nimble" and "tev1" use noul, choice and score questions with instructions and criteria. Model requests: 8 KiB (3 KiB for tev1), 4 questions, 60 per minute and 1000 per UTC day per IP. No automatic action or fallback. Model mode processes the submitted text: https://aisense.no/free-public-api-decide-api-endpoint
+- Decision endpoint, rules by default with the existing response unchanged. Optional models "clef", "nimble" and "tev1" use noul, choice and score questions with instructions and criteria. Model requests: 8 KiB (3 KiB for tev1, the smallest and fastest model, tested in English only, for short, direct questions), 4 questions, 60 per minute and 1000 per UTC day per IP. No automatic action or fallback. Model mode processes the submitted text: https://aisense.no/free-public-api-decide-api-endpoint
 - Chaos endpoint, a chosen status, delay or broken answer for testing clients, nothing stored: https://aisense.no/free-public-api-chaos-api-endpoint
 - Time guide, datetime by IANA zone name with summer time, by IP address or by fixed offset, timestamps and the timezone list: https://aisense.no/time-apis
 - IP datetime guide, the time and summer time details where an IPv4 or IPv6 address is, or the caller's own, at https://aisenseapi.com/services/v1/ip_datetime: https://aisense.no/free-public-api-ip-datetime-api-endpoint

@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.7.0
+Resource version 1.7.1
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -86,7 +86,7 @@ Catalog size: 61 MCP tools.
 - `json_check` - Format or validate JSON text.
 - `match_tables` - Match the rows of two tables on key columns.
 - `process_image` - Convert, compress, resize, inspect or strip an image, or make favicons from it.
-- `decide` - Rules by default. Optional `model` `"clef"`, `"nimble"` or `"tev1"` uses instructions and criteria with `noul`, `choice` or `score` questions. A model request may hold 8 KiB, 3 KiB for `tev1`. It returns no automatic action, and model calls have their own per-IP usage limit.
+- `decide` - Rules by default. Optional `model` `"clef"`, `"nimble"` or `"tev1"` uses instructions and criteria with `noul`, `choice` or `score` questions. A model request may hold 8 KiB, 3 KiB for `tev1`, the smallest and fastest, which its maker tested in English only and which suits short, direct questions. It returns no automatic action, and model calls have their own per-IP usage limit.
 - `simulate_failure` - Get a chosen status, delay or broken answer on purpose.
 - `schedule_webhook` - Schedule a POST to a public URL, once or repeatedly.
 - `read_webhook_schedule` - Read a scheduled webhook or wait for a change.

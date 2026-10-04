@@ -369,7 +369,7 @@
   }
 }</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p><pre><code>{
+<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. Tev1 is the smallest and fastest. Together AI tested it in English only, and it suits short, direct questions. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p><pre><code>{
   "model": "clef",
   "state": {
     "message": "The production API returns HTTP 500 and blocks checkout."
