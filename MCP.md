@@ -118,7 +118,7 @@ proxy these tools either.
 | `json_check` | Formats or validates JSON text, stored for 24 hours |
 | `match_tables` | Matches the rows of two tables on key columns, stored for 24 hours |
 | `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |
-| `decide` | Rules by default, optional Clef model with separate capacity limits when enabled |
+| `decide` | Rules by default, optional Clef model with its own usage limits |
 | `simulate_failure` | Gives a chosen status, delay or broken answer on purpose |
 | `schedule_webhook` | Schedules a POST to a public URL, once or repeatedly |
 | `read_webhook_schedule` | Reads a scheduled webhook or waits for a change |
@@ -153,14 +153,12 @@ and one tool call counts once.
 
 Decide keeps its rule engine when model is omitted or "rules". Explicit
 model "clef" uses instructions and criteria with noul, choice or score
-questions when the operator has enabled it. Default caps are 8 KiB and
-4 questions, 2 starts per UTC minute and 20 per UTC day per IP. All model
-callers share 6 starts per minute, 300 per UTC day and one in-flight call,
-with 10 seconds between starts and no waiting queue. The total transport
-deadline is 30 seconds. Model mode sends inputs to an external inference
-machine and does not produce an automatic action. Unknown models return 400,
-disabled or busy models 503. Numeric Retry-After is preserved as retry_after
-in structured errors. See the [Decide guide](https://aisense.no/free-public-api-decide-api-endpoint).
+questions. Model requests allow 8 KiB and 4 questions, and each IP may make
+2 per UTC minute and 20 per UTC day. Model mode processes the submitted state
+and questions and does not produce an automatic action. Unknown models return
+400. A model that is not open or temporarily unavailable returns 503, and a
+reached limit 429. Numeric Retry-After is preserved as retry_after in
+structured errors. Do not retry automatically. See the [Decide guide](https://aisense.no/free-public-api-decide-api-endpoint).
 
 ## Available resources
 

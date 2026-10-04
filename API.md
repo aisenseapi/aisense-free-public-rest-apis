@@ -1080,9 +1080,9 @@ metadata, not the body.
 #### Optional Clef model
 
 Set `"model":"clef"` and supply `state` plus named `questions`. Each question
-has `type`, `instructions` and `criteria`. This mode is disabled by default
-until the operator measures the backend. Disabled returns 503, unknown model
-returns 400. There is no fallback.
+has `type`, `instructions` and `criteria`. Until the model opens, model
+requests return 503. An unknown model returns 400. There is no fallback to
+rules.
 
 | Type | Criteria | Answer |
 | --- | --- | --- |
@@ -1098,23 +1098,19 @@ The response includes `model`, `model_version`, `answers` and optional `usage`.
 Model confidence is not the rule confidence formula or a guarantee of accuracy.
 There is no `action` or `because`. Model questions do not accept rule fields.
 
-Default caps: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
-instruction and 512 per criterion. Per IP, 2 starts per UTC minute and 20 per
-UTC day. All models and sources share 6 starts per minute and 300 per UTC day,
-one in-flight call, no waiting queue and 10 seconds between starts. Connect
-deadline 2 seconds, total deadline 30 seconds, reply cap 32 KiB. Failed admitted
-calls count. Operators can tune these values after measurement.
+Limits: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
+instruction and 512 per criterion. Each IP may make 2 model requests per UTC
+minute and 20 per UTC day. An accepted request counts, also when it fails.
 
-Quota refusals are 429, unavailable or busy models 503, failed or malformed
-upstream responses 502, timeout 504. Respect `Retry-After` where provided.
-An uncertain remote completion closes admission until operator recovery.
-Do not retry in a loop.
+A reached limit returns 429, a model that is not open or temporarily
+unavailable 503, a request that could not be completed 502 and one that timed
+out 504. Respect `Retry-After` where provided. Do not retry in a loop. Rules
+remain available.
 
-Model state and questions go to the configured external inference machine.
-The API keeps IP-HMAC quota counters and aggregate timings, not bodies or
-answers. Backend data handling is separate and must be confirmed before public
-activation. Keep credentials and sensitive personal data out. Ordinary access
-logs still contain IP addresses. See [Privacy](https://aisense.no/privacy).
+Model mode sends the state and questions to the model for processing. The
+API keeps IP-HMAC usage counters and aggregate timings, not bodies or answers.
+Keep credentials and sensitive personal data out. Ordinary access logs still
+contain IP addresses. See [Privacy](https://aisense.no/privacy).
 
 ### `ANY /chaos/{status}[/{ms}]`
 
