@@ -153,7 +153,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="try"><h2>Try it</h2><p>Write the request yourself below, or build it in a form with examples and read the answer in plain words on <a href="/try-decide">Try Decide</a>.</p><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p>''' + pre(json.dumps({
+<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p>''' + pre(json.dumps({
     "model": "clef",
     "state": {"message": "The production API returns HTTP 500 and blocks checkout."},
     "questions": {"urgent": {
@@ -164,7 +164,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
     ['<code>noul</code>', 'An object with descriptions named <code>true</code> and <code>false</code>', 'Numeric <code>noul</code> from 0 to 1, not a Boolean'],
     ['<code>choice</code>', 'An object of named descriptions', '<code>choice</code>, <code>probabilities</code> and <code>confidence</code>'],
     ['<code>score</code>', 'An ordered list of labels', '<code>score</code>, <code>legend</code>, <code>probabilities</code> and <code>confidence</code>'],
-]) + '''<p>A score starts at zero for the first label and can be fractional. Model confidence comes from the model and does not use the rule formula above. Model answers have no <code>action</code> or <code>because</code>. Do not mix model criteria with <code>rules</code>, <code>act_at</code> or <code>review_at</code>. Model output can be wrong. Keep human approval for consequential actions.</p><h3>Model limits</h3><p>A model request may hold 8 KiB of JSON, 4 questions, 8 choices or score levels, 1024 UTF-8 bytes per instruction and 512 per criterion. Each IP address may make 60 model requests per UTC minute and 1000 per UTC calendar day. An accepted request counts, also when it fails.</p><p>Respect <code>Retry-After</code> where a refusal carries it. Do not retry in a loop. Rules remain available. Callers cannot choose the model version or the limits.</p></section>
+]) + '''<p>A score starts at zero for the first label and can be fractional. Model confidence comes from the model and does not use the rule formula above. Model answers have no <code>action</code> or <code>because</code>. Do not mix model criteria with <code>rules</code>, <code>act_at</code> or <code>review_at</code>. Model output can be wrong. Keep human approval for consequential actions.</p><h3>Model limits</h3><p>A model request may hold 8 KiB of JSON, 3 KiB for <code>tev1</code>, 4 questions, 8 choices or score levels, 1024 UTF-8 bytes per instruction and 512 per criterion. Each IP address may make 60 model requests per UTC minute and 1000 per UTC calendar day. An accepted request counts, also when it fails.</p><p>Respect <code>Retry-After</code> where a refusal carries it. Do not retry in a loop. Rules remain available. Callers cannot choose the model version or the limits.</p></section>
 
 <section id="errors"><h2>Errors</h2><p>Refusals include <code>error</code> and <code>fix</code>. No request or answer body is saved by the Decide API. Model mode records counters and timing aggregates.</p>''' + table(['Status', 'When'], [
     ['400', 'A field is missing, of the wrong kind or out of range, or the body is not valid JSON. The error names the place, such as <code>questions.team.options.returns[0].weight</code>'],
@@ -243,9 +243,9 @@ page('free-public-api-decide-api-endpoint',
      'Free Decision API Endpoint: Rules and Model Selection | AI SENSE',
      'Send facts and weighted rules, get typed decisions back: yes or no, a choice or a scale, with probabilities, confidence and the rules that fired. Free, no key.',
      'Free Decision API Endpoint',
-     'Typed decisions from your own rules. Optional Clef model selection uses separate questions and its own usage limits.',
+     'Typed decisions from your own rules. Optional Clef, Nimble or Tev1 model selection uses separate questions and its own usage limits.',
      'Free Decision API Endpoint',
-     'Answers weighted rule questions by default. Optional Clef model mode supports noul, choice and score questions with its own usage limits.',
+     'Answers weighted rule questions by default. Optional Clef, Nimble or Tev1 model mode supports noul, choice and score questions with its own usage limits.',
      'Decision API endpoint', DECIDE_MAIN, DECIDE_SCRIPT)
 
 # -- /chaos -------------------------------------------------------------------

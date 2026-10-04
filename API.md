@@ -1075,11 +1075,13 @@ from the request body is stored in rules mode. The access log records request
 metadata, not the body.
 [Guide and examples](https://aisense.no/free-public-api-decide-api-endpoint).
 
-#### Optional Clef model
+#### Optional decision models
 
-Set `"model":"clef"` and supply `state` plus named `questions`. Each question
-has `type`, `instructions` and `criteria`. An unknown model returns 400.
-There is no fallback to rules.
+Set `model` to `"clef"`, `"nimble"` or `"tev1"` and supply `state` plus named
+`questions`. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from
+Together AI, and all three answer the same question types. Each question has
+`type`, `instructions` and `criteria`. An unknown model returns 400. There is
+no fallback to rules or to another model.
 
 | Type | Criteria | Answer |
 | --- | --- | --- |
@@ -1095,11 +1097,12 @@ The response includes `model`, `model_version`, `answers` and optional `usage`.
 Model confidence is not the rule confidence formula or a guarantee of accuracy.
 There is no `action` or `because`. Model questions do not accept rule fields.
 
-Limits: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
-instruction and 512 per criterion. Each IP may make 60 model requests per UTC
+Limits: 8 KiB body, 3 KiB for `tev1`, 4 questions, 8 choices or levels, 1024
+UTF-8 bytes per instruction and 512 per criterion. Each IP may make 60 model requests per UTC
 minute and 1000 per UTC day. An accepted request counts, also when it fails.
 
-A reached limit returns 429, a model that is temporarily unavailable 503, a request that could not be completed 502 and one that timed
+A request too long for the selected model returns 413, a reached limit 429, a
+model that is temporarily unavailable 503, a request that could not be completed 502 and one that timed
 out 504. Respect `Retry-After` where provided. Do not retry in a loop. Rules
 remain available.
 
