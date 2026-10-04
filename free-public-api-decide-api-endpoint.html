@@ -9,7 +9,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Decision API Endpoint">
-<meta property="og:description" content="Typed decisions from your own rules. Optional Clef model selection uses separate questions and its own usage limits.">
+<meta property="og:description" content="Typed decisions from your own rules. Optional Clef, Nimble or Tev1 model selection uses separate questions and its own usage limits.">
 <meta property="og:url" content="https://aisense.no/free-public-api-decide-api-endpoint">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20261004a">
@@ -27,7 +27,7 @@
     {
       "@type": "WebAPI",
       "name": "Free Decision API Endpoint",
-      "description": "Answers weighted rule questions by default. Optional Clef model mode supports noul, choice and score questions with its own usage limits.",
+      "description": "Answers weighted rule questions by default. Optional Clef, Nimble or Tev1 model mode supports noul, choice and score questions with its own usage limits.",
       "url": "https://aisense.no/free-public-api-decide-api-endpoint",
       "documentation": "https://aisense.no/free-public-apis#logic",
       "provider": {
@@ -369,7 +369,7 @@
   }
 }</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p><pre><code>{
+<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p><pre><code>{
   "model": "clef",
   "state": {
     "message": "The production API returns HTTP 500 and blocks checkout."
@@ -384,7 +384,7 @@
       }
     }
   }
-}</code></pre><p>This is a request example, not a measured production result. The response has <code>model</code>, <code>model_version</code>, <code>answers</code> and optional token <code>usage</code>.</p><div class="table-wrap field-table"><table><thead><tr><th>Model type</th><th>Criteria</th><th>Answer</th></tr></thead><tbody><tr><td><code>noul</code></td><td>An object with descriptions named <code>true</code> and <code>false</code></td><td>Numeric <code>noul</code> from 0 to 1, not a Boolean</td></tr><tr><td><code>choice</code></td><td>An object of named descriptions</td><td><code>choice</code>, <code>probabilities</code> and <code>confidence</code></td></tr><tr><td><code>score</code></td><td>An ordered list of labels</td><td><code>score</code>, <code>legend</code>, <code>probabilities</code> and <code>confidence</code></td></tr></tbody></table></div><p>A score starts at zero for the first label and can be fractional. Model confidence comes from the model and does not use the rule formula above. Model answers have no <code>action</code> or <code>because</code>. Do not mix model criteria with <code>rules</code>, <code>act_at</code> or <code>review_at</code>. Model output can be wrong. Keep human approval for consequential actions.</p><h3>Model limits</h3><p>A model request may hold 8 KiB of JSON, 4 questions, 8 choices or score levels, 1024 UTF-8 bytes per instruction and 512 per criterion. Each IP address may make 60 model requests per UTC minute and 1000 per UTC calendar day. An accepted request counts, also when it fails.</p><p>Respect <code>Retry-After</code> where a refusal carries it. Do not retry in a loop. Rules remain available. Callers cannot choose the model version or the limits.</p></section>
+}</code></pre><p>This is a request example, not a measured production result. The response has <code>model</code>, <code>model_version</code>, <code>answers</code> and optional token <code>usage</code>.</p><div class="table-wrap field-table"><table><thead><tr><th>Model type</th><th>Criteria</th><th>Answer</th></tr></thead><tbody><tr><td><code>noul</code></td><td>An object with descriptions named <code>true</code> and <code>false</code></td><td>Numeric <code>noul</code> from 0 to 1, not a Boolean</td></tr><tr><td><code>choice</code></td><td>An object of named descriptions</td><td><code>choice</code>, <code>probabilities</code> and <code>confidence</code></td></tr><tr><td><code>score</code></td><td>An ordered list of labels</td><td><code>score</code>, <code>legend</code>, <code>probabilities</code> and <code>confidence</code></td></tr></tbody></table></div><p>A score starts at zero for the first label and can be fractional. Model confidence comes from the model and does not use the rule formula above. Model answers have no <code>action</code> or <code>because</code>. Do not mix model criteria with <code>rules</code>, <code>act_at</code> or <code>review_at</code>. Model output can be wrong. Keep human approval for consequential actions.</p><h3>Model limits</h3><p>A model request may hold 8 KiB of JSON, 3 KiB for <code>tev1</code>, 4 questions, 8 choices or score levels, 1024 UTF-8 bytes per instruction and 512 per criterion. Each IP address may make 60 model requests per UTC minute and 1000 per UTC calendar day. An accepted request counts, also when it fails.</p><p>Respect <code>Retry-After</code> where a refusal carries it. Do not retry in a loop. Rules remain available. Callers cannot choose the model version or the limits.</p></section>
 
 <section id="errors"><h2>Errors</h2><p>Refusals include <code>error</code> and <code>fix</code>. No request or answer body is saved by the Decide API. Model mode records counters and timing aggregates.</p><div class="table-wrap field-table"><table><thead><tr><th>Status</th><th>When</th></tr></thead><tbody><tr><td>400</td><td>A field is missing, of the wrong kind or out of range, or the body is not valid JSON. The error names the place, such as <code>questions.team.options.returns[0].weight</code></td></tr><tr><td>405</td><td>Any method but POST</td></tr><tr><td>413</td><td>The body is over 64 KiB for rules or the configured model byte limit, or the rules hold more than 5000 tests</td></tr><tr><td>415</td><td>The body is not sent as <code>application/json</code></td></tr><tr><td>429</td><td>The service-wide limit of 5000 requests per IP per day, or the model request limit</td></tr><tr><td>502</td><td>The model request could not be completed</td></tr><tr><td>503</td><td>The model is temporarily unavailable</td></tr><tr><td>504</td><td>The model request timed out</td></tr></tbody></table></div></section>
 
