@@ -3,10 +3,9 @@
  * the JSON it makes, send it, and read the answer in plain words and as JSON.
  *
  * Two forms. Rules: facts, one question and weighted rules, answered by the
- * rule engine. Models: a situation in words and a question with what each
- * answer means, answered by the decision model of the chosen tab, Clef, Nimble
- * or Tev1. Everything a visitor types is put on the page as text, never as
- * markup. The request goes
+ * rule engine. Clef: a situation in words and a question with what each answer
+ * means, answered by the Clef model. Everything a visitor types is put on the
+ * page as text, never as markup. The request goes
  * from this tab straight to the free API; this page stores nothing.
  */
 (function () {
@@ -78,8 +77,6 @@
   ];
 
   var mode = 'rules';
-  var model = 'clef';
-  var MODEL_NAMES = { clef: 'Clef', nimble: 'Nimble', tev1: 'Tev1' };
   var rules = blankRules();
   var clef = blankClef();
   var jsonEdited = false;
@@ -303,7 +300,7 @@
     } else { question.criteria = clef.levels.slice(); }
     var questions = {};
     questions[cleanName(clef.question.name, 'answer')] = question;
-    return { model: model, state: { message: clef.message }, questions: questions };
+    return { model: 'clef', state: { message: clef.message }, questions: questions };
   }
 
   function renderClef() {
@@ -448,34 +445,31 @@
 
   // ---------- tabs ----------
 
-  // /try-decide#clef, #nimble or #tev1 opens that model's tab, so a link can
-  // point straight at it, and choosing a tab keeps the address in step. The
-  // model tabs share one form; only the model in the request differs.
+  // /try-decide#clef opens the Clef tab, so a link can point straight at it,
+  // and choosing a tab keeps the address in step for sharing.
   var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
 
   function showTab(tab, fromAddress) {
-    var panel = tab.getAttribute('aria-controls');
     tabs.forEach(function (other) {
       var selected = other === tab;
       other.setAttribute('aria-selected', String(selected));
       other.tabIndex = selected ? 0 : -1;
-      document.getElementById(other.getAttribute('aria-controls')).hidden = other.getAttribute('aria-controls') !== panel;
+      document.getElementById(other.getAttribute('aria-controls')).hidden = !selected;
     });
-    document.getElementById(panel).setAttribute('aria-labelledby', tab.id);
-    mode = tab.getAttribute('data-model') ? 'clef' : 'rules';
-    if (mode === 'clef') { model = tab.getAttribute('data-model'); }
+    mode = tab.id === 'tab-clef' ? 'clef' : 'rules';
     redraw();
     writeJson(true);
     clearAnswer();
     if (!fromAddress && window.history && history.replaceState) {
-      history.replaceState(null, '', mode === 'clef' ? '#' + model : location.pathname + location.search);
+      history.replaceState(null, '', mode === 'clef' ? '#clef' : location.pathname + location.search);
     }
   }
 
   function tabFromAddress() {
     var name = location.hash.replace(/^#/, '').toLowerCase();
+    if (name === 'clef') { return document.getElementById('tab-clef'); }
     if (name === 'rules') { return document.getElementById('tab-rules'); }
-    return tabs.filter(function (tab) { return tab.getAttribute('data-model') === name; })[0] || null;
+    return null;
   }
 
   tabs.forEach(function (tab) {
@@ -593,12 +587,12 @@
       box.appendChild(el('p', { text: 'Levels: ' + legend.map(function (label, i) { return label + ' ' + percent((answer.probabilities || [])[i] || 0); }).join(', ') + '.' }));
     }
     if (typeof answer.confidence === 'number') {
-      box.appendChild(el('p', { text: 'The model\'s own confidence: ' + percent(answer.confidence) + '. It is the model\'s figure, not a guarantee that the answer is right, and the model gives no next step. Keep a person in the loop for anything that matters.' }));
+      box.appendChild(el('p', { text: 'Clef\'s own confidence: ' + percent(answer.confidence) + '. It is the model\'s figure, not a guarantee that the answer is right, and the model gives no next step. Keep a person in the loop for anything that matters.' }));
     }
     return box;
   }
 
-  function refusal(status, body, retryAfter, asked) {
+  function refusal(status, body, retryAfter) {
     var box = el('div', { class: 'decide-result is-refused' });
     var error = body && body.error ? String(body.error) : 'The API answered with status ' + status + '.';
     var wait = retryAfter ? ' Try again in ' + retryAfter + ' seconds.' : ' Try again later.';
@@ -606,7 +600,7 @@
     if (status === 429) {
       headline = 'The request limit is reached for now.' + wait;
     } else if (status === 503) {
-      headline = 'The ' + (Object.prototype.hasOwnProperty.call(MODEL_NAMES, asked) ? MODEL_NAMES[asked] : 'selected') + ' model is not available right now. Rules still work.' + wait;
+      headline = 'The Clef model is not available right now. Rules still work.' + wait;
     } else if (status === 502) {
       headline = 'The model request could not be completed. Try again later.';
     } else if (status === 504) {
@@ -651,7 +645,7 @@
         responseBox.textContent = result.body ? JSON.stringify(result.body, null, 2) : result.text;
         plain.textContent = '';
         if (!result.ok || !result.body || !result.body.answers) {
-          plain.appendChild(refusal(result.status, result.body, result.retryAfter, request && request.model));
+          plain.appendChild(refusal(result.status, result.body, result.retryAfter));
           return;
         }
         var questions = request && request.questions ? request.questions : {};

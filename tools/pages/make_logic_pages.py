@@ -153,7 +153,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="try"><h2>Try it</h2><p>Write the request yourself below, or build it in a form with examples and read the answer in plain words on <a href="/try-decide">Try Decide</a>.</p><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p>''' + pre(json.dumps({
+<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p>''' + pre(json.dumps({
     "model": "clef",
     "state": {"message": "The production API returns HTTP 500 and blocks checkout."},
     "questions": {"urgent": {
@@ -243,9 +243,9 @@ page('free-public-api-decide-api-endpoint',
      'Free Decision API Endpoint: Rules and Model Selection | AI SENSE',
      'Send facts and weighted rules, get typed decisions back: yes or no, a choice or a scale, with probabilities, confidence and the rules that fired. Free, no key.',
      'Free Decision API Endpoint',
-     'Typed decisions from your own rules. Optional Clef, Nimble or Tev1 model selection uses separate questions and its own usage limits.',
+     'Typed decisions from your own rules. Optional Clef model selection uses separate questions and its own usage limits.',
      'Free Decision API Endpoint',
-     'Answers weighted rule questions by default. Optional Clef, Nimble or Tev1 model mode supports noul, choice and score questions with its own usage limits.',
+     'Answers weighted rule questions by default. Optional Clef model mode supports noul, choice and score questions with its own usage limits.',
      'Decision API endpoint', DECIDE_MAIN, DECIDE_SCRIPT)
 
 # -- /chaos -------------------------------------------------------------------

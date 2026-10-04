@@ -1075,13 +1075,11 @@ from the request body is stored in rules mode. The access log records request
 metadata, not the body.
 [Guide and examples](https://aisense.no/free-public-api-decide-api-endpoint).
 
-#### Optional decision models
+#### Optional Clef model
 
-Set `model` to `"clef"`, `"nimble"` or `"tev1"` and supply `state` plus named
-`questions`. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from
-Together AI, and all three answer the same question types. Each question has
-`type`, `instructions` and `criteria`. An unknown model returns 400. There is
-no fallback to rules or to another model.
+Set `"model":"clef"` and supply `state` plus named `questions`. Each question
+has `type`, `instructions` and `criteria`. An unknown model returns 400.
+There is no fallback to rules.
 
 | Type | Criteria | Answer |
 | --- | --- | --- |
