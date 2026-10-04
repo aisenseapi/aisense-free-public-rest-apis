@@ -139,7 +139,7 @@
   <p>Model requests have limits of their own:</p>
   <ul>
     <li>8 KiB in a request, at most 4 questions and 8 options or levels in each</li>
-    <li>2 model calls a minute and 20 a day from one address</li>
+    <li>10 model calls a minute and 200 a day from one address</li>
   </ul>
   <p>Refusals carry <code>Retry-After</code> where a wait applies. Do not retry automatically.</p>
   <p>A model call sends the situation and the questions to the model for processing, so keep credentials and sensitive personal data out of them. The API keeps neither the request bodies nor the answers. As on every endpoint, the access log records each request with the address, and the daily request limit counts requests per address. Model calls also leave usage counters keyed by a hash of the address, and timings, as the <a href="/privacy">privacy page</a> says.</p>

@@ -1096,8 +1096,8 @@ Model confidence is not the rule confidence formula or a guarantee of accuracy.
 There is no `action` or `because`. Model questions do not accept rule fields.
 
 Limits: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
-instruction and 512 per criterion. Each IP may make 2 model requests per UTC
-minute and 20 per UTC day. An accepted request counts, also when it fails.
+instruction and 512 per criterion. Each IP may make 10 model requests per UTC
+minute and 200 per UTC day. An accepted request counts, also when it fails.
 
 A reached limit returns 429, a model that is temporarily unavailable 503, a request that could not be completed 502 and one that timed
 out 504. Respect `Retry-After` where provided. Do not retry in a loop. Rules
