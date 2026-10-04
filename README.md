@@ -23,13 +23,14 @@ time and UUIDs. It needs no account or API key. Heartbeat uses
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
 The Agent Queue tools use separate read, write and worker tokens issued at
-creation.
+creation. The semantic search tools use a read token and a write token in
+the same way.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.12.1`. It offers the workflow tools and one
+The server reports version `1.13.0`. It offers the workflow tools and one
 tool for each REST endpoint below. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.12.1` as active and latest,
 published 4 October 2026 at 15:26 UTC.
@@ -284,6 +285,38 @@ See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-w
 [website guide](web/free-public-api-agent-queue-api-endpoint.html).
 
 ---
+
+### Semantic search - find earlier notes by meaning
+
+Semantic search keeps short notes from agents in a collection for 24 hours and
+finds them by meaning, across wording and between languages.
+
+```bash
+curl https://aisenseapi.com/services/v1/semantic_search
+
+curl -X POST https://aisenseapi.com/services/v1/semantic_search/COLLECTION_ID/notes \
+  -H "Authorization: Bearer WRITE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"notes":[{"text":"Suspicious login attempts from many addresses on the admin page.","key":"incident:17"},{"text":"Mange mislykkede innlogginger mot adminsiden i natt."}]}'
+
+curl -X POST https://aisenseapi.com/services/v1/semantic_search/COLLECTION_ID/search \
+  -H "Authorization: Bearer READ_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"brute force attack on the admin login"}'
+```
+
+Creation returns the collection ID with a read token and a write token, shown
+only once. The default model is `bge-m3`. POST `{"model":"qwen3-embedding-4b"}`
+to `/semantic_search` to use the other one. A search answers ranked suggestions
+with `note_id`, `key`, `text` and `score`, never a decision that a match
+exists. The score is cosine similarity plus 0.1 per identifier, such as
+`DEMO-57` or an amount, that search and note share, and it is not a
+probability.
+
+The collection expires exactly 24 hours after creation. Limits are 500 notes
+over that lifetime, 2000 characters per note, 20 new collections per client IP
+per 24 hours, and 60 searches or additions per minute and 1000 per UTC day per
+IP. Keep secrets and sensitive personal data out of notes.
 
 ### Agent Wake - resume after an outside event
 

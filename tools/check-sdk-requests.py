@@ -3,7 +3,7 @@
 python tools/check-sdk-requests.py
 
 Runs the methods for the Convert, Images and Logic endpoints, PDF, DNS,
-validation and the time, passphrase, slug, hash and email helpers through
+semantic search, validation and the time, passphrase, slug, hash and email helpers through
 aisense_api.py and, when Node.js 18 or later is on the path, aisense-api.js,
 against a server on 127.0.0.1. Each request is compared with what API.md
 documents: method, path, content type, JSON body or multipart fields and file,
@@ -44,6 +44,11 @@ EXPECTED += [
     ("GET", "/dns/abcdefg", None, None, None, None),
     ("POST", "/dns/abcdefg/update/198.51.100.8", "json", {}, None, "dns-token-1"),
     ("POST", "/dns/abcdefg/delete", "json", {}, None, "dns-token-1"),
+    ("POST", "/semantic_search", "json", {"model": "qwen3-embedding-4b"}, None, None),
+    ("GET", "/semantic_search/" + "c" * 32, None, None, None, "read-token-1"),
+    ("POST", "/semantic_search/" + "c" * 32 + "/notes", "json", {"notes": [{"text": "Refund ORD-4410", "key": "job:4410"}]}, None, "write-token-1"),
+    ("POST", "/semantic_search/" + "c" * 32 + "/search", "json", {"query": "refund", "limit": 2}, None, "read-token-1"),
+    ("POST", "/semantic_search/" + "c" * 32 + "/notes/" + "d" * 32 + "/delete", "json", {}, None, "write-token-1"),
     ("POST", "/html2pdf", "json", {"html": "<h1>4817</h1>", "options": {"page-size": "A5"}}, None, None),
     ("POST", "/json_to_csv", "json", {"columns": ["id"], "rows": [{"id": "1"}], "delimiter": ";", "spreadsheet_safe": True}, None, None),
     ("POST", "/csv_to_json", "json", {"data": "id\n1\n", "delimiter": "\t"}, None, None),
@@ -78,6 +83,11 @@ await api.dnsCreate('198.51.100.7')
 await api.dnsRead('abcdefg')
 await api.dnsUpdate('abcdefg', '198.51.100.8', 'dns-token-1')
 await api.dnsDelete('abcdefg', 'dns-token-1')
+await api.createSemanticSearch('qwen3-embedding-4b')
+await api.readSemanticSearch('cccccccccccccccccccccccccccccccc', 'read-token-1')
+await api.addSemanticSearchNotes('cccccccccccccccccccccccccccccccc', 'write-token-1', [{ text: 'Refund ORD-4410', key: 'job:4410' }])
+await api.querySemanticSearch('cccccccccccccccccccccccccccccccc', 'read-token-1', 'refund', 2)
+await api.deleteSemanticSearchNote('cccccccccccccccccccccccccccccccc', 'write-token-1', 'dddddddddddddddddddddddddddddddd')
 await api.htmlToPdf('<h1>4817</h1>', { 'page-size': 'A5' })
 await api.jsonToCsv(['id'], [{ id: '1' }], { delimiter: ';', spreadsheetSafe: true })
 await api.csvToJson('id\n1\n', '\t')
@@ -198,6 +208,11 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.dns_read("abcdefg")
     api.dns_update("abcdefg", "198.51.100.8", "dns-token-1")
     api.dns_delete("abcdefg", "dns-token-1")
+    api.create_semantic_search("qwen3-embedding-4b")
+    api.read_semantic_search("c" * 32, "read-token-1")
+    api.add_semantic_search_notes("c" * 32, "write-token-1", [{"text": "Refund ORD-4410", "key": "job:4410"}])
+    api.query_semantic_search("c" * 32, "read-token-1", "refund", 2)
+    api.delete_semantic_search_note("c" * 32, "write-token-1", "d" * 32)
     api.html_to_pdf("<h1>4817</h1>", {"page-size": "A5"})
     api.json_to_csv(["id"], [{"id": "1"}], delimiter=";", spreadsheet_safe=True)
     api.csv_to_json("id\n1\n", "\t")

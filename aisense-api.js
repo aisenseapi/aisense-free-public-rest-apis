@@ -4,10 +4,10 @@
  *
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
  * There is no account. Most requests need nothing beyond the path and, for POST
- * endpoints, the body. Agent Queue calls also carry the queue's role token,
- * which this client sends as an Authorization header and never puts in a URL.
- * The queue answers the browser preflight for that header, so those calls work
- * from a page as well as from Node.
+ * endpoints, the body. Agent Queue and semantic search calls also carry a role
+ * token, which this client sends as an Authorization header and never puts in
+ * a URL. Both answer the browser preflight for that header, so those calls
+ * work from a page as well as from Node.
  *
  * Usage (ESM):
  *   import { AISenseAPI } from './aisense-api.js'
@@ -951,6 +951,67 @@ export class AISenseAPI {
     const body = { receipt }
     if (visibilityTimeout !== undefined) body.visibility_timeout = visibilityTimeout
     return this.#post(`/queue/${queueId}/jobs/${jobId}/renew`, body, workerToken)
+  }
+
+  /**
+   * Create a semantic search collection: short notes that agents find by
+   * meaning, across wording and between languages, for a fixed 24 hours.
+   * `model` is 'bge-m3' (the default when omitted) or 'qwen3-embedding-4b',
+   * fixed for the collection. Response keys: `ok`, `collection_id`, `model`,
+   * `created_at_timestamp`, `expire_timestamp`, `notes`, `notes_added`,
+   * `notes_max`, `read_token`, `write_token`. The two tokens appear only in
+   * this response: the read token reads and searches, the write token adds and
+   * deletes notes. At most 500 notes over the lifetime and 20 new collections
+   * per client IP per 24 hours.
+   */
+  createSemanticSearch(model) {
+    return this.#post('/semantic_search', model === undefined ? {} : { model })
+  }
+
+  /**
+   * Read a collection with the read token. Response keys: `ok`,
+   * `collection_id`, `model`, `created_at_timestamp`, `expire_timestamp`,
+   * `notes`, `notes_added`, `notes_max`. Notes are found by searching.
+   */
+  readSemanticSearch(collectionId, readToken) {
+    return this.#get(`/semantic_search/${collectionId}`, readToken)
+  }
+
+  /**
+   * Add 1 to 32 notes with the write token. Each note is `{ text, key }`:
+   * `text` holds 1 to 2000 characters and `key` is optional. Response keys:
+   * `ok`, `collection_id`, `added` (each new `note_id` and `key`, in order),
+   * `notes`, `notes_added`, `expire_timestamp`. Never add secrets or sensitive
+   * personal data. Adding and searching share a usage limit of 60 per minute
+   * and 1000 per UTC day per IP.
+   */
+  addSemanticSearchNotes(collectionId, writeToken, notes) {
+    return this.#post(`/semantic_search/${collectionId}/notes`, { notes }, writeToken)
+  }
+
+  /**
+   * Search the notes by meaning with the read token. `limit` is 1 to 10, 3 by
+   * default. Response keys: `ok`, `collection_id`, `model`, `results` (each
+   * with `note_id`, `key`, `text` and `score`, best first), `notes`,
+   * `expire_timestamp`. The score is cosine similarity plus 0.1 for each
+   * identifier the search and the note share, kind by kind, and is not a
+   * probability. The results are ranked suggestions, not a decision that a
+   * match exists.
+   */
+  querySemanticSearch(collectionId, readToken, query, limit) {
+    const body = { query }
+    if (limit !== undefined) body.limit = limit
+    return this.#post(`/semantic_search/${collectionId}/search`, body, readToken)
+  }
+
+  /**
+   * Delete one note with the write token. Response keys: `ok`,
+   * `collection_id`, `deleted`, `notes`, `notes_added`. The text and the
+   * vector are removed at once, and the place in the 500-note lifetime limit
+   * stays used.
+   */
+  deleteSemanticSearchNote(collectionId, writeToken, noteId) {
+    return this.#post(`/semantic_search/${collectionId}/notes/${noteId}/delete`, {}, writeToken)
   }
 
   /**
