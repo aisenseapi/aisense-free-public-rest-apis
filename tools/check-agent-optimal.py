@@ -11,7 +11,7 @@ WEB = Path(__file__).resolve().parents[1] / 'web'
 
 class AgentOptimalTests(unittest.TestCase):
     def test_only_the_approved_services(self):
-        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action'])
+        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action', 'Semantic search'])
 
     def test_an_alias_is_marked_and_prose_is_not(self):
         marked = decorate('<a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a>', 'index.html')
@@ -22,6 +22,11 @@ class AgentOptimalTests(unittest.TestCase):
             marked = decorate('<a href="/free-public-api-webhook-action-api-endpoint">' + label + '</a>', 'index.html')
             self.assertEqual(marked.count(BADGE), 1)
         prose = '<a href="/free-public-api-webhook-action-api-endpoint">Read the Webhook Action API guide</a>'
+        self.assertEqual(decorate(prose, 'index.html'), prose)
+        for label in ('Semantic Search API', 'Semantic Search REST API Endpoint', 'Free Semantic Search API Endpoint'):
+            marked = decorate('<a href="/free-public-api-semantic-search-api-endpoint">' + label + '</a>', 'index.html')
+            self.assertEqual(marked.count(BADGE), 1)
+        prose = '<a href="/free-public-api-semantic-search-api-endpoint">Read the semantic search guide</a>'
         self.assertEqual(decorate(prose, 'index.html'), prose)
 
     def test_name_links(self):
