@@ -9,7 +9,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free Decision API Endpoint">
-<meta property="og:description" content="Typed decisions from your own rules. Optional Clef model selection uses separate questions and its own usage limits.">
+<meta property="og:description" content="Typed decisions from your own rules. Optional Clef, Nimble or Tev1 model selection uses separate questions and its own usage limits.">
 <meta property="og:url" content="https://aisense.no/free-public-api-decide-api-endpoint">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20261004a">
@@ -27,7 +27,7 @@
     {
       "@type": "WebAPI",
       "name": "Free Decision API Endpoint",
-      "description": "Answers weighted rule questions by default. Optional Clef model mode supports noul, choice and score questions with its own usage limits.",
+      "description": "Answers weighted rule questions by default. Optional Clef, Nimble or Tev1 model mode supports noul, choice and score questions with its own usage limits.",
       "url": "https://aisense.no/free-public-api-decide-api-endpoint",
       "documentation": "https://aisense.no/free-public-apis#logic",
       "provider": {
@@ -369,7 +369,7 @@
   }
 }</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p><pre><code>{
+<section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p><pre><code>{
   "model": "clef",
   "state": {
     "message": "The production API returns HTTP 500 and blocks checkout."
