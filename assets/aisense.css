@@ -24,8 +24,8 @@
    * These pages are light-only - there is no dark palette here and no
    * prefers-color-scheme block anywhere in this file. Declaring that explicitly
    * matters on phones: Chrome on Android applies Auto Dark Theme to sites that
-   * state no preference, algorithmically inverting colours it was never given.
-   * That inversion is uneven - it will recolour a background without recolouring
+   * state no preference, algorithmically inverting colors it was never given.
+   * That inversion is uneven - it will recolor a background without recoloring
    * the text sitting on it - which is how a form field ends up white on white.
    * Saying light here opts out of the guesswork and renders what was designed.
    */
@@ -1167,7 +1167,7 @@ td code { white-space: nowrap; }
   .nav-group { break-inside: avoid; margin: 0 0 18px; }
   .nav-group > .nav-sub-toggle,
   .nav-group > .nav-sub-button { display: none; }
-  /* The category heading is a link to its guide, so it is coloured like one. */
+  /* The category heading is a link to its guide, so it is colored like one. */
   .nav-group-title {
     display: block;
     margin: 0 0 4px;

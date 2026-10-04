@@ -181,7 +181,7 @@
 .tool-findings li { margin: .2rem 0; font-size: .9rem; }
 .tool-findings li.is-high strong { color: #b91c1c; }
 .tool-findings li.is-medium strong { color: #b45309; }
-/* The colour palette: a swatch per colour with its hex and share. */
+/* The color palette: a swatch per color with its hex and share. */
 .tool-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: .6rem; margin: .4rem 0 .8rem; }
 .tool-swatch { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
 .tool-swatch span { display: block; height: 3.2rem; }
