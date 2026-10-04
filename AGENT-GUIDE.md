@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.6.0
+Resource version 1.6.1
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -24,7 +24,7 @@ This public server needs no account, API key or authentication header. Its tools
 | Encode, hash, a random value, a time format, HTML to Markdown and back | Utility tools | Computed on request, nothing stored |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
-| Decide from rules or an enabled model | decide | Rules default. Model mode sends inputs to an external inference machine and has separate capacity limits |
+| Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
 | Test how a client handles a failure | simulate_failure | A chosen status, delay or broken answer |
 | Call a URL later, once or repeatedly | Scheduled webhook | Public URLs only, within 24 hours |
 
@@ -86,7 +86,7 @@ Catalog size: 61 MCP tools.
 - `json_check` - Format or validate JSON text.
 - `match_tables` - Match the rows of two tables on key columns.
 - `process_image` - Convert, compress, resize, inspect or strip an image, or make favicons from it.
-- `decide` - Rules by default. Optional `model: "clef"` uses instructions and criteria with `noul`, `choice` or `score` questions, when enabled. It returns no automatic action.
+- `decide` - Rules by default. Optional `model: "clef"` uses instructions and criteria with `noul`, `choice` or `score` questions. It returns no automatic action, and model calls have their own per-IP usage limit.
 - `simulate_failure` - Get a chosen status, delay or broken answer on purpose.
 - `schedule_webhook` - Schedule a POST to a public URL, once or repeatedly.
 - `read_webhook_schedule` - Read a scheduled webhook or wait for a change.
