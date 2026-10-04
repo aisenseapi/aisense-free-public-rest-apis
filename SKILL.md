@@ -9,9 +9,6 @@ license: MIT
 **Base URL:** `https://aisenseapi.com/services/v1`
 No account or API key. Queue operations require the role token issued at creation. Hosted by AI SENSE AS, Oslo.
 
-This guide combines source-checked contracts with dated production observations.
-Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
-
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
@@ -46,7 +43,6 @@ midnight Norwegian time (Europe/Oslo).
 
 ## Agent Queue
 
-Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 Check server discovery if connecting to a different installation.
 
 Create with `POST /queue` and `{}`. Save the returned `queue_id` and separate
@@ -580,9 +576,8 @@ pilot. The four MCP equivalents are `create_dns_name`, `read_dns_name`,
 ## Agent2Agent - a third protocol with five of these capabilities
 
 Everything above is REST. The same service is also on MCP at
-`https://aisenseapi.com/mcp`, with schemas published by `tools/list`. This source
-version contains 61 tools, matching production discovery on 3 October 2026:
-the 32 workflow tools and 29 tools that run the REST endpoints above.
+`https://aisenseapi.com/mcp`, with schemas published by `tools/list`: the
+workflow tools and one tool for each REST endpoint above.
 
 A third protocol runs at its own URL:
 

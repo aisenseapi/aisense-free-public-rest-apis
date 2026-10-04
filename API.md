@@ -11,8 +11,6 @@ at `https://aisenseapi.com/a2a`. See [`MCP.md`](MCP.md) for the MCP tool list an
 client examples, and [Agent2Agent (A2A)](#agent2agent-a2a) below for the five
 task-shaped skills that protocol carries.
 
-This reference combines source-checked contracts with dated production checks.
-Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 The response key is
 almost never `data` or `result` - it is usually named after the endpoint
 (`/md5_hash` returns `md5_hash`, `/random_color` returns `random_color`). Do not
@@ -2137,7 +2135,7 @@ confirmed but the checksum still can. An unknown `{type}` returns HTTP 400.
 ### Agent Queue - temporary work for multiple workers
 
 Agent Queue lets a producer enqueue JSON jobs and workers claim them for a short
-visibility window. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
+visibility window.
 See [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for an executable workflow.
 
 **Create:** `POST /queue` with no parameters (an empty JSON object is accepted).

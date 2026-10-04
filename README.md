@@ -9,7 +9,7 @@ Full endpoint reference: [`API.md`](API.md) | Repo: [github.com/aisenseapi/aisen
 
 ## Free public MCP endpoints
 
-Production discovery on 9 September 2026 returned 28 AI SENSE workflow tools at:
+The AI SENSE MCP server is at:
 
 `https://aisenseapi.com/mcp`
 
@@ -22,16 +22,15 @@ time and UUIDs. It needs no account or API key. Heartbeat uses
 `read_agent_inbox`. See
 [`MCP.md`](MCP.md) for the tool list, data boundary and client examples.
 
-The eight Agent Queue tools are included in that discovery result. The deployed
-Queue REST smoke test passed 21 checks on 9 September 2026. Queue operations
-use separate read, write and worker tokens issued at creation.
+The Agent Queue tools use separate read, write and worker tokens issued at
+creation.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.11.1` and 61 tools: 32 workflow tools and 29
-that run the REST endpoints below. The official MCP Registry lists
+The server reports version `1.11.1`. It offers the workflow tools and one
+tool for each REST endpoint below. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.11.1` as active and latest,
 published 4 October 2026 at 08:08 UTC.
 
@@ -150,8 +149,6 @@ The collection covers two tiers of usefulness:
 ## Three things to know before you write a client
 
 These are service-wide and they decide how your error handling has to look.
-This reference combines source-checked contracts with dated production checks.
-Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 
 **The response key is named after the endpoint.** `/md5_hash` returns
 `md5_hash`, `/random_color` returns `random_color`, `/ping` returns `ping`.
@@ -244,7 +241,6 @@ The matching MCP tools are `create_lease_namespace`, `acquire_lease`,
 ### Agent Queue - share temporary work
 
 Agent Queue gives producers and workers a shared queue for small JSON jobs.
-Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/queue \
@@ -284,7 +280,7 @@ which creates the queue and returns its three role tokens; enqueueing, claiming
 and acknowledging stay on REST or MCP.
 
 See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-workers),
-[eight MCP tools](MCP.md#agent-queue) and
+[MCP tools](MCP.md#agent-queue) and
 [website guide](web/free-public-api-agent-queue-api-endpoint.html).
 
 ---
@@ -847,7 +843,7 @@ it will use these APIs as tools automatically.
 | [`API.md`](API.md) | Endpoint contracts, source checks and dated production observations |
 | [`queue-openapi.json`](queue-openapi.json) | Standalone OpenAPI contract for Agent Queue |
 | [`MCP.md`](MCP.md) | Remote MCP server, tool list and client examples |
-| [`AGENT-GUIDE.md`](AGENT-GUIDE.md) | Canonical compact guide to all 61 MCP tools |
+| [`AGENT-GUIDE.md`](AGENT-GUIDE.md) | Canonical compact guide to all MCP tools |
 | [`AGENT-QUICKSTART.md`](AGENT-QUICKSTART.md) | Complete Queue example, worker and retry decisions |
 | [`server.json`](server.json) | Metadata for the official MCP Registry |
 | [`aisense_api.py`](aisense_api.py) | Python client (standard library only) |

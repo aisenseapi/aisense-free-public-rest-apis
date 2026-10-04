@@ -1,15 +1,9 @@
 # AI SENSE Agent Quickstart
 
 Use this guide for one complete Queue workflow. See [AGENT-GUIDE.md](AGENT-GUIDE.md)
-for the compact 32-tool catalog, [MCP.md](MCP.md) for protocol details, and
+for the compact tool catalog, [MCP.md](MCP.md) for protocol details, and
 [API.md](API.md#agent-queue---temporary-work-for-multiple-workers) for response
 fields and limits.
-
-On 9 September 2026, the deployed Queue REST smoke test passed 21 checks and
-production MCP discovery returned all 28 tools. On 23 September 2026 it
-returned 32, the four added ones being the temporary DNS names. This verifies the Queue
-deployment and discovery, not deployment of the refreshed embedded agent
-guide. Check `resources/read` before relying on its contents.
 
 ## Choose the right primitive
 
@@ -49,14 +43,11 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 API = "https://aisenseapi.com/services/v1"
 
-
 class NoRedirects(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
-
 http = build_opener(NoRedirects())
-
 
 def request(method, route, body=None, token=None):
     headers = {
@@ -80,7 +71,6 @@ def request(method, route, body=None, token=None):
     if result.get("error"):
         raise SystemExit("API error. Stop and inspect the operation before retrying.")
     return result
-
 
 queue = request("POST", "/queue", {})
 queue_path = "/queue/" + queue["queue_id"]
