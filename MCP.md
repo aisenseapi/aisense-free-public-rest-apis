@@ -153,7 +153,7 @@ and one tool call counts once.
 Decide keeps its rule engine when model is omitted or "rules". Explicit
 model "clef" uses instructions and criteria with noul, choice or score
 questions. Model requests allow 8 KiB and 4 questions, and each IP may make
-10 per UTC minute and 200 per UTC day. Model mode processes the submitted state
+60 per UTC minute and 1000 per UTC day. Model mode processes the submitted state
 and questions and does not produce an automatic action. Unknown models return
 400. A model that is temporarily unavailable returns 503, and a reached
 limit 429. Numeric Retry-After is preserved as retry_after in
