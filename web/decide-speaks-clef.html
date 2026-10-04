@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Decide Speaks Clef: Cloudflare's Decision Models in a Free Endpoint - AI SENSE</title>
-<meta name="description" content="Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now has a place for them beside its rule engine, switched on once measured, and a page where anyone can build a decision without writing JSON.">
+<meta name="description" content="Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now offers them beside its rule engine, and a page where anyone can build a decision without writing JSON.">
 <link rel="canonical" href="https://aisense.no/decide-speaks-clef">
 
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Decide Speaks Clef">
-<meta property="og:description" content="Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now has a place for them beside its rule engine, switched on once measured, and a page where anyone can build a decision without writing JSON.">
+<meta property="og:description" content="Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now offers them beside its rule engine, and a page where anyone can build a decision without writing JSON.">
 <meta property="og:url" content="https://aisense.no/decide-speaks-clef">
 <meta property="article:published_time" content="2026-10-03">
 <meta property="og:image" content="https://aisense.no/assets/decide-speaks-clef.jpg">
@@ -29,7 +29,7 @@
     {
       "@type": "TechArticle",
       "headline": "Decide Speaks Clef",
-      "description": "Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now has a place for them beside its rule engine, switched on once measured, and a page where anyone can build a decision without writing JSON.",
+      "description": "Cloudflare released Clef, open-source decision models that answer typed questions with probabilities. Our free /decide endpoint now offers them beside its rule engine, and a page where anyone can build a decision without writing JSON.",
       "url": "https://aisense.no/decide-speaks-clef",
       "image": "https://aisense.no/assets/decide-speaks-clef.jpg",
       "datePublished": "2026-10-03",
@@ -103,6 +103,7 @@
 </figure>
 
 <div class="article-body">
+  <p><strong>Update, 4 October 2026:</strong> the Clef model is now open to everyone, with the limits below. <a href="/try-decide#clef">Try it in the browser</a>.</p>
   <p class="article-lead">A decision model does one narrow thing. You give it a situation and a fixed set of questions, and it gives back an answer to each with probabilities a program can act on: yes or no, one of several options, or a place on a scale. It writes no text to parse. That is the same job <a href="/free-public-api-decide-api-endpoint"><span class="agent-optimal-tail">Decide<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> has done with rules since September, so when Cloudflare published two such models in the open, we made room for them.</p>
 
   <h2>What Cloudflare released</h2>
@@ -116,7 +117,7 @@
       <tr><td>You send</td><td>Facts, and weighted rules for each answer</td><td>The situation in words, the question, and what each answer means</td></tr>
       <tr><td>Questions</td><td><code>yes_no</code>, <code>choice</code>, <code>scale</code></td><td><code>noul</code>, <code>choice</code>, <code>score</code></td></tr>
       <tr><td>You get back</td><td>Probabilities from the weights, how clear-cut they are, a next step of act, review or hold for the answer given, and the rules that held</td><td>The model's answer, probabilities and its own confidence, with no next step</td></tr>
-      <tr><td>Today</td><td>Open to everyone</td><td>Opening soon</td></tr>
+      <tr><td>Today</td><td>Open to everyone</td><td>Open to everyone, with limits per address</td></tr>
     </tbody>
   </table></div>
   <p>The endpoint is the same: <code>POST https://aisenseapi.com/services/v1/decide</code>. Leave <code>model</code> out, or send <code>"rules"</code>, and Decide answers from rules exactly as before. Send <code>"model": "clef"</code> and the questions carry instructions and criteria in plain words instead of rules:</p>
@@ -137,7 +138,7 @@
   <p>There is no fallback from one to the other. An unknown model is refused with a 400, and the API checks every field of the model's reply before it passes any of it on.</p>
 
   <h2>Limits</h2>
-  <p>Until the model opens, a model call answers 503 with a fix that says rules still work. Model requests have limits of their own:</p>
+  <p>Model requests have limits of their own:</p>
   <ul>
     <li>8 KiB in a request, at most 4 questions and 8 options or levels in each</li>
     <li>2 model calls a minute and 20 a day from one address</li>
@@ -146,7 +147,7 @@
   <p>A model call sends the situation and the questions to the model for processing, so keep credentials and sensitive personal data out of them. The API keeps neither the request bodies nor the answers. As on every endpoint, the access log records each request with the address, and the daily request limit counts requests per address. Model calls also leave usage counters keyed by a hash of the address, and timings, as the <a href="/privacy">privacy page</a> says.</p>
 
   <h2>Try it without writing JSON</h2>
-  <p><a href="/try-decide">Try Decide</a> is a page for anyone who wants to see what Decide does before writing code. Pick an example, such as whether to refund a customer or bring an umbrella, or fill in your own facts and rules. The JSON request is written for you as you go, and you can edit it. Press Decide and the answer comes back in plain words, with the rules that held, and as JSON. The <a href="/try-decide#clef">Clef tab</a> works the same way and is ready for the day the model opens.</p>
+  <p><a href="/try-decide">Try Decide</a> is a page for anyone who wants to see what Decide does before writing code. Pick an example, such as whether to refund a customer or bring an umbrella, or fill in your own facts and rules. The JSON request is written for you as you go, and you can edit it. Press Decide and the answer comes back in plain words, with the rules that held, and as JSON. The <a href="/try-decide#clef">Clef tab</a> works the same way.</p>
 
   <h2>Decide is Agent Optimal</h2>
   <p>Decide answers with a next step an agent can follow, so it now carries the Agent Optimal mark beside Agent Wake, Agent Queue, Agent Inbox, Heartbeat and Lease. Through the <a href="/free-public-mcp-server">MCP server</a>, the <code>decide</code> tool takes the same optional model.</p>

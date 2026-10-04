@@ -124,7 +124,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 ''' + hero('Logic - Decisions', 'Free Decision API Endpoint',
            'Send the facts and your rules, and get typed decisions back: yes or no, one of several options, or a level on a scale. '
            'Rules are the default and explain each answer. Optional model selection uses the same endpoint with a separate question format '
-           'and its own usage limits. The Clef model is not open yet.',
+           'and its own usage limits.',
            ['No API key', 'One POST', 'Rules by default', 'Optional model selection'],
            'Decide', '<p class="sig"><span class="method post">POST</span><span class="path">/decide</span></p>', API + '/decide') + '''
 
@@ -153,7 +153,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="try"><h2>Try it</h2><p>Write the request yourself below, or build it in a form with examples and read the answer in plain words on <a href="/try-decide">Try Decide</a>.</p><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
 
-<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is not open or temporarily unavailable returns 503. Neither falls back to rules.</p>''' + pre(json.dumps({
+<section id="models"><h2>Optional Clef model</h2><p>Send <code>"model":"clef"</code> with instructions and criteria instead of weighted rules. An unknown model returns 400, and a model that is temporarily unavailable returns 503. Neither falls back to rules.</p>''' + pre(json.dumps({
     "model": "clef",
     "state": {"message": "The production API returns HTTP 500 and blocks checkout."},
     "questions": {"urgent": {
@@ -173,7 +173,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
     ['415', 'The body is not sent as <code>application/json</code>'],
     ['429', 'The service-wide limit of 5000 requests per IP per day, or the model request limit'],
     ['502', 'The model request could not be completed'],
-    ['503', 'The model is not open or temporarily unavailable'],
+    ['503', 'The model is temporarily unavailable'],
     ['504', 'The model request timed out'],
 ]) + '''</section>
 

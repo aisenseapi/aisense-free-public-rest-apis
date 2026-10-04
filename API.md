@@ -1021,7 +1021,7 @@ pixels.
 ## Logic
 
 `/decide` answers typed questions from rules by default, with optional model
-selection when enabled. `/chaos` answers with a failure you pick for client tests.
+selection. `/chaos` answers with a failure you pick for client tests.
 
 ### `POST /decide`
 
@@ -1080,9 +1080,8 @@ metadata, not the body.
 #### Optional Clef model
 
 Set `"model":"clef"` and supply `state` plus named `questions`. Each question
-has `type`, `instructions` and `criteria`. Until the model opens, model
-requests return 503. An unknown model returns 400. There is no fallback to
-rules.
+has `type`, `instructions` and `criteria`. An unknown model returns 400.
+There is no fallback to rules.
 
 | Type | Criteria | Answer |
 | --- | --- | --- |
@@ -1102,8 +1101,7 @@ Limits: 8 KiB body, 4 questions, 8 choices or levels, 1024 UTF-8 bytes per
 instruction and 512 per criterion. Each IP may make 2 model requests per UTC
 minute and 20 per UTC day. An accepted request counts, also when it fails.
 
-A reached limit returns 429, a model that is not open or temporarily
-unavailable 503, a request that could not be completed 502 and one that timed
+A reached limit returns 429, a model that is temporarily unavailable 503, a request that could not be completed 502 and one that timed
 out 504. Respect `Retry-After` where provided. Do not retry in a loop. Rules
 remain available.
 
