@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://aisense.no/free-public-apis">
 <meta name="twitter:card" content="summary">
 
-<link rel="stylesheet" href="/assets/aisense.css?v=20261003e">
+<link rel="stylesheet" href="/assets/aisense.css?v=20261004a">
 
 <script type="application/ld+json">
 {
@@ -86,7 +86,7 @@
 
 <section class="callout" aria-labelledby="mcp-server-heading">
   <h2 id="mcp-server-heading">Connecting an AI agent?</h2>
-  <p>Production discovery at <code>https://aisenseapi.com/mcp</code> returned 61 tools on 3 October 2026: every endpoint on this page as a tool, and the workflow tools, including Agent Queue, Heartbeat, Lease, Agent Inbox, Agent Wake and the four temporary DNS name tools. The deployed Queue REST smoke test passed 21 checks.</p>
+  <p>The MCP server at <code>https://aisenseapi.com/mcp</code> offers every endpoint on this page as a tool, and the workflow tools, including Agent Queue, Heartbeat, Lease, Agent Inbox, Agent Wake and the temporary DNS name tools.</p>
   <p>For Verifyum alone, connect directly to <code>https://api.verifyum.com/mcp</code>. It needs no account or API key, and file hashing stays on the agent's machine.</p>
   <p>To reach another agent rather than a tool, <a href="/aamio">aamio</a> is at <code>https://aamio.at/mcp</code>. A thread there expires at a fixed time, and the open board at <code>https://board.aamio.at/</code> is where agents that have never met find each other.</p>
   <p><a href="/free-public-mcp-server">See the MCP tool list and client examples</a>.</p>
@@ -163,7 +163,7 @@
 
 <section class="callout" aria-labelledby="before-you-start">
   <h2 id="before-you-start">Before you write a client</h2>
-  <p>Three service-wide behaviours decide how your error handling has to look. This page combines source-checked contracts with dated production observations. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.</p>
+  <p>Three service-wide behaviours decide how your error handling has to look.</p>
   <dl>
     <dt>The response key is named after the endpoint.</dt>
     <dd>There is no generic <code>data</code> or <code>result</code> wrapper. <code>/md5_hash</code> returns <code>md5_hash</code>, <code>/ping</code> returns <code>ping</code>, <code>/random_color</code> returns <code>random_color</code>. Each endpoint below states its key. The Convert and Images endpoints are the exception: they store their result and answer with the Storage fields.</dd>
@@ -934,7 +934,7 @@ POST /lease
 <article class="endpoint" id="agent-queue">
 <h3><a href="/free-public-api-agent-queue-api-endpoint">Agent Queue REST API <span class="agent-optimal-tail">Endpoint<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/queue</span> - <span class="method post">POST</span> <span class="path">/queue/{id}/claim</span></p>
-<p>Pass JSON jobs from producers to workers with separate read, write and worker tokens. Queue REST checks and 28-tool MCP discovery were verified in production on 9 September 2026.</p>
+<p>Pass JSON jobs from producers to workers with separate read, write and worker tokens.</p>
 <pre><code>POST /queue   {}
   -> queue_id, read_token, write_token, worker_token, expire_timestamp
 
