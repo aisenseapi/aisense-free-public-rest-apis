@@ -2448,9 +2448,13 @@ and `1.200` read as `1200`. The score is not a probability. With `bge-m3` in
 our tests, correct first results scored 0.66 or more and searches without a
 matching note scored at most 0.60, so a top score below about 0.6 is a likely
 miss, as for the third result above. That is guidance from a small test set,
-not a guarantee, and `qwen3-embedding-4b` showed no such threshold. Embeddings
-capture the topic better than the stance: approve and reject, or hold and send,
-on the same matter can rank close. Read the text before acting on a result.
+not a guarantee, and `qwen3-embedding-4b` showed no such threshold. A high score
+is no proof of a match either: in a collection of 500 similar order notes, a
+search for an order that was not there still scored 0.67 with `bge-m3`, and the
+top result was a refund for another order. Check identifiers such as order
+numbers in the result text. Embeddings capture the topic better than the
+stance: approve and reject, or hold and send, on the same matter can rank
+close. Read the text before acting on a result.
 
 **Read and delete:** `GET /semantic_search/{collection_id}` with the read token
 returns the model, `notes`, `notes_added`, `notes_max` and the timestamps.
