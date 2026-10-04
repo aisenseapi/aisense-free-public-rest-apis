@@ -16,7 +16,8 @@ web/assets/aisense.css under "Primary navigation".
 The latest posts are read from the blogPost list in web/ai-sense-posts.html,
 newest first, so adding a post there and running this updates every menu.
 It also sets the version on each page's link to assets/aisense.css, see
-CSS_VERSION. Each page keeps the top-level item it marks as current, and the home page its
+CSS_VERSION, writes the theme script assets/aisense-theme.js right after that
+link, and puts the moon button for the dark theme at the end of the header. Each page keeps the top-level item it marks as current, and the home page its
 current wordmark; a page that marks none stays that way. Every link must point at a page in web/, or the script stops.
 
 Python 3, standard library only. Run from anywhere.
@@ -38,7 +39,7 @@ LATEST_POSTS = 5
 # no Cache-Control, so a browser may keep an old copy for hours; a new header
 # with the old CSS would show every menu open. Change this whenever the CSS
 # changes in a way the pages depend on, and run the script.
-CSS_VERSION = '20261004a'
+CSS_VERSION = '20261004b'
 
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.
@@ -179,6 +180,20 @@ CURRENT_OVERRIDES = {
 HEADER_RE = re.compile(r'<header class="site-header">.*?</header>', re.S)
 CSS_RE = re.compile(r'<link rel="stylesheet" href="/assets/aisense\.css(?:\?v=[^"]*)?">')
 CSS_LINK = '<link rel="stylesheet" href="/assets/aisense.css?v=%s">' % CSS_VERSION
+# The theme script runs in <head>, before the first paint, so a stored dark
+# choice never shows a light page first. It shares the CSS version.
+THEME_RE = re.compile(r'\n?<script src="/assets/aisense-theme\.js(?:\?v=[^"]*)?"></script>')
+THEME_TAG = '<script src="/assets/aisense-theme.js?v=%s"></script>' % CSS_VERSION
+# The moon shows in the light theme and the sun in the dark one, by CSS.
+THEME_BUTTON = (
+    '<button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme">'
+    '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg>'
+    '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle>'
+    '<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>'
+    '</button>'
+)
 
 
 def esc(text):
@@ -260,7 +275,7 @@ def render(current, home=False):
     return ('<header class="site-header"><div class="inner">' + wordmark +
             '<nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle">'
             '<label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label>'
-            '<div class="site-menu-links">' + ''.join(items) + '</div></nav></div></header>')
+            '<div class="site-menu-links">' + ''.join(items) + '</div>' + THEME_BUTTON + '</nav></div></header>')
 
 
 def check_links(header):
@@ -289,7 +304,8 @@ def main():
         current = CURRENT_OVERRIDES.get(name, marked[0] if marked else None)
         home = 'class="wordmark" href="/" aria-current="page"' in found.group(0)
         updated = source[:found.start()] + render(current, home) + source[found.end():]
-        updated = CSS_RE.sub(CSS_LINK, updated)
+        updated = THEME_RE.sub('', updated)
+        updated = CSS_RE.sub(CSS_LINK + '\n' + THEME_TAG, updated)
         updated = decorate_agent_optimal(updated, name)
         if updated == source:
             continue

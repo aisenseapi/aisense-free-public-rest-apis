@@ -20,7 +20,7 @@ TEMPLATE = io.open(WEB + '/free-public-api-dns-name-api-endpoint.html', encoding
 B = chr(92)
 
 STYLE = '''<style>
-.try-api textarea, .try-api select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: var(--ink); }
+.try-api textarea, .try-api select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); }
 .try-api textarea { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .try-api select { min-height: 48px; font: inherit; }
 .try-api .button-row { margin: 14px 0; }
