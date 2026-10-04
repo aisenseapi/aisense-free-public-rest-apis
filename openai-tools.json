@@ -1885,5 +1885,656 @@
         "additionalProperties": false
       }
     }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "json_to_csv",
+      "description": "JSON rows to CSV. columns names the columns and their order; rows is a list of flat objects with no other fields. The CSV is stored as result.csv with every cell quoted and CRLF line ends. A field not in columns, a nested value or a body over 256 KB answers 400 or 413 with error and fix. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /json_to_csv",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "maxItems": 5000
+          },
+          "delimiter": {
+            "type": "string",
+            "enum": [
+              ",",
+              ";",
+              "\t"
+            ],
+            "default": ",",
+            "description": "Comma, semicolon or tab."
+          },
+          "spreadsheet_safe": {
+            "type": "boolean",
+            "default": false,
+            "description": "Put an apostrophe in front of cells that start with =, +, - or @, so a spreadsheet does not run them as formulas."
+          }
+        },
+        "required": [
+          "columns",
+          "rows"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "csv_to_json",
+      "description": "CSV text to JSON. The first line is the header, with unique, non-empty names, and every cell stays a string. Stored as result.json, {columns, rows}. A malformed CSV answers 400 with error and fix. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /csv_to_json",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The CSV text."
+          },
+          "delimiter": {
+            "type": "string",
+            "enum": [
+              ",",
+              ";",
+              "\t"
+            ],
+            "default": ",",
+            "description": "Comma, semicolon or tab."
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "table_match",
+      "description": "Match the rows of two tables on key column pairs, like a join. Every pair in keys must be equal for two rows to match, compared exactly and with their type. Stored as matches.json: matched as {left_index, right_index}, only_left, only_right and ambiguous, positions only. At most 5000 rows per table and 100 key pairs. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /table_match",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "left": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "right": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "keys": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "properties": {
+                "left": {
+                  "type": "string"
+                },
+                "right": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "left",
+                "right"
+              ]
+            },
+            "description": "Key column pairs such as {\"left\": \"id\", \"right\": \"customer_id\"}."
+          }
+        },
+        "required": [
+          "left",
+          "right",
+          "keys"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "json_format",
+      "description": "Pretty-print or compact JSON text. Only whitespace changes: number spelling, escapes, key order and duplicate keys are kept. Stored as result.json. Invalid JSON answers 400 with the parser's message. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /json_format",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The JSON text, as a string."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "pretty",
+              "compact"
+            ],
+            "default": "pretty"
+          },
+          "indent": {
+            "type": "integer",
+            "enum": [
+              2,
+              4
+            ],
+            "default": 2
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "json_validate",
+      "description": "Check that JSON text parses; syntax only, not JSON Schema. Invalid JSON is a result, not an error: the answer is 200 with valid added to the Storage fields, and the stored validation.json has valid, error (the parser's message), input_bytes and max_depth. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /json_validate",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The JSON text, as a string."
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_convert",
+      "description": "Convert an image to JPEG, PNG or WebP; HEIC from an iPhone is read too. The image is turned upright, EXIF, XMP, IPTC and comments are removed and the color profile is kept. The answer adds operation, format, width, height, input_format and input_bytes. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_convert",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "jpg",
+              "png",
+              "webp"
+            ],
+            "description": "jpg is read as jpeg."
+          },
+          "quality": {
+            "type": "integer",
+            "minimum": 40,
+            "maximum": 95,
+            "description": "For JPEG and WebP; 82 when left out."
+          },
+          "lossless": {
+            "type": "boolean",
+            "description": "WebP only; lossless takes no quality."
+          }
+        },
+        "required": [
+          "image_base64",
+          "format"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_compress",
+      "description": "Save a JPEG, PNG or WebP again in its own format: JPEG and WebP at the given quality, PNG losslessly. bytes and input_bytes in the answer show the change; an image already compressed harder can come out larger. HEIC is refused. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_compress",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          },
+          "quality": {
+            "type": "integer",
+            "minimum": 40,
+            "maximum": 95,
+            "description": "For JPEG and WebP; 82 when left out."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_resize",
+      "description": "Give a JPEG, PNG, WebP or HEIC a new size inside a box of width and height, keeping the aspect ratio. fit contain keeps all of the picture; cover fills the box, cuts the rest from the center and needs both sides. A smaller picture keeps its size unless upscale is true. The answer adds input_width, input_height, fit and upscaled. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_resize",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "fit": {
+            "type": "string",
+            "enum": [
+              "contain",
+              "cover"
+            ],
+            "default": "contain"
+          },
+          "upscale": {
+            "type": "boolean",
+            "default": false
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "jpg",
+              "png",
+              "webp"
+            ],
+            "description": "The upload's format when left out, and JPEG for a HEIC."
+          },
+          "quality": {
+            "type": "integer",
+            "minimum": 40,
+            "maximum": 95,
+            "description": "For JPEG and WebP; 82 when left out."
+          },
+          "lossless": {
+            "type": "boolean",
+            "description": "WebP only."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_metadata",
+      "description": "Report what an image carries besides its pixels: EXIF, GPS in decimal degrees, XMP, IPTC, comments, the color profile, embedded thumbnails and a privacy list of what can identify a person, a place, a device or a time. The report is stored as metadata.json; the answer adds format, width, height, gps (true when there is a position) and findings. The file is read, never decoded or changed. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_metadata",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_strip",
+      "description": "Remove EXIF, XMP, IPTC, comments and other metadata without saving the image again: the image data is copied byte for byte, the color profile is kept and a turned orientation is written back alone. The answer adds format, width, height, input_bytes, removed and kept. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_strip",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_colors",
+      "description": "The dominant colors of an image with the share of the visible pixels each covers, the average color and a 16 pixel PNG placeholder as a data URI, stored as colors.json. The answer adds average, dominant and count. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_colors",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 16,
+            "default": 8,
+            "description": "How many colors."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_favicon",
+      "description": "A favicon set as a ZIP from one picture: favicon.ico with 16, 32 and 48 pixels, favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest and head.html with the tags to paste, stored as favicon.zip. The answer adds files, crop and upscaled. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_favicon",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "The image, base64-encoded. Send its bytes as the multipart field file."
+          },
+          "crop": {
+            "type": "string",
+            "enum": [
+              "fit",
+              "trim",
+              "center"
+            ],
+            "default": "fit",
+            "description": "fit keeps all of it on transparent, trim cuts away a border of one color first, center takes a square from the middle."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "description": "The site name for the manifest."
+          }
+        },
+        "required": [
+          "image_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "html_to_pdf",
+      "description": "Render HTML to a PDF, stored for 24 hours. The answer has storage_id, storage_url, sha256_hash, bytes and expire_timestamp; a GET on storage_url returns the PDF. The renderer has no network access, so images, stylesheets and fonts must be inline. Empty input answers 400. POST /html2pdf",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "html": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The markup; data is accepted as the same field."
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page-size": {
+                "type": "string",
+                "enum": [
+                  "A3",
+                  "A4",
+                  "A5",
+                  "Letter",
+                  "Legal",
+                  "Tabloid"
+                ]
+              },
+              "orientation": {
+                "type": "string",
+                "enum": [
+                  "Portrait",
+                  "Landscape"
+                ]
+              },
+              "margin-top": {
+                "type": "string",
+                "description": "Up to three digits with an optional mm, cm or in, such as 20mm."
+              },
+              "margin-bottom": {
+                "type": "string"
+              },
+              "margin-left": {
+                "type": "string"
+              },
+              "margin-right": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "html"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "decide",
+      "description": "Typed answers about a state. Omit model, or use rules, for weighted rules: yes_no, choice and scale questions answered with probability, confidence, an action (act, review or hold) and because, the rules that held. With model clef, nimble or tev1 the questions are noul, choice or score with instructions and criteria, and the answer is the model's own, with no action. tev1 is the smallest and fastest, tested by its maker in English only, and suits short, direct questions. Rules: 64 KiB and 50 rules per list. Models: 8 KiB (3 KiB for tev1), 4 questions, 8 choices, and 60 requests a minute and 1000 a day per IP; a refusal may carry Retry-After, so do not retry automatically. The format: https://aisense.no/free-public-api-decide-api-endpoint. POST /decide",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "enum": [
+              "rules",
+              "clef",
+              "nimble",
+              "tev1"
+            ],
+            "default": "rules"
+          },
+          "state": {
+            "type": "object",
+            "description": "The facts the rules test, or the input the model reads."
+          },
+          "questions": {
+            "type": "object",
+            "description": "1 to 64 named rule questions, or 1 to 4 named model questions."
+          }
+        },
+        "required": [
+          "state",
+          "questions"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "simulate_failure",
+      "description": "Get a chosen failure on purpose, to test how a client handles it: a status from 200 to 504, an HTML error page (html, a 502), an empty body labelled JSON (empty) or valid JSON labelled text/plain (wrongtype), after an optional delay of up to 10000 ms. 400 and above answer {error, chaos}, 200 and 201 {ok: true, chaos}, and 204 has no body. 429 and 503 carry Retry-After: 2, and X-Chaos names what was asked. GET /chaos/{outcome}[/{delay_ms}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "200",
+              "201",
+              "204",
+              "400",
+              "401",
+              "403",
+              "404",
+              "409",
+              "410",
+              "422",
+              "429",
+              "500",
+              "502",
+              "503",
+              "504",
+              "html",
+              "empty",
+              "wrongtype"
+            ]
+          },
+          "delay_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_dns_name",
+      "description": "A public hostname for an address for 24 hours: aisense-<slug>.53for24h.com, an A or AAAA record with a TTL of 60 seconds. Returns {name, slug, ip, record, ttl, nameservers, expire_at, dns_token}; the dns_token is shown once and is needed to move or delete the name. Private, loopback, link-local and multicast addresses answer 400. The name is public, carries no certificate and can send or receive no mail. At most 10 names per client address per hour and one change per name per 10 seconds. GET /dns/{ip}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "A public IPv4 or IPv6 unicast address."
+          }
+        },
+        "required": [
+          "ip"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_dns_name",
+      "description": "Read a name created by create_dns_name: its address and expiry, which are already public in DNS. GET /dns/{slug}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{7}$",
+            "description": "The seven-character slug of the name."
+          }
+        },
+        "required": [
+          "slug"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "update_dns_name",
+      "description": "Move a name to another public address. The expiry does not move. The request is a POST with no body or {}, and the token goes in Authorization: Bearer. At most 10 names per client address per hour and one change per name per 10 seconds. POST /dns/{slug}/update/{ip}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{7}$",
+            "description": "The seven-character slug of the name."
+          },
+          "ip": {
+            "type": "string",
+            "description": "A public IPv4 or IPv6 unicast address."
+          },
+          "dns_token": {
+            "type": "string",
+            "description": "The dns_token from creation. Send it as Authorization: Bearer, never in the path."
+          }
+        },
+        "required": [
+          "slug",
+          "ip",
+          "dns_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "delete_dns_name",
+      "description": "Remove a name before it expires. The request is a POST with no body or {}, and the token goes in Authorization: Bearer. POST /dns/{slug}/delete",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{7}$",
+            "description": "The seven-character slug of the name."
+          },
+          "dns_token": {
+            "type": "string",
+            "description": "The dns_token from creation. Send it as Authorization: Bearer, never in the path."
+          }
+        },
+        "required": [
+          "slug",
+          "dns_token"
+        ],
+        "additionalProperties": false
+      }
+    }
   }
 ]

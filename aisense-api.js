@@ -20,6 +20,10 @@
  * /md5_hash returns `md5_hash`, /ping returns `ping` and /random_color returns
  * `random_color`, so do not guess the key.
  *
+ * The image methods take a Blob, File, ArrayBuffer or Uint8Array and upload it
+ * as multipart/form-data. simulateFailure resolves to what the API sent,
+ * status and body as text, instead of rejecting on the failure it asked for.
+ *
  * Five endpoints answer with raw bytes instead of JSON (base64Decode,
  * base58Decode, base32Decode, hexDecode and base64urlDecode); those resolve to a
  * string when the payload is valid UTF-8 and to a Uint8Array otherwise.
@@ -70,7 +74,9 @@ export class AISenseAPI {
 
   async #fetch(path, method, body, token) {
     const init = { method, headers: {} }
-    if (method === 'POST') {
+    if (method === 'POST' && body instanceof FormData) {
+      init.body = body
+    } else if (method === 'POST') {
       init.headers['Content-Type'] = 'application/json'
       init.body = JSON.stringify(body)
     }
@@ -175,6 +181,20 @@ export class AISenseAPI {
     return this.#request(path, 'DELETE')
   }
 
+  /**
+   * One image as the multipart field `file`, with the other fields as text.
+   * Fields left undefined or null are not sent.
+   */
+  #upload(path, file, fields = {}) {
+    const form = new FormData()
+    const blob = file instanceof Blob ? file : new Blob([file])
+    form.append('file', blob, typeof file.name === 'string' && file.name ? file.name : 'image')
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined && value !== null) form.append(key, String(value))
+    }
+    return this.#request(path, 'POST', form)
+  }
+
   // ── Time ──────────────────────────────────────────────────────────────────
 
   /**
@@ -232,6 +252,18 @@ export class AISenseAPI {
     return this.#get('/swatchinternettime')
   }
 
+  /**
+   * One time value in every form: unix seconds or milliseconds, ISO 8601,
+   * RFC 2822 or `'now'`. Response keys: `input`, `detected`, `timestamp`,
+   * `datetime`, `rfc2822`, `utc_datetime`. `offset` is a four-digit UTC offset
+   * as for getDatetime. Bad input is a 400.
+   */
+  timestampConvert(data, offset) {
+    const body = { data }
+    if (offset !== undefined) body.offset = offset
+    return this.#post('/timestamp_convert', body)
+  }
+
   // ── Random ────────────────────────────────────────────────────────────────
 
   /**
@@ -264,6 +296,14 @@ export class AISenseAPI {
   /** Random password, 12 characters by default. Response keys: `password`, `password_length`. */
   getPassword(length) {
     return this.#get(length !== undefined ? `/password/${length}` : '/password')
+  }
+
+  /**
+   * Pronounceable passphrase of `groups` hyphenated groups, 4 by default and
+   * 2 to 12. Response keys: `passphrase`, `groups`, `length`, `entropy_bits`.
+   */
+  getPassphrase(groups) {
+    return this.#get(groups !== undefined ? `/passphrase/${groups}` : '/passphrase')
   }
 
   // ── Transform ─────────────────────────────────────────────────────────────
@@ -386,6 +426,11 @@ export class AISenseAPI {
     return this.#post('/markdown_to_html', { data })
   }
 
+  /** Response key: `slug`. Scandinavian letters and Latin diacritics are transliterated; text with nothing to slug is a 400. */
+  slugify(data) {
+    return this.#post('/slugify', { data })
+  }
+
   /**
    * Encode a payload into an HS256 JWT. Response key: `jwt`.
    *
@@ -494,6 +539,18 @@ export class AISenseAPI {
   /** Verify a password against an Argon2id, bcrypt or scrypt string; the algorithm is read from the string. Answers match, algorithm and params. */
   passwordVerify(password, hash) {
     return this.#post('/password_verify', { password, hash })
+  }
+
+  /**
+   * Verify data against a digest. Response keys: `match`, `algorithm` and
+   * `computed`; a mismatch is a result, not an error. Name the `algorithm`
+   * when you know it, and always for whirlpool, sha3_256, sha3_512, blake2b
+   * and blake3. A CRC32 can be the integer crc32Checksum answers.
+   */
+  hashVerify(data, hash, algorithm) {
+    const body = { data, hash }
+    if (algorithm !== undefined) body.algorithm = algorithm
+    return this.#post('/hash_verify', body)
   }
 
   // ── Web ───────────────────────────────────────────────────────────────────
@@ -894,6 +951,201 @@ export class AISenseAPI {
     const body = { receipt }
     if (visibilityTimeout !== undefined) body.visibility_timeout = visibilityTimeout
     return this.#post(`/queue/${queueId}/jobs/${jobId}/renew`, body, workerToken)
+  }
+
+  /**
+   * Check an email address: syntax, then DNS. Response keys: `email`,
+   * `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record`. A
+   * failing address is a result with `valid_syntax` false. The mailbox itself
+   * is never contacted.
+   */
+  emailValidate(data) {
+    return this.#post('/email_validate', { data })
+  }
+
+  /**
+   * Check a business number by arithmetic: `type` is 'iban', 'card', 'orgnr',
+   * 'kontonummer' or 'phone'. Response keys: `type`, `valid` and the checks
+   * for that type. An invalid value is a result with `valid` false; nothing is
+   * looked up in a register, and a card number is never echoed back.
+   */
+  validate(type, data) {
+    return this.#post(`/validate/${type}`, { data })
+  }
+
+  /**
+   * A public DNS name for `ip` for 24 hours, `aisense-<slug>.53for24h.com`.
+   * Response keys: `name`, `slug`, `ip`, `record`, `ttl`, `nameservers`,
+   * `expire_at` and `dns_token`, shown once. `ip` must be a public address.
+   */
+  dnsCreate(ip) {
+    return this.#get(`/dns/${ip}`)
+  }
+
+  /** Read a DNS name by its `slug`: its address and expiry, all public in DNS anyway. */
+  dnsRead(slug) {
+    return this.#get(`/dns/${slug}`)
+  }
+
+  /** Move a DNS name to another public `ip`. The expiry does not move. `dnsToken` goes in the Authorization header. */
+  dnsUpdate(slug, ip, dnsToken) {
+    return this.#post(`/dns/${slug}/update/${ip}`, {}, dnsToken)
+  }
+
+  /** Remove a DNS name before it expires. `dnsToken` goes in the Authorization header. */
+  dnsDelete(slug, dnsToken) {
+    return this.#post(`/dns/${slug}/delete`, {}, dnsToken)
+  }
+
+  /**
+   * Render HTML to a PDF stored for 24 hours. Response keys: the Storage
+   * fields `storage_id`, `storage_url`, `sha256_hash`, `bytes` and
+   * `expire_timestamp`; a GET on `storage_url` returns the PDF. `options` may
+   * set `page-size`, `orientation` and the four margins such as
+   * `margin-top`. The renderer has no network, so inline images, styles and
+   * fonts.
+   */
+  htmlToPdf(html, options) {
+    const body = { html }
+    if (options !== undefined) body.options = options
+    return this.#post('/html2pdf', body)
+  }
+
+  // ── Convert ───────────────────────────────────────────────────────────────
+
+  // These store their result for 24 hours and answer with the Storage fields
+  // (`storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`,
+  // `expire_datetime`) plus `content_type`, `filename` and `operation`. Read
+  // the result with storageGet or a GET on `storage_url`.
+
+  /**
+   * JSON rows to CSV, stored as result.csv. `columns` names the columns and
+   * their order. `options`: `delimiter` (`','`, `';'` or `'\t'`) and
+   * `spreadsheetSafe`, which guards cells a spreadsheet would run as formulas.
+   */
+  jsonToCsv(columns, rows, options = {}) {
+    const body = { columns, rows }
+    if (options.delimiter !== undefined) body.delimiter = options.delimiter
+    if (options.spreadsheetSafe !== undefined) body.spreadsheet_safe = options.spreadsheetSafe
+    return this.#post('/json_to_csv', body)
+  }
+
+  /** CSV text to `{columns, rows}`, stored as result.json. Every cell stays a string. */
+  csvToJson(data, delimiter) {
+    const body = { data }
+    if (delimiter !== undefined) body.delimiter = delimiter
+    return this.#post('/csv_to_json', body)
+  }
+
+  /**
+   * Match two lists of rows on `keys`, pairs such as
+   * `{ left: 'id', right: 'customer_id' }`. Stored as matches.json with
+   * `matched`, `only_left`, `only_right` and `ambiguous`, positions only.
+   */
+  tableMatch(left, right, keys) {
+    return this.#post('/table_match', { left, right, keys })
+  }
+
+  /** Pretty-print or compact JSON text, stored as result.json; only whitespace changes. `mode` 'pretty' or 'compact', `indent` 2 or 4. */
+  jsonFormat(data, mode, indent) {
+    const body = { data }
+    if (mode !== undefined) body.mode = mode
+    if (indent !== undefined) body.indent = indent
+    return this.#post('/json_format', body)
+  }
+
+  /** Check that JSON text parses. Adds `valid` to the Storage fields; invalid JSON is a result, and validation.json holds the parser's message. */
+  jsonValidate(data) {
+    return this.#post('/json_validate', { data })
+  }
+
+  // ── Images ────────────────────────────────────────────────────────────────
+
+  // Each takes one JPEG, PNG or WebP of at most 10 MB as `file`: a Blob or
+  // File, or the bytes as an ArrayBuffer or Uint8Array (a Node Buffer is one).
+  // It is sent as multipart/form-data. The result is stored for 24 hours, and
+  // the answer has the Storage fields plus `operation` and what the result is.
+
+  /**
+   * Convert to `format` 'jpeg', 'png' or 'webp'; reads HEIC too. `options`:
+   * `quality` 40 to 95 and, for WebP, `lossless`. Adds `format`, `width`,
+   * `height`, `input_format` and `input_bytes`.
+   */
+  imageConvert(file, format, options = {}) {
+    return this.#upload('/image_convert', file, { format, quality: options.quality, lossless: options.lossless })
+  }
+
+  /** Save again in its own format: JPEG and WebP at `quality` 40 to 95, PNG losslessly. Compare `bytes` with `input_bytes`. */
+  imageCompress(file, quality) {
+    return this.#upload('/image_compress', file, { quality })
+  }
+
+  /**
+   * A new size inside a box of `width` and/or `height`, aspect ratio kept;
+   * reads HEIC too. `options`: `width`, `height`, `fit` ('contain', or 'cover'
+   * with both sides), `upscale`, `format`, `quality`, `lossless`. Adds
+   * `input_width`, `input_height`, `fit` and `upscaled`.
+   */
+  imageResize(file, options = {}) {
+    const { width, height, fit, upscale, format, quality, lossless } = options
+    return this.#upload('/image_resize', file, { width, height, fit, upscale, format, quality, lossless })
+  }
+
+  /** What the image carries besides its pixels, with a privacy list, stored as metadata.json. Adds `format`, `width`, `height`, `gps` and `findings`. */
+  imageMetadata(file) {
+    return this.#upload('/image_metadata', file)
+  }
+
+  /** Remove EXIF, XMP, IPTC and comments without saving the image again. Adds `format`, `width`, `height`, `input_bytes`, `removed` and `kept`. */
+  imageStrip(file) {
+    return this.#upload('/image_strip', file)
+  }
+
+  /** The dominant colors, `count` 2 to 16 and 8 by default, stored as colors.json. Adds `average`, `dominant` and `count`. */
+  imageColors(file, count) {
+    return this.#upload('/image_colors', file, { count })
+  }
+
+  /** A favicon set as favicon.zip. `options`: `crop` 'fit', 'trim' or 'center', and `name` for the manifest. Adds `files`, `crop` and `upscaled`. */
+  imageFavicon(file, options = {}) {
+    return this.#upload('/image_favicon', file, { crop: options.crop, name: options.name })
+  }
+
+  // ── Logic ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Typed answers about `state`. Without `model`, or with 'rules', each
+   * question is yes_no, choice or scale with weighted rules, and its answer
+   * carries `probability`, `confidence`, `action` and `because`. With 'clef',
+   * 'nimble' or 'tev1' the questions are noul, choice or score with
+   * `instructions` and `criteria`, and the answer is the model's own. tev1 is
+   * the smallest and fastest, tested in English only, for short, direct
+   * questions. Response key: `answers`, with `model` and `model_version` for a
+   * model. The format: https://aisense.no/free-public-api-decide-api-endpoint
+   */
+  decide(state, questions, model) {
+    const body = { state, questions }
+    if (model !== undefined) body.model = model
+    return this.#post('/decide', body)
+  }
+
+  /**
+   * A failure on purpose, to test a client: `outcome` is a status from 200 to
+   * 504, or 'html', 'empty' or 'wrongtype', after `delayMs` of 0 to 10000.
+   * Unlike the other methods this one does not reject on the answer it asked
+   * for. It resolves to `{ status, contentType, retryAfter, chaos, body }`,
+   * with the body as text, so the handling under test sees what came back.
+   */
+  async simulateFailure(outcome, delayMs) {
+    const path = delayMs !== undefined ? `/chaos/${outcome}/${delayMs}` : `/chaos/${outcome}`
+    const res = await fetch(`${this.baseUrl}${path}`)
+    return {
+      status: res.status,
+      contentType: res.headers.get('content-type'),
+      retryAfter: res.headers.get('retry-after'),
+      chaos: res.headers.get('x-chaos'),
+      body: await res.text(),
+    }
   }
 
   // ── Crypto ────────────────────────────────────────────────────────────────
