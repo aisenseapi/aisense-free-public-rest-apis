@@ -803,7 +803,7 @@ with the Storage fields plus `operation` and what the result is. A GET on
 `image_convert`, `image_compress`, `image_resize`, `image_colors` and
 `image_favicon` decode the image, which may then be at most 25 megapixels. Every converted image is
 turned upright from its EXIF orientation, and EXIF, XMP, IPTC and comments are
-removed. The ICC colour profile is kept, and a CMYK JPEG becomes RGB. Only
+removed. The ICC color profile is kept, and a CMYK JPEG becomes RGB. Only
 `image_resize` changes the size. ImageMagick runs in a sandbox without network access, at most two
 images at a time; a third waits up to ten seconds and is then answered 503
 with `Retry-After`. A request may take 45 seconds, and a result may be 8 MB.
@@ -847,7 +847,7 @@ Each endpoint has a guide with a browser tool:
 [image compression](https://aisense.no/free-image-compression-api),
 [image metadata](https://aisense.no/free-image-metadata-viewer-api),
 [EXIF remover](https://aisense.no/free-exif-remover-api),
-[colour palette](https://aisense.no/free-image-color-palette-api) and
+[color palette](https://aisense.no/free-image-color-palette-api) and
 [favicon generator](https://aisense.no/free-favicon-generator-api).
 
 ---
@@ -871,7 +871,7 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
 Transparency is kept in PNG and WebP and becomes white in a JPEG. PNG is
 lossless and takes no quality. WebP allows at most 16383 pixels per side.
 A HEIC from an iPhone is turned once, the way its irot box says, and keeps
-its colour profile. HEIC cannot be written.
+its color profile. HEIC cannot be written.
 
 ---
 
@@ -963,7 +963,7 @@ From a JPEG it removes EXIF, XMP, IPTC and other Photoshop data, comments,
 the multi-picture index, other application segments and anything after the
 end of the image; from a PNG the text chunks, XMP, EXIF and the time; from a
 WebP the EXIF and XMP chunks. The image data is copied byte for byte. The
-colour profile is kept, and an orientation other than upright is written back
+color profile is kept, and an orientation other than upright is written back
 alone. The result is stored in the format of the upload, at most 10 MB, and
 the answer adds `format`, `width`, `height`, `input_bytes`, `removed` and
 `kept`.
@@ -971,7 +971,7 @@ the answer adds `format`, `width`, `height`, `input_bytes`, `removed` and
 ---
 
 ### `POST /image_colors`
-The dominant colours of an image, stored as `colors.json`.
+The dominant colors of an image, stored as `colors.json`.
 
 ```bash
 curl -s -X POST https://aisenseapi.com/services/v1/image_colors \
@@ -982,7 +982,7 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_colors \
 | Field | Required | Meaning |
 |-------|----------|---------|
 | `file` | yes | The image: JPEG, PNG or WebP |
-| `count` | no | How many colours, 2 to 16; 8 when left out |
+| `count` | no | How many colors, 2 to 16; 8 when left out |
 
 The report has `colors`, each with `hex`, `rgb` and its `share` of the
 visible pixels, the `average`, `transparent_share` for the pixels left out,
@@ -1004,7 +1004,7 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_favicon \
 | Field | Required | Meaning |
 |-------|----------|---------|
 | `file` | yes | The picture: JPEG, PNG or WebP |
-| `crop` | no | `fit` (all of it on transparent, the default), `trim` (cut away a border of one colour first) or `center` (a square from the middle) |
+| `crop` | no | `fit` (all of it on transparent, the default), `trim` (cut away a border of one color first) or `center` (a square from the middle) |
 | `name` | no | The site name for the manifest, at most 60 characters |
 
 The ZIP holds `favicon.ico` with 16, 32 and 48 pixels, `favicon-16x16.png`,

@@ -230,7 +230,7 @@ class AISenseAPI:
         return self._get(path)
 
     def get_random_color(self) -> dict:
-        """Random hex colour. Response key: ``random_color``."""
+        """Random hex color. Response key: ``random_color``."""
         return self._get("/random_color")
 
     def get_uuid(self) -> dict:

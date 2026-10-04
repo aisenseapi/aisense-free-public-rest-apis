@@ -42,7 +42,7 @@ RELATED = '''<h2 id="related">Related tools</h2>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
   <li>Guide: <a href="/convert-heic-webp-png-and-jpg-images">how to convert HEIC, WebP, PNG and JPG, and make images smaller</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
-  <li><a href="/free-image-color-palette-api">Colour palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li><a href="/free-image-color-palette-api">Color palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
   <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
   <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
   <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
@@ -125,7 +125,7 @@ ERRORS_DECODED = errors('JPEG, PNG or WebP',
     'Two images are being worked on already, the work took more than 45 seconds, or the service cannot do it right now.')
 
 METADATA = '''<li><strong>The image is turned upright</strong> from the orientation a phone camera writes in the EXIF data, before that data is removed.</li>
-  <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC colour profile is kept, so the colours stay the same. A CMYK JPEG is converted to RGB.</li>'''
+  <li><strong>EXIF, XMP, IPTC and comments are removed</strong>, so the camera, the GPS position, the date and the software do not follow the image. The ICC color profile is kept, so the colors stay the same. A CMYK JPEG is converted to RGB.</li>'''
 
 ACCEPT = 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp'
 ACCEPT_HEIC = ACCEPT + ',image/heic,image/heif,.heic,.heif'
@@ -470,7 +470,7 @@ CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP 
 page(
     'free-image-converter-api',
     'Free image converter API: HEIC, WebP, PNG and JPEG | AI SENSE',
-    'Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the colour profile is kept, and the result is a link that lasts 24 hours. No API key.',
+    'Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the color profile is kept, and the result is a link that lasts 24 hours. No API key.',
     'Free image converter: HEIC, WebP, PNG and JPEG',
     'Drop an image and choose WebP, PNG or JPEG. HEIC photos from an iPhone work too. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.',
     ['No API key', 'No account', 'HEIC, WebP, PNG and JPEG', 'EXIF removed', '5000 req / IP / day'],
@@ -500,7 +500,7 @@ page(
     '''<h2 id="how">How the conversion works</h2>
 <ul>
   <li><strong>JPEG, PNG, WebP and HEIC in, JPEG, PNG or WebP out.</strong> The format is read from the file itself, not from its name. An animated image is converted from its first frame.</li>
-  <li><strong>HEIC from an iPhone</strong> is turned the way the phone stored it, once, and keeps its colour profile, so the colours of a Display P3 photo stay right. HEIC can be read but not written.</li>
+  <li><strong>HEIC from an iPhone</strong> is turned the way the phone stored it, once, and keeps its color profile, so the colors of a Display P3 photo stay right. HEIC can be read but not written.</li>
   <li><strong>Quality</strong> goes from 40 to 95 for JPEG and WebP, and is 82 when you send none. PNG is lossless and takes no quality.</li>
   <li><strong>Lossless WebP</strong> keeps every pixel. For screenshots and graphics it is usually far smaller than PNG.</li>
   <li><strong>Transparency</strong> is kept in PNG and WebP. JPEG has none, so transparent pixels become white.</li>
@@ -530,8 +530,8 @@ page(
     [
         ('Is the image converter API free?', FAQ_FREE),
         ('Does it keep transparency?', 'In PNG and WebP, yes. JPEG has no transparency, so transparent pixels become white.'),
-        ('Is the GPS position removed?', 'Yes. EXIF, XMP, IPTC and comments are removed from every result. The colour profile is kept, so the colours stay the same.'),
-        ('Can it convert HEIC or GIF?', 'HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its colour profile. GIF, no.')
+        ('Is the GPS position removed?', 'Yes. EXIF, XMP, IPTC and comments are removed from every result. The color profile is kept, so the colors stay the same.'),
+        ('Can it convert HEIC or GIF?', 'HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its color profile. GIF, no.')
     ],
     'Free image converter API'
 )
@@ -541,10 +541,10 @@ page(
 page(
     'free-heic-to-jpg-converter',
     'Free HEIC to JPG Converter: iPhone Photos to JPEG | AI SENSE',
-    'Convert iPhone HEIC photos to JPG, PNG or WebP in your browser or with one API call. Turned the right way, colours kept, GPS removed. Free, no account.',
+    'Convert iPhone HEIC photos to JPG, PNG or WebP in your browser or with one API call. Turned the right way, colors kept, GPS removed. Free, no account.',
     'Free HEIC to JPG converter',
-    'Drop a HEIC photo from an iPhone and get a JPG back, turned the right way, with its colours and without its GPS position. The form calls the same free API your code can call: one POST, no API key and no account. The JPG waits in Storage for 24 hours.',
-    ['No API key', 'No account', 'HEIC to JPG, PNG or WebP', 'GPS removed', 'Colours kept'],
+    'Drop a HEIC photo from an iPhone and get a JPG back, turned the right way, with its colors and without its GPS position. The form calls the same free API your code can call: one POST, no API key and no account. The JPG waits in Storage for 24 hours.',
+    ['No API key', 'No account', 'HEIC to JPG, PNG or WebP', 'GPS removed', 'Colors kept'],
     'image_convert',
     """  <form id="tool-form">
 """ + drop('HEIC, JPEG, PNG or WebP', ACCEPT_HEIC) + """
@@ -575,7 +575,7 @@ page(
 <h2 id="how">How the conversion works</h2>
 <ul>
   <li><strong>Turned the right way, once.</strong> An iPhone records how a photo is turned twice, once in the HEIC file for HEIC readers and once in EXIF. A converter that applies both turns a portrait sideways. This one applies it once, and we test that with a file built the way an iPhone builds one.</li>
-  <li><strong>The colours are kept.</strong> A recent iPhone takes photos in the Display P3 colour space. The colour profile is read from the HEIC file and written into the JPG, so the colours look the same.</li>
+  <li><strong>The colors are kept.</strong> A recent iPhone takes photos in the Display P3 color space. The color profile is read from the HEIC file and written into the JPG, so the colors look the same.</li>
   <li><strong>The GPS position is removed</strong>, with the rest of EXIF, XMP and comments, so the JPG does not say where or with what it was taken.</li>
   <li><strong>JPG, PNG or WebP out.</strong> JPG takes a quality from 40 to 95 and is 82 when you send none. PNG is lossless and much larger. WebP is smaller than JPG at the same quality.</li>
   <li><strong>The main photo only.</strong> Depth maps and other extra images inside the HEIC file are left out, and nothing is resized.</li>
@@ -612,7 +612,7 @@ page(
     [
         ('Is the HEIC to JPG converter free?', FAQ_FREE),
         ('Does it work on Windows?', 'Yes. The conversion happens on the server, so the browser only sends the file. No extension or app is needed.'),
-        ('Is the location removed?', 'Yes. EXIF with the GPS position, XMP and comments are removed from every result. The colour profile is kept.'),
+        ('Is the location removed?', 'Yes. EXIF with the GPS position, XMP and comments are removed from every result. The color profile is kept.'),
         ('Will my photo be turned the right way?', 'Yes. An iPhone records the turn both in the HEIC file and in EXIF, and the converter applies it once.'),
         ('Does it keep the quality?', 'JPG is saved at quality 82 unless you choose from 40 to 95. For the least loss choose 95, or PNG, which is lossless but much larger.'),
         ('Can it convert HEIF and AVIF?', 'HEIC and other HEIF files with HEVC inside, yes. AVIF, no.')
@@ -750,8 +750,8 @@ page(
         ('Does it keep the aspect ratio?', 'Yes. Contain fits all of the picture inside the box, and cover fills the box and cuts what sticks out from the centre. Neither stretches the picture.'),
         ('How do I make a square thumbnail?', 'Send the same width and height with fit=cover, for example 400 and 400. The picture fills the square and is cut from the centre.'),
         ('Will it enlarge a small image?', 'Only if you send upscale=true. Otherwise a picture already smaller than the box keeps its size, and the answer says upscaled: false.'),
-        ('Can it resize iPhone photos?', 'Yes. It reads HEIC, turns the photo upright, keeps its colour profile and gives back a JPEG unless you ask for PNG or WebP.'),
-        ('Is the location removed?', 'Yes. EXIF with the GPS position, XMP, IPTC and comments are removed from every result. The colour profile is kept.')
+        ('Can it resize iPhone photos?', 'Yes. It reads HEIC, turns the photo upright, keeps its color profile and gives back a JPEG unless you ask for PNG or WebP.'),
+        ('Is the location removed?', 'Yes. EXIF with the GPS position, XMP, IPTC and comments are removed from every result. The color profile is kept.')
     ],
     'Free image resizer API',
     'image_resize'
@@ -762,7 +762,7 @@ page(
 page(
     'free-image-compression-api',
     'Free image compression API: JPEG, PNG and WebP | AI SENSE',
-    'Make a JPEG, PNG or WebP smaller in your browser or with one API call, in the same format. EXIF and GPS data are removed and the colour profile is kept. No API key.',
+    'Make a JPEG, PNG or WebP smaller in your browser or with one API call, in the same format. EXIF and GPS data are removed and the color profile is kept. No API key.',
     'Free image compression API',
     'Drop a JPEG, PNG or WebP and get it back in the same format, saved again to be smaller, with the camera and GPS data removed. The form calls the same free API your code can call: one POST, no API key and no account. The result waits in Storage for 24 hours.',
     ['No API key', 'No account', 'Same format out', 'EXIF removed', '5000 req / IP / day'],
@@ -856,7 +856,7 @@ EXCERPT = OrderedDict([('gps', REPORT['gps']), ('privacy', REPORT['privacy'])])
 page(
     'free-image-metadata-viewer-api',
     'Free image metadata viewer API: EXIF, GPS and XMP | AI SENSE',
-    'See everything a JPEG, PNG or WebP carries besides its pixels: EXIF with the GPS position and the camera, XMP, IPTC, the colour profile and hidden extra images, with a privacy summary. In your browser or with one API call. No API key.',
+    'See everything a JPEG, PNG or WebP carries besides its pixels: EXIF with the GPS position and the camera, XMP, IPTC, the color profile and hidden extra images, with a privacy summary. In your browser or with one API call. No API key.',
     'Free image metadata viewer: EXIF, GPS and XMP',
     'Drop an image and see what it says about where, when and with what it was taken. The form calls the same free API your code can call: one POST, no API key and no account. The full report is kept in Storage for 24 hours as JSON.',
     ['No API key', 'No account', 'EXIF, XMP and IPTC', 'GPS in decimal degrees', 'Privacy summary'],
@@ -875,7 +875,7 @@ page(
   <tbody>
     <tr><td><code>file</code></td><td>Format, size in bytes, width, height and megapixels, and what the format tells: the estimated JPEG quality, bit depth, progressive or interlaced, lossy or lossless WebP.</td></tr>
     <tr><td><code>orientation</code></td><td>The EXIF orientation as a number and in words, such as 6 and Rotated 90 degrees clockwise.</td></tr>
-    <tr><td><code>color_profile</code></td><td>The ICC colour profile: its name, colour space, device class, version and size.</td></tr>
+    <tr><td><code>color_profile</code></td><td>The ICC color profile: its name, color space, device class, version and size.</td></tr>
     <tr><td><code>exif</code></td><td>Every EXIF tag by name, in <code>image</code>, <code>photo</code>, <code>gps</code>, <code>interoperability</code> and <code>thumbnail</code>. An exposure time is written as 1/250, and a maker note by its size only.</td></tr>
     <tr><td><code>gps</code></td><td>Latitude and longitude in decimal degrees, the altitude in metres and the time in UTC, from the EXIF GPS tags.</td></tr>
     <tr><td><code>xmp</code></td><td>The fields of the XMP packet, such as <code>dc:creator</code>, <code>photoshop:City</code> and <code>xmp:CreatorTool</code>.</td></tr>
@@ -985,7 +985,7 @@ page(
     'Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.',
     'Free EXIF remover: metadata out, pixels untouched',
     'Drop a JPEG, PNG or WebP and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.',
-    ['No API key', 'No account', 'Not saved again', 'GPS removed', 'Colour profile kept'],
+    ['No API key', 'No account', 'Not saved again', 'GPS removed', 'Color profile kept'],
     'image_strip',
     '''  <form id="tool-form">
 ''' + DROP + '''
@@ -1000,7 +1000,7 @@ page(
   <li><strong>From a JPEG</strong> it removes EXIF with its GPS directory and thumbnail, XMP, IPTC and other Photoshop data, comments, the multi-picture index, other application segments, and whatever follows the end of the image, where phones keep depth maps and HDR gain maps.</li>
   <li><strong>From a PNG</strong> it removes the text chunks, XMP, EXIF and the time of last change.</li>
   <li><strong>From a WebP</strong> it removes the EXIF and XMP chunks.</li>
-  <li><strong>The colour profile is kept</strong>, so the colours look the same, and so are the JFIF header and the Adobe colour transform of a JPEG.</li>
+  <li><strong>The color profile is kept</strong>, so the colors look the same, and so are the JFIF header and the Adobe color transform of a JPEG.</li>
   <li><strong>The orientation is kept.</strong> A photo the camera marked as rotated gets a new EXIF with its orientation alone, so it still shows the right way up. Nothing else is written back.</li>
 </ul>
 <p>The <a href="/free-image-converter-api">image converter</a> and <a href="/free-image-compression-api">image compression</a> remove metadata too, but they save the image again. This endpoint does not, so it is the one to use when the pixels must not change. The <a href="/free-image-metadata-viewer-api">image metadata viewer</a> shows what a file carries before you remove it.</p>
@@ -1011,7 +1011,7 @@ page(
     <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td><code>image_strip</code>, and the format and size of the image.</td></tr>
     <tr><td><code>input_bytes</code></td><td>The size of the upload. <code>bytes</code> is the size without the metadata.</td></tr>
     <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
-    <tr><td><code>kept</code></td><td><code>Colour profile</code> and <code>Orientation</code>, when the image had them.</td></tr>''') + '''
+    <tr><td><code>kept</code></td><td><code>Color profile</code> and <code>Orientation</code>, when the image had them.</td></tr>''') + '''
 <p>The example at the top of the page comes from the same test photo as on the <a href="/free-image-metadata-viewer-api">metadata viewer</a>, with made-up EXIF data and a GPS position. What came back is the photo as it was before the EXIF data was added, %(bytes)s bytes. A GET on <code>storage_url</code> returns the image with its own image type.</p>
 <p>Anyone with the link can open the image until it expires, so do not send pictures of people or anything confidential. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
 
@@ -1060,7 +1060,7 @@ page(
     'Free EXIF remover API'
 )
 
-# -- The colour palette -----------------------------------------------------------
+# -- The color palette -----------------------------------------------------------
 
 PALETTE = stored_json('image_colors')
 PALETTE['placeholder'] = PALETTE['placeholder'][:48] + '...'
@@ -1068,31 +1068,31 @@ SWATCHES = '\n'.join('    <span class="tool-swatch-static" style="background:%s"
 
 page(
     'free-image-color-palette-api',
-    'Free colour palette API: the dominant colours of an image | AI SENSE',
-    'Get the dominant colours of a JPEG, PNG or WebP with the share each one covers, the average colour and a tiny placeholder image, in your browser or with one API call. No API key.',
-    'Free colour palette from an image',
-    'Drop an image and get its main colours as hex and RGB with the share of the picture each one covers, the average colour and a 16 pixel placeholder for lazy loading. The form calls the same free API your code can call: one POST, no API key and no account.',
-    ['No API key', 'No account', '2 to 16 colours', 'Hex and RGB', 'Placeholder image'],
+    'Free color palette API: the dominant colors of an image | AI SENSE',
+    'Get the dominant colors of a JPEG, PNG or WebP with the share each one covers, the average color and a tiny placeholder image, in your browser or with one API call. No API key.',
+    'Free color palette from an image',
+    'Drop an image and get its main colors as hex and RGB with the share of the picture each one covers, the average color and a 16 pixel placeholder for lazy loading. The form calls the same free API your code can call: one POST, no API key and no account.',
+    ['No API key', 'No account', '2 to 16 colors', 'Hex and RGB', 'Placeholder image'],
     'image_colors',
     '''  <form id="tool-form">
 ''' + DROP + '''
     <div class="tool-options">
       <div class="tool-field">
-        <label for="tool-count">Colours: <output id="tool-count-value" for="tool-count">8</output></label>
+        <label for="tool-count">Colors: <output id="tool-count-value" for="tool-count">8</output></label>
         <input type="range" id="tool-count" min="2" max="16" step="1" value="8">
       </div>
     </div>
     <div class="tool-actions">
-      <button type="submit" class="button button-primary" id="tool-submit" disabled>Find the colours</button>
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Find the colors</button>
     </div>
   </form>
   <div class="tool-result" id="tool-result" aria-live="polite"></div>''',
-    '''<h2 id="how">How the colours are found</h2>
+    '''<h2 id="how">How the colors are found</h2>
 <ul>
   <li><strong>The image is made small first</strong>, at most 128 pixels on its longest side, so a large photo is as quick as a small one.</li>
-  <li><strong>ImageMagick reduces it to the number of colours you ask for</strong>, 2 to 16 and 8 when you ask for none, without dithering, and counts the pixels of each. A colour's <code>share</code> is its part of the visible pixels. An image with fewer colours gives fewer.</li>
-  <li><strong>Transparent pixels are left out</strong> and counted as <code>transparent_share</code>, so a logo on a transparent background gives the colours of the logo.</li>
-  <li><strong>The average</strong> is the mean colour of the visible pixels of the reduced image.</li>
+  <li><strong>ImageMagick reduces it to the number of colors you ask for</strong>, 2 to 16 and 8 when you ask for none, without dithering, and counts the pixels of each. A color's <code>share</code> is its part of the visible pixels. An image with fewer colors gives fewer.</li>
+  <li><strong>Transparent pixels are left out</strong> and counted as <code>transparent_share</code>, so a logo on a transparent background gives the colors of the logo.</li>
+  <li><strong>The average</strong> is the mean color of the visible pixels of the reduced image.</li>
   <li><strong>The placeholder</strong> is the image at most 16 pixels on its longest side, as a PNG data URI, to show while the real image loads.</li>
   <li>The image is turned upright first, and a CMYK JPEG is converted to RGB.</li>
 </ul>
@@ -1103,17 +1103,17 @@ page(
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
     <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG or WebP.</td></tr>
-    <tr><td><code>count</code></td><td>no</td><td>How many colours, 2 to 16. 8 when left out.</td></tr>
+    <tr><td><code>count</code></td><td>no</td><td>How many colors, 2 to 16. 8 when left out.</td></tr>
   </tbody>
 </table>
 <p>The palette is stored as <code>colors.json</code>, and the answer holds the Storage fields and the main points:</p>
 ''' + answer_table('''    <tr><td><code>content_type</code>, <code>filename</code></td><td><code>application/json</code> and <code>colors.json</code>.</td></tr>
     <tr><td><code>operation</code></td><td><code>image_colors</code>.</td></tr>
-    <tr><td><code>average</code>, <code>dominant</code></td><td>The average colour and the colour with the largest share, as hex.</td></tr>
-    <tr><td><code>count</code></td><td>How many colours the palette holds.</td></tr>''') + '''
+    <tr><td><code>average</code>, <code>dominant</code></td><td>The average color and the color with the largest share, as hex.</td></tr>
+    <tr><td><code>count</code></td><td>How many colors the palette holds.</td></tr>''') + '''
 <p>The example at the top of the page comes from a test run with a test image of 1600 x 1200 pixels and <code>count=6</code>. The stored palette, with the placeholder cut short here:</p>
 <pre><code>''' + html.escape(json.dumps(PALETTE, indent=2, ensure_ascii=False), quote=False) + '''</code></pre>
-<div class="tool-swatches-static" aria-label="The six colours of the example">
+<div class="tool-swatches-static" aria-label="The six colors of the example">
 ''' + SWATCHES + '''
 </div>
 <p>Anyone with the link can read the palette until it expires. Stored results count against the Storage budget of 80 MB per IP address per day.</p>
@@ -1127,9 +1127,9 @@ page(
 
   function swatch(hex, label) {
     var box = T.make('div', 'tool-swatch');
-    var colour = T.make('span');
-    if (/^#[0-9A-F]{6}$/.test(hex)) { colour.style.background = hex; }
-    box.appendChild(colour);
+    var color = T.make('span');
+    if (/^#[0-9A-F]{6}$/.test(hex)) { color.style.background = hex; }
+    box.appendChild(color);
     box.appendChild(T.make('code', '', hex));
     box.appendChild(T.make('small', '', label));
     return box;
@@ -1138,8 +1138,8 @@ page(
   function palette(report) {
     var box = T.make('div', 'tool-palette');
     var grid = T.make('div', 'tool-swatches');
-    (report.colors || []).forEach(function (colour) {
-      grid.appendChild(swatch(colour.hex, (Math.round(colour.share * 1000) / 10) + '% of the picture'));
+    (report.colors || []).forEach(function (color) {
+      grid.appendChild(swatch(color.hex, (Math.round(color.share * 1000) / 10) + '% of the picture'));
     });
     if (report.average) { grid.appendChild(swatch(report.average.hex, 'Average')); }
     box.appendChild(grid);
@@ -1169,10 +1169,10 @@ page(
   form.addEventListener('submit', function (event) {
     event.preventDefault();
     if (!file) { return; }
-    T.busy(result, 'Finding the colours...');
+    T.busy(result, 'Finding the colors...');
     submit.disabled = true;
     T.postFile('image_colors', file, { count: count.value }).then(function (answer) {
-      T.showStored(result, answer, { summary: answer.count + ' colours. The largest share is ' + answer.dominant + ', and the average is ' + answer.average + '.' });
+      T.showStored(result, answer, { summary: answer.count + ' colors. The largest share is ' + answer.dominant + ', and the average is ' + answer.average + '.' });
       return T.stored(answer).then(function (blob) {
         return blob.text();
       }).then(function (text) {
@@ -1188,12 +1188,12 @@ page(
   refresh();
 })();''',
     [
-        ('Is the colour palette API free?', FAQ_FREE),
-        ('How many colours can I get?', '2 to 16, and 8 when you do not say. An image with fewer colours gives fewer.'),
+        ('Is the color palette API free?', FAQ_FREE),
+        ('How many colors can I get?', '2 to 16, and 8 when you do not say. An image with fewer colors gives fewer.'),
         ('What happens to transparent pixels?', 'They are left out of the palette and the average, and transparent_share says how much of the image they cover.'),
         ('Can I use the placeholder in an img tag?', 'Yes. It is a PNG data URI, so it works as the src of an img element or as a CSS background, with no extra request.')
     ],
-    'Free colour palette API'
+    'Free color palette API'
 )
 
 # -- The favicon generator ----------------------------------------------------------
@@ -1252,7 +1252,7 @@ page(
 <h2 id="crop">Fit, trim or center</h2>
 <ul>
   <li><strong>fit</strong>, the default, shows all of the picture on a transparent square.</li>
-  <li><strong>trim</strong> first cuts away a border of one colour, such as the white around a logo, and then fits what is left.</li>
+  <li><strong>trim</strong> first cuts away a border of one color, such as the white around a logo, and then fits what is left.</li>
   <li><strong>center</strong> cuts a square from the middle and fills the whole icon with it, which suits a photo.</li>
 </ul>
 <p>Icons look best from a square picture of at least 512 pixels. When the picture, or what is left after trimming, is smaller, the largest icons are enlarged and the answer says <code>upscaled: true</code>. The picture is turned upright first, and its metadata is not copied into the icons.</p>

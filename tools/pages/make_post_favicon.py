@@ -124,7 +124,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 <tr><td><code>apple-touch-icon.png</code></td><td>180 x 180, solid background</td><td>An iPhone or iPad that saves the site to the home screen</td></tr>
 <tr><td><code>icon-192.png</code></td><td>192 x 192</td><td>Android home screens, through the web manifest</td></tr>
 <tr><td><code>icon-512.png</code></td><td>512 x 512</td><td>Installed web apps and their splash screens, through the web manifest</td></tr>
-<tr><td><code>site.webmanifest</code></td><td>text</td><td>Android and installed web apps: the name, the icons and the colours</td></tr>
+<tr><td><code>site.webmanifest</code></td><td>text</td><td>Android and installed web apps: the name, the icons and the colors</td></tr>
 </tbody>
 </table></div>
 
@@ -138,11 +138,11 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <p>The paths start with a slash on purpose. A relative path such as <code>favicon.ico</code> works on the front page and breaks on every page one folder down.</p>
 
-<p>The manifest is a small JSON file beside them, with the name of the site, the two large icons and two colours:</p>
+<p>The manifest is a small JSON file beside them, with the name of the site, the two large icons and two colors:</p>
 
 <pre><code>%(manifest)s</code></pre>
 
-<p><code>theme_color</code> colours the title bar when the site is installed as an app. The generator writes white for both colours. To match the logo, put its main colour in <code>theme_color</code>; the <a href="/free-image-color-palette-api">colour palette tool</a> reads it from the image.</p>
+<p><code>theme_color</code> colors the title bar when the site is installed as an app. The generator writes white for both colors. To match the logo, put its main color in <code>theme_color</code>; the <a href="/free-image-color-palette-api">color palette tool</a> reads it from the image.</p>
 
 <h2>Start from the right picture</h2>
 
@@ -168,7 +168,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <ul>
   <li><strong>fit</strong> shows all of the picture on a transparent square. Right for a logo that is already square, or nearly.</li>
-  <li><strong>trim</strong> first cuts away a border of one colour, such as the white around a logo, and then fits what is left.</li>
+  <li><strong>trim</strong> first cuts away a border of one color, such as the white around a logo, and then fits what is left.</li>
   <li><strong>center</strong> cuts a square from the middle and fills the whole icon with it. Right for a photo.</li>
 </ul>
 
@@ -202,7 +202,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
   <p class="eyebrow">Make yours</p>
   <h2>Every favicon a website needs, from one picture.</h2>
   <p>Free, no account and no API key. Drop a logo, choose how to make it square, and download the ZIP.</p>
-  <div class="button-row"><a href="/free-favicon-generator-api">Favicon generator</a> <a href="/free-image-color-palette-api">Colour palette</a> <a href="/ai-sense-posts">More posts</a></div>
+  <div class="button-row"><a href="/free-favicon-generator-api">Favicon generator</a> <a href="/free-image-color-palette-api">Color palette</a> <a href="/ai-sense-posts">More posts</a></div>
 </div>
 </div>
 </div>

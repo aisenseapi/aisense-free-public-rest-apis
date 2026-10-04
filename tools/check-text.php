@@ -2,7 +2,7 @@
 
 /**
  * Check public documentation for punctuation that is hard to type or easy to
- * introduce through generated text.
+ * introduce through generated text. Use American color spelling consistently.
  *
  * Run from anywhere with: php tools/check-text.php
  */
@@ -12,6 +12,7 @@ declare( strict_types = 1 );
 $root = dirname( __DIR__ );
 $extensions = [ 'md', 'html', 'json', 'txt' ];
 $patterns = [
+    'British color spelling'=>'/\b[a-z]*colour[a-z]*\b/i',
     'en dash'=>'/\x{2013}/u',
     'em dash'=>'/\x{2014}/u',
     'curly single quote'=>'/[\x{2018}\x{2019}]/u',
