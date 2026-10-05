@@ -2517,19 +2517,20 @@ encoding of the same 64-byte keypair.
 
 ```json
 // GET /bitcoin/balance/{address}
-{ "wallet": "1A1zP1...", "final_balance_btc": 107.36719456, "final_balance_sats": 10736719456 }
+{ "wallet": "1A1zP1...", "final_balance_btc": "107.36719456", "final_balance_sats": "10736719456" }
 
 // GET /solana/balance/{address}
-{ "wallet": "So1111...", "balance_sol": 1694.799038633, "balance_lamports": 1694799038633 }
+{ "wallet": "So1111...", "balance_sol": "1694.799038633", "balance_lamports": "1694799038633" }
 
 // GET /ethereum/balance/{address}
 { "wallet": "0xd8dA...", "balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061" }
 ```
 
-Ethereum returns its two balance fields as **strings**. Wei routinely exceeds
-`2^53`, which is the largest integer a JSON number survives in a JavaScript
-client, so a number here would be silently wrong. Bitcoin and Solana return
-numbers; their smallest units stay well inside the safe range.
+Every chain returns its two balance fields as **strings**. Wei and lamports
+routinely exceed `2^53`, which is the largest integer a JSON number survives in
+a JavaScript client, so a number there would be silently wrong, and a decimal
+string keeps the display unit exact too. Parse with a big integer or decimal
+type before arithmetic.
 
 ---
 
