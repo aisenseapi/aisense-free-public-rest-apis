@@ -67,7 +67,7 @@
       id: 'team', title: 'Which team should take it?',
       message: 'I was charged twice, and now the app shows an error when I open my orders.',
       question: { name: 'team', type: 'choice', instructions: 'Which team should handle this first?' },
-      choices: [['technical', 'Outages, errors and things that do not work.'], ['billing', 'Payments, charges and refunds.'], ['sales', 'New purchases and prices.'], ['other', 'Anything else.']]
+      choices: [['technical', 'Outages, errors and things that do not work.'], ['billing', 'Payments, charges and refunds.'], ['sales', 'New purchases and prices.']]
     },
     {
       id: 'priority', title: 'Rate the priority',
@@ -79,7 +79,7 @@
       id: 'crash', title: 'A car has crashed. What first?',
       message: 'A car has crashed.',
       question: { name: 'answer', type: 'choice', instructions: 'What should be done at the site?' },
-      choices: [['call', 'Call an ambulance.'], ['photo', 'Take a photo.'], ['aware', 'Get an overview of the situation.']]
+      choices: [['photo', 'Take a photo.'], ['run', 'Run away from the site.'], ['aware', 'Get an overview of the situation.'], ['call', 'Call an ambulance.'], ['help', 'Give first aid to anyone hurt.']]
     }
   ];
 
