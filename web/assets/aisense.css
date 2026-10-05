@@ -1204,12 +1204,13 @@ td code { white-space: nowrap; }
     text-transform: uppercase;
   }
 
-  /* Every row the same height, with or without the Agent Optimal mark. */
+  /* Every row the same height, with or without the Agent Optimal mark: the
+   * same padding on every link, and the margin pulls the hover box back to
+   * the text edge. */
   .nav-list a {
     display: block;
-    min-height: 27px;
-    margin: 0 -8px;
-    padding: 4px 8px;
+    margin: 0 -14px;
+    padding: 5px 14px;
     border-radius: 6px;
     color: var(--body);
     line-height: 1.35;
