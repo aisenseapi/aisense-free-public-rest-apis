@@ -2399,7 +2399,7 @@
     "type": "function",
     "function": {
       "name": "simulate_failure",
-      "description": "Get a chosen failure on purpose, to test how a client handles it: a status from 200 to 504, an HTML error page (html, a 502), an empty body labelled JSON (empty) or valid JSON labelled text/plain (wrongtype), after an optional delay of up to 10000 ms. 400 and above answer {error, chaos}, 200 and 201 {ok: true, chaos}, and 204 has no body. 429 and 503 carry Retry-After: 2, and X-Chaos names what was asked. GET /chaos/{outcome}[/{delay_ms}]",
+      "description": "Get a chosen failure on purpose, to test how a client handles it: a status from 200 to 504, an HTML error page (html, a 502), an empty body labelled JSON (empty) or valid JSON labelled text/plain (wrongtype), after an optional delay of up to 10000 ms. 400 and above answer {error, mock_response}, 200 and 201 {ok: true, mock_response}, and 204 has no body. 429 and 503 carry Retry-After: 2, and X-Mock-Response names what was asked. GET /mock_response/{outcome}[/{delay_ms}]",
       "parameters": {
         "type": "object",
         "properties": {

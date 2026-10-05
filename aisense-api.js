@@ -1194,17 +1194,17 @@ export class AISenseAPI {
    * A failure on purpose, to test a client: `outcome` is a status from 200 to
    * 504, or 'html', 'empty' or 'wrongtype', after `delayMs` of 0 to 10000.
    * Unlike the other methods this one does not reject on the answer it asked
-   * for. It resolves to `{ status, contentType, retryAfter, chaos, body }`,
+   * for. It resolves to `{ status, contentType, retryAfter, mockResponse, body }`,
    * with the body as text, so the handling under test sees what came back.
    */
   async simulateFailure(outcome, delayMs) {
-    const path = delayMs !== undefined ? `/chaos/${outcome}/${delayMs}` : `/chaos/${outcome}`
+    const path = delayMs !== undefined ? `/mock_response/${outcome}/${delayMs}` : `/mock_response/${outcome}`
     const res = await fetch(`${this.baseUrl}${path}`)
     return {
       status: res.status,
       contentType: res.headers.get('content-type'),
       retryAfter: res.headers.get('retry-after'),
-      chaos: res.headers.get('x-chaos'),
+      mockResponse: res.headers.get('x-mock-response'),
       body: await res.text(),
     }
   }

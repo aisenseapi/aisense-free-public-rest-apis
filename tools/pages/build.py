@@ -1,5 +1,5 @@
 """Regenerate the image tool pages, the three image guides, the /decide and
-/chaos endpoint pages, and the eight encoding endpoint pages and the HTML
+/mock_response endpoint pages, and the eight encoding endpoint pages and the HTML
 and Markdown pair added on 3 October 2026 in web/.
 
 Run from anywhere: python tools/pages/build.py

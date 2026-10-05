@@ -1,4 +1,4 @@
-"""Write the endpoint pages for /decide and /chaos into web/.
+"""Write the endpoint pages for /decide and /mock_response into web/.
 
 The page around the content, from the head to the footer, is taken from
 web/free-public-api-dns-name-api-endpoint.html. The /decide examples and their
@@ -188,7 +188,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="related"><h2>Related endpoints</h2>''' + related([
     ('/free-public-apis', 'Free public REST APIs', 'The full endpoint reference'),
-    ('/free-public-api-chaos-api-endpoint', 'Chaos API Endpoint', 'Test clients against failures'),
+    ('/free-public-api-mock-response-api-endpoint', 'Mock Response API Endpoint', 'Test clients against failures'),
     ('/free-public-api-webhook-action-api-endpoint', 'Human Approval API Endpoint', 'Ask a person when the answer is review'),
     ('/free-public-api-agent-queue-api-endpoint', 'Agent Queue API Endpoint', 'Hand decided work to workers'),
 ]) + '''</section>
@@ -248,20 +248,20 @@ page('free-public-api-decide-api-endpoint',
      'Answers weighted rule questions by default. Optional Clef, Nimble or Tev1 model mode supports noul, choice and score questions with its own usage limits.',
      'Decision API endpoint', DECIDE_MAIN, DECIDE_SCRIPT)
 
-# -- /chaos -------------------------------------------------------------------
+# -- /mock_response -------------------------------------------------------------------
 
 STATUS_ROWS = [
-    ['200, 201', '<code>{"ok": true, "chaos": {...}}</code>'],
+    ['200, 201', '<code>{"ok": true, "mock_response": {...}}</code>'],
     ['204', 'No body'],
-    ['400, 403, 404, 409, 410, 422', '<code>{"error": "Not Found", "chaos": {...}}</code>, with the status\'s own reason phrase'],
-    ['401', 'The same, with <code>WWW-Authenticate: Bearer realm="chaos"</code>'],
+    ['400, 403, 404, 409, 410, 422', '<code>{"error": "Not Found", "mock_response": {...}}</code>, with the status\'s own reason phrase'],
+    ['401', 'The same, with <code>WWW-Authenticate: Bearer realm="mock_response"</code>'],
     ['429, 503', 'The same, with <code>Retry-After: 2</code>'],
     ['500, 502, 504', 'The same'],
 ]
 
 PYTHON_TEST = '''import time, urllib.request, urllib.error
 
-BASE = "https://aisenseapi.com/services/v1/chaos"
+BASE = "https://aisenseapi.com/services/v1/mock_response"
 
 def get(url, tries=3, timeout=2):
     for attempt in range(tries):
@@ -289,40 +289,40 @@ except (TimeoutError, urllib.error.URLError):
 
 print("client handles 503 and slow answers")'''
 
-CHAOS_MAIN = '''<main id="main-content" class="api-detail-main">
-''' + crumbs('Chaos API endpoint') + '''
+MOCK_MAIN = '''<main id="main-content" class="api-detail-main">
+''' + crumbs('Mock Response API endpoint') + '''
 
-''' + hero('Logic - Testing', 'Free Chaos API Endpoint',
-           'Point a client at <code>/chaos</code> and it gets the failure you picked: a 503 with <code>Retry-After</code>, a 429, an answer that comes '
+''' + hero('Logic - Testing', 'Free Mock Response API Endpoint',
+           'Point a client at <code>/mock_response</code> and it gets the answer you picked: a 503 with <code>Retry-After</code>, a 429, an answer that comes '
            'late, a proxy&#39;s HTML error page, an empty body or JSON labelled as text. Test retries, timeouts and parsing against the failures '
            'you otherwise meet only in production.',
            ['No API key', 'Any method', '15 statuses', 'Delays up to 10 s', 'Nothing stored'],
-           'Answer with a failure', '<p class="sig"><span class="method">ANY</span><span class="path">/chaos/{status}[/{ms}]</span></p>',
-           API + '/chaos/503') + '''
+           'Answer with a failure', '<p class="sig"><span class="method">ANY</span><span class="path">/mock_response/{status}[/{ms}]</span></p>',
+           API + '/mock_response/503') + '''
 
 <div class="api-detail-body">
 
-<section id="quick-start"><h2>Call the free Chaos API endpoint</h2><p>Put the status you want in the path. The answer comes at once, with any method, and neither the body nor the query string is read, so the client under test can call the way it always does.</p>''' + pre('curl -s ' + API + '/chaos/503') + pre('{"error":"Service Unavailable","chaos":{"status":503,"delay_ms":0}}') + '''<p>Add a delay in milliseconds as one more segment, up to 10000:</p>''' + pre('curl -s ' + API + '/chaos/200/3000') + pre('{"ok":true,"chaos":{"status":200,"delay_ms":3000}}') + '''<p>The answer arrives after three seconds. A client with a shorter deadline should give up, which is what the test checks; curl reports 28 for a timeout:</p>''' + pre('curl -s --max-time 1 ' + API + '/chaos/200/3000; echo "exit $?"') + '''</section>
+<section id="quick-start"><h2>Call the free Mock Response API endpoint</h2><p>Put the status you want in the path. The answer comes at once, with any method, and neither the body nor the query string is read, so the client under test can call the way it always does.</p>''' + pre('curl -s ' + API + '/mock_response/503') + pre('{"error":"Service Unavailable","mock_response":{"status":503,"delay_ms":0}}') + '''<p>Add a delay in milliseconds as one more segment, up to 10000:</p>''' + pre('curl -s ' + API + '/mock_response/200/3000') + pre('{"ok":true,"mock_response":{"status":200,"delay_ms":3000}}') + '''<p>The answer arrives after three seconds. A client with a shorter deadline should give up, which is what the test checks; curl reports 28 for a timeout:</p>''' + pre('curl -s --max-time 1 ' + API + '/mock_response/200/3000; echo "exit $?"') + '''</section>
 
-<section id="statuses"><h2>Statuses</h2><p>200, 201, 204, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503 and 504, each with the headers a real service would send with it:</p>''' + table(['Status', 'Answer'], STATUS_ROWS) + pre('curl -si ' + API + '/chaos/429') + pre('HTTP/2 429\nretry-after: 2\ncontent-type: application/json\nx-chaos: 429\n\n{"error":"Too Many Requests","chaos":{"status":429,"delay_ms":0}}') + '''</section>
+<section id="statuses"><h2>Statuses</h2><p>200, 201, 204, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503 and 504, each with the headers a real service would send with it:</p>''' + table(['Status', 'Answer'], STATUS_ROWS) + pre('curl -si ' + API + '/mock_response/429') + pre('HTTP/2 429\nretry-after: 2\ncontent-type: application/json\nx-mock-response: 429\n\n{"error":"Too Many Requests","mock_response":{"status":429,"delay_ms":0}}') + '''</section>
 
-<section id="events"><h2>Broken answers</h2><p>Three answers that break a client which assumes everything is JSON. Each takes a delay the same way, for example <code>/chaos/html/2000</code>.</p>''' + table(['Path', 'Answer', 'What goes wrong in a naive client'], [
-    ['<code>/chaos/html</code>', '502 with an HTML page, as a proxy answers when the service behind it is down', 'Parsing JSON fails on <code>&lt;html&gt;</code>'],
-    ['<code>/chaos/empty</code>', '200 labelled <code>application/json</code>, with no body', '"Unexpected end of JSON input"'],
-    ['<code>/chaos/wrongtype</code>', '200 with valid JSON labelled <code>text/plain</code>', 'A client that trusts the type treats the answer as text'],
-]) + pre('curl -s ' + API + '/chaos/wrongtype') + pre('{"ok":true,"chaos":{"event":"wrongtype","delay_ms":0}}') + '''</section>
+<section id="events"><h2>Broken answers</h2><p>Three answers that break a client which assumes everything is JSON. Each takes a delay the same way, for example <code>/mock_response/html/2000</code>.</p>''' + table(['Path', 'Answer', 'What goes wrong in a naive client'], [
+    ['<code>/mock_response/html</code>', '502 with an HTML page, as a proxy answers when the service behind it is down', 'Parsing JSON fails on <code>&lt;html&gt;</code>'],
+    ['<code>/mock_response/empty</code>', '200 labelled <code>application/json</code>, with no body', '"Unexpected end of JSON input"'],
+    ['<code>/mock_response/wrongtype</code>', '200 with valid JSON labelled <code>text/plain</code>', 'A client that trusts the type treats the answer as text'],
+]) + pre('curl -s ' + API + '/mock_response/wrongtype') + pre('{"ok":true,"mock_response":{"event":"wrongtype","delay_ms":0}}') + '''</section>
 
-<section id="real-or-chosen"><h2>A chosen failure, or a real one</h2><p>Every chosen answer carries <code>X-Chaos</code> with what the path asked for, such as <code>503</code> or <code>200/3000</code>, and a <code>chaos</code> object in the JSON body. A real refusal never has either, and has <code>fix</code> instead.</p><p>A delay holds a place while it waits, at most four at a time from one address. When none is free the answer is a real 503 with <code>Retry-After: 1</code> and no <code>X-Chaos</code>, and nothing waits. An answer without a delay needs no place.</p></section>
+<section id="real-or-chosen"><h2>A chosen failure, or a real one</h2><p>Every chosen answer carries <code>X-Mock-Response</code> with what the path asked for, such as <code>503</code> or <code>200/3000</code>, and a <code>mock_response</code> object in the JSON body. A real refusal never has either, and has <code>fix</code> instead.</p><p>A delay holds a place while it waits, at most four at a time from one address. When none is free the answer is a real 503 with <code>Retry-After: 1</code> and no <code>X-Mock-Response</code>, and nothing waits. An answer without a delay needs no place.</p></section>
 
 <section id="client-test"><h2>A client test in Python, with nothing to install</h2>''' + pre(PYTHON_TEST) + '''<p>It passes when the client tries three times with the two-second pause <code>Retry-After</code> asks for, and gives up on an answer slower than its deadline.</p></section>
 
-<section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="chaos-path">Answer</label><select id="chaos-path"><option value="503">503 Service Unavailable</option><option value="429">429 Too Many Requests</option><option value="401">401 Unauthorized</option><option value="500">500 Internal Server Error</option><option value="204">204 No Content</option><option value="200/3000">200 after 3 seconds</option><option value="html">html: a proxy&#39;s error page</option><option value="empty">empty: 200 with no body</option><option value="wrongtype">wrongtype: JSON labelled text/plain</option></select><div class="button-row"><button type="button" class="button button-primary" id="chaos-run">Call</button></div><p class="try-status" id="chaos-status" aria-live="polite"></p><pre><code id="chaos-out"></code></pre></div></section>
+<section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="mock-path">Answer</label><select id="mock-path"><option value="503">503 Service Unavailable</option><option value="429">429 Too Many Requests</option><option value="401">401 Unauthorized</option><option value="500">500 Internal Server Error</option><option value="204">204 No Content</option><option value="200/3000">200 after 3 seconds</option><option value="html">html: a proxy&#39;s error page</option><option value="empty">empty: 200 with no body</option><option value="wrongtype">wrongtype: JSON labelled text/plain</option></select><div class="button-row"><button type="button" class="button button-primary" id="mock-run">Call</button></div><p class="try-status" id="mock-status" aria-live="polite"></p><pre><code id="mock-out"></code></pre></div></section>
 
 <section id="errors"><h2>Errors</h2>''' + table(['Status', 'When'], [
-    ['404', 'A path that is not one of the forms, or a status chaos does not answer with. The <code>fix</code> lists the statuses and events'],
+    ['404', 'A path that is not one of the forms, or a status mock_response does not answer with. The <code>fix</code> lists the statuses and events'],
     ['400', 'A delay over 10000 milliseconds'],
-    ['503 without <code>X-Chaos</code>', 'No place free for a delay, with <code>Retry-After: 1</code>'],
-    ['429', 'The service-wide limit of 5000 requests per IP per day, which chaos calls count towards'],
+    ['503 without <code>X-Mock-Response</code>', 'No place free for a delay, with <code>Retry-After: 1</code>'],
+    ['429', 'The service-wide limit of 5000 requests per IP per day, which mock_response calls count towards'],
 ]) + '''</section>
 
 <section id="use-cases"><h2>What to test with it</h2>''' + cards([
@@ -344,20 +344,20 @@ CHAOS_MAIN = '''<main id="main-content" class="api-detail-main">
 </div>
 </main>'''
 
-CHAOS_SCRIPT = r'''
+MOCK_SCRIPT = r'''
 (function () {
-  var path = document.getElementById('chaos-path');
-  var run = document.getElementById('chaos-run');
-  var status = document.getElementById('chaos-status');
-  var out = document.getElementById('chaos-out');
+  var path = document.getElementById('mock-path');
+  var run = document.getElementById('mock-run');
+  var status = document.getElementById('mock-status');
+  var out = document.getElementById('mock-out');
 
   run.addEventListener('click', function () {
     var started = performance.now();
     run.disabled = true;
     status.className = 'try-status';
-    status.textContent = 'Calling /chaos/' + path.value;
+    status.textContent = 'Calling /mock_response/' + path.value;
     out.textContent = '';
-    fetch('https://aisenseapi.com/services/v1/chaos/' + path.value).then(function (response) {
+    fetch('https://aisenseapi.com/services/v1/mock_response/' + path.value).then(function (response) {
       return response.text().then(function (text) {
         var parts = ['HTTP ' + response.status, Math.round(performance.now() - started) + ' ms'];
         var type = response.headers.get('Content-Type');
@@ -377,11 +377,11 @@ CHAOS_SCRIPT = r'''
 })();
 '''
 
-page('free-public-api-chaos-api-endpoint',
-     'Free Chaos API Endpoint: Test Clients Against Failures | AI SENSE',
-     'Answers with the failure you ask for: any of 15 statuses, a delay up to 10 seconds, an HTML error page, an empty body or JSON with the wrong type. Free.',
-     'Free Chaos API Endpoint',
+page('free-public-api-mock-response-api-endpoint',
+     'Free Mock Response API Endpoint: Test Clients Against Failures | AI SENSE',
+     'Answers with the response you ask for: any of 15 statuses, a delay up to 10 seconds, an HTML error page, an empty body or JSON with the wrong type. Free.',
+     'Free Mock Response API Endpoint',
      'Test retries, timeouts and parsing: pick a status, a delay or a broken answer, and point your client at it. No key, nothing stored.',
-     'Free Chaos API Endpoint',
+     'Free Mock Response API Endpoint',
      'Answers with a chosen HTTP status or a broken response, at once or after a delay of up to 10 seconds, for testing how clients handle failures. Nothing is stored.',
-     'Chaos API endpoint', CHAOS_MAIN, CHAOS_SCRIPT)
+     'Mock Response API endpoint', MOCK_MAIN, MOCK_SCRIPT)

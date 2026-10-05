@@ -8,7 +8,7 @@ aisense_api.py and, when Node.js 18 or later is on the path, aisense-api.js,
 against a server on 127.0.0.1. Each request is compared with what API.md
 documents: method, path, content type, JSON body or multipart fields and file,
 and the bearer token. The stub answers every call with {"ok": true}, and
-/chaos/503/1500 with a 503 like the real one, to check simulate_failure.
+/mock_response/503/1500 with a 503 like the real one, to check simulate_failure.
 """
 
 import json
@@ -63,9 +63,9 @@ EXPECTED += [
     ("POST", "/image_colors", "form", {"count": "6"}, "image", None),
     ("POST", "/image_favicon", "form", {"crop": "trim", "name": "Example site"}, "image", None),
     ("POST", "/decide", "json", {"state": {"amount": 30}, "questions": DECIDE_QUESTIONS, "model": "nimble"}, None, None),
-    ("GET", "/chaos/503/1500", None, None, None, None),
+    ("GET", "/mock_response/503/1500", None, None, None, None),
 ]
-FAILURE = {"status": 503, "retry_after": "2", "chaos": "503/1500"}
+FAILURE = {"status": 503, "retry_after": "2", "mock_response": "503/1500"}
 
 JS_CALLS = r"""
 import { AISenseAPI } from '__SDK__'
@@ -103,7 +103,7 @@ await api.imageColors(image, 6)
 await api.imageFavicon(image, { crop: 'trim', name: 'Example site' })
 await api.decide({ amount: 30 }, questions, 'nimble')
 const failure = await api.simulateFailure(503, 1500)
-console.log(JSON.stringify({ status: failure.status, retry_after: failure.retryAfter, chaos: failure.chaos, body: failure.body }))
+console.log(JSON.stringify({ status: failure.status, retry_after: failure.retryAfter, mock_response: failure.mockResponse, body: failure.body }))
 """
 
 
@@ -129,9 +129,9 @@ class Stub(BaseHTTPRequestHandler):
             "auth": self.headers.get("Authorization"), "body": self._body(),
         })
         status, payload, extra = 200, b'{"ok":true}', {}
-        if self.path.startswith("/services/v1/chaos/"):
-            status, payload = 503, b'{"error":"Service Unavailable","chaos":{"status":503,"delay_ms":1500}}'
-            extra = {"Retry-After": "2", "X-Chaos": "503/1500"}
+        if self.path.startswith("/services/v1/mock_response/"):
+            status, payload = 503, b'{"error":"Service Unavailable","mock_response":{"status":503,"delay_ms":1500}}'
+            extra = {"Retry-After": "2", "X-Mock-Response": "503/1500"}
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         for key, value in extra.items():
