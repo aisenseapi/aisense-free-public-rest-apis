@@ -74,6 +74,12 @@
       message: 'A customer says the invoice PDF has the wrong address. Their accountant needs it next week.',
       question: { name: 'priority', type: 'score', instructions: 'How urgent is this request?' },
       levels: ['Routine', 'Important', 'Urgent', 'Critical']
+    },
+    {
+      id: 'crash', title: 'A car has crashed. What first?',
+      message: 'A car has crashed.',
+      question: { name: 'answer', type: 'choice', instructions: 'What should be done at the site?' },
+      choices: [['call', 'Call an ambulance.'], ['photo', 'Take a photo.'], ['aware', 'Get an overview of the situation.']]
     }
   ];
 
