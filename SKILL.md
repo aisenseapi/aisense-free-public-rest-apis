@@ -755,11 +755,12 @@ Bitcoin returns `public_address`, not `address`. Solana returns both
 `private_key` as a JSON-array string and `private_key_base58` as a Base58
 encoding of the same 64-byte keypair.
 
-Ethereum returns both balances as **strings**:
+Every chain returns both balances as **strings**:
 `{"balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061"}`.
-Wei routinely exceeds `2^53`, the largest integer a JSON number survives in a
-JavaScript client, so a number here would be silently wrong. Bitcoin and Solana
-return numbers; their smallest units stay inside the safe range.
+Wei and lamports routinely exceed `2^53`, the largest integer a JSON number
+survives in a JavaScript client, so a number there would be silently wrong, and
+a decimal string keeps the display unit exact too. Parse with a big integer or
+decimal type before arithmetic.
 
 ---
 

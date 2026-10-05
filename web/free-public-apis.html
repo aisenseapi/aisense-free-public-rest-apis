@@ -1013,12 +1013,12 @@ GET  /inbox/{inbox_id}
 <article class="endpoint">
 <h3>Solana, Bitcoin and Ethereum Balance REST API Endpoints</h3>
 <p class="sig"><span class="method">GET</span> <span class="path">/{chain}/balance/{address}</span></p>
-<p>Ethereum returns both balances as <strong>strings</strong>, because Wei routinely exceeds 2<sup>53</sup> - the largest integer a JSON number survives in a JavaScript client. Bitcoin and Solana return numbers. Their smallest units stay inside the safe range.</p>
+<p>Every chain returns both balances as <strong>strings</strong>, because Wei and lamports routinely exceed 2<sup>53</sup>, the largest integer a JSON number survives in a JavaScript client, and a decimal string keeps the display unit exact too.</p>
 <pre><code>/solana/balance/{address}
-{ "wallet": "So1111...", "balance_sol": 1694.799038633, "balance_lamports": 1694799038633 }
+{ "wallet": "So1111...", "balance_sol": "1694.799038633", "balance_lamports": "1694799038633" }
 
 /bitcoin/balance/{address}
-{ "wallet": "1A1zP1...", "final_balance_btc": 107.36719456, "final_balance_sats": 10736719456 }
+{ "wallet": "1A1zP1...", "final_balance_btc": "107.36719456", "final_balance_sats": "10736719456" }
 
 /ethereum/balance/{address}
 { "wallet": "0xd8dA...", "balance_eth": "6.634527787345637061", "balance_wei": "6634527787345637061" }</code></pre>
