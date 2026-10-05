@@ -56,7 +56,7 @@ API_GROUPS = [
         ('/free-public-api-dns-name-api-endpoint', 'Temporary DNS names'),
         ('/free-public-api-semantic-search-api-endpoint', 'Semantic search'),
         ('/free-public-api-decide-api-endpoint', 'Decide'),
-        ('/free-public-api-chaos-api-endpoint', 'Chaos'),
+        ('/free-public-api-mock-response-api-endpoint', 'Mock response'),
     ]),
     ('time', 'Time', '/time-apis', [
         ('/free-public-api-datetime-api-endpoint', 'Datetime'),

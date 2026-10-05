@@ -1,6 +1,6 @@
 # Page generators
 
-The eight image tool pages, the three image guides, the `/decide` and `/chaos`
+The eight image tool pages, the three image guides, the `/decide` and `/mock_response`
 endpoint pages and the eight encoding endpoint pages in `web/` are generated.
 Change the generator or its data here, not the HTML, or the next build undoes
 the change.
@@ -11,7 +11,7 @@ the change.
 | `make_post_photo_location.py` | `remove-gps-location-and-exif-data-from-photos.html`, plus its card in `ai-sense-posts.html` and its line in `sitemap.xml` |
 | `make_post_favicon.py` | `favicon-sizes-and-the-files-a-website-needs.html`, plus its card and sitemap line |
 | `make_post_convert.py` | `convert-heic-webp-png-and-jpg-images.html`, plus its card and sitemap line; the sizes in it come from `data/` |
-| `make_logic_pages.py` | `free-public-api-decide-api-endpoint.html` and `free-public-api-chaos-api-endpoint.html` |
+| `make_logic_pages.py` | `free-public-api-decide-api-endpoint.html` and `free-public-api-mock-response-api-endpoint.html` |
 | `make_codec_pages.py` | the eight pages for `hex_encode`, `hex_decode`, `base64url_encode`, `base64url_decode`, `url_encode`, `url_decode`, `html_encode` and `html_decode`; the examples were worked out with the service's own `libs/func_codec.php` |
 | `make_markdown_pages.py` | the two pages for `html_to_markdown` and `markdown_to_html`; the examples were worked out with the service's own `libs/func_markdown.php` |
 

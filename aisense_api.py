@@ -1224,10 +1224,10 @@ class AISenseAPI:
 
         Unlike the other methods this one does not raise on the answer it
         asked for. It returns ``status``, ``content_type``, ``retry_after``,
-        ``chaos`` and ``body``, the body as text, so the handling under test
+        ``mock_response`` and ``body``, the body as text, so the handling under test
         sees what came back.
         """
-        path = f"/chaos/{outcome}/{delay_ms}" if delay_ms is not None else f"/chaos/{outcome}"
+        path = f"/mock_response/{outcome}/{delay_ms}" if delay_ms is not None else f"/mock_response/{outcome}"
         req = urllib.request.Request(f"{self.base_url}{path}", method="GET")
         try:
             with urllib.request.urlopen(req, timeout=self.timeout + 11) as resp:
@@ -1238,7 +1238,7 @@ class AISenseAPI:
             "status": status,
             "content_type": headers.get("Content-Type"),
             "retry_after": headers.get("Retry-After"),
-            "chaos": headers.get("X-Chaos"),
+            "mock_response": headers.get("X-Mock-Response"),
             "body": raw.decode("utf-8", "replace"),
         }
 

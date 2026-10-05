@@ -1020,7 +1020,7 @@ pixels.
 ## Logic
 
 `/decide` answers typed questions from rules by default, with optional model
-selection. `/chaos` answers with a failure you pick for client tests.
+selection. `/mock_response` answers with the response you pick for client tests.
 
 ### `POST /decide`
 
@@ -1114,39 +1114,40 @@ API keeps IP-HMAC usage counters and aggregate timings, not bodies or answers.
 Keep credentials and sensitive personal data out. Ordinary access logs still
 contain IP addresses. See [Privacy](https://aisense.no/privacy).
 
-### `ANY /chaos/{status}[/{ms}]`
+### `ANY /mock_response/{status}[/{ms}]`
 
-Answers with the failure the path names, for testing how a client handles it.
+Answers with the response the path names, a failure or a slow success, for
+testing how a client handles it.
 Any method works, and neither the body nor the query string is read.
 
 | Path | Answer |
 |---|---|
-| `/chaos/{status}` | The status at once: 200, 201, 204, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503 or 504 |
-| `/chaos/{status}/{ms}` | The same after `ms` milliseconds, 0 to 10000 |
-| `/chaos/html` | 502 with an HTML page, as a proxy answers when the service behind it is down |
-| `/chaos/empty` | 200 labelled `application/json`, with no body |
-| `/chaos/wrongtype` | 200 with valid JSON labelled `text/plain` |
+| `/mock_response/{status}` | The status at once: 200, 201, 204, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503 or 504 |
+| `/mock_response/{status}/{ms}` | The same after `ms` milliseconds, 0 to 10000 |
+| `/mock_response/html` | 502 with an HTML page, as a proxy answers when the service behind it is down |
+| `/mock_response/empty` | 200 labelled `application/json`, with no body |
+| `/mock_response/wrongtype` | 200 with valid JSON labelled `text/plain` |
 
-The three events take a delay the same way, such as `/chaos/html/2000`. A status
-of 400 or above answers `{"error": reason phrase, "chaos": {"status", "delay_ms"}}`,
-200 and 201 answer `{"ok": true, "chaos": {...}}`, and 204 has no body. 429 and
+The three events take a delay the same way, such as `/mock_response/html/2000`. A status
+of 400 or above answers `{"error": reason phrase, "mock_response": {"status", "delay_ms"}}`,
+200 and 201 answer `{"ok": true, "mock_response": {...}}`, and 204 has no body. 429 and
 503 carry `Retry-After: 2`, and 401 carries `WWW-Authenticate`. Every chosen
-answer carries `X-Chaos` with what the path asked for.
+answer carries `X-Mock-Response` with what the path asked for.
 
 ```bash
-curl -s https://aisenseapi.com/services/v1/chaos/503
+curl -s https://aisenseapi.com/services/v1/mock_response/503
 ```
 
 ```json
-{"error":"Service Unavailable","chaos":{"status":503,"delay_ms":0}}
+{"error":"Service Unavailable","mock_response":{"status":503,"delay_ms":0}}
 ```
 
 A delay holds a place while it waits, at most four at a time from one address.
 When none is free the answer is a real 503 with `Retry-After: 1`, a `fix` and no
-`X-Chaos`. An unknown path or status is 404 with a `fix` listing the forms, and
-a delay over 10000 is 400. Nothing is stored, and chaos calls count towards the
+`X-Mock-Response`. An unknown path or status is 404 with a `fix` listing the forms, and
+a delay over 10000 is 400. Nothing is stored, and mock_response calls count towards the
 5000 requests per IP per day.
-[Guide and a client test](https://aisense.no/free-public-api-chaos-api-endpoint).
+[Guide and a client test](https://aisense.no/free-public-api-mock-response-api-endpoint).
 
 ---
 
