@@ -39,6 +39,7 @@
   --tint:        #f0f5fa;
   --border:      #d1d5db;
   --near-black:  #111111;
+  --wordmark:    #d6202e;
   --muted:       #5f6e85;
   --code-bg:     #1e293b;
   --code-fg:     #e2e8f0;
@@ -155,11 +156,11 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(4, 107, 210, 0.3
   font-style: italic;
   font-size: 26px;
   letter-spacing: -0.02em;
-  color: #d6202e;
+  color: var(--wordmark);
   text-decoration: none;
   white-space: nowrap;
 }
-.wordmark:hover { color: #d6202e; text-decoration: none; }
+.wordmark:hover { color: var(--wordmark); text-decoration: none; }
 
 .site-nav {
   display: flex;
@@ -1488,14 +1489,14 @@ td code { white-space: nowrap; }
  * is dropped, so the page follows the system again. The menus still need no
  * script; only this button does.
  *
- * The dark palette is a muted green-grey, not the blue slate most dark sites
- * use, and the blue buttons and red wordmark stay as they are. The two dark
- * blocks below hold the same values: one for a dark system with no choice
- * made, one for the dark choice. Keep them identical. Code, the API window,
- * the endpoint banner and the proof panel are dark in both themes and take
- * the green-grey here, while the blue band keeps its own colors. The product
- * feature on the home page keeps the light palette, because its logo is
- * drawn for a light card.
+ * The dark palette is near black with a purple tint (5 October 2026, after a
+ * green-grey first version), the wordmark turns green on it, and the blue
+ * buttons stay as they are. The two dark blocks below hold the same values:
+ * one for a dark system with no choice made, one for the dark choice. Keep
+ * them identical. Code, the API window, the endpoint banner and the proof
+ * panel are dark in both themes and take the same tint here, while the blue
+ * band keeps its own colors. The product feature on the home page keeps the
+ * light palette, because its logo is drawn for a light card.
  * ------------------------------------------------------------------------- */
 .theme-toggle {
   flex: 0 0 auto;
@@ -1520,26 +1521,27 @@ td code { white-space: nowrap; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg:            #0e1613;
-    --surface:       #131e1a;
-    --surface-glass: rgba(19, 30, 26, 0.82);
-    --field-bg:      #101a16;
-    --tint:          #17241f;
-    --border:        #2b3c35;
-    --hairline:      #1c2a24;
-    --current-bg:    #1b3029;
-    --page-glow:     #101c18;
-    --ink:           #e6efea;
-    --body:          #c2d0c9;
-    --muted:         #94a89f;
-    --near-black:    #f0f5f2;
+    --bg:            #130e16;
+    --surface:       #1a131e;
+    --surface-glass: rgba(26, 19, 30, 0.82);
+    --field-bg:      #170f1b;
+    --tint:          #1f1724;
+    --border:        #352b3c;
+    --hairline:      #241b29;
+    --current-bg:    #2a1f30;
+    --page-glow:     #170e18;
+    --ink:           #eae6ef;
+    --body:          #cfc7d5;
+    --muted:         #a69db0;
+    --near-black:    #f1edf4;
+    --wordmark:      #2ed620;
     --blue:          #6bc1e8;
     --blue-dark:     #a3dcf2;
     --accent:        #1f6fc5;
     --accent-dark:   #1a5fa9;
-    --code-bg:       #1b2a24;
+    --code-bg:       #1c1521;
     --code-fg:       #e2e8f0;
-    --panel-bg:      #15221d;
+    --panel-bg:      #1c1521;
     --warn-bg:       #2a2111;
     --warn-border:   #f59e0b;
     --ok:            #4ade80;
@@ -1569,26 +1571,27 @@ td code { white-space: nowrap; }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg:            #0e1613;
-  --surface:       #131e1a;
-  --surface-glass: rgba(19, 30, 26, 0.82);
-  --field-bg:      #101a16;
-  --tint:          #17241f;
-  --border:        #2b3c35;
-  --hairline:      #1c2a24;
-  --current-bg:    #1b3029;
-  --page-glow:     #101c18;
-  --ink:           #e6efea;
-  --body:          #c2d0c9;
-  --muted:         #94a89f;
-  --near-black:    #f0f5f2;
+  --bg:            #130e16;
+  --surface:       #1a131e;
+  --surface-glass: rgba(26, 19, 30, 0.82);
+  --field-bg:      #170f1b;
+  --tint:          #1f1724;
+  --border:        #352b3c;
+  --hairline:      #241b29;
+  --current-bg:    #2a1f30;
+  --page-glow:     #170e18;
+  --ink:           #eae6ef;
+  --body:          #cfc7d5;
+  --muted:         #a69db0;
+  --near-black:    #f1edf4;
+  --wordmark:      #2ed620;
   --blue:          #6bc1e8;
   --blue-dark:     #a3dcf2;
   --accent:        #1f6fc5;
   --accent-dark:   #1a5fa9;
-  --code-bg:       #1b2a24;
+  --code-bg:       #1c1521;
   --code-fg:       #e2e8f0;
-  --panel-bg:      #15221d;
+  --panel-bg:      #1c1521;
   --warn-bg:       #2a2111;
   --warn-border:   #f59e0b;
   --ok:            #4ade80;
