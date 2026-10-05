@@ -97,6 +97,8 @@
   var sendButton = document.getElementById('decide-send');
   var plain = document.getElementById('decide-plain');
   var responseBox = document.getElementById('decide-response');
+  // The JSON box is never left blank: it says what it is waiting for.
+  var EMPTY_RESPONSE = 'The answer as JSON appears here after you press Decide.';
 
   // ---------- small helpers ----------
 
@@ -626,7 +628,7 @@
   function clearAnswer() {
     plain.textContent = '';
     plain.appendChild(el('p', { class: 'decide-note', text: 'Press Decide to see the answer here.' }));
-    responseBox.textContent = '';
+    responseBox.textContent = EMPTY_RESPONSE;
   }
 
   function send() {
@@ -636,12 +638,15 @@
     } catch (error) {
       plain.textContent = '';
       plain.appendChild(el('div', { class: 'decide-result is-refused' }, [el('p', { class: 'decide-headline', text: 'The JSON above is not valid, so nothing was sent.' }), el('p', { text: String(error.message || error) })]));
-      responseBox.textContent = '';
+      responseBox.textContent = EMPTY_RESPONSE;
       return;
     }
+    // Every press starts from a clean answer section, so nothing from the
+    // last answer stays on screen while this one is on its way.
     sendButton.disabled = true;
     plain.textContent = '';
     plain.appendChild(el('p', { class: 'decide-note', text: 'Asking Decide...' }));
+    responseBox.textContent = 'Waiting for the answer.';
     var started = Date.now();
     fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: jsonBox.value })
       .then(function (response) {
@@ -668,9 +673,13 @@
         });
         plain.appendChild(el('p', { class: 'decide-note', text: 'Answered in ' + ms + ' ms, measured in this browser, network included.' }));
       })
-      .catch(function () {
+      .catch(function (error) {
         plain.textContent = '';
-        plain.appendChild(el('div', { class: 'decide-result is-refused' }, [el('p', { class: 'decide-headline', text: 'Could not reach the API. Check the connection and try again.' })]));
+        plain.appendChild(el('div', { class: 'decide-result is-refused' }, [
+          el('p', { class: 'decide-headline', text: 'Could not reach the API. Check the connection and try again.' }),
+          el('p', { text: 'The browser said: ' + String(error && error.message ? error.message : error) })
+        ]));
+        responseBox.textContent = 'No answer came back.';
       })
       .then(function () { sendButton.disabled = false; });
   }
