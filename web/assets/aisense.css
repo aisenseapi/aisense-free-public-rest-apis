@@ -1152,7 +1152,9 @@ td code { white-space: nowrap; }
     z-index: 60;
     width: max-content;
     min-width: 230px;
-    max-width: 380px;
+    /* Wide enough for the longest post title on one line, so every row in a
+     * menu has the same height. 5 October 2026: 380px wrapped three of five. */
+    max-width: 480px;
     padding: 10px 16px 12px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1202,8 +1204,10 @@ td code { white-space: nowrap; }
     text-transform: uppercase;
   }
 
+  /* Every row the same height, with or without the Agent Optimal mark. */
   .nav-list a {
     display: block;
+    min-height: 27px;
     margin: 0 -8px;
     padding: 4px 8px;
     border-radius: 6px;
@@ -1336,12 +1340,15 @@ td code { white-space: nowrap; }
 
   .site-menu-links .nav-top[aria-current="page"] { background: var(--current-bg); }
 
+  /* The button fills its row, so a row with a button is no taller than one without. */
   .nav-sub-button {
     display: flex;
     align-items: center;
     justify-content: center;
+    align-self: stretch;
     width: 44px;
-    height: 44px;
+    height: auto;
+    min-height: 44px;
     border-radius: 7px;
     color: var(--ink);
   }
@@ -1360,14 +1367,19 @@ td code { white-space: nowrap; }
   }
   .nav-item > .nav-sub-toggle:checked ~ .nav-panel { display: block; }
 
-  .nav-group-title { padding: 10px 12px; color: var(--ink); font-weight: 600; }
+  .nav-group-title { min-height: 44px; padding: 0 12px; color: var(--ink); font-weight: 600; }
   .nav-group > .nav-list { display: none; grid-column: 1 / -1; padding: 0 0 6px 12px; }
   .nav-group > .nav-sub-toggle:checked ~ .nav-list { display: block; }
 
   /* Wrapped, not cut: the phone rules above keep nav links on one line. */
-  .nav-list a,
-  .nav-group-title {
+  .nav-list a {
     display: block;
+    white-space: normal;
+  }
+  /* Centered in a row as tall as its button, and still free to wrap. */
+  .nav-group-title {
+    display: flex;
+    align-items: center;
     white-space: normal;
   }
   .nav-list a {
