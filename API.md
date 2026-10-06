@@ -2400,7 +2400,10 @@ Never put tokens in paths or query strings.
 
 **Add notes:** A note's `text` holds 1 to 2000 characters. An optional `key`
 of 1 to 64 letters, digits, dots, underscores, colons or hyphens, starting with
-a letter or digit, ties a note to your own records.
+a letter or digit, ties a note to your own records. Text over a limit is
+refused with a message, never cut. Split long material into notes, one per
+paragraph, field or event, each with a key, so a search names the piece that
+matched.
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/semantic_search/COLLECTION_ID/notes \
