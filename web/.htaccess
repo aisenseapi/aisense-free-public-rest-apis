@@ -70,6 +70,7 @@ RedirectMatch 301 ^/(html2pdf)/?$ https://aisense.no/free-public-api-html-to-pdf
 RedirectMatch 301 ^/(feed|comments/feed)/?$ https://aisense.no/ai-sense-posts
 RedirectMatch 301 ^/(category|author|tag)/.*$ https://aisense.no/
 RedirectMatch 301 ^/(.+)/embed/?$ https://aisense.no/$1
+RedirectMatch 301 ^/free-public-api-chaos-api-endpoint/?$ https://aisense.no/free-public-api-mock-response-api-endpoint
 
 </IfModule>
 
