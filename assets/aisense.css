@@ -1259,7 +1259,7 @@ td code { white-space: nowrap; }
     align-items: center;
     gap: 9px;
     margin-left: auto;
-    padding: 9px 14px;
+    padding: 4px 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--surface);
