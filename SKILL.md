@@ -106,8 +106,10 @@ score below about 0.6 was a likely miss in our tests, and a higher score is no
 proof: check identifiers in the result text. Limits: fixed 24-hour
 lifetime, 500 notes over it, deleted notes included, 2000 characters per note,
 500 per search, 20 new collections per client IP per 24 hours, and 60 model
-calls per minute and 1000 per UTC day per IP for adding and searching. Keep
-secrets and sensitive personal data out of notes.
+calls per minute and 1000 per UTC day per IP for adding and searching. Text
+over a limit is refused, never cut; split long material into notes, one per
+paragraph, field or event, each with a key, so a search names the piece that
+matched. Keep secrets and sensitive personal data out of notes.
 
 MCP tools: `create_semantic_search`, `add_semantic_search_notes`,
 `query_semantic_search`, `read_semantic_search`, `delete_semantic_search_note`.
