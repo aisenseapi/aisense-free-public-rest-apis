@@ -764,7 +764,9 @@ Every chain returns both balances as **strings**:
 Wei and lamports routinely exceed `2^53`, the largest integer a JSON number
 survives in a JavaScript client, so a number there would be silently wrong, and
 a decimal string keeps the display unit exact too. Parse with a big integer or
-decimal type before arithmetic.
+decimal type before arithmetic. Lookups are limited to 20 per minute per IP
+across the three chains, answered 429 with `Retry-After`; when the public node
+refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 
 ---
 

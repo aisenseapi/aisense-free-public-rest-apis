@@ -2543,6 +2543,13 @@ a JavaScript client, so a number there would be silently wrong, and a decimal
 string keeps the display unit exact too. Parse with a big integer or decimal
 type before arithmetic.
 
+Lookups ask a public node of each chain and are limited to 20 per minute per
+client IP across the three chains, answered **HTTP 429** with `Retry-After` and
+a `fix` before the node is asked. When the node refuses or fails, the answer is
+**HTTP 503** with `Retry-After: 10` and a `fix`; no answer in time is **504**,
+and an address the node rejects is **400**. Lookups count towards the daily
+limit as well.
+
 ---
 
 ## Agent2Agent (A2A)
