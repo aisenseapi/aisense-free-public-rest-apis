@@ -103,7 +103,9 @@ first. The score is cosine similarity plus 0.1 per shared identifier and minus
 0.1 per kind of identifier where the note holds only others. It is not a
 probability, and results are suggestions, not decisions. With `bge-m3` a top
 score below about 0.6 was a likely miss in our tests, and a higher score is no
-proof: check identifiers in the result text. Limits: fixed 24-hour
+proof: check identifiers in the result text. Ask for at least two results and
+compare them: the gap between their scores shows how clearly the ranking
+separates them, not whether the first is right. Limits: fixed 24-hour
 lifetime, 500 notes over it, deleted notes included, 2000 characters per note,
 500 per search, 20 new collections per client IP per 24 hours, and 60 model
 calls per minute and 1000 per UTC day per IP for adding and searching. Text
