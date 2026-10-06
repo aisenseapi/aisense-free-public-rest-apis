@@ -20,7 +20,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.13.0. Official MCP Registry: com.aisenseapi/free-public-tools version 1.13.0, published 4 October 2026 at 20:47 UTC
+- MCP server version 1.13.1. Official MCP Registry: com.aisenseapi/free-public-tools version 1.13.0, published 4 October 2026 at 20:47 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
