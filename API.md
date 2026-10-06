@@ -2403,7 +2403,14 @@ of 1 to 64 letters, digits, dots, underscores, colons or hyphens, starting with
 a letter or digit, ties a note to your own records. Text over a limit is
 refused with a message, never cut. Split long material into notes, one per
 paragraph, field or event, each with a key, so a search names the piece that
-matched.
+matched:
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/semantic_search/COLLECTION_ID/notes \
+  -H "Authorization: Bearer WRITE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"notes":[{"text":"Ticket 4410, part 1: the customer was charged twice on 3 October.","key":"ticket:4410:1"},{"text":"Ticket 4410, part 2: the app shows an error when they open their orders.","key":"ticket:4410:2"},{"text":"Ticket 4410, part 3: they ask for a refund of the second charge.","key":"ticket:4410:3"}]}'
+```
 
 ```bash
 curl -X POST https://aisenseapi.com/services/v1/semantic_search/COLLECTION_ID/notes \

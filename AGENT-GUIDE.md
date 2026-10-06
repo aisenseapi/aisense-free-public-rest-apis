@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.2
+Resource version 1.8.3
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -209,7 +209,7 @@ Use it to find earlier messages, jobs or results by meaning when the words diffe
 
 A collection lives for exactly 86400 seconds from creation. Nothing extends it. Limits are 500 notes over the lifetime, deleted notes included, 1 to 32 notes per call, 2000 characters per note, 500 characters per search and 20 collections per client IP in a fixed 24-hour window. An optional `key` of up to 64 letters, digits, dots, underscores, colons or hyphens ties a note to your own records. Text over a limit is refused with a message, never cut. Split long material into notes, one per paragraph, field or event, each with a key, so a search names the piece that matched. Adding and searching call the model and share a usage limit of 60 per minute and 1000 per UTC day per client IP. A refused call may carry Retry-After. Do not retry it automatically.
 
-A search answers up to `limit` notes, 1 to 10 and 3 by default, best first, with `note_id`, `key`, `text` and `score`. The score is cosine similarity plus 0.1 for each identifier in the search that the note also holds. Each code prefix, such as DEMO- in DEMO-57, is a kind of its own, and numbers of three or more digits are another, with 1 200 read as 1200 and the digits of a code not counted as a number. For each kind in the search, a note that holds others of that kind and none of the search's loses 0.1. The score is not a probability. The answer is ranked suggestions, never a decision that something exists. Embeddings capture the topic better than the stance, so approve and reject, or hold and send, on the same matter can rank close. Read the text before acting on a result.
+A search answers up to `limit` notes, 1 to 10 and 3 by default, best first, with `note_id`, `key`, `text` and `score`. The score is cosine similarity plus 0.1 for each identifier in the search that the note also holds. Each code prefix, such as DEMO- in DEMO-57, is a kind of its own, and numbers of three or more digits are another, with 1 200 read as 1200 and the digits of a code not counted as a number. For each kind in the search, a note that holds others of that kind and none of the search's loses 0.1. The score is not a probability. The answer is ranked suggestions, never a decision that something exists. Embeddings capture the topic better than the stance, so approve and reject, or hold and send, on the same matter can rank close. Read the text before acting on a result. Ask for at least two results and compare them: the distance between their scores shows how clearly the ranking separates them, not whether the first is right. Read the text and check the identifiers that matter before acting.
 
 With `bge-m3` in our tests, correct first results scored 0.66 or more and searches without a matching note scored at most 0.60. Treat a top score below about 0.6 as a likely miss. This is guidance from a small test set, not a guarantee. `qwen3-embedding-4b` showed no such threshold. A high score is no proof of a match either. In a collection of 500 similar order notes, a search for an order that was not there still scored 0.67 with `bge-m3`, and the top result was a refund for another order. Check identifiers such as order numbers in the result text.
 
