@@ -1454,11 +1454,38 @@ bytes as stored, so whoever fetches them can tell they got what you sent.
 `bytes` is the stored length. The digest above is the real one for the 17 byte
 body in this example.
 
+**Limit the downloads:** `POST /storage/max_downloads/{n}` stores the same
+way and removes the object after `n` downloads, 1 to 100. The answer carries
+two more fields, `downloads_max` and `downloads_left`.
+
+```json
+// POST /storage/max_downloads/2 with the body {"report":"q3","pages":12}
+{
+  "storage_id": "5e1c0a7e-9b3f-4c62-8a1d-2f7b6d4c9e10",
+  "storage_url": "https://aisenseapi.com/services/v1/storage/5e1c0a7e-9b3f-4c62-8a1d-2f7b6d4c9e10",
+  "sha256_hash": "700d8cea137c32c31e4865aaf5ae327931067ae454bc78777f8572dadf9c9809",
+  "bytes": 26,
+  "expire_timestamp": 1791409876,
+  "expire_datetime": "2026-10-07T21:51:16+00:00",
+  "downloads_max": 2,
+  "downloads_left": 2
+}
+```
+
+Every GET that serves the bytes takes one download and says how many remain
+in a `Downloads-Left` header. A `304` or a `412` takes none, since no bytes
+went out. Once the last download has gone out the bytes are removed, and the
+id answers `410 Gone` with `{"error": "Storage object gone"}` for the rest of
+its 24 hours. `max_downloads/0`, or no segment at all, is the plain 24 hour
+object. Any other value outside 1 to 100 is `400`.
+
 **Retrieve:** `GET /storage/{storage_id}` - returns the stored bytes with
 `application/json` if they parse as JSON, otherwise `application/octet-stream`.
 The answer carries `ETag`, which is `sha256_hash` in quotes, so a repeat fetch
 sending `If-None-Match` with that value is answered `304 Not Modified` with no
-body. An unknown or expired id returns `{"error": "Storage id unknown"}`.
+body. An unknown or expired id returns `{"error": "Storage id unknown"}`, and
+an object whose downloads are all taken returns `410` with
+`{"error": "Storage object gone"}`.
 
 **Fetch only if it is what you expect:** put the digest in the link.
 
@@ -2834,6 +2861,7 @@ operations use JSON with the fields documented in their own sections.
 | `/password_verify` | `match`, `algorithm`, `params` |
 | `/slugify` | `slug` |
 | `/storage` (store) | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime` |
+| `/storage/max_downloads/{n}` (store) | the same, plus `downloads_max`, `downloads_left` |
 | `/url_shortener` | `short_url`, `expire_timestamp` |
 | `/webhook_capture` (create) | `ok`, `capture_id`, `update_url`, `read_url`, `expire_timestamp` |
 | `/webhook_action` (create) | `ok`, `action_id`, `form_url`, `result_url`, `expire_timestamp`, `expire_datetime` |
