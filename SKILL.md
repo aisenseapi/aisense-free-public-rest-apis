@@ -292,13 +292,15 @@ country centroid when the city is unknown. Latitude and longitude are strings.
 ### Storage - 24h TTL
 
 `POST /storage` -> `{"storage_id": "...", "storage_url": "...", "sha256_hash": "...", "bytes": ..., "expire_timestamp": ...}`
-`GET /storage/{storage_id}` -> the stored bytes, with `ETag` set to `sha256_hash` in quotes
+`POST /storage/max_downloads/{n}` -> the same fields plus `downloads_max` and `downloads_left`. After `n` downloads (1 to 100) the object is removed and its id answers `410`
+`GET /storage/{storage_id}` -> the stored bytes, with `ETag` set to `sha256_hash` in quotes, and `Downloads-Left` when the object has a limit
 `GET /storage/{storage_id}/sha256/{64 hex}` -> the same bytes, but only if they hash to that value, else `412`
 
 The body is stored **verbatim**. Post `{"data": {...}}` and you retrieve
 `{"data": {...}}` - no wrapper is added or removed. The response key is
 `storage_id`, not `uuid`. An unknown or expired id returns
-`{"error": "Storage id unknown"}`.
+`{"error": "Storage id unknown"}`, and a spent one returns `410` with
+`{"error": "Storage object gone"}`.
 
 ### URL shortener - 24h TTL
 
@@ -828,6 +830,7 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
 | `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
 | `/storage` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
+| `/storage/max_downloads/{n}` | POST | the same, plus `downloads_max`, `downloads_left`. Gone with `410` after `n` downloads |
 | `/storage/{id}` | GET | the stored body, verbatim |
 | `/storage/{id}/sha256/{hex}` | GET | the same body, or `412` if it does not hash to `{hex}` |
 | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |

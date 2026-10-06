@@ -589,15 +589,18 @@ export class AISenseAPI {
   }
 
   /**
-   * Store data for 24 hours. Response keys: `storage_id`, `storage_url`,
-   * `sha256_hash`, `bytes`, `expire_timestamp`
-   * and `expire_datetime`.
+   * Store data for 24 hours, or for a set number of downloads. Response keys:
+   * `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`
+   * and `expire_datetime`. With `maxDownloads`, 1 to 100, the object is
+   * removed after that many downloads, the answer also carries
+   * `downloads_max` and `downloads_left`, and a spent id answers 410.
    *
    * The request body is stored verbatim, so whatever you pass here is exactly
    * what {@link storageGet} gives back. No `data` wrapper is added or removed.
    */
-  storageSet(data) {
-    return this.#post('/storage', data)
+  storageSet(data, maxDownloads) {
+    if (maxDownloads === undefined) return this.#post('/storage', data)
+    return this.#post(`/storage/max_downloads/${maxDownloads}`, data)
   }
 
   /**

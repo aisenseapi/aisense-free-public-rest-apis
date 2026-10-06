@@ -10,10 +10,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.13.0`. The official MCP Registry lists
+The server reports version `1.13.1`. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.13.0` as active and latest,
 published 4 October 2026 at 20:47 UTC. Both are server release versions,
-separate from the agent guide resource version, which is 1.8.3.
+separate from the agent guide resource version, which is 1.8.4.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -67,8 +67,8 @@ proxy these tools either.
 | `get_current_time` | Returns the current time for an IANA timezone or UTC offset |
 | `generate_uuid` | Generates a UUID version 4 |
 | `shorten_url` | Creates a 307.fi link that expires after 24 hours |
-| `store_temporary_data` | Stores a JSON value for 24 hours, and answers with its `sha256_hash` and `bytes` |
-| `read_temporary_data` | Reads a stored JSON value by ID, with the same `sha256_hash` and `bytes` |
+| `store_temporary_data` | Stores a JSON value for 24 hours, or for a set number of reads with `max_downloads`, and answers with its `sha256_hash` and `bytes` |
+| `read_temporary_data` | Reads a stored JSON value by ID, with the same `sha256_hash` and `bytes`, and `downloads_left` when the value has a limit |
 | `create_webhook_capture` | Creates a URL that captures an HTTP request |
 | `read_webhook_capture` | Reads the captured method, headers and body |
 | `create_human_approval` | Creates a hosted approval form for a person |
@@ -123,7 +123,7 @@ proxy these tools either.
 | `read_webhook_schedule` | Reads a scheduled webhook or waits for a change |
 | `cancel_webhook_schedule` | Cancels a scheduled webhook that has not finished |
 | `service_health` | Checks that the service answers |
-| `store_file` | Stores a file given as base64 for 24 hours and answers its link |
+| `store_file` | Stores a file given as base64 for 24 hours, or for a set number of fetches with `max_downloads`, and answers its link |
 | `read_stored_file` | Reads a stored object, image or file back |
 | `create_semantic_search` | Creates a 24-hour collection of notes searched by meaning, with read and write tokens |
 | `add_semantic_search_notes` | Adds 1 to 32 notes with the write token |

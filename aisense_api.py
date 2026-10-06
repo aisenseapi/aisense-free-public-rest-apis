@@ -552,18 +552,22 @@ class AISenseAPI:
         """Resolve a domain to an IP. Response keys: ``domain`` and ``ip``."""
         return self._get(f"/domain_ip_lookup/{domain}")
 
-    def storage_set(self, data: Any) -> dict:
-        """Store data for 24 hours.
+    def storage_set(self, data: Any, max_downloads: Optional[int] = None) -> dict:
+        """Store data for 24 hours, or for a set number of downloads.
 
         Response keys: ``storage_id``, ``storage_url``, ``sha256_hash``,
         ``bytes``, ``expire_timestamp`` and
-        ``expire_datetime``.
+        ``expire_datetime``. With ``max_downloads``, 1 to 100, the object is
+        removed after that many downloads, the answer also carries
+        ``downloads_max`` and ``downloads_left``, and a spent id answers 410.
 
         The request body is stored verbatim, so whatever you pass here is
         exactly what :meth:`storage_get` gives back. No ``data`` wrapper is
         added or removed.
         """
-        return self._post("/storage", data)
+        if max_downloads is None:
+            return self._post("/storage", data)
+        return self._post(f"/storage/max_downloads/{int(max_downloads)}", data)
 
     def storage_get(self, storage_id: str) -> dict:
         """Retrieve stored data by its ``storage_id``, returned verbatim.
