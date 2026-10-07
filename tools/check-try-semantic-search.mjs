@@ -72,17 +72,24 @@ function setup(script, extra = {}) {
   return { controller, calls: fake.calls, changes, advance: (ms) => { clock += ms; }, clock: () => clock };
 }
 
-const SAMPLES = core.SAMPLE_NOTES.map((n) => ({ text: n.text, key: n.key }));
+const SAMPLES = core.EXAMPLES[0].notes.slice(0, 4).map((n) => ({ text: n.text, key: n.key }));
 const sentNotes = SAMPLES.map((n) => ({ text: n.text, key: n.key }));
 
 console.log('Page load and examples');
 {
   const t = setup([]);
   check(t.calls.length === 0 && t.controller.state().phase === 'draft', 'a new page makes no call: the controller starts in draft with nothing sent');
-  check(core.SAMPLE_QUERIES.length === 4 && core.SAMPLE_NOTES.length === 4, 'four example notes and four example searches, which only fill in fields');
+  check(core.EXAMPLES.length === 4 && core.EXAMPLES.every((e) => e.notes.length >= 4 && e.notes.length <= core.LIMITS.formNotes && e.searches.length === 4
+    && core.checkNotes(e.notes).problems.length === 0 && new Set(e.notes.map((n) => n.key)).size === e.notes.length),
+    'four example sets, each with valid notes under distinct keys and four searches to fill in');
+  check(core.EXAMPLES.every((e) => /^[ -~]+$/.test(e.title + e.notes.map((n) => n.key + n.text).join('') + e.searches.join(''))),
+    'every example is in plain English text: no other language on the page');
   const source = readFileSync(join(web, 'assets', 'try-semantic-search.js'), 'utf8');
-  const exampleHandler = source.match(/button\.addEventListener\('click', function \(\) \{ queryInput\.value = text; queryInput\.focus\(\); \}\);/);
-  check(exampleHandler !== null, 'an example button sets the search text and focus, and sends nothing');
+  const exampleHandler = source.match(/button\.addEventListener\('click', function \(\) \{ queryInput\.value = text; queryInput\.focus\(\); writeSearchRequest\(\); \}\);/);
+  const setStart = source.indexOf('function useExample(example) {');
+  const setHandler = setStart < 0 ? null : [source.slice(setStart, source.indexOf('function writeSearchRequest', setStart))];
+  check(exampleHandler !== null && setHandler !== null && !/controller\.(create|search)|fetch/.test(setHandler[0]),
+    'an example set fills in notes and searches, a search example fills in the field, and neither sends anything');
   check(!/innerHTML|insertAdjacentHTML|outerHTML|document\.write/.test(source), 'the script never writes markup: text goes to the page with textContent');
   check(!/console\./.test(source) && !/localStorage|sessionStorage|document\.cookie/.test(source), 'no console output, no storage and no cookies');
   check(!/setInterval/.test(source), 'no polling');
@@ -244,6 +251,23 @@ console.log('Checked before anything is sent');
   check(core.checkNotes([{ text: 'Kunden fikk feil faktura', key: 'faktura:7' }]).problems.length === 0, 'Unicode text and a valid key pass');
 }
 
+console.log('The notes JSON');
+{
+  const body = core.notesBody([{ text: 'one', key: 'k:1' }, { text: 'two', key: '  ' }]);
+  check(JSON.stringify(body) === '{"notes":[{"text":"one","key":"k:1"},{"text":"two"}]}', 'the JSON is the body the API takes, with no key where none was given');
+  const ok = core.parseNotesJson('{"notes":[{"text":"a","key":"k:1"},{"text":"b","key":null},{"text":"c"}]}');
+  check(ok.problems.length === 0 && ok.rows.length === 3 && ok.rows[1].key === '' && ok.rows[2].key === '', 'an edited JSON with keys, a null key or none is read back as notes');
+  const bad = ['{"notes":[', '[]', '{"notes":[],"extra":1}', '{"notes":[{"text":"a","colour":"red"}]}', '{"notes":[{"text":5}]}', '{"notes":[{"text":"a","key":7}]}', '{"items":[]}'];
+  check(bad.every((text) => core.parseNotesJson(text).rows === null && core.parseNotesJson(text).problems.length === 1),
+    'a JSON that does not parse, has another shape or other fields is refused here, before anything is sent');
+}
+{
+  const edited = core.parseNotesJson('{"notes":[{"text":"Edited by hand.","key":"hand:1"}]}');
+  const t = setup([created(), added([{ text: 'Edited by hand.', key: 'hand:1' }])]);
+  await t.controller.create(edited.rows, 'bge-m3');
+  check(t.calls.length === 2 && t.calls[1].init.body === '{"notes":[{"text":"Edited by hand.","key":"hand:1"}]}', 'notes edited in the JSON are sent as they stand');
+}
+
 console.log('Answers the page explains');
 {
   const statuses = [401, 403, 404, 410, 413, 502, 503, 504];
@@ -313,6 +337,11 @@ console.log('The page');
   check(missing.length === 0, 'every internal link points at a file in web/' + (missing.length ? ': missing ' + missing.join(', ') : ''));
   check(/<noscript>/.test(html) && /role="status"/.test(html) && /aria-live="polite"/.test(html) && /aria-busy=/.test(html), 'noscript, a live status line and aria-busy are there');
   check(!/[0-9a-f]{64}|Bearer [A-Za-z0-9]/.test(html), 'no token value and no Authorization header in the HTML');
+  check(['semantic-sets', 'semantic-json', 'semantic-create-request', 'semantic-notes-request', 'semantic-search-request', 'semantic-raw'].every((id) => html.includes('id="' + id + '"'))
+    && /<label class="visually-hidden" for="semantic-json">/.test(html), 'the page has the example sets, the editable notes JSON with a label, and every request written out');
+  const script = readFileSync(join(web, 'assets', 'try-semantic-search.js'), 'utf8');
+  check(!/[À-ɏ]/.test(html + script), 'nothing on the page or in its script is in another language');
+  check(/Bearer READ_TOKEN/.test(script) && /Bearer WRITE_TOKEN/.test(script), 'the written requests show the tokens as READ_TOKEN and WRITE_TOKEN');
   const sitemap = readFileSync(join(web, 'sitemap.xml'), 'utf8');
   check(sitemap.includes('<loc>https://aisense.no/try-semantic-search</loc>'), 'the sitemap lists the page');
 }

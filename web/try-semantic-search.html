@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Try semantic search with your own notes - AI SENSE</title>
-<meta name="description" content="Add a few short notes and search them by meaning, in your own words or another language. The page calls the free Semantic Search API and shows the ranked notes and the JSON. No API key.">
+<meta name="description" content="Pick an example or write a few short notes, then search them by meaning in your own words. See the JSON the page sends to the free Semantic Search API and the ranked notes it gets back. No API key.">
 <link rel="canonical" href="https://aisense.no/try-semantic-search">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Try semantic search with your own notes">
-<meta property="og:description" content="Add a few short notes and search them by meaning, in your own words or another language. The page calls the free Semantic Search API and shows the ranked notes and the JSON. No API key.">
+<meta property="og:description" content="Pick an example or write a few short notes, then search them by meaning in your own words. See the JSON the page sends to the free Semantic Search API and the ranked notes it gets back. No API key.">
 <meta property="og:url" content="https://aisense.no/try-semantic-search">
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css?v=20261007a">
 <script src="/assets/aisense-theme.js?v=20261007a"></script>
-<link rel="stylesheet" href="/assets/try-semantic-search.css?v=20261007a">
+<link rel="stylesheet" href="/assets/try-semantic-search.css?v=20261007b">
 
 <script type="application/ld+json">
 {
@@ -27,7 +27,7 @@
       "@type": "WebPage",
       "name": "Try semantic search with your own notes",
       "url": "https://aisense.no/try-semantic-search",
-      "description": "Add a few short notes and search them by meaning, in your own words or another language. The page calls the free Semantic Search API and shows the ranked notes and the JSON. No API key.",
+      "description": "Pick an example or write a few short notes, then search them by meaning in your own words. See the JSON the page sends to the free Semantic Search API and the ranked notes it gets back. No API key.",
       "inLanguage": "en",
       "about": {
         "@type": "WebAPI",
@@ -89,64 +89,70 @@
 <header class="article-header">
   <p class="eyebrow">Live test</p>
   <h1>Try semantic search with your own notes</h1>
-  <p class="article-deck">Add a few short notes, then search them in your own words. Try a different language too. Nothing is sent until you press a button.</p>
+  <p class="article-deck">Pick an example or write your own notes, then search them in your own words. The page shows the JSON it sends, and nothing is sent until you press a button.</p>
 </header>
 
 <div class="article-body try-semantic" id="semantic-try" aria-busy="false">
   <p class="try-status" id="semantic-status" role="status" aria-live="polite">Loading the form...</p>
   <noscript><p class="try-status is-bad">This test runs in your browser and needs JavaScript. The <a href="/free-public-api-semantic-search-api-endpoint">Semantic Search API <span class="agent-optimal-tail">Endpoint<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> page shows the same requests with curl.</p></noscript>
-  <p>Semantic Search is a free API that keeps short notes in a collection for 24 hours and ranks them by meaning for each search. This page sends your notes and searches from this tab straight to <code>https://aisenseapi.com/services/v1/semantic_search</code>. The collection's read and write tokens stay in this tab's memory only. Reloading or closing the page loses its access, but does not delete the notes on the server. As on every endpoint, the access log records each request with your address, and the request limits count per address. See the <a href="/privacy">privacy page</a>.</p>
+  <p>Semantic Search is a free API that keeps short notes in a collection for 24 hours and ranks them by meaning for each search, also when the words differ. This page sends your notes and searches from this tab straight to <code>https://aisenseapi.com/services/v1/semantic_search</code>. The collection's read and write tokens stay in this tab's memory only. Reloading or closing the page loses its access, but does not delete the notes on the server. As on every endpoint, the access log records each request with your address, and the request limits count per address. See the <a href="/privacy">privacy page</a>.</p>
 
   <div class="semantic-errors" id="semantic-errors" tabindex="-1" role="alert" hidden></div>
 
-  <section aria-labelledby="semantic-notes-title">
-    <h2 id="semantic-notes-title">1. Write the notes</h2>
-    <p class="semantic-help">This test takes up to 8 notes of up to 2000 characters each. The API itself takes up to 32 notes in one call and 500 over a collection's lifetime. A key is an optional label that comes back with each result, such as an incident number. It does not stop the same note from being stored twice.</p>
-    <div class="semantic-notes" id="semantic-notes"></div>
-    <button type="button" class="semantic-small" id="semantic-add-note">Add a note</button>
-    <div class="semantic-model">
-      <label for="semantic-model">Model</label>
-      <select id="semantic-model">
-        <option value="bge-m3" selected>bge-m3 (the default)</option>
-        <option value="qwen3-embedding-4b">qwen3-embedding-4b</option>
-      </select>
-      <p class="semantic-help">The model is fixed for the collection. To compare the two, run the test again with the other one.</p>
-    </div>
-    <div class="api-note warning-note"><p>Your notes are stored and processed for search. The collection expires 24 hours after creation. Searches do not extend it. Leave out passwords, API keys and sensitive personal information. See our <a href="/privacy">privacy page</a>.</p></div>
-    <div class="button-row semantic-send-row"><button type="button" class="button button-primary" id="semantic-create" disabled>Create collection and add notes</button></div>
-    <p class="semantic-collection" id="semantic-collection" hidden></p>
-  </section>
+  <h2>1. Choose an example, or start blank</h2>
+  <p class="semantic-help">Each example fills in a few notes and some searches to try. Change them as you like, or start blank and write your own.</p>
+  <div class="semantic-sets" id="semantic-sets"></div>
 
-  <section aria-labelledby="semantic-search-title">
-    <h2 id="semantic-search-title">2. Search</h2>
-    <p class="semantic-help">Pick an example to fill in the search, or write your own. The last example matches none of the sample notes on purpose: a search always ranks the notes there are, so read the text before you trust the first one.</p>
-    <div class="semantic-examples" id="semantic-examples"></div>
-    <label class="semantic-label" for="semantic-query">What are you looking for?</label>
-    <input class="semantic-wide" id="semantic-query" type="text" autocomplete="off" spellcheck="true" disabled>
-    <div class="semantic-search-row">
-      <label for="semantic-limit">Results</label>
-      <select id="semantic-limit" disabled></select>
-      <button type="button" class="button button-primary" id="semantic-search" disabled>Search</button>
-    </div>
-  </section>
+  <h2>2. Write the notes</h2>
+  <p class="semantic-help">This test takes up to 8 notes of up to 2000 characters each. The API itself takes up to 32 notes in one call and 500 over a collection's lifetime. A key is an optional label that comes back with each result, such as an order number. It does not stop the same note from being stored twice.</p>
+  <div class="semantic-notes" id="semantic-notes"></div>
+  <button type="button" class="semantic-small" id="semantic-add-note">Add a note</button>
+  <div class="semantic-model">
+    <label for="semantic-model">Model</label>
+    <select id="semantic-model">
+      <option value="bge-m3" selected>bge-m3 (the default)</option>
+      <option value="qwen3-embedding-4b">qwen3-embedding-4b</option>
+    </select>
+    <p class="semantic-help">The model is fixed for the collection. To compare the two, run the test again with the other one.</p>
+  </div>
 
-  <section aria-labelledby="semantic-results-title">
-    <h2 id="semantic-results-title">3. The ranked notes</h2>
-    <p class="semantic-help">Scores rank these notes for this search. They are not probabilities. Check the text and any order numbers or other identifiers before acting.</p>
-    <p class="semantic-result-for" id="semantic-result-for">No results yet.</p>
-    <ol class="semantic-results" id="semantic-results"></ol>
-    <details class="semantic-raw">
-      <summary>The last request and answer as JSON</summary>
-      <p class="semantic-help">The tokens are hidden in this view and never shown on the page.</p>
-      <pre><code id="semantic-raw">Nothing has been sent yet.</code></pre>
-    </details>
-  </section>
+  <h2>3. The requests, written for you</h2>
+  <p class="semantic-help">This is what the page sends. The notes follow what you fill in above, and you can edit their JSON here as well. The tokens stay in this tab and are written here as WRITE_TOKEN and READ_TOKEN.</p>
+  <h3>Create the collection</h3>
+  <pre><code id="semantic-create-request"></code></pre>
+  <h3>Add the notes</h3>
+  <pre><code id="semantic-notes-request"></code></pre>
+  <label class="visually-hidden" for="semantic-json">The notes as JSON</label>
+  <textarea id="semantic-json" spellcheck="false" autocomplete="off"></textarea>
+  <div class="semantic-json-tools"><p class="semantic-help" id="semantic-json-note"></p><button type="button" class="semantic-small" id="semantic-rewrite">Write it again from the notes</button></div>
+  <div class="api-note warning-note"><p>Your notes are stored and processed for search. The collection expires 24 hours after creation. Searches do not extend it. Leave out passwords, API keys and sensitive personal information. See our <a href="/privacy">privacy page</a>.</p></div>
+  <div class="button-row semantic-send-row"><button type="button" class="button button-primary" id="semantic-create" disabled>Create collection and add notes</button></div>
+  <p class="semantic-collection" id="semantic-collection" hidden></p>
 
-  <section aria-labelledby="semantic-reset-title">
-    <h2 id="semantic-reset-title">Start again</h2>
-    <p>A new test forgets this page's access to the collection and sets the notes back to the examples. It does not delete the collection, which expires on its own 24 hours after creation, and the next one counts toward the 20 new collections an address may make in 24 hours.</p>
-    <button type="button" class="semantic-small" id="semantic-reset">Start a new test</button>
-  </section>
+  <h2>4. Search</h2>
+  <p class="semantic-help">Pick a search to fill in, or write your own. The last one matches none of the example notes on purpose: a search always ranks the notes there are, so read the text before you trust the first one.</p>
+  <div class="semantic-examples" id="semantic-examples"></div>
+  <label class="semantic-label" for="semantic-query">What are you looking for?</label>
+  <input class="semantic-wide" id="semantic-query" type="text" autocomplete="off" spellcheck="true" disabled>
+  <div class="semantic-search-row">
+    <label for="semantic-limit">Results</label>
+    <select id="semantic-limit" disabled></select>
+    <button type="button" class="button button-primary" id="semantic-search" disabled>Search</button>
+  </div>
+  <h3>The search request</h3>
+  <pre><code id="semantic-search-request"></code></pre>
+
+  <h2>5. The ranked notes</h2>
+  <p class="semantic-help">Scores rank these notes for this search. They are not probabilities. Check the text and any order numbers or other identifiers before acting.</p>
+  <p class="semantic-result-for" id="semantic-result-for">No results yet.</p>
+  <ol class="semantic-results" id="semantic-results"></ol>
+  <h3>The answer as JSON</h3>
+  <p class="semantic-help">The last answer from the API. Tokens are hidden here.</p>
+  <pre><code id="semantic-raw">Nothing has been sent yet.</code></pre>
+
+  <h2>Start again</h2>
+  <p>A new test forgets this page's access to the collection and keeps the example you chose. It does not delete the collection, which expires on its own 24 hours after creation, and the next one counts toward the 20 new collections an address may make in 24 hours.</p>
+  <button type="button" class="semantic-small" id="semantic-reset">Start a new test</button>
 
   <p>How the score, identifiers and limits work is on the <a href="/free-public-api-semantic-search-api-endpoint">Semantic Search API <span class="agent-optimal-tail">Endpoint<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> page.</p>
 </div>
@@ -155,6 +161,6 @@
 
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
 
-<script src="/assets/try-semantic-search.js?v=20261007a"></script>
+<script src="/assets/try-semantic-search.js?v=20261007b"></script>
 </body>
 </html>
