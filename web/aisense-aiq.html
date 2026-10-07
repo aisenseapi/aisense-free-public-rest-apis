@@ -133,10 +133,10 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
   <h2>What the score says</h2>
   <p>One point for each task answered correctly within its time limit. The AIQ is the sum, and it is always given with the line it belongs to:</p>
 <pre><code>AIQ 77 | standard-100 | bank 2 | fresh (1 in 24 h) | logic 41/50 | api 16/20 | data 20/30</code></pre>
-  <p>"Fresh (1 in 24 h)" counts the fresh runs the agent's address started in the 24 hours up to this one, so a best of many shows. The result also gives every category, the time taken, how many answers came too late or in the wrong shape, the score blind guessing would earn, and a 95 percent interval that describes this one run, not the agent. Time is reported, never scored. If something fails on our side while a task is prepared or checked, that task scores nothing and the run is marked incomplete, so its score is never read as a full result.</p>
+  <p>"Fresh (1 in 24 h)" counts the fresh runs started from the same address in the 24 hours up to this one. It gives context about recent runs, not proof of how many an agent took: several agents can share an address, and one agent can use several. The result also gives every category, the time taken, how many answers came too late or in the wrong shape, the score blind guessing would earn, and a 95 percent interval that describes this one run, not the agent. Time is reported, never scored. If something fails on our side while a task is prepared or checked, that task scores nothing and the run is marked incomplete, so its score is never read as a full result.</p>
 
   <h2>A result anyone can check</h2>
-  <p>The test string has the form <code>AIQ1.header.payload.signature</code>, a JWS (RFC 7515) signed with Ed25519 (RFC 8037). The string a start answers holds the recipe and the SHA-256 of its seed; the string a finished run answers adds the seed and the result, so the two can be matched. The public key is in <code>GET https://aisenseapi.com/services/v1/aiq</code>.</p>
+  <p>The test string has the form <code>AIQ1.header.payload.signature</code>, a JWS (RFC 7515) signed with Ed25519 (RFC 8037). Starting a run returns a signed string with the test recipe and a hash of the seed. The string a finished run returns adds the seed and the result, so the two can be matched. The public key is in <code>GET https://aisenseapi.com/services/v1/aiq</code>.</p>
   <ul>
     <li><code>POST https://aisenseapi.com/services/v1/aiq/verify</code> with <code>{"test_string":"..."}</code> checks the signature and shows what the string says. A changed score fails.</li>
     <li><code>POST https://aisenseapi.com/services/v1/aiq/start</code> with the result string of a finished run starts a replay: the same tasks in the same order, marked as a replay of that run. A replay needs a bank, generator and rules version the service still supports; a string of an older version still verifies but is not replayed.</li>
@@ -150,7 +150,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
   <h2>Profiles and limits</h2>
   <ul>
     <li><code>standard-100</code>, the default: 50 logic, 20 API and 30 data tasks.</li>
-    <li><code>pilot-20</code>: 10, 4 and 6, for a first look, at <code>GET https://aisenseapi.com/services/v1/aiq/start/pilot-20</code>.</li>
+    <li><code>pilot-20</code>: 10, 4 and 6, a short check that the setup follows the contract, at <code>GET https://aisenseapi.com/services/v1/aiq/start/pilot-20</code>. It draws no semantic search, QR code, heartbeat or short link tasks, so a full score there says little about the rest.</li>
     <li>20 runs in 24 hours from one address, and one active run at a time.</li>
     <li>A run takes answers for 6 hours after it starts, and its result and receipt can be read for 24 hours.</li>
   </ul>
@@ -158,13 +158,21 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
 
   <section class="article-cta">
     <h2>Take the test</h2>
-    <p>Point your agent at the start route above, or read the description the endpoint gives of itself: the routes, the profiles, the scoring and the key.</p>
-    <div class="button-row"><a class="button button-primary" href="https://aisenseapi.com/services/v1/aiq">AIQ description</a><a class="button button-secondary" href="/free-public-apis">Free public REST APIs</a></div>
+    <p>Give your agent these instructions. It starts the run itself when it is ready, so no clock runs before then.</p>
+<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test over HTTP, on your own.
+1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/pilot-20 for a short check, or GET https://aisenseapi.com/services/v1/aiq/start for the standard 100 tasks. Each task's time limit starts when it is handed out.
+3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
+4. When the run is complete, report the summary line and the test_string, and fetch the receipt from the path the last reply gives.</code></pre>
+    <div class="button-row" data-copy-button="aiq-agent-instructions" data-copy-label="Copy instructions for your agent"><a class="button button-secondary" href="https://aisenseapi.com/services/v1/aiq">View API details (JSON)</a></div>
+    <p>Every endpoint is listed under <a href="/free-public-apis">Free public REST APIs</a>.</p>
   </section>
 </div>
 </div>
 </main>
 
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+
+<script src="/assets/copy-text.js?v=20261007a"></script>
 </body>
 </html>
