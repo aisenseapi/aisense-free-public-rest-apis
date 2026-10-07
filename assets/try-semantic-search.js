@@ -530,6 +530,7 @@
   var limitSelect = $('semantic-limit');
   var searchButton = $('semantic-search');
   var searchRequest = $('semantic-search-request');
+  var searchHint = $('semantic-search-hint');
   var resultFor = $('semantic-result-for');
   var resultList = $('semantic-results');
   var rawBox = $('semantic-raw');
@@ -646,6 +647,21 @@
     writeSearchRequest();
   }
 
+  /** What the search can do now, said next to its button; pressed says it after a press that sent nothing. */
+  function searchHintText(s, pressed) {
+    if (s.busy) { return ''; }
+    if (s.collection === null) {
+      return (pressed ? 'Nothing was sent. ' : '') + 'The notes are not in a collection yet. Press Create collection and add notes in step 3 first, then search.';
+    }
+    if (s.phase === 'notes-refused') {
+      return (pressed ? 'Nothing was sent. ' : '') + 'The notes were refused. Correct them and press Add the notes again in step 3, then search.';
+    }
+    if (s.phase === 'expired' || s.phase === 'stopped') {
+      return (pressed ? 'Nothing was sent. ' : '') + 'This collection can no longer be searched. Start a new test below.';
+    }
+    return 'Searches the collection with ' + s.collection.model + ', holding ' + s.collection.notes + ' note' + (s.collection.notes === 1 ? '' : 's') + '.';
+  }
+
   function showProblems(problems) {
     errorBox.textContent = '';
     if (!Array.isArray(problems) || problems.length === 0) {
@@ -674,10 +690,13 @@
     modelSelect.disabled = s.busy || hasCollection;
     createButton.textContent = s.phase === 'notes-refused' ? 'Add the notes again' : 'Create collection and add notes';
     createButton.disabled = s.busy || s.waitMs > 0 || !(s.phase === 'draft' || s.phase === 'notes-refused');
-    var canSearch = hasCollection && (s.phase === 'ready' || s.phase === 'uncertain');
-    searchButton.disabled = s.busy || s.waitMs > 0 || !canSearch;
-    queryInput.disabled = s.busy || !canSearch;
-    limitSelect.disabled = s.busy || !canSearch;
+    // The search fields and button stay usable before there is a collection, so a
+    // press is never silent: runSearch() says what to do first and sends nothing.
+    searchButton.disabled = s.busy || s.waitMs > 0;
+    queryInput.disabled = s.busy;
+    limitSelect.disabled = s.busy;
+    searchHint.className = 'semantic-help semantic-search-hint';
+    searchHint.textContent = searchHintText(s);
     resetButton.disabled = s.busy;
     if (hasCollection) {
       var expires = new Date(s.collection.expires * 1000);
@@ -766,6 +785,18 @@
 
   function runSearch() {
     showProblems(null);
+    var s = controller.state();
+    if (s.collection === null || ['ready', 'uncertain'].indexOf(s.phase) < 0) {
+      // Nothing is sent: the note by the button says why, and the way on is focused.
+      searchHint.textContent = searchHintText(s, true);
+      searchHint.className = 'semantic-help semantic-search-hint is-bad';
+      if (s.collection === null && !createButton.disabled) {
+        createButton.scrollIntoView({ block: 'center' });
+        createButton.focus();
+      }
+      return;
+    }
+    searchHint.className = 'semantic-help semantic-search-hint';
     controller.search(queryInput.value, parseInt(limitSelect.value, 10)).then(function (outcome) {
       if (Array.isArray(outcome)) { showProblems(outcome); }
     });
