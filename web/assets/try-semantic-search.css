@@ -79,6 +79,8 @@
 .semantic-wide { display: block; width: 100%; }
 .semantic-search-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
 .semantic-search-row select { min-width: 72px; }
+.semantic-search-hint { margin: 10px 0 0; }
+.semantic-search-hint.is-bad { color: var(--bad); font-weight: 600; }
 .semantic-result-for { margin: 16px 0 10px; color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
 .semantic-results { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .semantic-hit { min-width: 0; padding: 14px 16px; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 0 8px 8px 0; background: var(--surface); }
