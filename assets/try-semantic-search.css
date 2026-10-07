@@ -1,7 +1,34 @@
 /* Try semantic search: the notes, the search and the ranked notes. Loaded by try-semantic-search.html only. */
 .try-semantic h2 { margin-top: 48px; }
+.try-semantic h3 { margin: 26px 0 8px; font-size: 18px; }
 .try-semantic section { min-width: 0; }
 .semantic-help { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+.semantic-help.is-edited { color: var(--expected-ink); }
+.semantic-sets { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px; }
+.semantic-sets .button { padding: 9px 14px; font-size: 15px; }
+.semantic-sets .button[aria-pressed="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+.try-semantic pre { max-width: 100%; overflow-x: auto; }
+.try-semantic pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
+#semantic-json {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 16em;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+#semantic-json:focus-visible { outline: 3px solid rgba(4, 107, 210, 0.35); outline-offset: 2px; }
+#semantic-json[readonly] { opacity: 0.75; }
+.semantic-json-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 10px 0 18px; }
+.semantic-json-tools .semantic-help { flex: 1 1 260px; margin: 0; }
 .semantic-notes { display: grid; gap: 12px; margin: 14px 0 10px; }
 .semantic-note { min-width: 0; margin: 0; padding: 12px 14px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--tint); }
 .semantic-note legend { padding: 0 6px; color: var(--ink); font-size: 15px; font-weight: 600; }
@@ -60,10 +87,6 @@
 .semantic-score { font-family: var(--mono); }
 .semantic-hit-key { font-family: var(--mono); overflow-wrap: anywhere; }
 .semantic-hit-text { margin: 0; color: var(--ink); overflow-wrap: anywhere; white-space: pre-wrap; }
-.semantic-raw { margin: 22px 0 0; }
-.semantic-raw summary { cursor: pointer; color: var(--ink); font-weight: 600; }
-.semantic-raw pre { max-width: 100%; overflow-x: auto; }
-.semantic-raw code { display: block; font-size: 13px; white-space: pre; }
 .semantic-errors { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--bad); border-radius: 0 6px 6px 0; background: var(--warn-bg); color: var(--ink); }
 .semantic-errors ul { margin: 6px 0 0; padding-left: 20px; }
 .semantic-errors li { overflow-wrap: anywhere; }
