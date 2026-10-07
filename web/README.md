@@ -71,7 +71,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `try-decide.html` | `/try-decide` - a form that writes the /decide request, with `assets/try-decide.js` and `assets/try-decide.css` |
 | `try-semantic-search.html` | `/try-semantic-search` - notes in a new collection and searches by meaning, from the browser, with `assets/try-semantic-search.js` and `assets/try-semantic-search.css`; `tools/check-try-semantic-search.mjs` checks it against fake API answers |
 | `aisense-aiq.html` | `/aisense-aiq` - with its card, `assets/aisense-aiq.png`, and `assets/copy-text.js` for the button that copies the agent instructions |
-| `aisense-aiq-versions.html` | `/aisense-aiq-versions` - every AIQ version in a box that opens and closes, with `assets/aisense-aiq-versions.css` and no script |
+| `aisense-aiq-versions.html` | `/aisense-aiq-versions` - every AIQ version in a box that opens and closes, with `assets/aisense-aiq-versions.css`, and `assets/copy-text.js` for the button that copies the bri instructions |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - client login with no accounts behind it yet, excluded from search indexing; it posts only the email address to `login-attempt.php` |
@@ -80,7 +80,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `assets/aisense.css` | shared stylesheet |
 | `assets/aisense-tools.css` | stylesheet for the browser tools, on top of `aisense.css` |
 | `assets/aisense-tools.js` | shared script for the browser tools |
-| `assets/copy-text.js` | a copy button for a block of text, made by the script so a page without JavaScript shows none; used by `/aisense-aiq` |
+| `assets/copy-text.js` | a copy button for a block of text, made by the script so a page without JavaScript shows none; used by `/aisense-aiq` and `/aisense-aiq-versions` |
 | `assets/try-aamio.js` | script for `/try-aamio` |
 | `assets/aamio/` | the aamio, aamio-wasm and tweetnacl modules `/try-aamio` loads, copied unchanged from npm with their licences; `SOURCES.txt` says which versions |
 | `assets/aamio-logo-light.png` | the aamio logo |
