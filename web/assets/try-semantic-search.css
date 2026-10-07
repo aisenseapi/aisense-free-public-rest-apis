@@ -1,0 +1,76 @@
+/* Try semantic search: the notes, the search and the ranked notes. Loaded by try-semantic-search.html only. */
+.try-semantic h2 { margin-top: 48px; }
+.try-semantic section { min-width: 0; }
+.semantic-help { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+.semantic-notes { display: grid; gap: 12px; margin: 14px 0 10px; }
+.semantic-note { min-width: 0; margin: 0; padding: 12px 14px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--tint); }
+.semantic-note legend { padding: 0 6px; color: var(--ink); font-size: 15px; font-weight: 600; }
+.semantic-note label, .semantic-model label, .semantic-label, .semantic-search-row label { color: var(--ink); font-size: 15px; font-weight: 600; }
+.semantic-note textarea, .semantic-note input, .try-semantic select, .semantic-wide {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+.semantic-note textarea { display: block; width: 100%; margin: 6px 0 4px; resize: vertical; }
+.semantic-note textarea:disabled, .semantic-note input:disabled, .try-semantic select:disabled, .semantic-wide:disabled { opacity: 0.7; cursor: not-allowed; }
+.semantic-note textarea:focus-visible, .semantic-note input:focus-visible, .try-semantic select:focus-visible, .semantic-wide:focus-visible, .semantic-errors:focus-visible {
+  outline: 3px solid rgba(4, 107, 210, 0.35);
+  outline-offset: 2px;
+}
+.semantic-count { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+.semantic-count.is-bad { color: var(--bad); font-weight: 600; }
+.semantic-key-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.semantic-key-line input { flex: 1 1 180px; min-width: 0; }
+.semantic-small {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.semantic-small:hover, .semantic-small:focus-visible { border-color: var(--blue); }
+.semantic-small:disabled { color: var(--muted); cursor: not-allowed; opacity: 0.7; }
+.semantic-remove:hover, .semantic-remove:focus-visible { border-color: var(--bad); color: var(--bad); }
+.semantic-model { margin: 22px 0 0; }
+.semantic-model select { display: block; margin: 6px 0 8px; }
+.semantic-send-row { margin-top: 18px; }
+.semantic-collection { margin: 14px 0 0; padding: 12px 14px; border-radius: 8px; background: var(--tint); color: var(--ink); font-size: 15px; overflow-wrap: anywhere; }
+.semantic-examples { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 18px; }
+.semantic-example { padding: 9px 14px; font-size: 15px; max-width: 100%; white-space: normal; text-align: left; }
+.semantic-label { display: block; margin-bottom: 6px; }
+.semantic-wide { display: block; width: 100%; }
+.semantic-search-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+.semantic-search-row select { min-width: 72px; }
+.semantic-result-for { margin: 16px 0 10px; color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
+.semantic-results { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.semantic-hit { min-width: 0; padding: 14px 16px; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 0 8px 8px 0; background: var(--surface); }
+.semantic-hit-head { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 6px; color: var(--muted); font-size: 14px; }
+.semantic-rank { color: var(--ink); font-weight: 700; }
+.semantic-score { font-family: var(--mono); }
+.semantic-hit-key { font-family: var(--mono); overflow-wrap: anywhere; }
+.semantic-hit-text { margin: 0; color: var(--ink); overflow-wrap: anywhere; white-space: pre-wrap; }
+.semantic-raw { margin: 22px 0 0; }
+.semantic-raw summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+.semantic-raw pre { max-width: 100%; overflow-x: auto; }
+.semantic-raw code { display: block; font-size: 13px; white-space: pre; }
+.semantic-errors { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--bad); border-radius: 0 6px 6px 0; background: var(--warn-bg); color: var(--ink); }
+.semantic-errors ul { margin: 6px 0 0; padding-left: 20px; }
+.semantic-errors li { overflow-wrap: anywhere; }
+.semantic-errors-title { margin: 0; font-weight: 600; }
+.try-semantic .try-status { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .semantic-key-line input { flex: 1 1 100%; }
+  .semantic-key-line .semantic-remove { margin-left: auto; }
+  .semantic-search-row .button { flex: 1 1 100%; }
+}

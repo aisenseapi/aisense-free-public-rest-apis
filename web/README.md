@@ -69,6 +69,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `time-zones-by-name.html` | `/time-zones-by-name` |
 | `decide-speaks-clef.html` | `/decide-speaks-clef` - with its card, `assets/decide-speaks-clef.jpg` |
 | `try-decide.html` | `/try-decide` - a form that writes the /decide request, with `assets/try-decide.js` and `assets/try-decide.css` |
+| `try-semantic-search.html` | `/try-semantic-search` - notes in a new collection and searches by meaning, from the browser, with `assets/try-semantic-search.js` and `assets/try-semantic-search.css`; `tools/check-try-semantic-search.mjs` checks it against fake API answers |
 | `aisense-aiq.html` | `/aisense-aiq` - with its card, `assets/aisense-aiq.png` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
