@@ -1,5 +1,5 @@
 /* AI SENSE AIQ versions. One box per version that opens and closes with
-   details and summary, so the page needs no script. Loaded by
+   details and summary, so the boxes need no script. Loaded by
    aisense-aiq-versions.html only. Every color is a site variable, so the dark
    theme needs nothing here. */
 .aiq-versions { display: grid; gap: 14px; margin: 24px 0 28px; }
