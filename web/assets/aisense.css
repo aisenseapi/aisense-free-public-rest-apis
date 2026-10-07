@@ -618,6 +618,9 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .article-figure { margin: 0 0 65px; }
 .article-figure img { width: 100%; height: auto; display: block; border-radius: 10px; box-shadow: 0 18px 50px rgba(30, 41, 59, 0.12); }
 .article-figure figcaption { margin-top: 10px; color: var(--muted); font-size: 12px; }
+/* An image narrower than the column, such as the 600 px AIQ card, keeps its
+   own width instead of being stretched; on a phone it still fills the width. */
+.article-figure-narrow img { max-width: 600px; margin: 0 auto; }
 
 .article-body { max-width: 800px; margin: 0 auto; }
 .article-body > p { max-width: none; }

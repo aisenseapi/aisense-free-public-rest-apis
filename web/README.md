@@ -69,6 +69,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `time-zones-by-name.html` | `/time-zones-by-name` |
 | `decide-speaks-clef.html` | `/decide-speaks-clef` - with its card, `assets/decide-speaks-clef.jpg` |
 | `try-decide.html` | `/try-decide` - a form that writes the /decide request, with `assets/try-decide.js` and `assets/try-decide.css` |
+| `aisense-aiq.html` | `/aisense-aiq` - with its card, `assets/aisense-aiq.png` |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - client login with no accounts behind it yet, excluded from search indexing; it posts only the email address to `login-attempt.php` |
