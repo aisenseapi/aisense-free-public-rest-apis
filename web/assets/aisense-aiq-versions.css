@@ -1,0 +1,22 @@
+/* AI SENSE AIQ versions. One box per version that opens and closes with
+   details and summary, so the page needs no script. Loaded by
+   aisense-aiq-versions.html only. Every color is a site variable, so the dark
+   theme needs nothing here. */
+.aiq-versions { display: grid; gap: 14px; margin: 24px 0 28px; }
+.aiq-version { min-width: 0; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.aiq-version[open] { border-color: var(--blue); }
+.aiq-version > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 14px 18px; border-radius: 8px; cursor: pointer; list-style: none; }
+.aiq-version > summary::-webkit-details-marker { display: none; }
+/* A chevron drawn with two borders: pointing right when closed, down when open. */
+.aiq-version > summary::before { content: ""; flex: none; align-self: center; width: 8px; height: 8px; margin-right: 2px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform 0.15s ease; }
+.aiq-version[open] > summary::before { transform: rotate(45deg); }
+.aiq-version > summary:hover .aiq-version-title { color: var(--blue); }
+.aiq-version > summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.aiq-version-name { color: var(--ink); font-family: var(--mono); font-size: 20px; font-weight: 700; }
+.aiq-version-title { color: var(--ink); font-size: 17px; font-weight: 600; }
+.aiq-version-date { color: var(--muted); font-size: 15px; }
+.aiq-version-body { min-width: 0; padding: 4px 18px 6px; border-top: 1px solid var(--border); }
+.aiq-version-body h3 { margin: 20px 0 8px; font-size: 17px; }
+@media (prefers-reduced-motion: reduce) {
+  .aiq-version > summary::before { transition: none; }
+}
