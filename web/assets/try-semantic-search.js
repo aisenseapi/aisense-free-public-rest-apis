@@ -1,12 +1,17 @@
 /*
- * Try semantic search: write a few notes, put them in a new collection on the
- * free Semantic Search API, and search them by meaning.
+ * Try semantic search: pick an example or write a few notes, put them in a new
+ * collection on the free Semantic Search API, and search them by meaning.
+ *
+ * As on /try-decide, the page writes the JSON it will send and shows it. The
+ * notes JSON can be edited by hand; an edited JSON is sent as it stands until
+ * it is written again from the form.
  *
  * Nothing is sent until a button is pressed: no collection, model call or
  * search on page load, and no polling. One collection per test. Its id and
  * tokens live only in this script's memory, never in the page, a URL, storage
  * or the console, so a reload loses the page's access without deleting
- * anything on the server.
+ * anything on the server. The requests on the page show the tokens as
+ * WRITE_TOKEN and READ_TOKEN.
  *
  * A write whose outcome cannot be known (a timeout, a broken connection, a
  * generic server error, an answer that does not look like success) is never
@@ -30,17 +35,52 @@
   var HEX64 = /^[0-9a-f]{64}$/;
   var TIMEOUT_MS = 45000;
 
-  var SAMPLE_NOTES = [
-    { key: 'incident:login', text: 'Suspicious login attempts from many addresses on the admin page.' },
-    { key: 'incident:login-no', text: 'Mange mislykkede innlogginger mot adminsiden i natt.' },
-    { key: 'incident:checkout', text: 'The checkout API returns HTTP 500 for every customer since 08:10.' },
-    { key: 'request:invoice', text: 'A customer needs the address corrected on an invoice PDF.' }
-  ];
-  var SAMPLE_QUERIES = [
-    'brute force attack on the admin login',
-    'kunder klarer ikke å betale',
-    'change the billing address',
-    'where is my parcel'
+  // Example notes and searches. The last search of each set has no note
+  // written for it: a search always ranks the notes there are.
+  var EXAMPLES = [
+    {
+      id: 'support', title: 'Support tickets',
+      notes: [
+        { key: 'incident:login', text: 'Suspicious login attempts from many addresses on the admin page.' },
+        { key: 'incident:checkout', text: 'The checkout API returns HTTP 500 for every customer since 08:10.' },
+        { key: 'request:invoice', text: 'A customer needs the address corrected on an invoice PDF.' },
+        { key: 'request:password', text: 'A user never receives the email to reset their password.' },
+        { key: 'incident:search', text: 'Product search takes more than ten seconds since the last release.' }
+      ],
+      searches: ['brute force attack on the admin login', 'customers cannot pay', 'change the billing address', 'where is my parcel']
+    },
+    {
+      id: 'memory', title: 'Agent memory',
+      notes: [
+        { key: 'decision:database', text: 'We chose PostgreSQL over MongoDB because the reports need joins.' },
+        { key: 'todo:backup', text: 'Set up nightly backups of the order database before Friday.' },
+        { key: 'fact:deploys', text: 'Deploys go out on Tuesdays and Thursdays after 14:00.' },
+        { key: 'contact:billing', text: 'Questions about invoices go to the finance team, not to support.' },
+        { key: 'fact:staging', text: 'The staging server gets fresh test data every Monday morning.' }
+      ],
+      searches: ['which database did we pick and why', 'when can I release a change', 'who answers billing questions', 'the office coffee machine is broken']
+    },
+    {
+      id: 'shop', title: 'Shop questions',
+      notes: [
+        { key: 'faq:returns', text: 'Items can be returned within 30 days with the receipt.' },
+        { key: 'faq:shipping', text: 'Orders ship within two working days, and tracking comes by email.' },
+        { key: 'faq:warranty', text: 'Electronics have a two-year warranty against defects.' },
+        { key: 'faq:payment', text: 'We accept cards, invoices and bank transfers.' },
+        { key: 'faq:gift-cards', text: 'Gift cards are valid for three years and cannot be exchanged for cash.' }
+      ],
+      searches: ['can I send it back', 'how long does delivery take', 'my headphones broke after a year', 'do you sell bicycles']
+    },
+    {
+      id: 'ids', title: 'Order and ticket numbers',
+      notes: [
+        { key: 'order:4711', text: 'Order 4711 was delivered to the wrong address.' },
+        { key: 'order:4712', text: 'Order 4712 is still waiting for payment.' },
+        { key: 'ticket:TKT-77', text: 'Ticket TKT-77 is about a broken gate sensor at dock 4.' },
+        { key: 'ticket:TKT-78', text: 'Ticket TKT-78 asks for a new parking permit.' }
+      ],
+      searches: ['what happened to order 4711', 'TKT-78', 'a package went to the wrong place', 'order 4713']
+    }
   ];
 
   // ---------- the core: no DOM ----------
@@ -51,13 +91,24 @@
 
   function isInt(value) { return typeof value === 'number' && Number.isSafeInteger(value); }
 
+  /** The notes as the API takes them: text, and a key only when there is one. */
+  function notesBody(rows) {
+    return {
+      notes: rows.map(function (row) {
+        var note = { text: typeof row.text === 'string' ? row.text : '' };
+        var key = typeof row.key === 'string' ? row.key.trim() : '';
+        if (key !== '') { note.key = key; }
+        return note;
+      })
+    };
+  }
+
   /**
    * The notes of the form as the API takes them, or the problems, one per
    * field. Text is never cut: a note over the limit is refused here.
    */
   function checkNotes(rows) {
     var problems = [];
-    var notes = [];
     if (!Array.isArray(rows) || rows.length < 1) {
       return { notes: [], problems: [{ index: -1, field: 'notes', message: 'Write at least one note.' }] };
     }
@@ -76,14 +127,38 @@
       if (key !== '' && !KEY.test(key)) {
         problems.push({ index: i, field: 'key', message: 'The key of note ' + (i + 1) + ' may hold letters, digits, dots, underscores, colons and hyphens, must start with a letter or digit, and be at most 64 characters. Or leave it empty.' });
       }
-      var note = { text: text };
-      if (key !== '') { note.key = key; }
-      notes.push(note);
     });
-    if (problems.length === 0 && bodyBytes({ notes: notes }) > LIMITS.bodyBytes) {
-      problems.push({ index: -1, field: 'notes', message: 'The notes come to ' + bodyBytes({ notes: notes }) + ' bytes as JSON. The limit is ' + LIMITS.bodyBytes + '. Shorten them.' });
+    var body = notesBody(rows);
+    if (problems.length === 0 && bodyBytes(body) > LIMITS.bodyBytes) {
+      problems.push({ index: -1, field: 'notes', message: 'The notes come to ' + bodyBytes(body) + ' bytes as JSON. The limit is ' + LIMITS.bodyBytes + '. Shorten them.' });
     }
-    return { notes: problems.length === 0 ? notes : [], problems: problems };
+    return { notes: problems.length === 0 ? body.notes : [], problems: problems };
+  }
+
+  /**
+   * The rows of a notes JSON edited by hand: exactly {"notes": [...]}, each
+   * note an object with text and an optional key, as the API takes them.
+   */
+  function parseNotesJson(text) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) {
+      return { rows: null, problems: [{ index: -1, field: 'json', message: 'The notes JSON does not parse: ' + e.message }] };
+    }
+    var shape = 'The notes JSON must be {"notes": [{"text": "...", "key": "..."}]}, with an optional key and nothing else.';
+    if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).join(',') !== 'notes' || !Array.isArray(data.notes)) {
+      return { rows: null, problems: [{ index: -1, field: 'json', message: shape }] };
+    }
+    var rows = [];
+    for (var i = 0; i < data.notes.length; i++) {
+      var note = data.notes[i];
+      var names = note && typeof note === 'object' && !Array.isArray(note) ? Object.keys(note) : null;
+      if (!names || names.some(function (n) { return n !== 'text' && n !== 'key'; }) || typeof note.text !== 'string'
+        || (note.key !== undefined && note.key !== null && typeof note.key !== 'string')) {
+        return { rows: null, problems: [{ index: i, field: 'json', message: 'Note ' + (i + 1) + ' in the JSON: ' + shape }] };
+      }
+      rows.push({ text: note.text, key: typeof note.key === 'string' ? note.key : '' });
+    }
+    return { rows: rows, problems: [] };
   }
 
   function checkQuery(query, limit) {
@@ -212,7 +287,7 @@
     var phase = 'draft';
     var busy = false;
     var retryUntil = 0;
-    var message = { text: 'Nothing has been sent. Write or change the notes, then press Create collection and add notes.', tone: '' };
+    var message = { text: 'Nothing has been sent. Pick an example or write your own notes, then press Create collection and add notes.', tone: '' };
     var results = null;
     var lastExchange = null;
     var clockOffset = 0;
@@ -409,10 +484,10 @@
   }
 
   var core = {
-    API: API, MODELS: MODELS, LIMITS: LIMITS, SAMPLE_NOTES: SAMPLE_NOTES, SAMPLE_QUERIES: SAMPLE_QUERIES,
-    chars: chars, bodyBytes: bodyBytes, checkNotes: checkNotes, checkQuery: checkQuery, parseRetryAfter: parseRetryAfter,
-    errorText: errorText, validCreate: validCreate, validAdd: validAdd, validSearch: validSearch, formatScore: formatScore,
-    hideTokens: hideTokens, createController: createController
+    API: API, MODELS: MODELS, LIMITS: LIMITS, EXAMPLES: EXAMPLES,
+    chars: chars, bodyBytes: bodyBytes, notesBody: notesBody, checkNotes: checkNotes, parseNotesJson: parseNotesJson, checkQuery: checkQuery,
+    parseRetryAfter: parseRetryAfter, errorText: errorText, validCreate: validCreate, validAdd: validAdd, validSearch: validSearch,
+    formatScore: formatScore, hideTokens: hideTokens, createController: createController
   };
 
   if (typeof module === 'object' && module && module.exports) {
@@ -439,34 +514,56 @@
   var root = $('semantic-try');
   var status = $('semantic-status');
   var errorBox = $('semantic-errors');
+  var setsBox = $('semantic-sets');
   var notesBox = $('semantic-notes');
   var addNoteButton = $('semantic-add-note');
   var modelSelect = $('semantic-model');
+  var createRequest = $('semantic-create-request');
+  var notesRequest = $('semantic-notes-request');
+  var jsonBox = $('semantic-json');
+  var jsonNote = $('semantic-json-note');
+  var rewriteButton = $('semantic-rewrite');
   var createButton = $('semantic-create');
   var collectionLine = $('semantic-collection');
+  var examplesBox = $('semantic-examples');
   var queryInput = $('semantic-query');
   var limitSelect = $('semantic-limit');
   var searchButton = $('semantic-search');
-  var examplesBox = $('semantic-examples');
+  var searchRequest = $('semantic-search-request');
   var resultFor = $('semantic-result-for');
   var resultList = $('semantic-results');
   var rawBox = $('semantic-raw');
   var resetButton = $('semantic-reset');
   var waitTimer = null;
   var noteCounter = 0;
+  var jsonEdited = false;
+  var current = null;
 
-  function noteRows() {
+  function formRows() {
     return Array.prototype.map.call(notesBox.querySelectorAll('.semantic-note'), function (row) {
       return { text: row.querySelector('textarea').value, key: row.querySelector('input').value };
     });
   }
 
+  /** Writes the notes JSON from the form, unless it was edited by hand and force is not set. */
+  function writeJson(force) {
+    if (jsonEdited && !force) { return; }
+    jsonBox.value = JSON.stringify(notesBody(formRows()), null, 2);
+    jsonEdited = false;
+    jsonNote.textContent = 'Written from the notes above. You can edit it here too.';
+    jsonNote.className = 'semantic-help';
+  }
+
   function countLine(row) {
-    var text = row.querySelector('textarea').value;
-    var count = chars(text);
+    var count = chars(row.querySelector('textarea').value);
     var line = row.querySelector('.semantic-count');
     line.textContent = count + ' of ' + LIMITS.noteChars + ' characters';
     line.classList.toggle('is-bad', count > LIMITS.noteChars);
+  }
+
+  function locked() {
+    var s = controller ? controller.state() : null;
+    return !!s && (s.busy || (s.collection !== null && s.phase !== 'notes-refused'));
   }
 
   function renumber() {
@@ -485,7 +582,7 @@
     var row = el('fieldset', { className: 'semantic-note' });
     row.appendChild(el('legend', {}, 'Note'));
     row.appendChild(el('label', { 'for': id + '-text' }, 'Text'));
-    var area = el('textarea', { id: id + '-text', rows: '3', spellcheck: 'true', 'aria-describedby': id + '-count' });
+    var area = el('textarea', { id: id + '-text', rows: '2', spellcheck: 'true', 'aria-describedby': id + '-count' });
     area.value = note.text;
     row.appendChild(area);
     row.appendChild(el('p', { className: 'semantic-count', id: id + '-count' }));
@@ -499,21 +596,54 @@
       if (notesBox.querySelectorAll('.semantic-note').length > 1 && !locked()) {
         row.remove();
         renumber();
+        writeJson(false);
         render(controller.state());
       }
     });
     keyLine.appendChild(remove);
     row.appendChild(keyLine);
-    area.addEventListener('input', function () { countLine(row); });
+    area.addEventListener('input', function () { countLine(row); writeJson(false); });
+    key.addEventListener('input', function () { writeJson(false); });
     notesBox.appendChild(row);
     countLine(row);
     renumber();
     return row;
   }
 
-  function locked() {
-    var s = controller ? controller.state() : null;
-    return !!s && (s.busy || (s.collection !== null && s.phase !== 'notes-refused'));
+  function showSearches(searches) {
+    examplesBox.textContent = '';
+    searches.forEach(function (text) {
+      var button = el('button', { type: 'button', className: 'button button-secondary semantic-example' }, text);
+      button.addEventListener('click', function () { queryInput.value = text; queryInput.focus(); writeSearchRequest(); });
+      examplesBox.appendChild(button);
+    });
+    examplesBox.hidden = searches.length === 0;
+  }
+
+  /** Puts an example's notes and searches in the form, or one empty note for a blank start. */
+  function useExample(example) {
+    current = example;
+    notesBox.textContent = '';
+    (example ? example.notes : [{ key: '', text: '' }]).forEach(addRow);
+    showSearches(example ? example.searches : []);
+    Array.prototype.forEach.call(setsBox.querySelectorAll('button'), function (button) {
+      button.setAttribute('aria-pressed', button.getAttribute('data-example') === (example ? example.id : 'blank') ? 'true' : 'false');
+    });
+    writeJson(true);
+  }
+
+  function writeSearchRequest() {
+    var s = controller.state();
+    var id = s.collection ? s.collection.id : 'COLLECTION_ID';
+    var limit = parseInt(limitSelect.value, 10) || 3;
+    searchRequest.textContent = 'POST ' + API + '/' + id + '/search\nAuthorization: Bearer READ_TOKEN\nContent-Type: application/json\n\n'
+      + JSON.stringify({ query: queryInput.value, limit: limit });
+  }
+
+  function writeRequests(s) {
+    createRequest.textContent = 'POST ' + API + '\nContent-Type: application/json\n\n' + JSON.stringify({ model: s.collection ? s.collection.model : modelSelect.value });
+    notesRequest.textContent = 'POST ' + API + '/' + (s.collection ? s.collection.id : 'COLLECTION_ID') + '/notes\nAuthorization: Bearer WRITE_TOKEN\nContent-Type: application/json';
+    writeSearchRequest();
   }
 
   function showProblems(problems) {
@@ -537,6 +667,9 @@
     var hasCollection = s.collection !== null;
     var lockedNow = s.busy || (hasCollection && s.phase !== 'notes-refused');
     Array.prototype.forEach.call(notesBox.querySelectorAll('textarea, input'), function (field) { field.disabled = lockedNow; });
+    Array.prototype.forEach.call(setsBox.querySelectorAll('button'), function (button) { button.disabled = lockedNow; });
+    jsonBox.readOnly = lockedNow;
+    rewriteButton.disabled = lockedNow;
     renumber();
     modelSelect.disabled = s.busy || hasCollection;
     createButton.textContent = s.phase === 'notes-refused' ? 'Add the notes again' : 'Create collection and add notes';
@@ -556,6 +689,7 @@
       collectionLine.textContent = '';
       collectionLine.hidden = true;
     }
+    writeRequests(s);
     resultList.textContent = '';
     if (s.results) {
       resultFor.textContent = 'Results for the search: ' + s.results.query + ' (' + s.collection.model + ', up to ' + s.results.limit + ')';
@@ -572,7 +706,7 @@
     } else {
       resultFor.textContent = s.phase === 'searching' ? 'Searching...' : 'No results yet.';
     }
-    rawBox.textContent = s.exchange ? JSON.stringify(s.exchange, null, 2) : 'Nothing has been sent yet.';
+    rawBox.textContent = s.exchange ? JSON.stringify(s.exchange.response, null, 2) : 'Nothing has been sent yet.';
     clearTimeout(waitTimer);
     if (s.waitMs > 0) {
       // A local timer only: when the wait is over the buttons come back, and nothing is sent.
@@ -582,12 +716,17 @@
 
   var controller = createController({ fetch: function (url, init) { return window.fetch(url, init); }, onChange: render });
 
-  SAMPLE_NOTES.forEach(addRow);
-  SAMPLE_QUERIES.forEach(function (text) {
-    var button = el('button', { type: 'button', className: 'button button-secondary semantic-example' }, text);
-    button.addEventListener('click', function () { queryInput.value = text; queryInput.focus(); });
-    examplesBox.appendChild(button);
+  EXAMPLES.forEach(function (example) {
+    var button = el('button', { type: 'button', className: 'button button-secondary', 'data-example': example.id, 'aria-pressed': 'false' }, example.title);
+    button.addEventListener('click', function () { if (!locked()) { useExample(example); showProblems(null); render(controller.state()); } });
+    setsBox.appendChild(button);
   });
+  var blank = el('button', { type: 'button', className: 'button button-secondary', 'data-example': 'blank', 'aria-pressed': 'false' }, 'Start blank');
+  blank.addEventListener('click', function () {
+    if (!locked()) { useExample(null); showProblems(null); render(controller.state()); notesBox.querySelector('textarea').focus(); }
+  });
+  setsBox.appendChild(blank);
+
   for (var n = 1; n <= LIMITS.resultsMax; n++) {
     var option = el('option', { value: String(n) }, String(n));
     if (n === 3) { option.selected = true; }
@@ -597,12 +736,30 @@
   addNoteButton.addEventListener('click', function () {
     if (!locked() && notesBox.querySelectorAll('.semantic-note').length < LIMITS.formNotes) {
       addRow({ key: '', text: '' }).querySelector('textarea').focus();
+      writeJson(false);
     }
   });
 
+  jsonBox.addEventListener('input', function () {
+    jsonEdited = true;
+    jsonNote.textContent = 'You edited the JSON. The page sends it as it stands. Changes to the notes above will not overwrite it until you write it again from the notes.';
+    jsonNote.className = 'semantic-help is-edited';
+  });
+  rewriteButton.addEventListener('click', function () { if (!locked()) { writeJson(true); } });
+
+  modelSelect.addEventListener('change', function () { writeRequests(controller.state()); });
+  queryInput.addEventListener('input', writeSearchRequest);
+  limitSelect.addEventListener('change', writeSearchRequest);
+
   createButton.addEventListener('click', function () {
     showProblems(null);
-    controller.create(noteRows(), modelSelect.value).then(function (outcome) {
+    var rows = formRows();
+    if (jsonEdited) {
+      var parsed = parseNotesJson(jsonBox.value);
+      if (parsed.problems.length > 0) { showProblems(parsed.problems); return; }
+      rows = parsed.rows;
+    }
+    controller.create(rows, modelSelect.value).then(function (outcome) {
       if (Array.isArray(outcome)) { showProblems(outcome); }
     });
   });
@@ -629,16 +786,17 @@
       if (!ok) { return; }
     }
     if (controller.reset()) {
-      notesBox.textContent = '';
-      SAMPLE_NOTES.forEach(addRow);
       modelSelect.value = MODELS[0];
       queryInput.value = '';
+      useExample(current);
       showProblems(null);
+      render(controller.state());
     }
   });
 
   document.addEventListener('visibilitychange', function () { if (!document.hidden) { controller.recheck(); } });
   window.addEventListener('focus', function () { controller.recheck(); });
 
+  useExample(EXAMPLES[0]);
   render(controller.state());
 })();
