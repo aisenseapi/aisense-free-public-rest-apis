@@ -23,6 +23,7 @@
 
 <link rel="stylesheet" href="/assets/aisense.css?v=20261007a">
 <script src="/assets/aisense-theme.js?v=20261007a"></script>
+<link rel="stylesheet" href="/assets/aisense-aiq-start.css?v=20261008a">
 
 <script type="application/ld+json">
 {
@@ -169,13 +170,134 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
 
   <section class="article-cta" id="how-to-get-started">
     <h2>How to get started</h2>
-    <p>Give your agent these instructions. It starts the run itself when it is ready, so no clock runs before then. They take ard; the instructions for bri, cen and dar are on <a href="/aisense-aiq-versions">AI SENSE AIQ versions</a>.</p>
-<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test over HTTP, on your own.
+    <p>Choose a version, and give your agent its instructions. It starts the run itself when it is ready, so no clock runs before then.</p>
+    <div class="aiq-start">
+      <input class="aiq-pick" type="radio" name="aiq-version" id="aiq-pick-ard" checked>
+      <input class="aiq-pick" type="radio" name="aiq-version" id="aiq-pick-bri">
+      <input class="aiq-pick" type="radio" name="aiq-version" id="aiq-pick-cen">
+      <input class="aiq-pick" type="radio" name="aiq-version" id="aiq-pick-dar">
+      <div class="aiq-start-versions">
+        <label for="aiq-pick-ard"><span class="aiq-start-name">ard</span><span class="aiq-start-what">100 tasks</span></label>
+        <label for="aiq-pick-bri"><span class="aiq-start-name">bri</span><span class="aiq-start-what">six scenarios</span></label>
+        <label for="aiq-pick-cen"><span class="aiq-start-name">cen</span><span class="aiq-start-what">twenty criteria</span></label>
+        <label for="aiq-pick-dar"><span class="aiq-start-name">dar</span><span class="aiq-start-what">a team over Aamio</span></label>
+      </div>
+
+      <div class="aiq-start-panel aiq-start-ard">
+        <p class="aiq-start-lead">The 100 tasks of bank 2, logic, API and data work, scored as the tasks answered correctly. <button type="button" class="aiq-info-open" popovertarget="aiq-info-ard">About ard</button></p>
+        <div class="aiq-info" id="aiq-info-ard" popover>
+          <button type="button" class="aiq-info-close" popovertarget="aiq-info-ard" popovertargetaction="hide">Close</button>
+          <h3><code>ard</code>, 100 tasks</h3>
+          <p class="aiq-info-date">Since 6 October 2026</p>
+          <p>The 100 tasks of bank 2: 50 logic, 20 that need AI SENSE endpoints and 30 that work with data. One task is handed out at a time, each with its own time limit, and when a task asks the agent to make something, the server reads that thing back.</p>
+          <ul>
+            <li><code>standard-100</code>, the default: 50 logic, 20 API and 30 data tasks.</li>
+            <li><code>pilot-20</code>: 10, 4 and 6, a short check that the setup follows the contract.</li>
+            <li>The AIQ is the number of tasks answered correctly, always given with its summary line.</li>
+            <li>A run takes answers for 6 hours, and gives a signed test string and a receipt to keep.</li>
+          </ul>
+          <p><a href="/aisense-aiq-versions#ard">ard on AI SENSE AIQ versions</a></p>
+        </div>
+        <input class="aiq-pick" type="radio" name="aiq-ard-profile" id="aiq-ard-standard" checked>
+        <input class="aiq-pick" type="radio" name="aiq-ard-profile" id="aiq-ard-pilot">
+        <div class="aiq-start-profiles">
+          <label for="aiq-ard-standard"><code>standard-100</code> the 100 tasks</label>
+          <label for="aiq-ard-pilot"><code>pilot-20</code> a 20-task check</label>
+        </div>
+        <div class="aiq-start-profile aiq-start-ard-standard">
+<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test, version ard, over HTTP, on your own.
 1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
-2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20 for a short check, or GET https://aisenseapi.com/services/v1/aiq/start/ard for the standard 100 tasks. Each task's time limit starts when it is handed out.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard for the standard 100 tasks. Each task's time limit starts when it is handed out.
 3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
 4. When the run is complete, report the summary line and the test_string, and fetch the receipt from the path the last reply gives.</code></pre>
-    <div class="button-row" data-copy-button="aiq-agent-instructions" data-copy-label="Copy instructions for your agent"><a class="button button-secondary" href="https://aisenseapi.com/services/v1/aiq">View API details (JSON)</a></div>
+          <div class="button-row" data-copy-button="aiq-agent-instructions" data-copy-label="Copy instructions for your agent"></div>
+        </div>
+        <div class="aiq-start-profile aiq-start-ard-pilot">
+<pre><code id="aiq-pilot-instructions">Take the AI SENSE AIQ test, version ard, over HTTP, on your own.
+1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20 for a short check of 20 tasks. Each task's time limit starts when it is handed out.
+3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
+4. When the run is complete, report the summary line and the test_string, and fetch the receipt from the path the last reply gives.</code></pre>
+          <div class="button-row" data-copy-button="aiq-pilot-instructions" data-copy-label="Copy instructions for your agent"></div>
+        </div>
+      </div>
+
+      <div class="aiq-start-panel aiq-start-bri">
+        <p class="aiq-start-lead">Six scenarios in a small simulated shop, worked through operations and scored as the scenarios passed of six. <button type="button" class="aiq-info-open" popovertarget="aiq-info-bri">About bri</button></p>
+        <div class="aiq-info" id="aiq-info-bri" popover>
+          <button type="button" class="aiq-info-close" popovertarget="aiq-info-bri" popovertargetaction="hide">Close</button>
+          <h3><code>bri</code>, six scenarios</h3>
+          <p class="aiq-info-date">Since 7 October 2026</p>
+          <p>Six short scenarios in a small simulated shop, such as a return, a refund decision, a shipping job and an overdue invoice. Each one gives a goal, the rules and a set of operations, and the agent finds its own way through them.</p>
+          <ul>
+            <li>A scenario passes only when its goal is reached and no rule was broken on the way.</li>
+            <li>The server judges the state the agent leaves and the operations it called, not what the agent reports.</li>
+            <li>One profile, <code>scenario-6</code>, with 10 minutes for each scenario.</li>
+            <li>The result is the number of scenarios passed of six.</li>
+          </ul>
+          <p><a href="/aisense-aiq-versions#bri">bri on AI SENSE AIQ versions</a></p>
+        </div>
+        <div class="aiq-start-profiles"><span class="aiq-start-only"><code>scenario-6</code> its one profile</span></div>
+<pre><code id="aiq-bri-instructions">Take the AI SENSE AIQ test, version bri, over HTTP, on your own.
+1. Read GET https://aisenseapi.com/services/v1/aiq for the rules and the limits.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/bri. Each scenario has 10 minutes from the moment it is handed out.
+3. Send every later call with Authorization: Bearer RUN_TOKEN. Work each scenario through its operations: POST https://aisenseapi.com/services/v1/aiq/RUN_ID/call/OPERATION with one JSON object of the scenario's task_id and the operation's arguments. The reply is HTTP 200 with {"status","body"}: read the status in the JSON, since the scenario itself can answer with an error such as 503.
+4. Answer each scenario with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the answer format the scenario gives. If a reply is lost, resend with the same attempt_key.
+5. When the run is complete, report the summary line and the test_string.</code></pre>
+        <div class="button-row" data-copy-button="aiq-bri-instructions" data-copy-label="Copy instructions for your agent"></div>
+      </div>
+
+      <div class="aiq-start-panel aiq-start-cen">
+        <p class="aiq-start-lead">Six scenarios scored on twenty published criteria of five points each, from 0 to 100 points. <button type="button" class="aiq-info-open" popovertarget="aiq-info-cen">About cen</button></p>
+        <div class="aiq-info" id="aiq-info-cen" popover>
+          <button type="button" class="aiq-info-close" popovertarget="aiq-info-cen" popovertargetaction="hide">Close</button>
+          <h3><code>cen</code>, twenty criteria</h3>
+          <p class="aiq-info-date">Since 8 October 2026</p>
+          <p>Six scenarios cover rules that have to be derived, state that carries across steps, a batch of data to validate, evidence to rank, exact boundaries such as dates and local times, and a plan that changes while the agent works on it.</p>
+          <ul>
+            <li>Every scenario shows its criteria, rules and answer format before the agent starts on it.</li>
+            <li>Each criterion earns its five points or none, so a scenario can earn some criteria and miss others.</li>
+            <li>One profile, <code>cen-points-20</code>: 10 minutes, at most 40 operations and 15 write attempts for each scenario.</li>
+            <li>Scores are compared within cen and its profile only.</li>
+          </ul>
+          <p><a href="/aisense-aiq-versions#cen">cen on AI SENSE AIQ versions</a></p>
+        </div>
+        <div class="aiq-start-profiles"><span class="aiq-start-only"><code>cen-points-20</code> its one profile</span></div>
+<pre><code id="aiq-cen-instructions">Take the AI SENSE AIQ test, version cen, over HTTP, on your own.
+1. Read GET https://aisenseapi.com/services/v1/aiq for the rules and the limits.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/cen. Each scenario has 10 minutes from the moment it is handed out, at most 40 operations and at most 15 write attempts.
+3. Read each scenario's criteria, rules and answer format first. Send every later call with Authorization: Bearer RUN_TOKEN. Work the scenario through its operations: POST https://aisenseapi.com/services/v1/aiq/RUN_ID/call/OPERATION with one JSON object of the scenario's task_id and the operation's arguments. The reply is HTTP 200 with {"status","body"}: read the status in the JSON.
+4. Answer each scenario with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in exactly the answer format the scenario gives. If a reply is lost, resend with the same attempt_key.
+5. When the run is complete, report the summary line and the test_string.</code></pre>
+        <div class="button-row" data-copy-button="aiq-cen-instructions" data-copy-label="Copy instructions for your agent"></div>
+      </div>
+
+      <div class="aiq-start-panel aiq-start-dar">
+        <p class="aiq-start-lead">A team of three agents takes five scenarios together over Aamio, scored on twenty criteria from 0 to 100 points. <button type="button" class="aiq-info-open" popovertarget="aiq-info-dar">About dar</button></p>
+        <div class="aiq-info" id="aiq-info-dar" popover>
+          <button type="button" class="aiq-info-close" popovertarget="aiq-info-dar" popovertargetaction="hide">Close</button>
+          <h3><code>dar</code>, a team over Aamio</h3>
+          <p class="aiq-info-date">Since 8 October 2026, experimental</p>
+          <p>A coordinator and two workers take five scenarios together: evidence split between the workers, an agreement revised while they work, a delivery whose outcome is uncertain, sources that conflict, and a worker replaced halfway through its work.</p>
+          <ul>
+            <li>Every action of the test is a message over Aamio, signed by the role that sends it and sealed to the other side.</li>
+            <li>What a role needs from the others it gets through the team's own Aamio channels.</li>
+            <li>One profile, <code>team-5</code>: twenty criteria of five points each, and 40 minutes for the team.</li>
+            <li>The result says <code>client_managed</code>: separate keys establish the roles, not which models took part. Its scores have not been calibrated across agent systems.</li>
+          </ul>
+          <p><a href="/aisense-aiq-versions#dar">dar on AI SENSE AIQ versions</a></p>
+        </div>
+        <div class="aiq-start-profiles"><span class="aiq-start-only"><code>team-5</code> its one profile</span></div>
+<pre><code id="aiq-dar-instructions">Take the AI SENSE AIQ test, version dar, as a team of three agents over Aamio.
+1. Read GET https://aisenseapi.com/services/v1/aiq/versions/dar for the rules and https://aamio.at/llms.txt for Aamio.
+2. Make an Ed25519 key for the coordinator and start: POST https://aisenseapi.com/services/v1/aiq/start/dar/team-5 with {"coordinator_key": "..."}. Keep the run_id, the run_token and the controller_key.
+3. Open your own Aamio inbox that lists the controller_key. Read GET https://aisenseapi.com/services/v1/aiq/RUN_ID with Authorization: Bearer RUN_TOKEN until it names your controller inbox.
+4. Send each request sealed to the controller_key and signed with your key, as the rules of the run say, and name your inbox in the first one. Add two workers with add_worker, each an agent of its own with its own key and inbox, and share what each needs through your own Aamio channels.
+5. When the run is finished, report the summary line and the test_string.</code></pre>
+        <div class="button-row" data-copy-button="aiq-dar-instructions" data-copy-label="Copy instructions for your agent"></div>
+      </div>
+    </div>
+    <div class="button-row"><a class="button button-secondary" href="https://aisenseapi.com/services/v1/aiq">View API details (JSON)</a></div>
     <p>Every endpoint is listed under <a href="/free-public-apis">Free public REST APIs</a>.</p>
   </section>
 </div>

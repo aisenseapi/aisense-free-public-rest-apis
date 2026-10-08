@@ -1,0 +1,75 @@
+/* AI SENSE AIQ, How to get started: a choice of the four versions, and of
+   ard's two profiles, made with radio buttons and the sibling selector, so
+   the choice needs no script. The info boxes use the popover attribute; a
+   browser without it shows them as plain text under the choice. Loaded by
+   aisense-aiq.html only. Every color is a site variable, so the dark theme
+   needs nothing here. */
+
+/* The radio buttons stay in the page for the keyboard and screen readers; the labels are what is seen. */
+.aiq-pick { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+
+.aiq-start { position: relative; margin: 22px 0 8px; }
+.aiq-start-versions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.aiq-start-versions label { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; transition: border-color 0.15s ease, background-color 0.15s ease; }
+.aiq-start-versions label:hover { border-color: var(--blue); }
+.aiq-start-name { color: var(--ink); font-family: var(--mono); font-size: 20px; font-weight: 700; }
+.aiq-start-what { color: var(--muted); font-size: 15px; line-height: 1.35; }
+
+#aiq-pick-ard:checked ~ .aiq-start-versions label[for="aiq-pick-ard"],
+#aiq-pick-bri:checked ~ .aiq-start-versions label[for="aiq-pick-bri"],
+#aiq-pick-cen:checked ~ .aiq-start-versions label[for="aiq-pick-cen"],
+#aiq-pick-dar:checked ~ .aiq-start-versions label[for="aiq-pick-dar"] { border-color: var(--blue); background: var(--current-bg); box-shadow: inset 0 0 0 1px var(--blue); }
+
+#aiq-pick-ard:focus-visible ~ .aiq-start-versions label[for="aiq-pick-ard"],
+#aiq-pick-bri:focus-visible ~ .aiq-start-versions label[for="aiq-pick-bri"],
+#aiq-pick-cen:focus-visible ~ .aiq-start-versions label[for="aiq-pick-cen"],
+#aiq-pick-dar:focus-visible ~ .aiq-start-versions label[for="aiq-pick-dar"],
+#aiq-ard-standard:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-standard"],
+#aiq-ard-pilot:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-pilot"] { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.aiq-start-panel { display: none; min-width: 0; margin-top: 16px; padding: 18px 20px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+#aiq-pick-ard:checked ~ .aiq-start-ard,
+#aiq-pick-bri:checked ~ .aiq-start-bri,
+#aiq-pick-cen:checked ~ .aiq-start-cen,
+#aiq-pick-dar:checked ~ .aiq-start-dar { display: block; }
+
+.aiq-start-lead { margin: 0 0 12px; }
+.aiq-start-profiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.aiq-start-profiles label, .aiq-start-only { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--body); font-size: 15px; }
+.aiq-start-profiles label { cursor: pointer; }
+.aiq-start-profiles label:hover { border-color: var(--blue); }
+#aiq-ard-standard:checked ~ .aiq-start-profiles label[for="aiq-ard-standard"],
+#aiq-ard-pilot:checked ~ .aiq-start-profiles label[for="aiq-ard-pilot"] { border-color: var(--blue); background: var(--current-bg); color: var(--ink); }
+
+.aiq-start-profile { display: none; }
+#aiq-ard-standard:checked ~ .aiq-start-ard-standard,
+#aiq-ard-pilot:checked ~ .aiq-start-ard-pilot { display: block; }
+
+/* The button that opens a version's info box. */
+.aiq-info-open { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 2px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--blue-dark); font: inherit; font-size: 15px; line-height: 1.6; cursor: pointer; vertical-align: baseline; }
+.aiq-info-open:hover, .aiq-info-open:focus-visible { border-color: var(--blue); }
+.aiq-info-open:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* The info box itself, a popover. */
+.aiq-info { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 64px); overflow: auto; padding: 22px 24px 16px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--body); box-shadow: 0 18px 50px rgba(15, 23, 42, 0.22); }
+.aiq-info h3 { margin: 0 0 4px; color: var(--ink); font-size: 20px; }
+.aiq-info h3 code { font-size: 20px; }
+.aiq-info .aiq-info-date { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+.aiq-info ul { margin: 10px 0 12px; padding-left: 20px; }
+.aiq-info li { margin: 4px 0; }
+.aiq-info-close { float: right; margin: -8px -10px 0 12px; padding: 2px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--body); font: inherit; font-size: 15px; cursor: pointer; }
+.aiq-info-close:hover, .aiq-info-close:focus-visible { border-color: var(--blue); color: var(--ink); }
+/* Without the popover attribute the boxes are plain text in their version's panel, with nothing to open or close. */
+@supports not selector(:popover-open) {
+  .aiq-info { width: auto; max-height: none; margin: 14px 0 0; box-shadow: none; }
+  .aiq-info-open, .aiq-info-close { display: none; }
+}
+
+@media (max-width: 620px) {
+  .aiq-start-versions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .aiq-start-panel { padding: 16px 14px 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aiq-start-versions label { transition: none; }
+}
