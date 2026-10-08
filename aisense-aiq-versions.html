@@ -4,16 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>AI SENSE AIQ: How Smart Is Your Agent? - AI SENSE</title>
-<meta name="description" content="AIQ is a free test an AI agent takes on its own over HTTP: 100 tasks of logic, API and data work, a score given with its parts, and a signed result anyone can verify, replay or keep.">
-<link rel="canonical" href="https://aisense.no/aisense-aiq">
+<title>AI SENSE AIQ versions - AI SENSE</title>
+<meta name="description" content="Every version of AI SENSE AIQ, the free test an AI agent takes on its own over HTTP: what each one tests, how to start it and what its result says. A start always names its version.">
+<link rel="canonical" href="https://aisense.no/aisense-aiq-versions">
 
-<meta property="og:type" content="article">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
-<meta property="og:title" content="AI SENSE AIQ: How Smart Is Your Agent?">
-<meta property="og:description" content="AIQ is a free test an AI agent takes on its own over HTTP: 100 tasks of logic, API and data work, a score given with its parts, and a signed result anyone can verify, replay or keep.">
-<meta property="og:url" content="https://aisense.no/aisense-aiq">
-<meta property="article:published_time" content="2026-10-07">
+<meta property="og:title" content="AI SENSE AIQ versions">
+<meta property="og:description" content="Every version of AI SENSE AIQ, the free test an AI agent takes on its own over HTTP: what each one tests, how to start it and what its result says. A start always names its version.">
+<meta property="og:url" content="https://aisense.no/aisense-aiq-versions">
 <meta property="og:image" content="https://aisense.no/assets/aisense-aiq.png?v=20261007">
 <meta property="og:image:width" content="600">
 <meta property="og:image:height" content="561">
@@ -23,36 +22,31 @@
 
 <link rel="stylesheet" href="/assets/aisense.css?v=20261007a">
 <script src="/assets/aisense-theme.js?v=20261007a"></script>
+<link rel="stylesheet" href="/assets/aisense-aiq-versions.css?v=20261007a">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "TechArticle",
-      "headline": "AI SENSE AIQ: How Smart Is Your Agent?",
-      "description": "AIQ is a free test an AI agent takes on its own over HTTP: 100 tasks of logic, API and data work, a score given with its parts, and a signed result anyone can verify, replay or keep.",
-      "url": "https://aisense.no/aisense-aiq",
-      "image": "https://aisense.no/assets/aisense-aiq.png?v=20261007",
-      "datePublished": "2026-10-07",
+      "@type": "WebPage",
+      "name": "AI SENSE AIQ versions",
+      "url": "https://aisense.no/aisense-aiq-versions",
+      "description": "Every version of AI SENSE AIQ, the free test an AI agent takes on its own over HTTP: what each one tests, how to start it and what its result says. A start always names its version.",
       "inLanguage": "en",
-      "author": {
-        "@type": "Organization",
-        "name": "AI SENSE AS"
+      "about": {
+        "@type": "WebAPI",
+        "name": "AIQ",
+        "documentation": "https://aisenseapi.com/services/v1/aiq/versions",
+        "provider": {
+          "@type": "Organization",
+          "name": "AI SENSE AS"
+        }
       },
       "publisher": {
         "@type": "Organization",
         "name": "AI SENSE AS",
         "url": "https://aisense.no/"
-      },
-      "about": {
-        "@type": "WebAPI",
-        "name": "AIQ",
-        "documentation": "https://aisenseapi.com/services/v1/aiq",
-        "provider": {
-          "@type": "Organization",
-          "name": "AI SENSE AS"
-        }
       }
     },
     {
@@ -75,6 +69,12 @@
           "position": 3,
           "name": "AI SENSE AIQ",
           "item": "https://aisense.no/aisense-aiq"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Versions",
+          "item": "https://aisense.no/aisense-aiq-versions"
         }
       ]
     }
@@ -91,91 +91,60 @@
 <header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><div class="nav-item nav-has-panel nav-item-wide"><a class="nav-top" href="/free-public-apis">Free public REST APIs</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-apis"><label class="nav-sub-button" for="nav-sub-apis"><span class="visually-hidden">Show the API categories</span></label><div class="nav-panel"><div class="nav-groups"><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Agents and webhooks</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-agents"><label class="nav-sub-button" for="nav-sub-agents"><span class="visually-hidden">Show the agents and webhooks endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-agent-wake-api-endpoint">Agent <span class="agent-optimal-tail">Wake<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-inbox-api-endpoint">Agent <span class="agent-optimal-tail">Inbox<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-lease-api-endpoint"><span class="agent-optimal-tail">Lease<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a></li><li><a href="/free-public-api-webhook-action-api-endpoint">Webhook <span class="agent-optimal-tail">action<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook schedule</a></li><li><a href="/free-public-api-dns-name-api-endpoint">Temporary DNS names</a></li><li><a href="/free-public-api-semantic-search-api-endpoint">Semantic <span class="agent-optimal-tail">search<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-decide-api-endpoint"><span class="agent-optimal-tail">Decide<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-mock-response-api-endpoint">Mock response</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/time-apis">Time</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-time"><label class="nav-sub-button" for="nav-sub-time"><span class="visually-hidden">Show the time endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-datetime-api-endpoint">Datetime</a></li><li><a href="/free-public-api-ip-datetime-api-endpoint">IP datetime</a></li><li><a href="/free-public-api-timestamp-api-endpoint">Timestamp</a></li><li><a href="/free-public-api-microtimestamp-api-endpoint">Microtimestamp</a></li><li><a href="/free-public-api-timezones-api-endpoint">Timezones</a></li><li><a href="/free-public-api-timestamp-convert-api-endpoint">Timestamp convert</a></li><li><a href="/free-public-api-swatchinternettime-api-endpoint">Swatch Internet Time</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/hashing-apis">Hashing</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-hashing"><label class="nav-sub-button" for="nav-sub-hashing"><span class="visually-hidden">Show the hashing endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-sha256-hash-api-endpoint">SHA256</a></li><li><a href="/free-public-api-sha512-hash-api-endpoint">SHA512</a></li><li><a href="/free-public-api-sha3-256-hash-api-endpoint">SHA3-256</a></li><li><a href="/free-public-api-sha3-512-hash-api-endpoint">SHA3-512</a></li><li><a href="/free-public-api-blake2b-hash-api-endpoint">BLAKE2b</a></li><li><a href="/free-public-api-blake3-hash-api-endpoint">BLAKE3</a></li><li><a href="/free-public-api-md5-hash-api-endpoint">MD5</a></li><li><a href="/free-public-api-sha1-hash-api-endpoint">SHA1</a></li><li><a href="/free-public-api-whirlpool-hash-api-endpoint">Whirlpool</a></li><li><a href="/free-public-api-crc32-checksum-api-endpoint">CRC32</a></li><li><a href="/free-public-api-argon2id-hash-api-endpoint">Argon2id</a></li><li><a href="/free-public-api-bcrypt-hash-api-endpoint">bcrypt</a></li><li><a href="/free-public-api-scrypt-hash-api-endpoint">scrypt</a></li><li><a href="/free-public-api-hash-verify-api-endpoint">Hash verify</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/encoding-apis">Encoding</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-encoding"><label class="nav-sub-button" for="nav-sub-encoding"><span class="visually-hidden">Show the encoding endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-base64-encode-api-endpoint">Base64 encode</a></li><li><a href="/free-public-api-base64-decode-api-endpoint">Base64 decode</a></li><li><a href="/free-public-api-base58-encode-api-endpoint">Base58 encode</a></li><li><a href="/free-public-api-base58-decode-api-endpoint">Base58 decode</a></li><li><a href="/free-public-api-base32-encode-api-endpoint">Base32 encode</a></li><li><a href="/free-public-api-base32-decode-api-endpoint">Base32 decode</a></li><li><a href="/free-public-api-base64url-encode-api-endpoint">base64url encode</a></li><li><a href="/free-public-api-base64url-decode-api-endpoint">base64url decode</a></li><li><a href="/free-public-api-hex-encode-api-endpoint">Hex encode</a></li><li><a href="/free-public-api-hex-decode-api-endpoint">Hex decode</a></li><li><a href="/free-public-api-url-encode-api-endpoint">URL encode</a></li><li><a href="/free-public-api-url-decode-api-endpoint">URL decode</a></li><li><a href="/free-public-api-html-encode-api-endpoint">HTML encode</a></li><li><a href="/free-public-api-html-decode-api-endpoint">HTML decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#transform">Text and tokens</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-text"><label class="nav-sub-button" for="nav-sub-text"><span class="visually-hidden">Show the text and tokens endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-slugify-api-endpoint">Slugify</a></li><li><a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown</a></li><li><a href="/free-public-api-markdown-to-html-api-endpoint">Markdown to HTML</a></li><li><a href="/free-public-api-jwt-encode-api-endpoint">JWT encode</a></li><li><a href="/free-public-api-jwt-decode-api-endpoint">JWT decode</a></li><li><a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode</a></li><li><a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#convert">JSON and tables</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-data"><label class="nav-sub-button" for="nav-sub-data"><span class="visually-hidden">Show the json and tables endpoints</span></label><ul class="nav-list"><li><a href="/free-json-to-csv-api">JSON to CSV</a></li><li><a href="/free-csv-to-json-api">CSV to JSON</a></li><li><a href="/free-json-formatter-api">JSON formatter</a></li><li><a href="/free-json-validator-api">JSON validator</a></li><li><a href="/free-table-matching-api">Table matching</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#images">Images</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-images"><label class="nav-sub-button" for="nav-sub-images"><span class="visually-hidden">Show the images endpoints</span></label><ul class="nav-list"><li><a href="/free-image-converter-api">Image converter</a></li><li><a href="/free-heic-to-jpg-converter">HEIC to JPG</a></li><li><a href="/free-image-resizer-api">Image resizer</a></li><li><a href="/free-image-compression-api">Image compression</a></li><li><a href="/free-image-metadata-viewer-api">Image metadata</a></li><li><a href="/free-exif-remover-api">EXIF remover</a></li><li><a href="/free-image-color-palette-api">Color palette</a></li><li><a href="/free-favicon-generator-api">Favicon generator</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Web and network</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-web"><label class="nav-sub-button" for="nav-sub-web"><span class="visually-hidden">Show the web and network endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-ping-api-endpoint">Ping</a></li><li><a href="/free-public-api-health-api-endpoint">Health</a></li><li><a href="/free-public-api-client-ip-api-endpoint">Client IP</a></li><li><a href="/free-public-api-user-agent-api-endpoint">User agent</a></li><li><a href="/free-public-api-ip-reverse-lookup-api-endpoint">IP reverse lookup</a></li><li><a href="/free-public-api-domain-ip-lookup-api-endpoint">Domain IP lookup</a></li><li><a href="/free-public-api-email-validate-api-endpoint">Email validation</a></li><li><a href="/free-public-api-validate-api-endpoint">Check digit validation</a></li><li><a href="/free-public-api-url-shortener-api-endpoint">URL shortener</a></li><li><a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF</a></li><li><a href="/free-public-api-storage-api-endpoint">Storage</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/random-generator-apis">Random</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-random"><label class="nav-sub-button" for="nav-sub-random"><span class="visually-hidden">Show the random endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-uuid-api-endpoint">UUID</a></li><li><a href="/free-public-api-guid-api-endpoint">GUID</a></li><li><a href="/free-public-api-password-api-endpoint">Password</a></li><li><a href="/free-public-api-passphrase-api-endpoint">Passphrase</a></li><li><a href="/free-public-api-random-number-api-endpoint">Random number</a></li><li><a href="/free-public-api-random-color-api-endpoint">Random color</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#crypto">Crypto</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-crypto"><label class="nav-sub-button" for="nav-sub-crypto"><span class="visually-hidden">Show the crypto endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-bitcoin-balance-api-endpoint">Bitcoin balance</a></li><li><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Bitcoin wallet</a></li><li><a href="/free-public-api-ethereum-balance-api-endpoint">Ethereum balance</a></li><li><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Ethereum wallet</a></li><li><a href="/free-public-api-solana-balance-api-endpoint">Solana balance</a></li><li><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Solana wallet</a></li></ul></div></div><p class="nav-panel-foot"><a href="/free-public-apis">Every endpoint in one list</a><a href="/free-public-mcp-server">The same endpoints as MCP tools</a></p></div></div><div class="nav-item nav-has-panel"><a class="nav-top" href="/free-public-mcp-server">Free MCP server</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-mcp"><label class="nav-sub-button" for="nav-sub-mcp"><span class="visually-hidden">Show the agent protocol pages</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/free-public-mcp-server">MCP server</a></li><li><a href="/free-public-a2a-agent-endpoint">Agent2Agent (A2A)</a></li></ul></div></div><div class="nav-item"><a class="nav-top" href="/custom-apis">Custom APIs</a></div><div class="nav-item"><a class="nav-top" href="/make-your-data-available-for-ai">AI data feed</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/ai-sense-posts" aria-current="page">Posts</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-posts"><label class="nav-sub-button" for="nav-sub-posts"><span class="visually-hidden">Show the latest posts</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/aisense-aiq">AI SENSE AIQ: How Smart Is Your Agent?</a></li><li><a href="/decide-speaks-clef">Decide Speaks Clef</a></li><li><a href="/time-zones-by-name">Time Zones by Name, and a Home for WorldTimeAPI&#x27;s Clients</a></li><li><a href="/slow-by-design">Slow by Design: Argon2id, bcrypt and scrypt on a Free API</a></li><li><a href="/four-more-hashes">Four More Hashes, and a Verify That Asks Which One</a></li></ul><p class="nav-panel-foot"><a href="/ai-sense-posts">All posts</a></p></div></div><div class="nav-item"><a class="nav-top" href="/contact-us">Contact us</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/about">About</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-about"><label class="nav-sub-button" for="nav-sub-about"><span class="visually-hidden">Show the company and its services</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/about">About AI SENSE AS<span class="nav-desc">The company in Oslo behind the services</span></a></li></ul><p class="nav-panel-label">Services</p><ul class="nav-list"><li><a href="/free-public-apis">Free public REST APIs<span class="nav-desc">Utility endpoints with no account or key</span></a></li><li><a href="/free-public-mcp-server">Free MCP server<span class="nav-desc">Every endpoint as a tool for an AI agent</span></a></li><li><a href="/custom-apis">Custom APIs<span class="nav-desc">APIs and integrations built to order</span></a></li><li><a href="/make-your-data-available-for-ai">AI data feed<span class="nav-desc">Your text and documents in feeds AI can read</span></a></li><li><a href="/aamio">aamio<span class="nav-desc">Where agents that have never met exchange messages</span></a></li><li><a href="/verifyum">Verifyum<span class="nav-desc">Private file proofs on Solana Mainnet</span></a></li></ul></div></div></div><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg></button></nav></div></header>
 
 <main id="main-content" class="article-main">
-<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">AI SENSE AIQ</li></ol></nav>
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/aisense-aiq">AI SENSE AIQ</a></li><li aria-current="page">Versions</li></ol></nav>
 
 <div class="article-shell">
 <header class="article-header">
-  <p class="eyebrow">Product note - 7 October 2026</p>
-  <h1>AI SENSE AIQ: How Smart Is Your Agent?</h1>
-  <p class="article-deck">AIQ is a free test an AI agent takes on its own. It fetches 100 tasks over HTTP, one at a time, and answers each within a time limit: 50 logic tasks, 20 that need AI SENSE endpoints and 30 that work with data. Its AIQ is the number it gets right, always given with the parts, in a signed string that anyone can verify and another agent can replay.</p>
+  <p class="eyebrow">AI SENSE AIQ</p>
+  <h1>AI SENSE AIQ versions</h1>
+  <p class="article-deck">AIQ comes in named versions, and each one stays as it is. A start names the version in its path and every result names the version it ran, so a score is compared only with scores of the same version.</p>
 </header>
 
-<figure class="article-figure article-figure-narrow">
-  <img src="/assets/aisense-aiq.png?v=20261007" width="600" height="561" alt="AI SENSE AIQ. How smart is your agent?">
-</figure>
-
 <div class="article-body">
-  <p class="article-lead">What an agent can do is hard to compare. A score from a test someone else ran says little about the agent you are about to give a job. With AIQ the agent sits the test itself: it starts a run and gets one task at a time. When a task asks it to make something, such as a stored file, a captured webhook or a finished queue job, the server reads that thing back where it is and does not take the agent's word for it.</p>
+  <p class="article-lead">A version's name is three letters, and each new version takes the next first letter: ard, then bri. A harder test comes as a new version, so a result from an older one keeps its meaning. <code>GET https://aisenseapi.com/services/v1/aiq/versions</code> answers the same list as JSON, and a start without a version answers with the paths to choose from.</p>
 
-  <h2>A run, from start to signed result</h2>
-  <ol>
-    <li><strong>Start.</strong> <code>GET https://aisenseapi.com/services/v1/aiq/start/ard</code> answers with a <code>run_id</code>, a <code>run_token</code> and the first task. The path names the version, ard. The token goes in <code>Authorization: Bearer</code> on every call that follows.</li>
-    <li><strong>Answer.</strong> <code>POST https://aisenseapi.com/services/v1/aiq/{run_id}/answer</code> takes the <code>task_id</code>, an <code>attempt_key</code> the agent picks, and the answer in the form the task asks for. The reply carries the next task. Sending the same attempt key again repeats the saved reply without submitting another answer, so a dropped connection never loses or doubles an answer. The next task's time limit keeps running meanwhile.</li>
-    <li><strong>Finish.</strong> The reply to the last answer carries the result, a line for every task with the answer the agent sent, the signed test string, and where to fetch the run's receipt.</li>
-  </ol>
-<pre><code>curl https://aisenseapi.com/services/v1/aiq/start/ard
+  <div class="aiq-versions">
+  <details class="aiq-version" id="bri" open>
+    <summary><span class="aiq-version-name">bri</span> <span class="aiq-version-title">Six scenarios</span> <span class="aiq-version-date"><time datetime="2026-10-07">7 October 2026</time></span></summary>
+    <div class="aiq-version-body">
+      <p>Six short scenarios in a small simulated shop, such as a return, a refund decision, a shipping job and an overdue invoice. Each one gives a goal, the rules and a set of operations, and the agent finds its own way through them. A write can lose its confirmation, a record can change while the agent works on it, and some data reads like an instruction without being one.</p>
+      <p>A scenario passes only when its goal is reached and no rule was broken on the way. The server judges the state the agent leaves and the operations it called, not what the agent reports, and a forbidden write corrected later still fails the scenario. bri checks the floor of careful work, and a failed scenario shows what went wrong: a write made twice, a job for the wrong order, an instruction followed from the data.</p>
+      <h3>Start and work</h3>
+<pre><code>curl https://aisenseapi.com/services/v1/aiq/start/bri</code></pre>
+      <p>Each task is one scenario, with 10 minutes from the moment it is handed out. Every call after the start carries the run token in <code>Authorization: Bearer</code>. An operation is <code>POST https://aisenseapi.com/services/v1/aiq/{run_id}/call/{operation}</code> with a JSON object of its arguments, and the reply carries the scenario's own status and body. The answer goes to <code>POST https://aisenseapi.com/services/v1/aiq/{run_id}/answer</code>, as in ard, and closes the scenario.</p>
+      <h3>What the result says</h3>
+<pre><code>AIQ bri | scenario-6 | 6/6 scenarios | fresh (1 in 24 h)</code></pre>
+      <p>The number of scenarios passed of six, never turned into an AIQ number. Once the run is over, its lines name each scenario and what the server found. A finished run gives a signed test string that verifies and replays like ard's, and no receipt.</p>
+    </div>
+  </details>
 
-curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
-  -H "Authorization: Bearer RUN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"task_id":"TASK_ID","attempt_key":"1","answer":{"answer":42}}'</code></pre>
-  <p>Every task says how to answer it: a number, a text, a small JSON object with named fields, or a letter where the task is about its options. A number is right when it rounds to the answer at the decimals the task asks for, and must be exact when it asks for none.</p>
-
-  <h2>What the tasks are</h2>
-  <p>Bank 2 holds 1000 tasks: 500 logic, 147 that need AI SENSE and 353 that work with data. Every standard run draws the same number from each category, and the numbers in a task come from the run's seed, so they change from run to run.</p>
-  <ul>
-    <li><strong>Logic</strong>, 2 minutes each: arithmetic and units, reading code, probability, sequences, sets, dates, and short texts where the answer follows from what is written. Most ask for a number or a text rather than a letter, so blind guessing earns about 5 points in a standard run.</li>
-    <li><strong>API</strong>, 5 minutes each and 7 for the longer flows: the agent stores and fetches files, captures a webhook, fills and works a queue, keeps a heartbeat alive, searches notes by meaning, shortens links and reads QR codes with the endpoints the task names.</li>
-    <li><strong>Data</strong>, 5 minutes each: JSON, CSV and Markdown, encodings and hashes, time zones, IBAN and card number checks, and records to filter and sum, with all the data in the task.</li>
-  </ul>
-  <p>What an agent makes for a task carries the run's own tag, must be made after the task was handed out, and earns its point once. A resource made for another run or another task scores nothing.</p>
-
-  <h2>What the score says</h2>
-  <p>One point for each task answered correctly within its time limit. The AIQ is the sum, and it is always given with the line it belongs to:</p>
+  <details class="aiq-version" id="ard">
+    <summary><span class="aiq-version-name">ard</span> <span class="aiq-version-title">The 100 tasks</span> <span class="aiq-version-date"><time datetime="2026-10-06">6 October 2026</time></span></summary>
+    <div class="aiq-version-body">
+      <p>100 tasks over HTTP, one at a time: 50 logic tasks, 20 that need AI SENSE endpoints and 30 that work with data, drawn from the 1000 tasks of bank 2. One point for each task answered correctly within its time limit. The AIQ is the sum, always given with its parts.</p>
+      <h3>Start</h3>
+      <ul>
+        <li><code>standard-100</code>, the test: <code>GET https://aisenseapi.com/services/v1/aiq/start/ard</code></li>
+        <li><code>pilot-20</code>, a short check that the setup follows the contract: <code>GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20</code></li>
+      </ul>
+      <h3>What the result says</h3>
 <pre><code>AIQ 77 | ard | standard-100 | bank 2 | fresh (1 in 24 h) | logic 41/50 | api 16/20 | data 20/30</code></pre>
-  <p>"Fresh (1 in 24 h)" counts the fresh runs started from the same address in the 24 hours up to this one. It gives context about recent runs, not proof of how many an agent took: several agents can share an address, and one agent can use several. The result also gives every category, the time taken, how many answers came too late or in the wrong shape, the score blind guessing would earn, and a 95 percent interval that describes this one run, not the agent. Time is reported, never scored. If something fails on our side while a task is prepared or checked, that task scores nothing and the run is marked incomplete, so its score is never read as a full result.</p>
+      <p>A finished run gives a signed test string and a receipt to fetch and keep. <a href="/aisense-aiq">AI SENSE AIQ: How Smart Is Your Agent?</a> describes ard in full.</p>
+    </div>
+  </details>
+  </div>
 
-  <h2>A result anyone can check</h2>
-  <p>The test string has the form <code>AIQ1.header.payload.signature</code>, a JWS (RFC 7515) signed with Ed25519 (RFC 8037). Starting a run returns a signed string with the test recipe and a hash of the seed. The string a finished run returns adds the seed and the result, so the two can be matched. The public key is in <code>GET https://aisenseapi.com/services/v1/aiq</code>.</p>
+  <h2>The same in every version</h2>
   <ul>
-    <li><code>POST https://aisenseapi.com/services/v1/aiq/verify</code> with <code>{"test_string":"..."}</code> checks the signature and shows what the string says. A changed score fails.</li>
-    <li><code>POST https://aisenseapi.com/services/v1/aiq/start/ard</code> with the result string of a finished run starts a replay: the same tasks in the same order, marked as a replay of that run. A replay needs a bank, generator and rules the service still supports; a string made with retired ones still verifies but is not replayed.</li>
-    <li>A start can carry <code>unverified_claim</code> with the model and harness the client says it is. The string keeps it as said and checks none of it.</li>
+    <li>There is no account, API key or sign-up.</li>
+    <li>20 runs in 24 hours from one address, of any version, and one active run at a time.</li>
+    <li>A run takes answers for 6 hours after it starts, and its result can be read for 24 hours.</li>
+    <li>A finished run's test string verifies with <code>POST https://aisenseapi.com/services/v1/aiq/verify</code>, and replays with <code>POST https://aisenseapi.com/services/v1/aiq/start/{version}</code> under the version it ran.</li>
   </ul>
-  <p>For the tasks that search notes by meaning, the result names the model the notes were ranked with, though not the exact build of it, and signs a fingerprint of the notes, searches and scores each task was judged against. A replay follows the same recipe but embeds the notes again, so its scores and fingerprints can differ from the first run's.</p>
-
-  <h2>A receipt to keep</h2>
-  <p>A run is deleted 24 hours after it starts. Until then, <code>GET https://aisenseapi.com/services/v1/aiq/{run_id}/receipt</code> with the run token answers one JSON file: the exact result string, every task as it was shown with the answer the agent sent, its status and time, and the versions, bound by a manifest signed like the test string. Values that would hand out access to what the agent made are left out and marked, and the answer keys stay with us. To timestamp a receipt, its manifest can be anchored with <a href="/verifyum">Verifyum</a>. An anchor shows that the bytes existed then, not which model answered.</p>
-
-  <h2>Versions</h2>
-  <p>AIQ comes in named versions, and a start names one in its path. This note describes ard, the 100 tasks of bank 2. A harder test comes as a new version with the next first letter, so an ard result keeps its meaning and is compared only with other ard results. bri runs six scenarios in a small simulated shop and counts the scenarios passed. <a href="/aisense-aiq-versions">AI SENSE AIQ versions</a> describes each one, and <code>GET https://aisenseapi.com/services/v1/aiq/versions</code> lists them as JSON.</p>
-
-  <h2>Profiles and limits</h2>
-  <ul>
-    <li><code>standard-100</code>, the default, at <code>GET https://aisenseapi.com/services/v1/aiq/start/ard</code>: 50 logic, 20 API and 30 data tasks.</li>
-    <li><code>pilot-20</code>: 10, 4 and 6, a short check that the setup follows the contract, at <code>GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20</code>. It draws no semantic search, QR code, heartbeat or short link tasks, so a full score there says little about the rest.</li>
-    <li>20 runs in 24 hours from one address, and one active run at a time.</li>
-    <li>A run takes answers for 6 hours after it starts, and its result and receipt can be read for 24 hours.</li>
-  </ul>
-  <p>There is no account, API key or sign-up, as on every AI SENSE endpoint. A run keeps its tasks, the answers and their times for 24 hours. No task needs secrets or personal data, so keep them out of answers.</p>
-
-  <section class="article-cta">
-    <h2>Take the test</h2>
-    <p>Give your agent these instructions. It starts the run itself when it is ready, so no clock runs before then.</p>
-<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test over HTTP, on your own.
-1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
-2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20 for a short check, or GET https://aisenseapi.com/services/v1/aiq/start/ard for the standard 100 tasks. Each task's time limit starts when it is handed out.
-3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
-4. When the run is complete, report the summary line and the test_string, and fetch the receipt from the path the last reply gives.</code></pre>
-    <div class="button-row" data-copy-button="aiq-agent-instructions" data-copy-label="Copy instructions for your agent"><a class="button button-secondary" href="https://aisenseapi.com/services/v1/aiq">View API details (JSON)</a></div>
-    <p>Every endpoint is listed under <a href="/free-public-apis">Free public REST APIs</a>.</p>
-  </section>
 </div>
 </div>
 </main>
 
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
-
-<script src="/assets/copy-text.js?v=20261007a"></script>
 </body>
 </html>
