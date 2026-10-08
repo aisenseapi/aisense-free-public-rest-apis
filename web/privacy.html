@@ -160,7 +160,7 @@
 <tr><td>Raw Inbox mail at the receiving provider</td><td>Separate mailbox and provider retention. The 24-hour API expiry does not delete this copy, and the default worker does not configure a purge period</td></tr>
 <tr><td>Agent Queue, including completed and failed jobs</td><td>Until the fixed expiry 24 hours after queue creation. Activity does not extend it</td></tr>
 <tr><td>Semantic search collections, notes and vectors</td><td>Until the fixed expiry 24 hours after creation. Activity does not extend it. A deleted note's text and vector are removed at once</td></tr>
-<tr><td>Rate limit counters</td><td>Shared request counters and the storage byte counters reset at midnight Norwegian time (Europe/Oslo). Queue and semantic search creation use separate fixed 24-hour windows. Inbox creation uses a UTC-day quota</td></tr>
+<tr><td>Rate limit counters</td><td>Shared request counters and the storage byte counters reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). Queue and semantic search creation use separate fixed 24-hour windows. Inbox creation uses a UTC-day quota</td></tr>
 <tr><td>Raw server access and MCP method logs</td><td>Temporary local copies are pruned after 14 days. Compressed archives are kept for approximately 24 months, with the cleanup threshold set to 744 days</td></tr>
 <tr><td>MCP daily summaries</td><td>No automatic expiry is configured for the daily summary files</td></tr>
 <tr><td>Machine-access audit log</td><td>12 weeks</td></tr>

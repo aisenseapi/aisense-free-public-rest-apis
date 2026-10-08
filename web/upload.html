@@ -393,7 +393,7 @@ curl -s https://aisenseapi.com/services/v1/storage/&lt;storage_id&gt;</code></pr
         // wait.
         fail(item, track,
           'Rate limit reached for your network: 5000 requests per IP per day. '
-          + 'It resets at midnight Norwegian time (Europe/Oslo). Everyone on this connection shares that budget, '
+          + 'It resets at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). Everyone on this connection shares that budget, '
           + 'so a script elsewhere on the network can use it up.');
         return;
       }

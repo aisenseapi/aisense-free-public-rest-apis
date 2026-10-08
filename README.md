@@ -165,8 +165,8 @@ routes also return 404. Consult each endpoint for its additional errors.
 
 **There is a rate limit: 5000 requests per IP per day.** Exceeding it
 returns HTTP 429 in the same flat error shape as everything else. The count
-resets at midnight Norwegian time (Europe/Oslo), 22:00 UTC in summer and 23:00
-UTC in winter, and the 429 carries `Retry-After` with the seconds until then.
+resets at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year
+(midnight in Norway, time zone Europe/Oslo), and the 429 carries `Retry-After` with the seconds until then.
 
 ---
 

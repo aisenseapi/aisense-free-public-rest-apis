@@ -37,7 +37,8 @@ routes also return 404. Consult each endpoint for its additional errors.
 
 **Rate limit:** 5000 requests per IP per day, then HTTP 429 in the same
 flat error shape with `Retry-After` in seconds. The count resets at
-midnight Norwegian time (Europe/Oslo).
+22:00 UTC from late March to late October and at 23:00 UTC the rest of the year
+(midnight in Norway, time zone Europe/Oslo).
 
 ---
 
