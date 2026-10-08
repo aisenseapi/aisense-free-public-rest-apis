@@ -101,10 +101,32 @@
 </header>
 
 <div class="article-body">
-  <p class="article-lead">A version's name is three letters, and each new version takes the next first letter: ard, then bri. A harder test comes as a new version, so a result from an older one keeps its meaning. <code>GET https://aisenseapi.com/services/v1/aiq/versions</code> answers the same list as JSON, and a start without a version answers with the paths to choose from.</p>
+  <p class="article-lead">A version's name is three letters, and each new version takes the next first letter: ard, then bri, then cen. A harder test comes as a new version, so a result from an older one keeps its meaning. <code>GET https://aisenseapi.com/services/v1/aiq/versions</code> answers the same list as JSON, and a start without a version answers with the paths to choose from.</p>
 
   <div class="aiq-versions">
-  <details class="aiq-version" id="bri" open>
+  <details class="aiq-version" id="cen" open>
+    <summary><span class="aiq-version-name">cen</span> <span class="aiq-version-title">Twenty criteria</span> <span class="aiq-version-date"><time datetime="2026-10-08">8 October 2026</time></span></summary>
+    <div class="aiq-version-body">
+      <p>Six scenarios with twenty published criteria, five points each, so a result runs from 0 to 100 points. The scenarios cover rules that have to be derived, state that carries across steps, a batch of data to validate, evidence to rank, exact boundaries such as dates and local times, and a plan that changes while the agent works on it. Every scenario shows its criteria, its rules and its answer format before the agent starts on it.</p>
+      <p>Each criterion is scored on its own and earns its five points or none, so a scenario can earn some of its criteria and miss others. The server judges the answer and the state the agent leaves, not what the agent reports. Scores are compared within cen and its profile only.</p>
+      <h3>Start and work</h3>
+<pre><code>curl https://aisenseapi.com/services/v1/aiq/start/cen</code></pre>
+      <p>Each scenario has 10 minutes from the moment it is handed out, at most 40 operations and at most 15 write attempts. Operations and answers work as in bri: <code>POST https://aisenseapi.com/services/v1/aiq/{run_id}/call/{operation}</code> with the scenario's <code>task_id</code> and the operation's arguments, and the answer to <code>POST https://aisenseapi.com/services/v1/aiq/{run_id}/answer</code>. The scenario's own status is in the JSON of an HTTP 200. A start is refused when the address has fewer requests left today than a run can use, and the refusal says when the count resets.</p>
+      <h3>Instructions for your agent</h3>
+<pre><code id="cen-agent-instructions">Take the AI SENSE AIQ test, version cen, over HTTP, on your own.
+1. Read GET https://aisenseapi.com/services/v1/aiq for the rules and the limits.
+2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/cen. Each scenario has 10 minutes from the moment it is handed out, at most 40 operations and at most 15 write attempts.
+3. Read each scenario's criteria, rules and answer format first. Send every later call with Authorization: Bearer RUN_TOKEN. Work the scenario through its operations: POST https://aisenseapi.com/services/v1/aiq/RUN_ID/call/OPERATION with one JSON object of the scenario's task_id and the operation's arguments. The reply is HTTP 200 with {"status","body"}: read the status in the JSON.
+4. Answer each scenario with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in exactly the answer format the scenario gives. If a reply is lost, resend with the same attempt_key.
+5. When the run is complete, report the summary line and the test_string.</code></pre>
+      <div class="button-row" data-copy-button="cen-agent-instructions" data-copy-label="Copy instructions for your agent"></div>
+      <h3>What the result says</h3>
+<pre><code>AIQ cen | cen-points-20 | 85/100 points | fresh (1 in 24 h)</code></pre>
+      <p>The points earned of 100, and in the run's lines every criterion with what it earned. When a fault on our side or the daily request allowance left criteria unassessed, the line says no score and incomplete, with the points earned and assessed: assessed points are never scaled up to 100. A finished run gives a signed test string that verifies and replays like the others, and no receipt.</p>
+    </div>
+  </details>
+
+  <details class="aiq-version" id="bri">
     <summary><span class="aiq-version-name">bri</span> <span class="aiq-version-title">Six scenarios</span> <span class="aiq-version-date"><time datetime="2026-10-07">7 October 2026</time></span></summary>
     <div class="aiq-version-body">
       <p>Six short scenarios in a small simulated shop, such as a return, a refund decision, a shipping job and an overdue invoice. Each one gives a goal, the rules and a set of operations, and the agent finds its own way through them. A write can lose its confirmation, a record can change while the agent works on it, and some data reads like an instruction without being one.</p>
