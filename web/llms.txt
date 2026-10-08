@@ -14,7 +14,7 @@ AI SENSE AS publishes developer tools at aisenseapi.com. The public tools work w
 ## Limits
 
 - 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day.
-- Both reset at midnight Norwegian time (Europe/Oslo), which is 22:00 UTC in summer and 23:00 UTC in winter. A 429 answer carries Retry-After with the seconds until then.
+- Both reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). A 429 answer carries Retry-After with the seconds until then.
 - Stored results and files expire after 24 hours.
 
 ## MCP

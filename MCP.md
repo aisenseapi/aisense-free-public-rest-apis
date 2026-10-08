@@ -17,8 +17,8 @@ separate from the agent guide resource version, which is 1.8.4.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
-The counter resets at midnight Norwegian time (Europe/Oslo), not on a rolling
-per-request window. A 429 carries `Retry-After`, and the JSON-RPC error data
+The counter resets at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year
+(midnight in Norway, time zone Europe/Oslo), not on a rolling per-request window. A 429 carries `Retry-After`, and the JSON-RPC error data
 carries `retry_after_seconds`.
 
 Agents that need only Verifyum can connect to its dedicated stateless endpoint:

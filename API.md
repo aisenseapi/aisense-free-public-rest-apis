@@ -3,7 +3,7 @@
 > **Base URL:** `https://aisenseapi.com/services/v1`
 > **Authentication:** No account or API key. Queue and semantic search operations require role-specific bearer tokens
 > **Cost:** Free
-> **Rate limit:** 5000 requests per IP per day, reset at midnight Norwegian time (Europe/Oslo)
+> **Rate limit:** 5000 requests per IP per day, reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo)
 
 This document is the REST reference. The same service answers on two further
 protocols: the remote MCP server at `https://aisenseapi.com/mcp`, and Agent2Agent
@@ -1527,7 +1527,7 @@ content removed on notice stops being served at once.
 **Limits:** executable files (Windows, Linux and Mac programs, judged on their
 first bytes) are refused with `415` and never stored. Each IP may store 80 MB
 per day; past that a POST answers `429` until the counter resets at
-midnight Norwegian time (Europe/Oslo). A stored file is returned inline only as an image, audio, video
+22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). A stored file is returned inline only as an image, audio, video
 or PDF; anything else, SVG included, comes back as `application/octet-stream`.
 Content reported to abuse@aisense.no as unlawful or abusive is removed on
 notice.
@@ -2896,8 +2896,8 @@ and later scheduled physical cleanup are distinct.
 
 ### Rate limit
 
-The shared counter resets at midnight Norwegian time (Europe/Oslo), which is 22:00 UTC
-in summer and 23:00 UTC in winter, through the deployed reset job. This is a
+The shared counter resets at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year
+(midnight in Norway, time zone Europe/Oslo), through the deployed reset job. This is a
 calendar-day budget, not a rolling per-request 24-hour window. A `429`
 carries `Retry-After` with the seconds until the reset, and its `fix` says the
 same. The Storage budget of 80 MB per IP address resets at the same time.
