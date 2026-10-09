@@ -5,9 +5,10 @@
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
  * There is no account. Most requests need nothing beyond the path and, for POST
  * endpoints, the body. Agent Queue and semantic search calls also carry a role
- * token, which this client sends as an Authorization header and never puts in
- * a URL. Both answer the browser preflight for that header, so those calls
- * work from a page as well as from Node.
+ * token, and AIQ calls a run token, which this client sends as an
+ * Authorization header and never puts in a URL. All three answer the browser
+ * preflight for that header, so those calls work from a page as well as from
+ * Node.
  *
  * Usage (ESM):
  *   import { AISenseAPI } from './aisense-api.js'
@@ -1210,6 +1211,100 @@ export class AISenseAPI {
       mockResponse: res.headers.get('x-mock-response'),
       body: await res.text(),
     }
+  }
+
+  // ── AIQ ───────────────────────────────────────────────────────────────────
+
+  /**
+   * AIQ, a test an AI agent takes on its own: every route, version, profile
+   * and limit, and the keys that sign the results.
+   * https://aisense.no/aisense-aiq
+   */
+  aiqInfo() {
+    return this.#get('/aiq')
+  }
+
+  /**
+   * The AIQ versions. Response keys: `service`, `newest`, `test_versions`, each
+   * with `version`, `date`, `newest`, `status`, `description`, `start`,
+   * `default_profile` and `profiles`.
+   */
+  aiqVersions() {
+    return this.#get('/aiq/versions')
+  }
+
+  /**
+   * Start a fresh run of ard, bri or cen, with the version's first profile or
+   * the one named, as in aiqStart('ard', 'pilot-20'). Response keys include
+   * `run_id`, `run_token`, `status`, `test_string` and the first `task`. The
+   * run token is shown once; the methods below send it as a bearer token. A
+   * dar run starts with aiqStartDar.
+   */
+  aiqStart(version, profile) {
+    return this.#get(profile !== undefined ? `/aiq/start/${version}/${profile}` : `/aiq/start/${version}`)
+  }
+
+  /**
+   * Start a dar run, the team test over Aamio, with the coordinator's Ed25519
+   * public key, 43 base64url characters. Every action of the test goes over
+   * Aamio; the start answers `run_id`, `run_token`, `controller_key`, the
+   * `roles` with their controller inboxes, and the `rules`.
+   */
+  aiqStartDar(coordinatorKey) {
+    return this.#post('/aiq/start/dar/team-5', { coordinator_key: coordinatorKey })
+  }
+
+  /**
+   * Replay the recipe of a completed run from its signed test string, as a new
+   * run of the same version. A dar replay also takes the new coordinator's key.
+   */
+  aiqReplay(version, testString, coordinatorKey) {
+    const body = { test_string: testString }
+    if (coordinatorKey !== undefined) body.coordinator_key = coordinatorKey
+    return this.#post(`/aiq/start/${version}`, body)
+  }
+
+  /** Read a run with its run token: its status, the current task, or the result. */
+  aiqRun(runId, runToken) {
+    return this.#get(`/aiq/${runId}`, runToken)
+  }
+
+  /**
+   * Answer the current task of an ard, bri or cen run, in the shape the task
+   * asks for. `attemptKey` is a key the agent picks: sending the same key
+   * again repeats the saved reply without a second answer, so a lost reply is
+   * resent with the same key. The reply carries the next task, or the result.
+   */
+  aiqAnswer(runId, runToken, taskId, attemptKey, answer) {
+    return this.#post(`/aiq/${runId}/answer`, { task_id: taskId, attempt_key: attemptKey, answer }, runToken)
+  }
+
+  /**
+   * Call an operation of the current scenario in a bri or cen run, with the
+   * scenario's task id and the operation's arguments. The reply is HTTP 200
+   * with `status` and `body`: the scenario's own status is in the JSON.
+   */
+  aiqCall(runId, runToken, operation, taskId, args = {}) {
+    return this.#post(`/aiq/${runId}/call/${operation}`, { ...args, task_id: taskId }, runToken)
+  }
+
+  /**
+   * The signed receipt of a completed ard run, or the signed export of a dar
+   * run once its result is final, until the run expires 24 hours after its
+   * start. A bri or cen run has none and answers 409.
+   */
+  aiqReceipt(runId, runToken) {
+    return this.#get(`/aiq/${runId}/receipt`, runToken)
+  }
+
+  /**
+   * Verify a signed AIQ test string. Response keys: `valid`, `kid`,
+   * `issued_at_timestamp`, `issuer`, `schema_version`, `test`, `origin` and
+   * `result`. A string that does not verify is refused with HTTP 400 and
+   * `valid` false.
+   */
+  aiqVerify(testString) {
+    return this.#post('/aiq/verify', { test_string: testString })
   }
 
   // ── Crypto ────────────────────────────────────────────────────────────────
