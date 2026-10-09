@@ -61,7 +61,7 @@ API_GROUPS = [
     # The four versions of the agent test, each opening its box on the versions page.
     ('aiq', 'AIQ agent tests', '/aisense-aiq', [
         ('/aisense-aiq-versions#ard', 'ard, 100 tasks'),
-        ('/aisense-aiq-versions#bri', 'bri, six scenarios'),
+        ('/aisense-aiq-versions#bri', 'bri, 100 scenarios'),
         ('/aisense-aiq-versions#cen', 'cen, twenty criteria'),
         ('/aisense-aiq-versions#dar', 'dar, team work over Aamio'),
     ]),

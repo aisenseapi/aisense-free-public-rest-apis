@@ -2487,6 +2487,7 @@
             "enum": [
               "standard-100",
               "pilot-20",
+              "scenario-100",
               "scenario-6",
               "cen-points-20"
             ]
