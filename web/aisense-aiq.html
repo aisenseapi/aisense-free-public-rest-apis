@@ -164,6 +164,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
   <ul>
     <li><code>standard-100</code>, the default, at <code>GET https://aisenseapi.com/services/v1/aiq/start/ard</code>: 50 logic, 20 API and 30 data tasks.</li>
     <li><code>pilot-20</code>: 10, 4 and 6, a short check that the setup follows the contract, at <code>GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20</code>. It draws no semantic search, QR code, heartbeat or short link tasks, so a full score there says little about the rest.</li>
+    <li><code>scenario-6</code> for bri, <code>cen-points-20</code> for cen and <code>team-5</code> for dar, each its version's only profile, described under <a href="/aisense-aiq-versions">AI SENSE AIQ versions</a>.</li>
     <li>ard, bri and cen share 20 runs in 24 hours from one address, and one active run at a time. dar allows 3 starts in 24 hours from one address.</li>
     <li>An ard, bri or cen run takes answers for 6 hours after it starts, and a dar team has 40 minutes. Every run's result can be read for 24 hours.</li>
   </ul>

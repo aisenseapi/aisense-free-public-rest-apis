@@ -156,6 +156,9 @@
     <a href="/free-exif-remover-api"><strong>EXIF Remover API</strong><span>Metadata out, pixels untouched.</span></a>
     <a href="/free-image-color-palette-api"><strong>Color Palette API</strong><span>Dominant colors, average and a placeholder.</span></a>
     <a href="/free-favicon-generator-api"><strong>Favicon Generator API</strong><span>favicon.ico, PNG icons and a manifest as a ZIP.</span></a>
+    <a href="/free-public-api-decide-api-endpoint"><strong>Decision <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></strong><span>Typed decisions from facts and weighted rules.</span></a>
+    <a href="/free-public-api-mock-response-api-endpoint"><strong>Mock Response API</strong><span>The status, delay or broken answer you ask for.</span></a>
+    <a href="/aisense-aiq"><strong>AI SENSE AIQ</strong><span>A test an AI agent takes on its own, in four versions.</span></a>
     <a href="/hashing-apis"><strong>Hashing APIs</strong><span>MD5, SHA1, SHA256, SHA512, SHA3, BLAKE2b, BLAKE3, Whirlpool and CRC32, and the password hashes Argon2id, bcrypt and scrypt.</span></a>
     <a href="/encoding-apis"><strong>Encoding APIs</strong><span>Encode and decode Base64, base64url, hex, URL, HTML, Base58 and Base32.</span></a>
     <a href="/random-generator-apis"><strong>Random Generator APIs</strong><span>Generate UUIDs, GUIDs, passwords, numbers and colors.</span></a>
@@ -1092,6 +1095,10 @@ response = client.chat.completions.create(
 <div class="related-api-grid"><a href="/free-json-to-csv-api">Free JSON to CSV API<span>Records to a CSV file</span></a><a href="/free-csv-to-json-api">Free CSV to JSON API<span>Every cell stays text</span></a><a href="/free-table-matching-api">Free Table Matching API<span>Matched, missing and ambiguous rows</span></a><a href="/free-json-formatter-api">Free JSON Formatter API<span>Only the whitespace changes</span></a><a href="/free-json-validator-api">Free JSON Validator API<span>A stored report for every check</span></a></div>
 <h3>Images</h3>
 <div class="related-api-grid"><a href="/free-image-converter-api">Free Image Converter API<span>HEIC, WebP, PNG and JPEG</span></a><a href="/free-heic-to-jpg-converter">Free HEIC to JPG Converter<span>iPhone photos to JPG</span></a><a href="/free-image-compression-api">Free Image Compression API<span>Same format, smaller file</span></a><a href="/free-image-metadata-viewer-api">Free Image Metadata API<span>EXIF, GPS and XMP</span></a><a href="/free-exif-remover-api">Free EXIF Remover API<span>Pixels untouched</span></a><a href="/free-image-color-palette-api">Free Color Palette API<span>Dominant colors</span></a><a href="/free-favicon-generator-api">Free Favicon Generator API<span>A ZIP of icons</span></a></div>
+<h3>Logic</h3>
+<div class="related-api-grid"><a href="/free-public-api-decide-api-endpoint">Free Decision <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span><span>Typed decisions from rules</span></a><a href="/free-public-api-mock-response-api-endpoint">Free Mock Response API Endpoint<span>Any status, delay or broken body</span></a></div>
+<h3>Agent tests</h3>
+<div class="related-api-grid"><a href="/aisense-aiq">AI SENSE AIQ: How Smart Is Your Agent?<span>The test and how to start it</span></a><a href="/aisense-aiq-versions">AI SENSE AIQ versions<span>ard, bri, cen and dar</span></a></div>
 <h3>Hash</h3>
 <div class="related-api-grid"><a href="/free-public-api-md5-hash-api-endpoint">Free MD5 Hash API Endpoint<span>32 hex characters</span></a><a href="/free-public-api-sha1-hash-api-endpoint">Free SHA1 Hash API Endpoint<span>40 hex, legacy interop</span></a><a href="/free-public-api-sha256-hash-api-endpoint">Free SHA256 Hash API Endpoint<span>64 hex, the default</span></a><a href="/free-public-api-sha512-hash-api-endpoint">Free SHA512 Hash API Endpoint<span>128 hex, 64-bit friendly</span></a><a href="/free-public-api-sha3-256-hash-api-endpoint">Free SHA3-256 Hash API Endpoint<span>64 hex, Keccak sponge</span></a><a href="/free-public-api-sha3-512-hash-api-endpoint">Free SHA3-512 Hash API Endpoint<span>128 hex, Keccak sponge</span></a><a href="/free-public-api-blake2b-hash-api-endpoint">Free BLAKE2b Hash API Endpoint<span>64 hex, fast</span></a><a href="/free-public-api-whirlpool-hash-api-endpoint">Free Whirlpool Hash API Endpoint<span>128 hex, ISO standard</span></a><a href="/free-public-api-crc32-checksum-api-endpoint">Free CRC32 Checksum API Endpoint<span>Unsigned integer checksum</span></a><a href="/free-public-api-hash-verify-api-endpoint">Free Hash Verify API Endpoint<span>Constant time comparison</span></a></div>
 <h3>Random</h3>
@@ -1106,7 +1113,7 @@ response = client.chat.completions.create(
 
 <section id="summary" aria-labelledby="summary-heading">
 <h2 id="summary-heading">All endpoints</h2>
-<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Temporary active state has a 24-hour ceiling. Heartbeat terminal state and Webhook Schedule results can remain readable for another 24 hours. Queue state shares its fixed creation-time expiry.</p>
+<p>Relative to <code>https://aisenseapi.com/services/v1</code>. Temporary active state has a 24-hour ceiling. Heartbeat terminal state and Webhook Schedule results can remain readable for another 24 hours. Queue state shares its fixed creation-time expiry. Storage fields are the keys <code>/storage</code> answers: <code>storage_id</code>, <code>storage_url</code>, <code>sha256_hash</code>, <code>bytes</code> and <code>expire_timestamp</code>.</p>
 
 <div class="table-wrap">
 <table>
@@ -1188,6 +1195,7 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
+<tr><td>Web</td><td><code>/html2pdf</code></td><td>POST</td><td>Storage fields</td></tr>
 <tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET / DELETE</td><td>one-shot or recurring state, wait support, delivery counts</td></tr>
 <tr><td>Web</td><td><code>/agent_wake</code></td><td>POST / GET / DELETE</td><td><code>taskId</code>, <code>status</code>, <code>result</code></td></tr>
 <tr><td>Web</td><td><code>/heartbeat</code></td><td>POST / GET</td><td><code>heartbeat_id</code>, <code>status</code>, timing fields, <code>ping_count</code>, <code>delivery</code></td></tr>
@@ -1198,6 +1206,8 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/validate/{type}</code></td><td>POST</td><td><code>type</code>, <code>valid</code>, per-check fields</td></tr>
 <tr><td>Web</td><td><code>/storage</code></td><td>POST / GET</td><td><code>storage_id</code>, <code>storage_url</code>, <code>sha256_hash</code>, <code>bytes</code>, <code>expire_timestamp</code></td></tr>
 <tr><td>Web</td><td><code>/url_shortener/{url}</code></td><td>GET</td><td><code>short_url</code>, <code>expire_timestamp</code></td></tr>
+<tr><td>Web</td><td><code>/dns/{ip}</code>, <code>/dns/{slug}</code></td><td>GET, or POST to change</td><td><code>name</code>, <code>ip</code>, <code>record</code>, <code>ttl</code>, <code>expire_at</code>, and <code>dns_token</code> on creation</td></tr>
+<tr><td>Web</td><td><code>/semantic_search</code></td><td>GET / POST</td><td><code>collection_id</code>, <code>model</code>, read and write tokens on creation, ranked <code>results</code> from a search</td></tr>
 <tr><td>Web</td><td><code>/webhook_capture</code></td><td>POST / GET</td><td>pending or captured state, update, read and wait URLs</td></tr>
 <tr><td>Web</td><td><code>/webhook_action</code></td><td>POST / GET</td><td>single or group forms, result and wait URLs</td></tr>
 <tr><td>Crypto</td><td><code>/solana/generate_new_wallet</code></td><td>GET</td><td><code>private_key</code>, <code>private_key_base58</code>, <code>public_address</code></td></tr>
