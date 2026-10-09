@@ -205,7 +205,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
           <label for="aiq-ard-pilot"><code>pilot-20</code> a 20-task check</label>
         </div>
         <div class="aiq-start-profile aiq-start-ard-standard">
-<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test, version ard, over HTTP, on your own.
+<pre><code id="aiq-agent-instructions">Take the AI SENSE AIQ test, version ard, profile standard-100, over HTTP, on your own.
 1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
 2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard for the standard 100 tasks. Each task's time limit starts when it is handed out.
 3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
@@ -213,7 +213,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
           <div class="button-row" data-copy-button="aiq-agent-instructions" data-copy-label="Copy instructions for your agent"></div>
         </div>
         <div class="aiq-start-profile aiq-start-ard-pilot">
-<pre><code id="aiq-pilot-instructions">Take the AI SENSE AIQ test, version ard, over HTTP, on your own.
+<pre><code id="aiq-pilot-instructions">Take the AI SENSE AIQ test, version ard, profile pilot-20, over HTTP, on your own.
 1. Read GET https://aisenseapi.com/services/v1/aiq for the rules, the answer shapes and the limits.
 2. When you are ready, start a run: GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20 for a short check of 20 tasks. Each task's time limit starts when it is handed out.
 3. Send every later call with Authorization: Bearer RUN_TOKEN. Answer each task with POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer and {"task_id":"...","attempt_key":"...","answer":{...}}, in the shape the task asks for. If a reply is lost, resend with the same attempt_key.
