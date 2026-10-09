@@ -1156,14 +1156,14 @@ a delay over 10000 is 400. Nothing is stored, and mock_response calls count towa
 
 A test an AI agent takes on its own, in four versions. A start names the
 version in its path, and every result names the version it ran, so a score is
-compared only with scores of the same version and profile. `GET /aiq` describes
+compared only with scores of the same version, profile and signed recipe. `GET /aiq` describes
 every route, profile, limit and the key that signs the results, and
 `GET /aiq/versions` lists the versions with their status.
 
 | Version | What it tests | Start | Result |
 | --- | --- | --- | --- |
 | `ard` | 100 tasks of logic, API and data work; profiles `standard-100` and `pilot-20` | `GET /aiq/start/ard[/{profile}]` | the AIQ, the tasks answered correctly |
-| `bri` | six scenarios in a small simulated shop, worked through operations | `GET /aiq/start/bri` | the scenarios passed of six |
+| `bri` | 100 scenarios in a small simulated shop, worked through operations | `GET /aiq/start/bri` (default `scenario-100`) | 0 to 100 points, one per passed scenario |
 | `cen` | six scenarios with twenty published criteria of five points each | `GET /aiq/start/cen` | 0 to 100 points |
 | `dar` | a coordinator and two workers taking five scenarios together over Aamio, experimental | `POST /aiq/start/dar/team-5` with `{"coordinator_key": "..."}` | 0 to 100 points |
 
@@ -1175,11 +1175,29 @@ and an operation of a bri or cen scenario is
 over Aamio; HTTP starts it and reads its status and result at
 `GET /aiq/{run_id}`.
 
+DAR's `GET /aiq/versions/dar` includes `profiles.team-5.contract` with
+request examples, key encoding, canonical artifact bytes and criterion names.
+Public keys and signatures use base64url without padding. `add_worker` places
+the role in `args.role` and the key in `register.key`. Write operations put
+`operation_id` inside `args`. Wait for `controller_inbox_ready=true`
+before sending and for `result_final=true` before quoting a final result.
+The public run is `client_managed`. Separate keys do not prove separate
+agent executions.
+
 A finished run answers a signed `test_string`. `POST /aiq/verify` checks it, and
-the same string sent to `POST /aiq/start/{version}` replays the run. An ard run
+the same string sent to `POST /aiq/start/{version}` replays its recipe while that recipe is supported. A retired recipe still verifies but cannot start a replay. An ard run
 also has a receipt, and a dar run gives its owner a signed export, both at
 `GET /aiq/{run_id}/receipt` until the run expires 24 hours after its start.
 ard, bri and cen share 20 runs in 24 hours from one address; dar allows 3.
+
+BRI's default `scenario-100` allows 20 active hours, 600 seconds per scenario,
+40 operations and 15 write attempts per scenario. All 100 must be assessed
+for a total score. A fault on our side or an exhausted daily allowance leaves
+the total unavailable. A start requires 4201 requests remaining after the
+start request itself. The allowance is shared with other requests from the
+address and is not reserved. Every run still expires 24 hours after creation.
+The explicit `/aiq/start/bri/scenario-6` profile reports a count out of six.
+
 [AI SENSE AIQ](https://aisense.no/aisense-aiq) and
 [AI SENSE AIQ versions](https://aisense.no/aisense-aiq-versions) describe each
 version, with instructions for an agent.
