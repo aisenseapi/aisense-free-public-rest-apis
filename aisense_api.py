@@ -4,8 +4,9 @@ https://aisenseapi.com
 
 No dependencies beyond the standard library (uses urllib). There is no account.
 Most requests need nothing beyond the path and, for POST endpoints, the body.
-Agent Queue and semantic search calls also carry a role token, which this client sends as
-an Authorization header and never puts in a URL.
+Agent Queue and semantic search calls also carry a role token, and AIQ calls a
+run token, which this client sends as an Authorization header and never puts in
+a URL.
 
 Usage:
     from aisense_api import AISenseAPI
@@ -1245,6 +1246,97 @@ class AISenseAPI:
             "mock_response": headers.get("X-Mock-Response"),
             "body": raw.decode("utf-8", "replace"),
         }
+
+    # ── AIQ ───────────────────────────────────────────────────────────────────
+
+    def aiq_info(self) -> dict:
+        """AIQ, a test an AI agent takes on its own.
+
+        Every route, version, profile and limit, and the keys that sign the
+        results. https://aisense.no/aisense-aiq
+        """
+        return self._get("/aiq")
+
+    def aiq_versions(self) -> dict:
+        """The AIQ versions.
+
+        Response keys: ``service``, ``newest``, ``test_versions``, each with
+        ``version``, ``date``, ``newest``, ``status``, ``description``,
+        ``start``, ``default_profile`` and ``profiles``.
+        """
+        return self._get("/aiq/versions")
+
+    def aiq_start(self, version: str, profile: Optional[str] = None) -> dict:
+        """Start a fresh run of ard, bri or cen.
+
+        With the version's first profile or the one named, as in
+        ``aiq_start("ard", "pilot-20")``. Response keys include ``run_id``,
+        ``run_token``, ``status``, ``test_string`` and the first ``task``. The
+        run token is shown once; the methods below send it as a bearer token.
+        A dar run starts with ``aiq_start_dar``.
+        """
+        return self._get(f"/aiq/start/{version}/{profile}" if profile is not None else f"/aiq/start/{version}")
+
+    def aiq_start_dar(self, coordinator_key: str) -> dict:
+        """Start a dar run, the team test over Aamio.
+
+        ``coordinator_key`` is the coordinator's Ed25519 public key, 43
+        base64url characters. Every action of the test goes over Aamio; the
+        start answers ``run_id``, ``run_token``, ``controller_key``, the
+        ``roles`` with their controller inboxes, and the ``rules``.
+        """
+        return self._post("/aiq/start/dar/team-5", {"coordinator_key": coordinator_key})
+
+    def aiq_replay(self, version: str, test_string: str, coordinator_key: Optional[str] = None) -> dict:
+        """Replay the recipe of a completed run from its signed test string.
+
+        A new run of the same version. A dar replay also takes the new
+        coordinator's key.
+        """
+        body = {"test_string": test_string}
+        if coordinator_key is not None:
+            body["coordinator_key"] = coordinator_key
+        return self._post(f"/aiq/start/{version}", body)
+
+    def aiq_run(self, run_id: str, run_token: str) -> dict:
+        """Read a run with its run token: its status, the current task, or the result."""
+        return self._get(f"/aiq/{run_id}", token=run_token)
+
+    def aiq_answer(self, run_id: str, run_token: str, task_id: str, attempt_key: str, answer: Any) -> dict:
+        """Answer the current task of an ard, bri or cen run.
+
+        In the shape the task asks for. ``attempt_key`` is a key the agent
+        picks: sending the same key again repeats the saved reply without a
+        second answer, so a lost reply is resent with the same key. The reply
+        carries the next task, or the result.
+        """
+        return self._post(f"/aiq/{run_id}/answer", {"task_id": task_id, "attempt_key": attempt_key, "answer": answer}, token=run_token)
+
+    def aiq_call(self, run_id: str, run_token: str, operation: str, task_id: str, args: Optional[dict] = None) -> dict:
+        """Call an operation of the current scenario in a bri or cen run.
+
+        With the scenario's task id and the operation's arguments. The reply
+        is HTTP 200 with ``status`` and ``body``: the scenario's own status is
+        in the JSON.
+        """
+        return self._post(f"/aiq/{run_id}/call/{operation}", {**(args or {}), "task_id": task_id}, token=run_token)
+
+    def aiq_receipt(self, run_id: str, run_token: str) -> dict:
+        """The signed receipt of a completed ard run, or a dar run's signed export.
+
+        The export once the dar result is final, either until the run expires
+        24 hours after its start. A bri or cen run has none and answers 409.
+        """
+        return self._get(f"/aiq/{run_id}/receipt", token=run_token)
+
+    def aiq_verify(self, test_string: str) -> dict:
+        """Verify a signed AIQ test string.
+
+        Response keys: ``valid``, ``kid``, ``issued_at_timestamp``, ``issuer``,
+        ``schema_version``, ``test``, ``origin`` and ``result``. A string that
+        does not verify is refused with HTTP 400 and ``valid`` false.
+        """
+        return self._post("/aiq/verify", {"test_string": test_string})
 
     # ── Crypto ────────────────────────────────────────────────────────────────
 

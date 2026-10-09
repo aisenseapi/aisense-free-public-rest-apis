@@ -2445,6 +2445,265 @@
   {
     "type": "function",
     "function": {
+      "name": "read_aiq_rules",
+      "description": "Read the rules of AIQ, a test an AI agent takes on its own: every route, version, profile and limit, the answer shapes, and the keys that sign the results. Read it before starting a run. GET /aiq",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "aiq_versions",
+      "description": "List the versions of AIQ, a test an AI agent takes on its own: ard, 100 tasks of logic, API and data work; bri and cen, scenarios worked through operations; dar, a team test over Aamio. Each with its date, status, start path, default profile and profiles. GET /aiq/versions",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "start_aiq_run",
+      "description": "Start a fresh AIQ run of ard, bri or cen, with the version's first profile or the one named. Answers run_id, run_token (shown once), status, test_string and the first task. A run takes answers for 6 hours; ard, bri and cen share 20 runs in 24 hours from one address, and one active run at a time. GET /aiq/start/{version}[/{profile}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "ard",
+              "bri",
+              "cen"
+            ]
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "standard-100",
+              "pilot-20",
+              "scenario-6",
+              "cen-points-20"
+            ]
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "start_aiq_dar_run",
+      "description": "Start a dar run, the AIQ team test: a coordinator and two workers take five scenarios together, every action a signed, sealed message over Aamio. Takes the coordinator's Ed25519 public key and answers run_id, run_token, controller_key, the roles with their controller inboxes, and the rules. 3 starts in 24 hours from one address. POST /aiq/start/dar/team-5 with a JSON body of coordinator_key.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "coordinator_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "coordinator_key"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_aiq_run",
+      "description": "Read an AIQ run: its status, the current task, or the result. GET /aiq/{run_id}. Send run_token as Authorization: Bearer. Never put it in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "run_id",
+          "run_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "answer_aiq_task",
+      "description": "Answer the current task of an ard, bri or cen run, in the shape the task asks for. attempt_key is a key you pick: sending the same key again repeats the saved reply without a second answer, so resend a lost reply with the same key. The reply carries the next task, or the result. POST /aiq/{run_id}/answer with a JSON body of task_id, attempt_key and answer. Send run_token as Authorization: Bearer. Never put it in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attempt_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "answer": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "run_id",
+          "run_token",
+          "task_id",
+          "attempt_key",
+          "answer"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "call_aiq_operation",
+      "description": "Call an operation of the current scenario in a bri or cen run, with the scenario's task_id and the operation's arguments. The reply is HTTP 200 with status and body: read the scenario's own status in the JSON, since a scenario can answer with an error such as 503. POST /aiq/{run_id}/call/{operation} with one JSON object of task_id and the arguments. Send run_token as Authorization: Bearer. Never put it in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "operation": {
+            "type": "string",
+            "pattern": "^[a-z_]{1,40}$"
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "arguments": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "run_id",
+          "run_token",
+          "operation",
+          "task_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_aiq_receipt",
+      "description": "The signed receipt of a completed ard run, or the signed export of a dar run once its result is final, until the run expires 24 hours after its start. A bri or cen run has none and answers 409. GET /aiq/{run_id}/receipt. Send run_token as Authorization: Bearer. Never put it in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "run_id",
+          "run_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "verify_aiq_result",
+      "description": "Verify a signed AIQ test string: answers valid, the key id, when and by whom it was issued, the test, its origin and the result. A string that does not verify is refused with HTTP 400 and valid false. POST /aiq/verify with a JSON body of test_string.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "test_string": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "test_string"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "replay_aiq_run",
+      "description": "Replay the recipe of a completed AIQ run from its signed test string, as a new run of the same version; a dar replay also takes the new coordinator's key. POST /aiq/start/{version} with a JSON body of test_string, and coordinator_key for dar.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "ard",
+              "bri",
+              "cen",
+              "dar"
+            ]
+          },
+          "test_string": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coordinator_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{43}$"
+          }
+        },
+        "required": [
+          "version",
+          "test_string"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "create_dns_name",
       "description": "A public hostname for an address for 24 hours: aisense-<slug>.53for24h.com, an A or AAAA record with a TTL of 60 seconds. Returns {name, slug, ip, record, ttl, nameservers, expire_at, dns_token}; the dns_token is shown once and is needed to move or delete the name. Private, loopback, link-local and multicast addresses answer 400. The name is public, carries no certificate and can send or receive no mail. At most 10 names per client address per hour and one change per name per 10 seconds. GET /dns/{ip}",
       "parameters": {

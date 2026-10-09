@@ -2,7 +2,7 @@
 
 python tools/check-sdk-requests.py
 
-Runs the methods for the Convert, Images and Logic endpoints, PDF, DNS,
+Runs the methods for the Convert, Images and Logic endpoints, AIQ, PDF, DNS,
 semantic search, validation and the time, passphrase, slug, hash and email helpers through
 aisense_api.py and, when Node.js 18 or later is on the path, aisense-api.js,
 against a server on 127.0.0.1. Each request is compared with what API.md
@@ -63,6 +63,17 @@ EXPECTED += [
     ("POST", "/image_colors", "form", {"count": "6"}, "image", None),
     ("POST", "/image_favicon", "form", {"crop": "trim", "name": "Example site"}, "image", None),
     ("POST", "/decide", "json", {"state": {"amount": 30}, "questions": DECIDE_QUESTIONS, "model": "nimble"}, None, None),
+    ("GET", "/aiq", None, None, None, None),
+    ("GET", "/aiq/versions", None, None, None, None),
+    ("GET", "/aiq/start/ard/pilot-20", None, None, None, None),
+    ("GET", "/aiq/start/cen", None, None, None, None),
+    ("POST", "/aiq/start/dar/team-5", "json", {"coordinator_key": "K" * 43}, None, None),
+    ("POST", "/aiq/start/dar", "json", {"test_string": "AIQ1.x.y", "coordinator_key": "K" * 43}, None, None),
+    ("GET", "/aiq/" + "e" * 32, None, None, None, "run-token-1"),
+    ("POST", "/aiq/" + "e" * 32 + "/answer", "json", {"task_id": "t1", "attempt_key": "1", "answer": {"answer": 42}}, None, "run-token-1"),
+    ("POST", "/aiq/" + "e" * 32 + "/call/get_order", "json", {"task_id": "t2", "order_id": "A-1"}, None, "run-token-1"),
+    ("GET", "/aiq/" + "e" * 32 + "/receipt", None, None, None, "run-token-1"),
+    ("POST", "/aiq/verify", "json", {"test_string": "AIQ1.x.y"}, None, None),
     ("GET", "/mock_response/503/1500", None, None, None, None),
 ]
 FAILURE = {"status": 503, "retry_after": "2", "mock_response": "503/1500"}
@@ -102,6 +113,17 @@ await api.imageStrip(image)
 await api.imageColors(image, 6)
 await api.imageFavicon(image, { crop: 'trim', name: 'Example site' })
 await api.decide({ amount: 30 }, questions, 'nimble')
+await api.aiqInfo()
+await api.aiqVersions()
+await api.aiqStart('ard', 'pilot-20')
+await api.aiqStart('cen')
+await api.aiqStartDar('K'.repeat(43))
+await api.aiqReplay('dar', 'AIQ1.x.y', 'K'.repeat(43))
+await api.aiqRun('e'.repeat(32), 'run-token-1')
+await api.aiqAnswer('e'.repeat(32), 'run-token-1', 't1', '1', { answer: 42 })
+await api.aiqCall('e'.repeat(32), 'run-token-1', 'get_order', 't2', { order_id: 'A-1' })
+await api.aiqReceipt('e'.repeat(32), 'run-token-1')
+await api.aiqVerify('AIQ1.x.y')
 const failure = await api.simulateFailure(503, 1500)
 console.log(JSON.stringify({ status: failure.status, retry_after: failure.retryAfter, mock_response: failure.mockResponse, body: failure.body }))
 """
@@ -227,6 +249,17 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.image_colors(IMAGE, 6)
     api.image_favicon(IMAGE, crop="trim", name="Example site")
     api.decide({"amount": 30}, DECIDE_QUESTIONS, "nimble")
+    api.aiq_info()
+    api.aiq_versions()
+    api.aiq_start("ard", "pilot-20")
+    api.aiq_start("cen")
+    api.aiq_start_dar("K" * 43)
+    api.aiq_replay("dar", "AIQ1.x.y", "K" * 43)
+    api.aiq_run("e" * 32, "run-token-1")
+    api.aiq_answer("e" * 32, "run-token-1", "t1", "1", {"answer": 42})
+    api.aiq_call("e" * 32, "run-token-1", "get_order", "t2", {"order_id": "A-1"})
+    api.aiq_receipt("e" * 32, "run-token-1")
+    api.aiq_verify("AIQ1.x.y")
     return api.simulate_failure(503, 1500)
 
 
