@@ -58,6 +58,13 @@ API_GROUPS = [
         ('/free-public-api-decide-api-endpoint', 'Decide'),
         ('/free-public-api-mock-response-api-endpoint', 'Mock response'),
     ]),
+    # The four versions of the agent test, each opening its box on the versions page.
+    ('aiq', 'AIQ agent tests', '/aisense-aiq', [
+        ('/aisense-aiq-versions#ard', 'ard, 100 tasks'),
+        ('/aisense-aiq-versions#bri', 'bri, six scenarios'),
+        ('/aisense-aiq-versions#cen', 'cen, twenty criteria'),
+        ('/aisense-aiq-versions#dar', 'dar, team work over Aamio'),
+    ]),
     ('time', 'Time', '/time-apis', [
         ('/free-public-api-datetime-api-endpoint', 'Datetime'),
         ('/free-public-api-ip-datetime-api-endpoint', 'IP datetime'),

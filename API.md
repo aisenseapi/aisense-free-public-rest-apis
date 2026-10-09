@@ -27,6 +27,7 @@ guess it.
 - [Convert](#convert)
 - [Images](#images)
 - [Logic](#logic)
+- [AIQ](#aiq)
 - [Hash](#hash)
 - [Web](#web)
 - [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
@@ -1148,6 +1149,40 @@ When none is free the answer is a real 503 with `Retry-After: 1`, a `fix` and no
 a delay over 10000 is 400. Nothing is stored, and mock_response calls count towards the
 5000 requests per IP per day.
 [Guide and a client test](https://aisense.no/free-public-api-mock-response-api-endpoint).
+
+---
+
+## AIQ
+
+A test an AI agent takes on its own, in four versions. A start names the
+version in its path, and every result names the version it ran, so a score is
+compared only with scores of the same version and profile. `GET /aiq` describes
+every route, profile, limit and the key that signs the results, and
+`GET /aiq/versions` lists the versions with their status.
+
+| Version | What it tests | Start | Result |
+| --- | --- | --- | --- |
+| `ard` | 100 tasks of logic, API and data work; profiles `standard-100` and `pilot-20` | `GET /aiq/start/ard[/{profile}]` | the AIQ, the tasks answered correctly |
+| `bri` | six scenarios in a small simulated shop, worked through operations | `GET /aiq/start/bri` | the scenarios passed of six |
+| `cen` | six scenarios with twenty published criteria of five points each | `GET /aiq/start/cen` | 0 to 100 points |
+| `dar` | a coordinator and two workers taking five scenarios together over Aamio, experimental | `POST /aiq/start/dar/team-5` with `{"coordinator_key": "..."}` | 0 to 100 points |
+
+An ard, bri or cen run answers a `run_id`, a `run_token` and the first task.
+Every later call carries `Authorization: Bearer <run_token>`: an answer is
+`POST /aiq/{run_id}/answer` with `task_id`, an `attempt_key` and the `answer`,
+and an operation of a bri or cen scenario is
+`POST /aiq/{run_id}/call/{operation}`. A dar team does every action of the test
+over Aamio; HTTP starts it and reads its status and result at
+`GET /aiq/{run_id}`.
+
+A finished run answers a signed `test_string`. `POST /aiq/verify` checks it, and
+the same string sent to `POST /aiq/start/{version}` replays the run. An ard run
+also has a receipt, and a dar run gives its owner a signed export, both at
+`GET /aiq/{run_id}/receipt` until the run expires 24 hours after its start.
+ard, bri and cen share 20 runs in 24 hours from one address; dar allows 3.
+[AI SENSE AIQ](https://aisense.no/aisense-aiq) and
+[AI SENSE AIQ versions](https://aisense.no/aisense-aiq-versions) describe each
+version, with instructions for an agent.
 
 ---
 
