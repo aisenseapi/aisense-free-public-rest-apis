@@ -900,7 +900,7 @@ answers 200 with the wrong response key.
 
 ## Endpoint summary
 
-All paths are relative to `https://aisenseapi.com/services/v1/`
+All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields are the keys `/storage` answers: `storage_id`, `storage_url`, `sha256_hash`, `bytes` and `expire_timestamp`.
 
 | Category | Endpoint | Method | Response key(s) |
 |----------|----------|--------|-----------------|
@@ -917,6 +917,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Random | `/uuid` | GET | `uuid` |
 | Random | `/guid` | GET | `guid` |
 | Random | `/password[/{length}]` | GET | `password`, `password_length` |
+| Random | `/passphrase[/{groups}]` | GET | `passphrase`, `groups`, `length`, `entropy_bits` |
 | Transform | `/base64_encode` | POST | `base64_encoded_data` |
 | Transform | `/base64_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | Transform | `/base58_encode` | POST | `base58_encoded_data` |
@@ -938,6 +939,23 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Transform | `/jwt_decode` | POST | `decoded_payload` |
 | Transform | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
 | Transform | `/qrcode_decode` | POST | `qrcode_content` |
+| Convert | `/json_to_csv` | POST | Storage fields, `content_type`, `filename`, `operation` |
+| Convert | `/csv_to_json` | POST | Storage fields, `content_type`, `filename`, `operation` |
+| Convert | `/table_match` | POST | Storage fields, `content_type`, `filename`, `operation` |
+| Convert | `/json_format` | POST | Storage fields, `content_type`, `filename`, `operation` |
+| Convert | `/json_validate` | POST | Storage fields, `content_type`, `filename`, `operation`, `valid` |
+| Images | `/image_convert` | POST | Storage fields, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| Images | `/image_compress` | POST | Storage fields, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| Images | `/image_resize` | POST | Storage fields, `format`, `width`, `height`, `input_width`, `input_height`, `fit`, `upscaled` |
+| Images | `/image_metadata` | POST | Storage fields, `format`, `width`, `height`, `gps`, `findings` |
+| Images | `/image_strip` | POST | Storage fields, `format`, `width`, `height`, `input_bytes`, `removed`, `kept` |
+| Images | `/image_colors` | POST | Storage fields, `average`, `dominant`, `count` |
+| Images | `/image_favicon` | POST | Storage fields, `files`, `crop`, `upscaled` |
+| Logic | `/decide` | POST | `answers` |
+| Logic | `/mock_response/{status}[/{ms}]` | Any | `error` or `ok`, with `mock_response` |
+| Agent tests | `/aiq/start/{version}[/{profile}]` | GET | `run_id`, `run_token`, `task` |
+| Agent tests | `/aiq/start/dar/team-5` | POST | `run_id`, `run_token`, `controller_key` |
+| Agent tests | `/aiq/verify` | POST | `valid` |
 | Hash | `/md5_hash` | POST | `md5_hash` |
 | Hash | `/sha1_hash` | POST | `sha1_hash` |
 | Hash | `/sha256_hash` | POST | `sha256_hash` |
@@ -964,6 +982,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`
 | Web | `/storage` | POST / GET | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | Web | `/storage/{id}/sha256/{hex}` | GET | the stored body, or `412` if it does not hash to `{hex}` |
 | Web | `/url_shortener/{url}` | GET | `short_url`, `expire_timestamp` |
+| Web | `/dns/{ip}`, `/dns/{slug}` | GET, or POST to change | `name`, `ip`, `record`, `ttl`, `expire_at`, and `dns_token` on creation |
+| Web | `/semantic_search` | GET / POST | `collection_id`, `model`, read and write tokens on creation, ranked `results` from a search |
 | Web | `/webhook_capture` | POST / GET | `capture_id`, `update_url`, `read_url`, `wait_url` |
 | Web | `/webhook_action` | POST / GET | `action_id`, form URL or URLs, `result_url`, `wait_url` |
 | Web | `/webhook_schedule` | POST / GET / DELETE | one-shot or recurring status, counts and result |
