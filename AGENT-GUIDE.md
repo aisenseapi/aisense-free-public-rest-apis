@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.4
+Resource version 1.8.5
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -102,7 +102,7 @@ Catalog size: 66 MCP tools.
 - `delete_semantic_search_note` - Delete one note and its vector.
 <!-- mcp-tool-catalog:end -->
 
-Use `tools/list` for the exact input schemas. Every public REST endpoint can be reached through one of these tools. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
+Use `tools/list` for the exact input schemas. The public REST utility endpoints can be reached through these tools. Three paths stay on REST: AIQ, the test an agent takes on its own, at https://aisenseapi.com/services/v1/aiq, ip_datetime, the time where an IP address is, and ping, whose answer service_health gives. Verifyum has a separate MCP endpoint at https://api.verifyum.com/mcp, and aamio has one at https://aamio.at/mcp.
 
 ## Security and retries
 
