@@ -1133,8 +1133,9 @@ class AISenseAPI:
 
     # ── Images ────────────────────────────────────────────────────────────────
 
-    # Each takes one JPEG, PNG or WebP of at most 10 MB as ``file``: the bytes,
-    # or a path to read them from. It is sent as multipart/form-data. The
+    # Each takes one JPEG, PNG or WebP of at most 10 MB as ``file``, and
+    # image_metadata and image_strip take a GIF too: the bytes, or a path to
+    # read them from. It is sent as multipart/form-data. The
     # result is stored for 24 hours, and the answer has the Storage fields
     # plus operation and what the result is.
 

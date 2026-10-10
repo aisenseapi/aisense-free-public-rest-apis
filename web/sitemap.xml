@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-10</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
@@ -26,7 +26,7 @@
   <url><loc>https://aisense.no/four-more-hashes</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/convert-heic-webp-png-and-jpg-images</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/favicon-sizes-and-the-files-a-website-needs</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/remove-gps-location-and-exif-data-from-photos</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://aisense.no/remove-gps-location-and-exif-data-from-photos</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/a-name-that-answers-for-24-hours</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/agents-met-in-a-channel-that-deleted-itself</loc><lastmod>2026-09-23</lastmod></url>
   <url><loc>https://aisense.no/agents-that-have-never-met</loc><lastmod>2026-09-17</lastmod></url>
@@ -51,8 +51,8 @@
   <url><loc>https://aisense.no/free-image-converter-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-image-compression-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-heic-to-jpg-converter</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/free-image-metadata-viewer-api</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/free-exif-remover-api</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://aisense.no/free-image-metadata-viewer-api</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://aisense.no/free-exif-remover-api</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/free-image-color-palette-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-favicon-generator-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/terms</loc><lastmod>2026-10-08</lastmod></url>

@@ -19,7 +19,7 @@ H1 = 'How to See and Remove the Location Hidden in Your Photos'
 TITLE = 'Remove GPS and EXIF Data From Photos for Free - AI SENSE'
 DESCRIPTION = ('Phone photos can carry your GPS position, camera serial number and an uncropped thumbnail. '
                'Check any photo for free and remove it without losing quality.')
-OG_DESCRIPTION = ('See what a JPEG, PNG or WebP gives away, remove EXIF and GPS without saving the picture again, '
+OG_DESCRIPTION = ('See what a JPEG, PNG, WebP or GIF gives away, remove EXIF and GPS without saving the picture again, '
                   'and turn iPhone HEIC into JPEG with the location removed. Free, no account.')
 
 source = io.open(WEB + '/a-name-that-answers-for-24-hours.html', encoding='utf-8').read()
@@ -109,7 +109,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <h2>What a photo can carry</h2>
 
-<p>We built a <a href="/free-image-metadata-viewer-api">free image metadata viewer</a> that reads every block a JPEG, PNG or WebP holds and sorts what it finds by how much it gives away. These are the items it looks for, most sensitive first:</p>
+<p>We built a <a href="/free-image-metadata-viewer-api">free image metadata viewer</a> that reads every block a JPEG, PNG, WebP or GIF holds and sorts what it finds by how much it gives away. These are the items it looks for, most sensitive first:</p>
 
 <div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Level</th><th>What it tells</th></tr></thead>
@@ -145,7 +145,7 @@ ARTICLE = '''<main id="main-content" class="article-main">
 
 <h2>Check a photo in a few seconds</h2>
 
-<p>The <a href="/free-image-metadata-viewer-api">image metadata viewer</a> reads the file without decoding the picture, so it works on large photos and never changes them. Drop a JPEG, PNG or WebP on the page and it lists what it found, with the GPS position in plain decimal degrees if there is one.</p>
+<p>The <a href="/free-image-metadata-viewer-api">image metadata viewer</a> reads the file without decoding the picture, so it works on large photos and never changes them. Drop a JPEG, PNG, WebP or GIF on the page and it lists what it found, with the GPS position in plain decimal degrees if there is one.</p>
 
 <p>Behind the page is one API call. This is what it answered for a test photo we gave made-up EXIF data, with a position at the Oslo Opera House:</p>
 

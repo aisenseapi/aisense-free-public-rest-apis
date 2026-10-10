@@ -383,7 +383,7 @@
   var accepts = ['jpeg', 'png', 'webp', 'heic'];
   var acceptsText = 'JPEG, PNG, WebP or HEIC';
   if (!T || !form) { return; }
-  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF' };
   var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
   var file = null;
   var chosenFormat = null;
@@ -396,6 +396,7 @@
       if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
       if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
       if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (text(0, 6) === 'GIF87a' || text(0, 6) === 'GIF89a') { return 'gif'; }
       if (b.length >= 16 && text(4, 8) === 'ftyp') {
         var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
         var brands = [text(8, 12)];
