@@ -314,7 +314,7 @@ def page(slug, title, description, h1, lede, badges, operation, tool_html, body_
 <meta name="twitter:card" content="summary">
 
 <link rel="stylesheet" href="/assets/aisense.css">
-<link rel="stylesheet" href="/assets/aisense-tools.css?v=20261004b">
+<link rel="stylesheet" href="/assets/aisense-tools.css?v=20261010a">
 
 <script type="application/ld+json">
 %(ld)s
