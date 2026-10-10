@@ -11,7 +11,13 @@ WEB = Path(__file__).resolve().parents[1] / 'web'
 
 class AgentOptimalTests(unittest.TestCase):
     def test_only_the_approved_services(self):
-        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action', 'Semantic search'])
+        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action', 'Semantic search', 'AI SENSE AIQ'])
+        for label in ('AIQ agent tests', 'AIQ API Endpoint', 'AI SENSE AIQ'):
+            marked = decorate('<a href="/aisense-aiq">' + label + '</a>', 'index.html')
+            self.assertEqual(marked.count(BADGE), 1)
+        for prose in ('<a href="/aisense-aiq">Read the product note</a>', '<a href="/aisense-aiq-versions#ard">ard, 100 tasks</a>',
+                      '<a href="/aisense-aiq">AI SENSE AIQ: How Smart Is Your Agent?</a>'):
+            self.assertEqual(decorate(prose, 'index.html'), prose)
 
     def test_an_alias_is_marked_and_prose_is_not(self):
         marked = decorate('<a href="/free-public-api-decide-api-endpoint">Decision API Endpoint</a>', 'index.html')
