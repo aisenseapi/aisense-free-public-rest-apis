@@ -1,7 +1,10 @@
 # AI SENSE Free Public MCP Server
 
-The server offers workflow tools, one tool for each public REST endpoint and
-three read-only resources. Use `tools/list` to inspect the server you connect
+The server offers workflow tools, the public REST utility endpoints as tools
+and three read-only resources. Three paths stay on REST: AIQ, the test an
+agent takes on its own, at https://aisenseapi.com/services/v1/aiq,
+`ip_datetime`, the time where an IP address is, and `ping`, whose answer
+`service_health` gives. Use `tools/list` to inspect the server you connect
 to.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
