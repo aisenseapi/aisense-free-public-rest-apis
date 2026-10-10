@@ -613,7 +613,10 @@ pilot. The four MCP equivalents are `create_dns_name`, `read_dns_name`,
 
 Everything above is REST. The same service is also on MCP at
 `https://aisenseapi.com/mcp`, with schemas published by `tools/list`: the
-workflow tools and one tool for each REST endpoint above.
+workflow tools and the REST utility endpoints above as tools. Three paths stay
+on REST: AIQ, the test an agent takes on its own, at
+https://aisenseapi.com/services/v1/aiq, `ip_datetime`, the time where an IP
+address is, and `ping`, whose answer `service_health` gives.
 
 A third protocol runs at its own URL:
 

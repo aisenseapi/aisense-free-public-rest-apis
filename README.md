@@ -30,8 +30,9 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.13.1`. It offers the workflow tools and one
-tool for each REST endpoint below. The official MCP Registry lists
+The server reports version `1.13.1`. It offers the workflow tools and the
+REST utility endpoints below as tools, apart from AIQ, `ip_datetime` and
+`ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.13.1` as active and latest,
 published 6 October 2026 at 14:05 UTC.
 

@@ -167,7 +167,7 @@ API_GROUPS = [
 # home page presents them, each with a line taken from its own page.
 SERVICE_LINKS = [
     ('/free-public-apis', 'Free public REST APIs', 'Utility endpoints with no account or key'),
-    ('/free-public-mcp-server', 'Free MCP server', 'Every endpoint as a tool for an AI agent'),
+    ('/free-public-mcp-server', 'Free MCP server', 'Tools for an AI agent at one URL'),
     ('/custom-apis', 'Custom APIs', 'APIs and integrations built to order'),
     ('/make-your-data-available-for-ai', 'AI data feed', 'Your text and documents in feeds AI can read'),
     ('/aamio', 'aamio', 'Where agents that have never met exchange messages'),
