@@ -282,7 +282,6 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .login-card {
   padding: clamp(28px, 4vw, 42px);
   border: 1px solid var(--border);
-  border-top: 4px solid var(--blue);
   border-radius: 10px;
   background: var(--surface);
   box-shadow: 0 28px 70px rgba(30, 41, 59, 0.14);
@@ -317,8 +316,8 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .login-status {
   margin-top: 25px;
   padding: 16px 18px;
-  border-left: 4px solid var(--blue);
-  border-radius: 0 6px 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   background: var(--tint);
   font-size: 14px;
 }
@@ -484,7 +483,6 @@ p { margin: 0 0 16px; max-width: 74ch; }
   border-radius: 9px;
   background: var(--surface-glass);
 }
-.service-card-featured { border-top: 4px solid var(--blue); padding-top: 28px; }
 .card-number { margin: 0 0 48px; color: var(--blue); font-family: var(--mono); font-size: 13px; font-weight: 700; }
 .card-kicker { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
 .service-card h3 { margin: 0 0 15px; font-family: var(--slab); font-size: 26px; line-height: 1.25; }
@@ -634,7 +632,7 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .connection-list p:last-child { margin: 0; color: var(--muted); font-size: 14px; }
 .port-label { margin: 0 0 8px; color: var(--blue-dark); font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
 
-.article-cta { margin-top: 70px; padding: clamp(28px, 5vw, 48px); border-radius: 9px; background: var(--tint); border-top: 4px solid var(--blue); }
+.article-cta { margin-top: 70px; padding: clamp(28px, 5vw, 48px); border-radius: 9px; background: var(--tint); border: 1px solid var(--border); }
 .article-cta h2 { margin: 0 0 12px; padding: 0; border: 0; font-size: clamp(27px, 4vw, 37px); }
 .article-cta .text-link { color: var(--blue-dark); }
 
@@ -794,8 +792,8 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .use-case-grid h3, .endpoint-topic-card h3 { margin: 0 0 6px; font-size: 17px; }
 .use-case-grid p, .endpoint-topic-card p { margin: 0; color: var(--muted); font-size: 14px; }
 
-.api-note { margin: 24px 0; padding: 19px 22px; border-left: 4px solid var(--blue); border-radius: 0 6px 6px 0; background: var(--tint); }
-.api-note.warning-note { border-left-color: var(--warn-border); background: var(--warn-bg); }
+.api-note { margin: 24px 0; padding: 19px 22px; border: 1px solid var(--border); border-radius: 6px; background: var(--tint); }
+.api-note.warning-note { border-color: var(--warn-border); background: var(--warn-bg); }
 .api-note p:last-child { margin-bottom: 0; }
 
 .field-table { margin-top: 22px; }
@@ -839,8 +837,8 @@ p { margin: 0 0 16px; max-width: 74ch; }
 
 .callout {
   background: var(--tint);
-  border-left: 4px solid var(--blue);
-  border-radius: 0 6px 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   padding: 20px 24px;
   margin: 0 0 32px;
 }
@@ -852,8 +850,8 @@ p { margin: 0 0 16px; max-width: 74ch; }
 
 .warning {
   background: var(--warn-bg);
-  border-left: 4px solid var(--warn-border);
-  border-radius: 0 6px 6px 0;
+  border: 1px solid var(--warn-border);
+  border-radius: 6px;
   padding: 16px 22px;
   margin: 0 0 28px;
 }

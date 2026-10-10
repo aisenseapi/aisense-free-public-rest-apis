@@ -158,7 +158,7 @@
   margin: 0;
   padding: .7rem .85rem;
   background: var(--bad-bg);
-  border-left: 3px solid #f87171;
+  border: 1px solid var(--bad);
   border-radius: 4px;
 }
 .tool-error small { display: block; color: var(--bad-ink); margin-top: .25rem; }
@@ -174,7 +174,7 @@
   background: var(--tint);
   border: 1px solid var(--border);
 }
-.tool-noscript { border-left: 4px solid var(--warn-border); background: var(--warn-bg); padding: .9rem 1rem; }
+.tool-noscript { border: 1px solid var(--warn-border); background: var(--warn-bg); padding: .9rem 1rem; }
 /* The metadata viewer: what an image gives away, most sensitive first. */
 .tool-findings { margin: .2rem 0 .8rem; }
 .tool-findings ul { margin: .3rem 0 .4rem; padding-left: 1.2rem; }

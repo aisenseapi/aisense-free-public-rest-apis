@@ -44,8 +44,8 @@
 #decide-json { min-height: 22em; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
 .decide-json-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 10px 0 0; }
 .decide-send-row { margin-top: 22px; }
-.decide-result { margin: 14px 0; padding: 18px 20px; border-radius: 9px; border-left: 4px solid var(--blue); background: var(--tint); }
-.decide-result.is-refused { border-left-color: #b45309; background: var(--warn-bg); }
+.decide-result { margin: 14px 0; padding: 18px 20px; border-radius: 9px; border: 1px solid var(--border); background: var(--tint); }
+.decide-result.is-refused { border-color: var(--warn-border); background: var(--warn-bg); }
 .decide-result h3 { margin: 0 0 6px; font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .decide-result p { margin: 6px 0; }
 .decide-result ul { margin: 6px 0 0; padding-left: 20px; }
