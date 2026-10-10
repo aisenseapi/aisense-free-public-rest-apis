@@ -1126,8 +1126,9 @@ export class AISenseAPI {
 
   // ── Images ────────────────────────────────────────────────────────────────
 
-  // Each takes one JPEG, PNG or WebP of at most 10 MB as `file`: a Blob or
-  // File, or the bytes as an ArrayBuffer or Uint8Array (a Node Buffer is one).
+  // Each takes one JPEG, PNG or WebP of at most 10 MB as `file`, and
+  // imageMetadata and imageStrip take a GIF too: a Blob or File, or the
+  // bytes as an ArrayBuffer or Uint8Array (a Node Buffer is one).
   // It is sent as multipart/form-data. The result is stored for 24 hours, and
   // the answer has the Storage fields plus `operation` and what the result is.
 

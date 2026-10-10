@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Free EXIF remover API: remove GPS and metadata from photos | AI SENSE</title>
-<meta name="description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<meta name="description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG, WebP or GIF without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
 <link rel="canonical" href="https://aisense.no/free-exif-remover-api">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AI SENSE">
 <meta property="og:title" content="Free EXIF remover: metadata out, pixels untouched - AI SENSE">
-<meta property="og:description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
+<meta property="og:description" content="Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG, WebP or GIF without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.">
 <meta property="og:url" content="https://aisense.no/free-exif-remover-api">
 <meta name="twitter:card" content="summary">
 
@@ -29,7 +29,7 @@
       "url": "https://aisense.no/free-exif-remover-api",
       "documentation": "https://aisense.no/free-exif-remover-api",
       "termsOfService": "https://aisense.no/terms",
-      "description": "Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.",
+      "description": "Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG, WebP or GIF without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.",
       "inLanguage": "en",
       "provider": {
         "@type": "Organization",
@@ -86,7 +86,7 @@
           "name": "Can it remove metadata from HEIC?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts."
+            "text": "No. It takes JPEG, PNG, WebP and GIF. The image converter reads HEIC and removes the metadata while it converts."
           }
         }
       ]
@@ -133,7 +133,7 @@
 
 <div class="hero">
   <h1>Free EXIF remover: metadata out, pixels untouched</h1>
-  <p class="lede">Drop a JPEG, PNG or WebP and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.</p>
+  <p class="lede">Drop a JPEG, PNG, WebP or GIF and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.</p>
 
   <div class="tool-lead-api">
     <div class="api-window">
@@ -181,9 +181,9 @@
   <form id="tool-form">
     <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
       <strong>Drop an image here</strong>
-      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG or WebP, up to 10 MB.</small>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG, PNG, WebP or GIF, up to 10 MB.</small>
     </div>
-    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp,image/gif,.gif" hidden>
     <div class="tool-chosen" id="tool-chosen" hidden>
       <img id="tool-thumb" alt="The image you chose">
       <p class="tool-meta" id="tool-chosen-text"></p>
@@ -197,10 +197,11 @@
 
 <h2 id="how">How it works</h2>
 <ul>
-  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
+  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG, the chunks of a WebP or the blocks of a GIF and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
   <li><strong>From a JPEG</strong> it removes EXIF with its GPS directory and thumbnail, XMP, IPTC and other Photoshop data, comments, the multi-picture index, other application segments, and whatever follows the end of the image, where phones keep depth maps and HDR gain maps.</li>
   <li><strong>From a PNG</strong> it removes the text chunks, XMP, EXIF and the time of last change.</li>
   <li><strong>From a WebP</strong> it removes the EXIF and XMP chunks.</li>
+  <li><strong>From a GIF</strong> it removes the comments, XMP, plain text and unknown application extensions, and keeps every frame with its timing, the loop count and the color profile.</li>
   <li><strong>The color profile is kept</strong>, so the colors look the same, and so are the JFIF header and the Adobe color transform of a JPEG.</li>
   <li><strong>The orientation is kept.</strong> A photo the camera marked as rotated gets a new EXIF with its orientation alone, so it still shows the right way up. Nothing else is written back.</li>
 </ul>
@@ -214,7 +215,7 @@
     <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
     <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored result.</td></tr>
     <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
-    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code> or <code>result.webp</code>.</td></tr>
+    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code>, <code>result.webp</code> or <code>result.gif</code>.</td></tr>
     <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td><code>image_strip</code>, and the format and size of the image.</td></tr>
     <tr><td><code>input_bytes</code></td><td>The size of the upload. <code>bytes</code> is the size without the metadata.</td></tr>
     <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
@@ -226,7 +227,7 @@
 
 <h2 id="limits">Limits</h2>
 <ul>
-  <li>The upload is a JPEG, PNG or WebP of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
+  <li>The upload is a JPEG, PNG, WebP or GIF of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
   <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> and the <a href="/free-image-resizer-api">image resizer</a> only.</li>
   <li>The result is at most 10 MB.</li>
 </ul>
@@ -239,7 +240,7 @@
     <tr><td><code>400</code></td><td>A field was sent, the upload is not one whole file, or the file cannot be read as an image.</td></tr>
     <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
     <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
-    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG or WebP.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG, PNG, WebP or GIF.</td></tr>
     <tr><td><code>429</code></td><td>More than 5000 requests from one IP address per day, or the day's Storage budget is used up.</td></tr>
     <tr><td><code>503</code></td><td>The service cannot read or store the image right now.</td></tr>
   </tbody>
@@ -257,7 +258,7 @@
 <p>Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is.</p>
 
 <h3>Can it remove metadata from HEIC?</h3>
-<p>No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts.</p>
+<p>No. It takes JPEG, PNG, WebP and GIF. The image converter reads HEIC and removes the metadata while it converts.</p>
 
 <h2 id="related">Related tools</h2>
 <ul>
@@ -310,10 +311,10 @@
   var thumb = document.getElementById('tool-thumb');
   var chosenText = document.getElementById('tool-chosen-text');
   var result = document.getElementById('tool-result');
-  var accepts = ['jpeg', 'png', 'webp'];
-  var acceptsText = 'JPEG, PNG or WebP';
+  var accepts = ['jpeg', 'png', 'webp', 'gif'];
+  var acceptsText = 'JPEG, PNG, WebP or GIF';
   if (!T || !form) { return; }
-  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF' };
   var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
   var file = null;
   var chosenFormat = null;
@@ -326,6 +327,7 @@
       if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
       if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
       if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (text(0, 6) === 'GIF87a' || text(0, 6) === 'GIF89a') { return 'gif'; }
       if (b.length >= 16 && text(4, 8) === 'ftyp') {
         var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
         var brands = [text(8, 12)];

@@ -89,7 +89,7 @@ LIMITS_DECODED = '''<h2 id="limits">Limits</h2>
 
 LIMITS_READ = '''<h2 id="limits">Limits</h2>
 <ul>
-  <li>The upload is a JPEG, PNG or WebP of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
+  <li>The upload is a JPEG, PNG, WebP or GIF of at most 10 MB. There is no pixel limit, since the image is not decoded.</li>
   <li>HEIC is read by the <a href="/free-image-converter-api">image converter</a> and the <a href="/free-image-resizer-api">image resizer</a> only.</li>
   <li>%s</li>
 </ul>'''
@@ -117,7 +117,7 @@ ERRORS_CONVERT = errors('JPEG, PNG, WebP or HEIC',
 ERRORS = errors('JPEG, PNG or WebP',
     'A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image.',
     'Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now.')
-ERRORS_READ = errors('JPEG, PNG or WebP',
+ERRORS_READ = errors('JPEG, PNG, WebP or GIF',
     'A field was sent, the upload is not one whole file, or the file cannot be read as an image.',
     'The service cannot read or store the image right now.')
 ERRORS_DECODED = errors('JPEG, PNG or WebP',
@@ -129,6 +129,7 @@ METADATA = '''<li><strong>The image is turned upright</strong> from the orientat
 
 ACCEPT = 'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp'
 ACCEPT_HEIC = ACCEPT + ',image/heic,image/heif,.heic,.heif'
+ACCEPT_READ = ACCEPT + ',image/gif,.gif'
 
 
 def drop(kinds, accept):
@@ -144,6 +145,7 @@ def drop(kinds, accept):
 
 
 DROP = drop('JPEG, PNG or WebP', ACCEPT)
+DROP_READ = drop('JPEG, PNG, WebP or GIF', ACCEPT_READ)
 
 # The first lines of every page script: the elements and the formats the page
 # takes. SCRIPT_CHOOSE follows it on every page.
@@ -165,7 +167,7 @@ def script_start(accepts, accepts_text, extra=''):
 # The chosen image and its format, read from the first bytes. A HEIC is known
 # by an HEVC brand in its ftyp box; most browsers cannot show it, so its
 # preview is hidden.
-SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC' };
+SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF' };
   var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
   var file = null;
   var chosenFormat = null;
@@ -178,6 +180,7 @@ SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic
       if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
       if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
       if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (text(0, 6) === 'GIF87a' || text(0, 6) === 'GIF89a') { return 'gif'; }
       if (b.length >= 16 && text(4, 8) === 'ftyp') {
         var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
         var brands = [text(8, 12)];
@@ -856,31 +859,31 @@ EXCERPT = OrderedDict([('gps', REPORT['gps']), ('privacy', REPORT['privacy'])])
 page(
     'free-image-metadata-viewer-api',
     'Free image metadata viewer API: EXIF, GPS and XMP | AI SENSE',
-    'See everything a JPEG, PNG or WebP carries besides its pixels: EXIF with the GPS position and the camera, XMP, IPTC, the color profile and hidden extra images, with a privacy summary. In your browser or with one API call. No API key.',
+    'See everything a JPEG, PNG, WebP or GIF carries besides its pixels: EXIF with the GPS position and the camera, XMP, IPTC, the color profile and hidden extra images, with a privacy summary. In your browser or with one API call. No API key.',
     'Free image metadata viewer: EXIF, GPS and XMP',
     'Drop an image and see what it says about where, when and with what it was taken. The form calls the same free API your code can call: one POST, no API key and no account. The full report is kept in Storage for 24 hours as JSON.',
     ['No API key', 'No account', 'EXIF, XMP and IPTC', 'GPS in decimal degrees', 'Privacy summary'],
     'image_metadata',
     '''  <form id="tool-form">
-''' + DROP + '''
+''' + DROP_READ + '''
     <div class="tool-actions">
       <button type="submit" class="button button-primary" id="tool-submit" disabled>Read the metadata</button>
     </div>
   </form>
   <div class="tool-result" id="tool-result" aria-live="polite"></div>''',
     '''<h2 id="how">What the report holds</h2>
-<p>The image is read, not decoded. The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and reports what it finds there, as JSON in these parts:</p>
+<p>The image is read, not decoded. The endpoint walks the segments of a JPEG, the chunks of a PNG, the chunks of a WebP or the blocks of a GIF and reports what it finds there, as JSON in these parts:</p>
 <table>
   <thead><tr><th>Part</th><th>What it holds</th></tr></thead>
   <tbody>
-    <tr><td><code>file</code></td><td>Format, size in bytes, width, height and megapixels, and what the format tells: the estimated JPEG quality, bit depth, progressive or interlaced, lossy or lossless WebP.</td></tr>
+    <tr><td><code>file</code></td><td>Format, size in bytes, width, height and megapixels, and what the format tells: the estimated JPEG quality, bit depth, progressive or interlaced, lossy or lossless WebP, and for a GIF the frames, the loop count and the duration.</td></tr>
     <tr><td><code>orientation</code></td><td>The EXIF orientation as a number and in words, such as 6 and Rotated 90 degrees clockwise.</td></tr>
     <tr><td><code>color_profile</code></td><td>The ICC color profile: its name, color space, device class, version and size.</td></tr>
     <tr><td><code>exif</code></td><td>Every EXIF tag by name, in <code>image</code>, <code>photo</code>, <code>gps</code>, <code>interoperability</code> and <code>thumbnail</code>. An exposure time is written as 1/250, and a maker note by its size only.</td></tr>
     <tr><td><code>gps</code></td><td>Latitude and longitude in decimal degrees, the altitude in metres and the time in UTC, from the EXIF GPS tags.</td></tr>
     <tr><td><code>xmp</code></td><td>The fields of the XMP packet, such as <code>dc:creator</code>, <code>photoshop:City</code> and <code>xmp:CreatorTool</code>.</td></tr>
     <tr><td><code>iptc</code></td><td>IPTC fields such as <code>By-line</code>, <code>City</code>, <code>Keywords</code> and <code>Caption-Abstract</code>.</td></tr>
-    <tr><td><code>comments</code>, <code>text</code></td><td>JPEG comments, and the text chunks of a PNG by their keywords.</td></tr>
+    <tr><td><code>comments</code>, <code>text</code></td><td>JPEG and GIF comments, the text chunks of a PNG by their keywords, and the plain text of a GIF.</td></tr>
     <tr><td><code>embedded</code></td><td>What else is inside: an EXIF thumbnail, a multi-picture index, and data after the end of the image, where phones keep depth maps and HDR gain maps.</td></tr>
     <tr><td><code>privacy</code></td><td>What can identify a person, a place, a device or a time, most sensitive first, each with <code>item</code>, <code>level</code> and <code>why</code>.</td></tr>
   </tbody>
@@ -916,7 +919,7 @@ page(
 ''' + LIMITS_READ % 'The report is at most 2 MB.' + '''
 
 ''' + ERRORS_READ,
-    script_start(['jpeg', 'png', 'webp'], 'JPEG, PNG or WebP') + SCRIPT_CHOOSE + r'''
+    script_start(['jpeg', 'png', 'webp', 'gif'], 'JPEG, PNG, WebP or GIF') + SCRIPT_CHOOSE + r'''
 
   function findings(report) {
     var box = T.make('div', 'tool-findings');
@@ -970,7 +973,8 @@ page(
         ('Is the image metadata API free?', FAQ_FREE),
         ('Does it show the GPS position?', 'Yes. The GPS tags are given as latitude and longitude in decimal degrees, with the altitude in metres and the time in UTC, and the privacy summary lists the position first.'),
         ('Is my image stored?', 'No. The image is read and dropped. Only the JSON report is stored, for 24 hours, at a link that anyone with the link can open.'),
-        ('Can it read HEIC?', 'No. It reads JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata on the way.')
+        ('Can it read HEIC?', 'No. It reads JPEG, PNG, WebP and GIF. The image converter reads HEIC and removes the metadata on the way.'),
+        ('What does it find in a GIF?', 'A GIF has no EXIF, so no camera and no position from there. It can carry a comment, an XMP packet, a color profile and plain text, and the report gives its frames, loop count and duration.')
     ],
     'Free image metadata viewer API'
 )
@@ -982,13 +986,13 @@ STRIP = json.loads(RESULTS['image_strip']['answer'])
 page(
     'free-exif-remover-api',
     'Free EXIF remover API: remove GPS and metadata from photos | AI SENSE',
-    'Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG or WebP without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.',
+    'Remove EXIF, GPS, XMP, IPTC and comments from a JPEG, PNG, WebP or GIF without saving it again: the pixels stay exactly as they were. In your browser or with one API call. No API key.',
     'Free EXIF remover: metadata out, pixels untouched',
-    'Drop a JPEG, PNG or WebP and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.',
+    'Drop a JPEG, PNG, WebP or GIF and get the same picture back without EXIF, GPS, XMP, IPTC or comments. The image data is copied byte for byte, so nothing is lost. The form calls the same free API your code can call: one POST, no API key and no account.',
     ['No API key', 'No account', 'Not saved again', 'GPS removed', 'Color profile kept'],
     'image_strip',
     '''  <form id="tool-form">
-''' + DROP + '''
+''' + DROP_READ + '''
     <div class="tool-actions">
       <button type="submit" class="button button-primary" id="tool-submit" disabled>Remove the metadata</button>
     </div>
@@ -996,10 +1000,11 @@ page(
   <div class="tool-result" id="tool-result" aria-live="polite"></div>''',
     '''<h2 id="how">How it works</h2>
 <ul>
-  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG or the chunks of a WebP and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
+  <li><strong>The file is rewritten, not saved again.</strong> The endpoint walks the segments of a JPEG, the chunks of a PNG, the chunks of a WebP or the blocks of a GIF and writes them out again without the metadata. The compressed image data is copied byte for byte, so the pixels are exactly the ones you sent.</li>
   <li><strong>From a JPEG</strong> it removes EXIF with its GPS directory and thumbnail, XMP, IPTC and other Photoshop data, comments, the multi-picture index, other application segments, and whatever follows the end of the image, where phones keep depth maps and HDR gain maps.</li>
   <li><strong>From a PNG</strong> it removes the text chunks, XMP, EXIF and the time of last change.</li>
   <li><strong>From a WebP</strong> it removes the EXIF and XMP chunks.</li>
+  <li><strong>From a GIF</strong> it removes the comments, XMP, plain text and unknown application extensions, and keeps every frame with its timing, the loop count and the color profile.</li>
   <li><strong>The color profile is kept</strong>, so the colors look the same, and so are the JFIF header and the Adobe color transform of a JPEG.</li>
   <li><strong>The orientation is kept.</strong> A photo the camera marked as rotated gets a new EXIF with its orientation alone, so it still shows the right way up. Nothing else is written back.</li>
 </ul>
@@ -1007,7 +1012,7 @@ page(
 
 <h2 id="api">The API</h2>
 <p><code>POST https://aisenseapi.com/services/v1/image_strip</code> with <code>multipart/form-data</code> and one field, <code>file</code>. Any other field is refused. The result is stored in the format of the upload, and the answer holds the Storage fields and what was done:</p>
-''' + answer_table('''    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code> or <code>result.webp</code>.</td></tr>
+''' + answer_table('''    <tr><td><code>content_type</code>, <code>filename</code></td><td>The image type, and <code>result.jpg</code>, <code>result.png</code>, <code>result.webp</code> or <code>result.gif</code>.</td></tr>
     <tr><td><code>operation</code>, <code>format</code>, <code>width</code>, <code>height</code></td><td><code>image_strip</code>, and the format and size of the image.</td></tr>
     <tr><td><code>input_bytes</code></td><td>The size of the upload. <code>bytes</code> is the size without the metadata.</td></tr>
     <tr><td><code>removed</code></td><td>What was taken out, such as <code>EXIF</code>, <code>XMP</code> and <code>Comments</code>.</td></tr>
@@ -1018,7 +1023,7 @@ page(
 ''' % {'bytes': '{:,}'.format(STRIP['bytes']).replace(',', ' ')} + LIMITS_READ % 'The result is at most 10 MB.' + '''
 
 ''' + ERRORS_READ,
-    script_start(['jpeg', 'png', 'webp'], 'JPEG, PNG or WebP') + SCRIPT_CHOOSE + r'''
+    script_start(['jpeg', 'png', 'webp', 'gif'], 'JPEG, PNG, WebP or GIF') + SCRIPT_CHOOSE + r'''
 
   // Comments becomes comments inside a sentence, while EXIF stays EXIF.
   function soft(item) {
@@ -1055,7 +1060,7 @@ page(
         ('Is the EXIF remover API free?', FAQ_FREE),
         ('Does removing the metadata lower the quality?', 'No. The image data is copied byte for byte, so the pixels are exactly the same as in the upload.'),
         ('Will the photo still show the right way up?', 'Yes. When the camera marked the photo as rotated, the orientation is written back on its own, and nothing else is.'),
-        ('Can it remove metadata from HEIC?', 'No. It takes JPEG, PNG and WebP. The image converter reads HEIC and removes the metadata while it converts.')
+        ('Can it remove metadata from HEIC?', 'No. It takes JPEG, PNG, WebP and GIF. The image converter reads HEIC and removes the metadata while it converts.')
     ],
     'Free EXIF remover API'
 )

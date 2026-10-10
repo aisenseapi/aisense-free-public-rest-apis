@@ -796,7 +796,8 @@ more level. The report does not contain the JSON itself.
 
 The seven image endpoints take one image as `multipart/form-data`, in a field
 named `file`: a JPEG, PNG or WebP of at most 10 MB. `image_convert` and
-`image_resize` also read HEIC. The format is read from the first bytes of the file, and an
+`image_resize` also read HEIC, and `image_metadata` and `image_strip` also
+read GIF. The format is read from the first bytes of the file, and an
 animated image is converted from its first frame. Like the Convert endpoints,
 they store the result in [Storage](#storage---24h-ttl) for 24 hours and answer
 with the Storage fields plus `operation` and what the result is. A GET on
@@ -840,7 +841,7 @@ pixel.
 | 400 | A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image |
 | 405 | The method is not `POST` |
 | 413 | The upload, its number of pixels or the result is over a limit |
-| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP (or HEIC, for `image_convert`) |
+| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP (or HEIC for `image_convert` and `image_resize`, GIF for `image_metadata` and `image_strip`) |
 | 429 | The request budget or the day's Storage budget is used up |
 | 503 | Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now |
 
@@ -936,12 +937,13 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_metadata \
 
 | Field | Required | Meaning |
 |-------|----------|---------|
-| `file` | yes | The image: JPEG, PNG or WebP |
+| `file` | yes | The image: JPEG, PNG, WebP or GIF |
 
 The report has `file` (format, size, dimensions, estimated JPEG quality and
-more), `orientation`, `color_profile`, `exif` by directory, `gps` in decimal
-degrees with the altitude in metres and the time in UTC, `xmp`, `iptc`,
-`comments`, PNG `text`, `embedded` (thumbnails, a multi-picture index, data
+more, and for a GIF the frames, loop count and duration), `orientation`,
+`color_profile`, `exif` by directory, `gps` in decimal degrees with the
+altitude in metres and the time in UTC, `xmp`, `iptc`, `comments`, `text`
+(PNG text chunks, GIF plain text), `embedded` (thumbnails, a multi-picture index, data
 after the end of the image) and `privacy`: what can identify a person, a
 place, a device or a time, most sensitive first, each with `item`, `level`
 and `why`. The answer adds `format`, `width`, `height`, `gps` (true when there
@@ -959,12 +961,14 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_strip \
 
 | Field | Required | Meaning |
 |-------|----------|---------|
-| `file` | yes | The image: JPEG, PNG or WebP |
+| `file` | yes | The image: JPEG, PNG, WebP or GIF |
 
 From a JPEG it removes EXIF, XMP, IPTC and other Photoshop data, comments,
 the multi-picture index, other application segments and anything after the
 end of the image; from a PNG the text chunks, XMP, EXIF and the time; from a
-WebP the EXIF and XMP chunks. The image data is copied byte for byte. The
+WebP the EXIF and XMP chunks; from a GIF the comments, XMP, plain text and
+unknown application extensions, keeping every frame with its timing and the
+loop count. The image data is copied byte for byte. The
 color profile is kept, and an orientation other than upright is written back
 alone. The result is stored in the format of the upload, at most 10 MB, and
 the answer adds `format`, `width`, `height`, `input_bytes`, `removed` and
