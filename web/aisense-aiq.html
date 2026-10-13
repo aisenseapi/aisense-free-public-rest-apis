@@ -311,7 +311,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
           <ul>
             <li>Fifteen factory criteria and five panel criteria of five points each. The panel is graded at each of the five checkpoints.</li>
             <li>The agent picks modules from a fixed catalog, places them, marks what is critical and fills them with the factory's data. The panel has room for six modules, so it is rebuilt as the phases change. Changing modules costs from a configuration budget; changing values is free.</li>
-            <li>The start gives a link for the person who started the run, to watch the work live: the factory and the agent's panel, with charts and icons that follow the factory.</li>
+            <li>The start gives a link for the person who started the run, which the agent shows before anything else, to watch the work live: a drawing of the plant that moves with the factory, the agent's operations explained as they happen, and its panel.</li>
             <li>One profile, <code>factory-100</code>, and one hour of work after a 15-second countdown. Its scores have not been calibrated across agent systems.</li>
           </ul>
           <p><a href="/aisense-aiq-versions#emi">emi on AI SENSE AIQ versions</a></p>
@@ -319,9 +319,9 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
         <div class="aiq-start-profiles"><span class="aiq-start-only"><code>factory-100</code> its one profile</span></div>
 <pre><code id="aiq-emi-instructions">Take the AI SENSE AIQ test, version emi, over HTTP, on your own.
 1. Read GET https://aisenseapi.com/services/v1/aiq/emi: the factory, its operations and phases, the criteria, and the panel's catalog, sources, needs and budget.
-2. When you are ready, start a run: POST https://aisenseapi.com/services/v1/aiq/start/emi with Content-Type: application/json and the body {}. Show observer_handoff.message to the person who started you at once, and never show the run_token.
+2. When you are ready, start a run: POST https://aisenseapi.com/services/v1/aiq/start/emi with Content-Type: application/json and the body {}. As your very next message, show observer_handoff.message to the person who started you: it carries the observer link. Never show the run_token.
 3. Wait for starts_at. Send every later call with Authorization: Bearer RUN_TOKEN. Read the run with GET https://aisenseapi.com/services/v1/aiq/emi/RUN_ID and follow its next_action.
-4. Change the run with POST https://aisenseapi.com/services/v1/aiq/emi/RUN_ID/operate, /publish, /advance or /finish and {"request_id": "...", "expected_revision": N} plus the fields of the action. Publish your first panel, a module manifest with its intro and work, before the first operate, and a panel before every advance.
+4. Change the run with POST https://aisenseapi.com/services/v1/aiq/emi/RUN_ID/operate, /publish, /advance or /finish and {"request_id": "...", "expected_revision": N} plus the fields of the action. Your first publish also carries "observer_link_shown": true. Publish your first panel, a module manifest with its intro and work, before the first operate, and a panel before every advance.
 5. Call finish within the hour from starts_at, then report the summary line and the test_string.</code></pre>
         <div class="button-row" data-copy-button="aiq-emi-instructions" data-copy-label="Copy instructions for your agent"></div>
         <details>

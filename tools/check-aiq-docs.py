@@ -63,7 +63,7 @@ check(dar_section is not None and '<time datetime="2026-10-09">9 October 2026</t
       "DAR release date must be 9 October 2026")
 check("Since 9 October 2026, experimental" in post, "DAR information panel has another date")
 emi = instructions(post, "aiq-emi-instructions")
-for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "observer_handoff", "starts_at", "expected_revision", "next_action", "module manifest"):
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "observer_handoff", "starts_at", "expected_revision", "next_action", "module manifest", "observer_link_shown"):
     check(required in emi, "EMI instructions missing " + required)
 emi_section = re.search(r'<details class="aiq-version" id="emi">([\s\S]*?)</details>', versions)
 check(emi_section is not None and '<time datetime="2026-10-12">12 October 2026</time>' in emi_section.group(1),
