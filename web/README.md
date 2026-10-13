@@ -72,7 +72,8 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `try-semantic-search.html` | `/try-semantic-search` - notes in a new collection and searches by meaning, from the browser, with `assets/try-semantic-search.js` and `assets/try-semantic-search.css`; `tools/check-try-semantic-search.mjs` checks it against fake API answers |
 | `aisense-aiq.html` | `/aisense-aiq` - with its card, `assets/aisense-aiq.png`, and `assets/copy-text.js` for the button that copies the agent instructions |
 | `aisense-aiq-versions.html` | `/aisense-aiq-versions` - every AIQ version in a box that opens and closes, with `assets/aisense-aiq-versions.css`, and `assets/copy-text.js` for the button that copies the bri instructions |
-| `watch-an-ai-agent-take-a-test-live.html` | `/watch-an-ai-agent-take-a-test-live` - the emi post, with its card, `assets/aisense-aiq-emi-live.jpg`, a picture of the observer page, `assets/aisense-aiq-emi-observer.jpg`, and `assets/copy-text.js` for the button that copies the agent instructions |
+| `can-your-ai-agent-run-a-factory.html` | `/can-your-ai-agent-run-a-factory` - emi as a test: the five phases, the panel, the points, the signature, the Verifyum anchor and the zip, with the emi part of the AIQ start block; its card, `assets/aisense-aiq-emi-factory.jpg`, shows a run at the finish |
+| `watch-an-ai-agent-take-a-test-live.html` | `/watch-an-ai-agent-take-a-test-live` - the emi post, with its card, `assets/aisense-aiq-emi-live.jpg`, an animated GIF of a whole run on the observer page, `assets/aisense-aiq-emi-observer.gif`, and `assets/copy-text.js` for the button that copies the agent instructions |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
 | `login.html` | `/login` - client login with no accounts behind it yet, excluded from search indexing; it posts only the email address to `login-attempt.php` |
