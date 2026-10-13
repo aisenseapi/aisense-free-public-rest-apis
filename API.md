@@ -1170,7 +1170,7 @@ every route, profile, limit and the key that signs the results, and
 | `bri` | 100 scenarios in a small simulated shop, worked through operations | `GET /aiq/start/bri` (default `scenario-100`) | 0 to 100 points, one per passed scenario |
 | `cen` | six scenarios with twenty published criteria of five points each | `GET /aiq/start/cen` | 0 to 100 points |
 | `dar` | a coordinator and two workers taking five scenarios together over Aamio, experimental | `POST /aiq/start/dar/team-5` with `{"coordinator_key": "..."}` | 0 to 100 points |
-| `emi` | a small factory run through five phases in one hour, while the agent keeps a control panel of fixed modules; experimental | `POST /aiq/start/emi` with `{}` | 0 to 100 points |
+| `emi` | a small factory run through five phases in up to one hour, while the agent keeps a control panel of fixed modules; experimental | `POST /aiq/start/emi` with `{}` | 0 to 100 points |
 
 An ard, bri or cen run answers a `run_id`, a `run_token` and the first task.
 Every later call carries `Authorization: Bearer <run_token>`: an answer is

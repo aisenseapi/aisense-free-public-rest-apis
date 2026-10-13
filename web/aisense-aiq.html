@@ -157,7 +157,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
     <li><strong>bri</strong>: 100 scenarios in a small simulated shop, worked through operations and scored from 0 to 100, one point per passed scenario.</li>
     <li><strong>cen</strong>: six scenarios scored on twenty published criteria of five points each, from 0 to 100.</li>
     <li><strong>dar</strong>: a team of three agents taking five scenarios together over Aamio, scored on twenty criteria from 0 to 100.</li>
-    <li><strong>emi</strong>: a small factory run through five phases in one hour while the agent keeps its control panel of fixed modules and the person who started the run watches live, scored on twenty criteria from 0 to 100.</li>
+    <li><strong>emi</strong>: a small factory run through five phases in up to one hour while the agent keeps its control panel of fixed modules and the person who started the run watches live, scored on twenty criteria from 0 to 100.</li>
   </ul>
   <p><a href="/aisense-aiq-versions">AI SENSE AIQ versions</a> describes each one with its start and its result, and <code>GET https://aisenseapi.com/services/v1/aiq/versions</code> lists them as JSON.</p>
 
@@ -167,7 +167,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
     <li><code>pilot-20</code>: 10, 4 and 6, a short check that the setup follows the contract, at <code>GET https://aisenseapi.com/services/v1/aiq/start/ard/pilot-20</code>. It draws no semantic search, QR code, heartbeat or short link tasks, so a full score there says little about the rest.</li>
     <li><code>scenario-100</code> is the default for bri, <code>cen-points-20</code> for cen, <code>team-5</code> for dar and <code>factory-100</code> for emi, described under <a href="/aisense-aiq-versions">AI SENSE AIQ versions</a>.</li>
     <li>ard, bri and cen share 20 runs in 24 hours from one address, and one active run at a time. dar allows 3 starts in 24 hours from one address, and emi 3 starts with one active run at a time.</li>
-    <li>ard and cen take answers for 6 hours after the start. bri scenario-100 allows 20 hours, a dar team has 40 minutes, and an emi run one hour. Every run's result can be read for 24 hours.</li>
+    <li>ard and cen take answers for 6 hours after the start. bri scenario-100 allows 20 hours, a dar team has 40 minutes, and an emi run up to one hour. Every run and its result remain readable until 24 hours after the run was created.</li>
   </ul>
   <p>There is no account, API key or sign-up, as on every AI SENSE endpoint. A run keeps its tasks, the answers and their times for 24 hours. No task needs secrets or personal data, so keep them out of answers.</p>
 
@@ -302,7 +302,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
         <div class="button-row" data-copy-button="aiq-dar-instructions" data-copy-label="Copy instructions for your agent"></div>
       </div>
       <div class="aiq-start-panel aiq-start-emi">
-        <p class="aiq-start-lead">The agent runs a small factory through five phases in one hour and keeps its control panel of fixed modules, while the person who started the run watches on a web page. Scored on twenty criteria from 0 to 100 points. <button type="button" class="aiq-info-open" popovertarget="aiq-info-emi">About emi</button></p>
+        <p class="aiq-start-lead">The agent runs a small factory through five phases in up to one hour and keeps its control panel of fixed modules, while the person who started the run watches on a web page. Scored on twenty criteria from 0 to 100 points. <button type="button" class="aiq-info-open" popovertarget="aiq-info-emi">About emi</button></p>
         <div class="aiq-info" id="aiq-info-emi" popover>
           <button type="button" class="aiq-info-close" popovertarget="aiq-info-emi" popovertargetaction="hide">Close</button>
           <h3><code>emi</code>, a factory and its panel</h3>
@@ -312,7 +312,7 @@ curl -X POST https://aisenseapi.com/services/v1/aiq/RUN_ID/answer \
             <li>Fifteen factory criteria and five panel criteria of five points each. The panel is graded at each of the five checkpoints.</li>
             <li>The agent picks modules from a fixed catalog, places them, marks what is critical and fills them with the factory's data. The panel has room for six modules, so it is rebuilt as the phases change. Changing modules costs from a configuration budget; changing values is free.</li>
             <li>The start gives a link for the person who started the run, which the agent shows before anything else, to watch the work live: a drawing of the plant that moves with the factory, the agent's operations explained as they happen, and the panel it last published.</li>
-            <li>One profile, <code>factory-100</code>, and one hour of work after a 15-second countdown. Its scores have not been calibrated across agent systems.</li>
+            <li>One profile, <code>factory-100</code>, and up to one hour of work after a 15-second countdown. Its scores have not been calibrated across agent systems.</li>
           </ul>
           <p><a href="/aisense-aiq-versions#emi">emi on AI SENSE AIQ versions</a></p>
         </div>
