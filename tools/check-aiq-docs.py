@@ -37,7 +37,7 @@ versions = text("web/aisense-aiq-versions.html")
 api = text("API.md")
 llms = text("web/llms.txt")
 nav = text("tools/site_nav.py")
-for version in ("bri", "cen", "dar"):
+for version in ("bri", "cen", "dar", "emi"):
     left = instructions(post, "aiq-" + version + "-instructions")
     right = instructions(versions, version + "-agent-instructions")
     check(left == right, version + " copy buttons must give identical instructions")
@@ -62,12 +62,46 @@ dar_section = re.search(r'<details class="aiq-version" id="dar">([\s\S]*?)</deta
 check(dar_section is not None and '<time datetime="2026-10-09">9 October 2026</time>' in dar_section.group(1),
       "DAR release date must be 9 October 2026")
 check("Since 9 October 2026, experimental" in post, "DAR information panel has another date")
+emi = instructions(post, "aiq-emi-instructions")
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "observer_handoff", "starts_at", "expected_revision", "next_action", "module manifest"):
+    check(required in emi, "EMI instructions missing " + required)
+emi_section = re.search(r'<details class="aiq-version" id="emi">([\s\S]*?)</details>', versions)
+check(emi_section is not None and '<time datetime="2026-10-12">12 October 2026</time>' in emi_section.group(1),
+      "EMI release date must be 12 October 2026")
+check("Since 12 October 2026, experimental" in post, "EMI information panel has another date")
+replay_post = instructions(post, "aiq-emi-replay-example")
+replay_versions = instructions(versions, "emi-replay-example")
+check(replay_post == replay_versions, "EMI replay examples must agree")
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "Content-Type: application/json",
+                 '{"test_string":"COMPLETED_EMI_TEST_STRING"}'):
+    check(required in replay_post, "EMI replay example missing " + required)
+check("coordinator_key" not in replay_post and "run_token" not in replay_post,
+      "EMI replay starts from the signed result, not credentials from another run")
+for source, label in ((post, "post"), (versions, "versions"), (api, "API")):
+    normalized = " ".join(source.split())
+    for required in ("completed EMI run", "authenticates", "exact recipe remains supported",
+                     "origin", "replay", "not playback", "read_url", "write_urls",
+                     "same start and active-run", "15 seconds", "one hour", "24 hours",
+                     "before replay support", "still verify"):
+        check(required in normalized, label + " EMI replay contract missing " + required)
+    check("does not replay" not in normalized, label + " retains the retired blanket EMI replay refusal")
+check('and the body {}' in emi, "EMI fresh-run instructions must remain separate from replay")
+check("emi, a factory and its panel" in nav and "and emi, an experimental factory run" in llms, "Navigation and llms.txt must list EMI")
+check("HTML and CSS" not in versions and "HTML page with CSS" not in versions, "EMI is described with its module panel, not the retired HTML profile")
 tools = json.loads(text("openai-tools.json"))
 profiles = [
     tool.get("function", {}).get("parameters", {}).get("properties", {}).get("profile", {}).get("enum", [])
     for tool in tools
 ]
 check(any("scenario-100" in profile for profile in profiles), "Tool schema must accept scenario-100")
+replay_tools = [tool["function"] for tool in tools if tool.get("function", {}).get("name") == "replay_aiq_run"]
+check(len(replay_tools) == 1, "Tool schema must contain exactly one replay_aiq_run")
+if replay_tools:
+    replay_params = replay_tools[0]["parameters"]
+    check(replay_params["properties"]["version"]["enum"] == ["ard", "bri", "cen", "dar", "emi"],
+          "Replay tool must support EMI while preserving the other versions")
+    check(replay_params["required"] == ["version", "test_string"],
+          "EMI replay must not require a coordinator key or an existing run token")
 
 if args.api_root:
     config = (args.api_root / "config/aiq.php").read_text(encoding="utf-8")
@@ -78,6 +112,9 @@ if args.api_root:
             check(" | bank " + bank.group(1) + " | " in source, label + " summary uses another bank")
     check("'default_profile'=>'scenario-100'" in config, "API must default BRI to scenario-100")
     check("'dar'=>[ 'date'=>'2026-10-09'" in config, "DAR API release date differs from the site")
+    check("'emi'=>[ 'date'=>'2026-10-12'" in config and "'factory_profiles'=>[ 'factory-100'=>[ 'engine'=>'emi' ] ]" in config,
+          "EMI must be in the API version registry with its factory profile and the site date")
+    check((args.api_root / "emi/src/Modules/Panel.php").is_file(), "EMI module panel documented but not implemented")
     check("'lifetime_seconds'=>86400" in config, "API fixed lifetime changed")
     contract = args.api_root / "libs/func_aiq_dar_contract.php"
     check(contract.is_file(), "DAR contract documented but not implemented")

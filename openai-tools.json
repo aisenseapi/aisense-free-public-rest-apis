@@ -2672,7 +2672,7 @@
     "type": "function",
     "function": {
       "name": "replay_aiq_run",
-      "description": "Replay the recipe of a completed AIQ run from its signed test string, as a new run of the same version; a dar replay also takes the new coordinator's key. POST /aiq/start/{version} with a JSON body of test_string, and coordinator_key for dar.",
+      "description": "Replay the recipe of a completed AIQ run from its signed test string, as a new run of the same version while the exact recipe remains supported; a dar replay also takes the new coordinator's key. POST /aiq/start/{version} with a JSON body of test_string, and coordinator_key for dar. For emi, follow the returned read_url and write_urls; this starts a new factory run, not viewer playback.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2682,7 +2682,8 @@
               "ard",
               "bri",
               "cen",
-              "dar"
+              "dar",
+              "emi"
             ]
           },
           "test_string": {

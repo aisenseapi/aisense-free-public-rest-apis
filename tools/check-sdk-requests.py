@@ -69,6 +69,7 @@ EXPECTED += [
     ("GET", "/aiq/start/cen", None, None, None, None),
     ("POST", "/aiq/start/dar/team-5", "json", {"coordinator_key": "K" * 43}, None, None),
     ("POST", "/aiq/start/dar", "json", {"test_string": "AIQ1.x.y", "coordinator_key": "K" * 43}, None, None),
+    ("POST", "/aiq/start/emi", "json", {"test_string": "AIQ1.emi.result"}, None, None),
     ("GET", "/aiq/" + "e" * 32, None, None, None, "run-token-1"),
     ("POST", "/aiq/" + "e" * 32 + "/answer", "json", {"task_id": "t1", "attempt_key": "1", "answer": {"answer": 42}}, None, "run-token-1"),
     ("POST", "/aiq/" + "e" * 32 + "/call/get_order", "json", {"task_id": "t2", "order_id": "A-1"}, None, "run-token-1"),
@@ -119,6 +120,7 @@ await api.aiqStart('ard', 'pilot-20')
 await api.aiqStart('cen')
 await api.aiqStartDar('K'.repeat(43))
 await api.aiqReplay('dar', 'AIQ1.x.y', 'K'.repeat(43))
+await api.aiqReplay('emi', 'AIQ1.emi.result')
 await api.aiqRun('e'.repeat(32), 'run-token-1')
 await api.aiqAnswer('e'.repeat(32), 'run-token-1', 't1', '1', { answer: 42 })
 await api.aiqCall('e'.repeat(32), 'run-token-1', 'get_order', 't2', { order_id: 'A-1' })
@@ -255,6 +257,7 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.aiq_start("cen")
     api.aiq_start_dar("K" * 43)
     api.aiq_replay("dar", "AIQ1.x.y", "K" * 43)
+    api.aiq_replay("emi", "AIQ1.emi.result")
     api.aiq_run("e" * 32, "run-token-1")
     api.aiq_answer("e" * 32, "run-token-1", "t1", "1", {"answer": 42})
     api.aiq_call("e" * 32, "run-token-1", "get_order", "t2", {"order_id": "A-1"})

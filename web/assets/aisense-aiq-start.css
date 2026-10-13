@@ -1,4 +1,4 @@
-/* AI SENSE AIQ, How to get started: a choice of the four versions, and of
+/* AI SENSE AIQ, How to get started: a choice of the five versions, and of
    ard's two profiles, made with radio buttons and the sibling selector, so
    the choice needs no script. The info boxes use the popover attribute; a
    browser without it shows them as plain text under the choice. Loaded by
@@ -9,7 +9,7 @@
 .aiq-pick { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
 
 .aiq-start { position: relative; margin: 22px 0 8px; }
-.aiq-start-versions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.aiq-start-versions { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .aiq-start-versions label { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); cursor: pointer; transition: border-color 0.15s ease, background-color 0.15s ease; }
 .aiq-start-versions label:hover { border-color: var(--blue); }
 .aiq-start-name { color: var(--ink); font-family: var(--mono); font-size: 20px; font-weight: 700; }
@@ -18,12 +18,14 @@
 #aiq-pick-ard:checked ~ .aiq-start-versions label[for="aiq-pick-ard"],
 #aiq-pick-bri:checked ~ .aiq-start-versions label[for="aiq-pick-bri"],
 #aiq-pick-cen:checked ~ .aiq-start-versions label[for="aiq-pick-cen"],
-#aiq-pick-dar:checked ~ .aiq-start-versions label[for="aiq-pick-dar"] { border-color: var(--blue); background: var(--current-bg); box-shadow: inset 0 0 0 1px var(--blue); }
+#aiq-pick-dar:checked ~ .aiq-start-versions label[for="aiq-pick-dar"],
+#aiq-pick-emi:checked ~ .aiq-start-versions label[for="aiq-pick-emi"] { border-color: var(--blue); background: var(--current-bg); box-shadow: inset 0 0 0 1px var(--blue); }
 
 #aiq-pick-ard:focus-visible ~ .aiq-start-versions label[for="aiq-pick-ard"],
 #aiq-pick-bri:focus-visible ~ .aiq-start-versions label[for="aiq-pick-bri"],
 #aiq-pick-cen:focus-visible ~ .aiq-start-versions label[for="aiq-pick-cen"],
 #aiq-pick-dar:focus-visible ~ .aiq-start-versions label[for="aiq-pick-dar"],
+#aiq-pick-emi:focus-visible ~ .aiq-start-versions label[for="aiq-pick-emi"],
 #aiq-ard-standard:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-standard"],
 #aiq-ard-pilot:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-pilot"] { outline: 2px solid var(--blue); outline-offset: 2px; }
 
@@ -31,7 +33,8 @@
 #aiq-pick-ard:checked ~ .aiq-start-ard,
 #aiq-pick-bri:checked ~ .aiq-start-bri,
 #aiq-pick-cen:checked ~ .aiq-start-cen,
-#aiq-pick-dar:checked ~ .aiq-start-dar { display: block; }
+#aiq-pick-dar:checked ~ .aiq-start-dar,
+#aiq-pick-emi:checked ~ .aiq-start-emi { display: block; }
 
 .aiq-start-lead { margin: 0 0 12px; }
 .aiq-start-profiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
