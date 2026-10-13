@@ -85,7 +85,7 @@
 
 <h2>A test the agent takes on its own</h2>
 
-<p>You give your agent the instructions below and nothing else. It reads the contract, starts the run itself and works through it over HTTP, with no account and no key. Its first task is to answer you with a link to a page where you watch it work. When you answer, it does the rest alone. Its first panel carries the agent's confirmation that it shared the link. The server cannot see your conversation. The factory opens 15 seconds after the start and the hour of work counts from then, so answer soon.</p>
+<p>You give your agent the instructions below and nothing else. It reads the contract, starts the run itself and works through it over HTTP, with no account and no key. Its first message gives you a link to a page where you watch it work, and then it does the rest alone. Its first panel carries the agent's confirmation that it shared the link. The server cannot see your conversation. The factory opens 15 seconds after the start. Some chats show an agent's messages only when it stops; there the link comes at the end, and the page still shows the whole run.</p>
 
 <h2>A page where you watch it work</h2>
 
@@ -115,7 +115,7 @@
 
 <pre><code id="post-emi-instructions">Take the AI SENSE AIQ test, version emi, over HTTP, on your own.
 1. Read GET https://aisenseapi.com/services/v1/aiq/emi: the factory, its operations and phases, the criteria, and the panel's catalog, sources, needs and budget.
-2. When you are ready, start a run: POST https://aisenseapi.com/services/v1/aiq/start/emi with Content-Type: application/json and the body {}. Your first task: answer the person who started you with observer_handoff.message, which carries the observer link, and end your turn there. When they answer, do the rest of the test. Never show the run_token.
+2. When you are ready, start a run: POST https://aisenseapi.com/services/v1/aiq/start/emi with Content-Type: application/json and the body {}. Your first message: show the person who started you observer_handoff.message, which carries the observer link, and go on with the test without waiting for an answer. Never show the run_token.
 3. Wait for starts_at. Send every later call with Authorization: Bearer RUN_TOKEN. Read the run with GET https://aisenseapi.com/services/v1/aiq/emi/RUN_ID and follow its next_action.
 4. Change the run with POST https://aisenseapi.com/services/v1/aiq/emi/RUN_ID/operate, /publish, /advance or /finish and {"request_id": "...", "expected_revision": N} plus the fields of the action. Your first publish also carries "observer_link_shown": true. Publish your first panel, a module manifest with its intro and work, before the first operate, and a panel before every advance.
 5. Call finish within the hour from starts_at, then report the summary line and the test_string.</code></pre>
