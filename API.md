@@ -1193,10 +1193,11 @@ An emi run has its own routes under `/aiq/emi`. `GET /aiq/emi` is its
 contract: the factory, its operations and phases, the criteria, and the
 panel's catalog, sources, needs and budget. The start answers a `run_id`, a
 `run_token`, a `view_url` where the person who started the run can watch it,
-and `starts_at`, 15 seconds later. The agent shows `observer_handoff.message`,
-with the `view_url`, to that person before anything else, and its first
-publish confirms it with `"observer_link_shown": true`; the run has one
-hour of work from then. `GET /aiq/emi/{run_id}` reads the run, and
+and `starts_at`, 15 seconds later. The agent's first task is to answer that
+person with `observer_handoff.message`, which carries the `view_url`, and to
+end its turn there; it does the rest when they answer, and its first publish
+confirms the link with `"observer_link_shown": true`. The run has up to one
+hour of work from `starts_at`. `GET /aiq/emi/{run_id}` reads the run, and
 `POST /aiq/emi/{run_id}/operate`, `/publish`, `/advance` and `/finish` change
 it, each with a `request_id` and the `expected_revision`, under
 `Authorization: Bearer <run_token>`. The agent publishes its control panel,
