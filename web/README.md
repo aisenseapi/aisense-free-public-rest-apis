@@ -89,6 +89,7 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `assets/posts/smart-beehive-monitoring-system.jpg` | image for the beehive post |
 | `404.html` | served by `ErrorDocument` for any unknown path, noindex |
 | `.htaccess` | 301 redirects from the old URL scheme, error page |
+| `services/index.php`, `services/.htaccess` | a request for the API sent to the website, any path under `/services`, gets a 404 with a JSON note in the API's error shape that names the same path on aisenseapi.com, never a redirect; `.htaccess` holds only `ErrorDocument` lines, and the note never reads the body or repeats a query. PHP 7.4, as on the web box |
 | `favicon.ico`, `favicon.svg`, `apple-touch-icon.png` | the site's own icons |
 | `llms.txt` | `/llms.txt` - what the site offers, for language models |
 | `m2m-logs.php` | token-protected read access to this box's Apache logs for the operator dashboard; its header says what it may do |
@@ -238,7 +239,7 @@ the page.
 
 `../test.sh` exercises production endpoints and can create temporary state.
 Run it only when those live calls are in scope. Offline checks include
-`php tools/check-text.php`, `php tools/check-web-content-stats.php` and `php tools/check-login-attempt.php`.
+`php tools/check-text.php`, `php tools/check-web-content-stats.php`, `php tools/check-login-attempt.php` and `php tools/check-services-note.php`.
 
 ## Known gaps
 
