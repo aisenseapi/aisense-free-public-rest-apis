@@ -1,0 +1,7 @@
+# Requests for the API sent to the website. aisense.no has nothing under /services, so every
+# path below it answers 404, and this sends that 404 to services/index.php, which answers with
+# a short JSON note naming the API host instead of the HTML error page; a 403 for the folder
+# itself goes there too. Nothing is redirected: the API keeps one address per endpoint. Only
+# ErrorDocument is used, which AllowOverride FileInfo allows, as in the site's own .htaccess.
+ErrorDocument 404 /services/index.php
+ErrorDocument 403 /services/index.php
