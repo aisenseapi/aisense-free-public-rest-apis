@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261015b'
+TRY_VERSION = '20261015c'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -72,9 +72,41 @@ def decoder(endpoint, label, sample, accept=THREE, limit=MIB):
             'accept': accept, 'limit': limit, 'intro': intro + ' ' + LEAVE_OUT}
 
 
-def text(endpoint, verb, busy, label, sample):
-    return {'endpoint': endpoint, 'label': label, 'sample': sample, 'button': verb, 'busy': busy, 'limit': MIB,
-            'intro': '%s text here. Your browser sends it in a JSON body, as the quick start does. %s' % (verb, LEAVE_OUT)}
+def text(endpoint, verb, busy, label, sample, limit=MIB, intro=None):
+    return {'endpoint': endpoint, 'label': label, 'sample': sample, 'button': verb, 'busy': busy, 'limit': limit,
+            'intro': intro or '%s text here. Your browser sends it in a JSON body, as the quick start does. %s' % (verb, LEAVE_OUT)}
+
+
+# The types of /services/v1/validate/{type} the box offers, each with a value that passes. card is left out:
+# a box on a public page should not invite card numbers.
+VALIDATE_TYPES = [
+    ('iban', 'IBAN', 'NO9386011117947'),
+    ('orgnr', 'Organisasjonsnummer (orgnr)', '923609016'),
+    ('kontonummer', 'Kontonummer', '86011117947'),
+    ('phone', 'Phone number (E.164 shape)', '+47 22 12 34 56'),
+]
+
+
+def validator():
+    return {'endpoint': 'validate', 'paths': VALIDATE_TYPES, 'label': 'Value', 'sample': VALIDATE_TYPES[0][2],
+            'button': 'Check', 'busy': 'Checking', 'limit': 4096,
+            'intro': 'Pick a type and check a value here. Your browser sends it in a JSON body to the path of the type, '
+                     'as the quick start does. ' + LEAVE_OUT}
+
+
+def qr_encoder():
+    return {'endpoint': 'qrcode_encode', 'key': 'payload', 'image': 'qrcode_image', 'save': 'qrcode.png',
+            'label': 'Text', 'sample': 'https://aisense.no/free-public-apis', 'button': 'Make the code', 'busy': 'Making the code',
+            'limit': 1800,
+            'intro': 'Make a QR code here, from up to 1800 bytes of text. Your browser sends the text in a JSON field named '
+                     'payload, as the quick start does, and draws the PNG that comes back. ' + LEAVE_OUT}
+
+
+def qr_decoder():
+    return {'endpoint': 'qrcode_decode', 'file': 'multipart', 'field': 'qrcode_image', 'sample_file': '/assets/aisense-try-qr.png',
+            'drop': 'Drop a QR image here', 'button': 'Read the sample code', 'busy': 'Reading', 'limit': 8 * MIB,
+            'intro': 'Read a QR code here: drop a PNG, JPEG, GIF or WebP image, or read the sample code, which holds '
+                     'https://aisense.no/free-public-apis. Your browser uploads the image as a form field named qrcode_image. ' + LEAVE_OUT}
 
 
 TRY = {
@@ -106,6 +138,26 @@ TRY = {
     'free-public-api-blake3-hash-api-endpoint.html': hasher('blake3_hash'),
     'free-public-api-whirlpool-hash-api-endpoint.html': hasher('whirlpool_hash'),
     'free-public-api-crc32-checksum-api-endpoint.html': hasher('crc32_checksum', 'Checksum', 'Computing'),
+    # Text and values. Every JSON body stops at 256 KiB, HTML to Markdown at 1 MiB.
+    'free-public-api-slugify-api-endpoint.html': text('slugify', 'Slugify', 'Slugifying', 'Text', 'Blåbærsyltetøy på Ås!', limit=256 * 1024),
+    'free-public-api-html-to-markdown-api-endpoint.html': text(
+        'html_to_markdown', 'Convert', 'Converting', 'HTML',
+        '<title>Release notes</title><h1>Version 2</h1><p>Now with <b>tables</b> and <a href="https://aisense.no">links</a>.</p><script>track()</script>',
+        intro='Convert HTML to Markdown here. Your browser sends it in a JSON body, as the quick start does. ' + LEAVE_OUT),
+    'free-public-api-markdown-to-html-api-endpoint.html': text(
+        'markdown_to_html', 'Convert', 'Converting', 'Markdown',
+        NL.join(['# Report', '', '- **3** jobs done', '- [ ] one left', '', '| Job | Time |', '|---|--:|', '| sync | 2.1 s |']),
+        limit=256 * 1024, intro='Convert Markdown to HTML here. Your browser sends it in a JSON body, as the quick start does. ' + LEAVE_OUT),
+    'free-public-api-timestamp-convert-api-endpoint.html': text(
+        'timestamp_convert', 'Convert', 'Converting', 'Date, time or Unix timestamp', '2026-08-19T20:28:10+00:00', limit=1024,
+        intro='Convert a date, a time or a Unix timestamp in seconds or milliseconds here. Your browser sends it in a JSON body, as the quick start does.'),
+    'free-public-api-validate-api-endpoint.html': validator(),
+    'free-public-api-email-validate-api-endpoint.html': text(
+        'email_validate', 'Check', 'Checking', 'Address', 'test@gmail.com', limit=1024,
+        intro='Check an address here: its syntax, and the mail servers its domain publishes. Your browser sends it in a '
+              'JSON body, as the quick start does. Use a test address, or one you are free to share.'),
+    'free-public-api-qr-code-encode-api-endpoint.html': qr_encoder(),
+    'free-public-api-qr-code-decode-api-endpoint.html': qr_decoder(),
 }
 
 
@@ -113,23 +165,40 @@ def esc(value):
     return html.escape(value, quote=False)
 
 
+def attr(value):
+    return html.escape(value, quote=True)
+
+
 def section(spec):
+    data = [('data-try-endpoint', spec['endpoint']), ('data-try-limit', '%d' % spec['limit']), ('data-try-busy', spec['busy'])]
+    for name, key in (('data-try-key', 'key'), ('data-try-file', 'file'), ('data-try-field', 'field'),
+                      ('data-try-image', 'image'), ('data-try-sample', 'sample_file')):
+        if spec.get(key):
+            data.append((name, spec[key]))
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),
-             '<div class="try-card try-api" data-try-endpoint="%s" data-try-limit="%d" data-try-busy="%s"%s%s>' % (
-                 spec['endpoint'], spec['limit'], spec['busy'],
-                 ' data-try-file="%s"' % spec['file'] if spec.get('file') else '',
-                 ' data-try-chars' if spec.get('chars') else ''),
-             '<label for="try-input">%s</label><textarea id="try-input" class="try-input" rows="4" spellcheck="false">%s</textarea>' % (esc(spec['label']), esc(spec['sample']))]
+             '<div class="try-card try-api" %s%s>' % (' '.join('%s="%s"' % (name, attr(value)) for name, value in data),
+                                                     ' data-try-chars' if spec.get('chars') else '')]
+    if spec.get('paths'):
+        parts.append('<label for="try-path">Type</label><select id="try-path" class="try-path">'
+                     + ''.join('<option value="%s" data-sample="%s">%s</option>' % (attr(value), attr(sample), esc(label))
+                               for value, label, sample in spec['paths']) + '</select>')
+    if 'sample' in spec:
+        parts.append('<label for="try-input">%s</label><textarea id="try-input" class="try-input" rows="4" spellcheck="false">%s</textarea>'
+                     % (esc(spec['label']), esc(spec['sample'])))
     if spec.get('file'):
-        parts.append('<div class="try-drop" role="button" tabindex="0"><strong>Or drop a file here</strong> <small>or click to choose one, up to %s</small></div>'
-                     '<input type="file" class="try-file" hidden>' % limit_text(spec['limit']))
+        parts.append('<div class="try-drop" role="button" tabindex="0"><strong>%s</strong> <small>or click to choose one, up to %s</small></div>'
+                     '<input type="file" class="try-file" hidden>' % (esc(spec.get('drop', 'Or drop a file here')), limit_text(spec['limit'])))
     if spec.get('accept'):
         parts.append('<label for="try-accept">Answer as</label><select id="try-accept" class="try-accept">'
                      + ''.join('<option value="%s">%s</option>' % option for option in spec['accept']) + '</select>')
     parts.append('<div class="button-row"><button type="button" class="button button-primary try-run">%s</button></div>' % spec['button'])
-    parts.append('<p class="try-status" aria-live="polite"></p><pre class="try-result" hidden><code class="try-out"></code></pre>')
-    if ACCEPT_BYTES in spec.get('accept', []):
-        parts.append('<p class="try-save" hidden><a class="button button-secondary try-save-link" href="#" download="decoded_data.bin">Save decoded_data.bin</a></p>')
+    parts.append('<p class="try-status" aria-live="polite"></p>')
+    if spec.get('image'):
+        parts.append('<div class="try-image" hidden><img alt="The image the API answered with"></div>')
+    parts.append('<pre class="try-result" hidden><code class="try-out"></code></pre>')
+    if ACCEPT_BYTES in spec.get('accept', []) or spec.get('save'):
+        name = spec.get('save', 'decoded_data.bin')
+        parts.append('<p class="try-save" hidden><a class="button button-secondary try-save-link" href="#" download="%s">Save %s</a></p>' % (attr(name), esc(name)))
     parts.append('</div></section>')
     return ''.join(parts)
 

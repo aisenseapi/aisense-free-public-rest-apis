@@ -9,6 +9,8 @@
 .try-api .button-row { margin: 14px 0; }
 .try-api pre { margin: 0; max-height: 520px; overflow: auto; }
 .try-api .try-save { margin: 12px 0 0; }
+.try-api .try-image { margin: 0 0 12px; }
+.try-api .try-image img { display: block; width: 200px; max-width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--border); border-radius: 6px; }
 
 /* The drop zone of the tool pages (aisense-tools.css), under its own name. */
 .try-drop { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: .15rem .45rem; margin-top: 12px; padding: .6rem 1rem; border: 2px dashed var(--border); border-radius: 10px; background: var(--tint); color: var(--body); font-size: .88rem; text-align: center; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }

@@ -6,14 +6,20 @@
  *   data-try-endpoint  the path under https://aisenseapi.com/services/v1/
  *   data-try-limit     the most bytes the box sends, as text or as a file
  *   data-try-busy      the word the status line shows while the call runs
- *   data-try-file      how a file goes: raw, the request body itself, or multipart, a form field named file
+ *   data-try-key       the JSON field the text goes in, data unless it says otherwise
+ *   data-try-file      how a file goes: raw, the request body itself, or multipart, a form field
+ *   data-try-field     the name of that form field, file unless it says otherwise
+ *   data-try-image     a JSON field of the answer that holds a base64 image, which the box shows
+ *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
  *
- * The text in .try-input goes as {"data": text} in a JSON body. A file dropped on .try-drop, or chosen
- * through it, goes as data-try-file says: the encoders read a raw body byte for byte, the hashes a
- * multipart upload. A select .try-accept sets the
- * Accept header. An answer of application/octet-stream is shown as text when it is readable UTF-8 and
- * as hex otherwise, with a Save button for the bytes. The answer area stays hidden until there is one.
+ * The text in .try-input goes as {"<key>": text} in a JSON body. A select .try-path adds its value to the
+ * path, and switching it puts that option's data-sample in the text field while the field still holds a
+ * sample. A file dropped on .try-drop, or chosen through it, goes as data-try-file says: the encoders read
+ * a raw body byte for byte, the hashes and the QR decoder a multipart upload. A select .try-accept sets the
+ * Accept header. An answer of application/octet-stream is shown as text when it is readable UTF-8 and as
+ * hex otherwise, with a Save button for the bytes; an image field is drawn in .try-image, with a Save
+ * button for the image. The answer area stays hidden until there is one.
  */
 (function () {
   var API = 'https://aisenseapi.com/services/v1/';
@@ -70,15 +76,22 @@
     var endpoint = card.getAttribute('data-try-endpoint');
     var limit = parseInt(card.getAttribute('data-try-limit') || '1048576', 10);
     var busy = card.getAttribute('data-try-busy') || 'Sending';
+    var key = card.getAttribute('data-try-key') || 'data';
     var fileMode = card.getAttribute('data-try-file') || 'raw';
+    var field = card.getAttribute('data-try-field') || 'file';
+    var imageField = card.getAttribute('data-try-image');
+    var sampleFile = card.getAttribute('data-try-sample');
     var countChars = card.hasAttribute('data-try-chars');
     var find = function (selector) { return card.querySelector(selector); };
     var input = find('.try-input');
+    var path = find('.try-path');
     var accept = find('.try-accept');
     var run = find('.try-run');
     var status = find('.try-status');
     var result = find('.try-result');
     var out = find('.try-out');
+    var image = find('.try-image');
+    var picture = image ? image.querySelector('img') : null;
     var saveRow = find('.try-save');
     var save = find('.try-save-link');
     var drop = find('.try-drop');
@@ -96,7 +109,18 @@
     function clear() {
       result.hidden = true;
       out.textContent = '';
+      if (image) { image.hidden = true; }
       if (saveRow) { saveRow.hidden = true; }
+    }
+
+    function offer(blob) {
+      if (url) { URL.revokeObjectURL(url); }
+      url = URL.createObjectURL(blob);
+      if (saveRow) {
+        save.href = url;
+        saveRow.hidden = false;
+      }
+      return url;
     }
 
     function bytesAnswer(response, line) {
@@ -109,14 +133,25 @@
         out.textContent = bytes.length === 0 ? '(no bytes)' : (text !== null ? text : hex(bytes));
         result.hidden = false;
         if (saveRow) {
-          if (url) { URL.revokeObjectURL(url); }
-          url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
-          save.href = url;
+          offer(new Blob([buffer], { type: 'application/octet-stream' }));
           save.setAttribute('download', name);
           save.textContent = 'Save ' + name;
-          saveRow.hidden = false;
         }
       });
+    }
+
+    // Draws the base64 image of the answer and returns the answer with that field shortened for display.
+    function drawn(json) {
+      var base64 = json[imageField];
+      var binary = atob(base64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
+      picture.src = offer(new Blob([bytes], { type: 'image/' + (json.image_type || 'png') }));
+      image.hidden = false;
+      var shown = {};
+      Object.keys(json).forEach(function (name) { shown[name] = json[name]; });
+      shown[imageField] = base64.slice(0, 24) + '... (' + base64.length + ' characters of base64, drawn above)';
+      return shown;
     }
 
     function textAnswer(response, line, file) {
@@ -131,9 +166,12 @@
             json = null;
           }
         }
+        if (json && response.ok && imageField && image && typeof json[imageField] === 'string') {
+          text = JSON.stringify(drawn(json), null, 2);
+        }
         if (file && response.ok) {
           line += ' - ' + file.name + ', ' + size(file.size) + (countChars ? ' in' : '');
-          var keys = json ? Object.keys(json).filter(function (key) { return typeof json[key] === 'string'; }) : [];
+          var keys = json ? Object.keys(json).filter(function (name) { return typeof json[name] === 'string'; }) : [];
           if (countChars && keys.length) { line += ', ' + json[keys[0]].length + ' characters out'; }
         }
         show(line, response.ok ? 'ok' : 'bad');
@@ -148,25 +186,29 @@
       if (file && fileMode === 'multipart') {
         // The browser writes the multipart Content-Type with its boundary itself.
         options.body = new FormData();
-        options.body.append('file', file, file.name);
+        options.body.append(field, file, file.name);
       } else if (file) {
         options.headers['Content-Type'] = 'application/octet-stream';
         options.body = file;
-      } else {
+      } else if (input) {
         var length = new TextEncoder().encode(input.value).length;
         if (length > limit) {
           clear();
           show('The text is ' + length + ' bytes. The box sends at most ' + limitText(limit) + ', ' + limit + ' bytes.', 'bad');
           return;
         }
+        var body = {};
+        body[key] = input.value;
         options.headers['Content-Type'] = 'application/json';
-        options.body = JSON.stringify({ data: input.value });
+        options.body = JSON.stringify(body);
+      } else {
+        return;
       }
       if (accept) { options.headers.Accept = accept.value; }
       run.disabled = true;
       clear();
       show(busy + (file ? ' ' + file.name : ''));
-      fetch(API + endpoint, options).then(function (response) {
+      fetch(API + endpoint + (path ? '/' + encodeURIComponent(path.value) : ''), options).then(function (response) {
         var type = response.headers.get('Content-Type') || '';
         var line = 'HTTP ' + response.status + (type ? ' - ' + type : '');
         if (response.ok && type.indexOf('application/octet-stream') === 0) {
@@ -180,6 +222,25 @@
       });
     }
 
+    // A box with no text field sends its sample file, fetched from this site, the way it sends a dropped one.
+    function sendSample() {
+      var name = sampleFile.split('/').pop();
+      run.disabled = true;
+      clear();
+      show(busy + ' ' + name);
+      fetch(sampleFile).then(function (response) {
+        if (!response.ok) { throw new Error(name + ' answered HTTP ' + response.status); }
+        return response.blob();
+      }).then(function (blob) {
+        chosen = new File([blob], name, { type: blob.type || 'application/octet-stream' });
+        if (note) { note.textContent = noteText; }
+        send();
+      }).catch(function (error) {
+        show('The sample could not be loaded: ' + error.message, 'bad');
+        run.disabled = false;
+      });
+    }
+
     function take(file) {
       if (!file) { return; }
       if (file.size > limit) {
@@ -189,20 +250,40 @@
       }
       chosen = file;
       drop.classList.remove('is-bad');
-      note.textContent = file.name + ', ' + size(file.size) + '. Type in the text box to send text again.';
+      note.textContent = file.name + ', ' + size(file.size) + (input ? '. Type in the text box to send text again.' : '.');
       send();
     }
 
-    run.addEventListener('click', send);
+    run.addEventListener('click', function () {
+      if (!input && sampleFile) {
+        sendSample();
+      } else {
+        send();
+      }
+    });
+
+    if (path && input) {
+      path.addEventListener('change', function () {
+        var samples = Array.prototype.map.call(path.options, function (option) { return option.getAttribute('data-sample'); });
+        if (input.value === '' || samples.indexOf(input.value) !== -1) {
+          input.value = path.options[path.selectedIndex].getAttribute('data-sample') || '';
+        }
+        clear();
+        show('');
+      });
+    }
+
     if (!drop || !picker) { return; }
 
-    input.addEventListener('input', function () {
-      if (chosen) {
-        chosen = null;
-        note.textContent = noteText;
-      }
-      drop.classList.remove('is-bad');
-    });
+    if (input) {
+      input.addEventListener('input', function () {
+        if (chosen) {
+          chosen = null;
+          note.textContent = noteText;
+        }
+        drop.classList.remove('is-bad');
+      });
+    }
     drop.addEventListener('click', function () { picker.click(); });
     drop.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -214,7 +295,7 @@
       take(picker.files && picker.files[0]);
       picker.value = '';
     });
-    [drop, input].forEach(function (target) {
+    [drop, input].filter(Boolean).forEach(function (target) {
       ['dragenter', 'dragover'].forEach(function (name) {
         target.addEventListener(name, function (e) {
           if (!hasFiles(e)) { return; }
