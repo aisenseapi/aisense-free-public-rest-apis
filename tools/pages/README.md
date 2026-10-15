@@ -3,7 +3,8 @@
 The eight image tool pages, the three image guides, the `/decide` and `/mock_response`
 endpoint pages and the eight encoding endpoint pages in `web/` are generated.
 Change the generator or its data here, not the HTML, or the next build undoes
-the change.
+the change. The Try boxes of the endpoint pages are written by
+`make_try_boxes.py`, on hand-written pages too, so a box is changed there.
 
 | Script | Writes in `web/` |
 |--------|------------------|
@@ -14,8 +15,9 @@ the change.
 | `make_logic_pages.py` | `free-public-api-decide-api-endpoint.html` and `free-public-api-mock-response-api-endpoint.html` |
 | `make_codec_pages.py` | the eight pages for `hex_encode`, `hex_decode`, `base64url_encode`, `base64url_decode`, `url_encode`, `url_decode`, `html_encode` and `html_decode`; the examples were worked out with the service's own `libs/func_codec.php` |
 | `make_markdown_pages.py` | the two pages for `html_to_markdown` and `markdown_to_html`; the examples were worked out with the service's own `libs/func_markdown.php` |
+| `make_try_boxes.py` | the Try box of the endpoint pages in its `TRY` list: a section after the quick start, its line under On this page, and the links to `assets/aisense-try.css` and `assets/aisense-try.js`, which wires the box. It runs after the others, since some of these pages are theirs. Change `TRY_VERSION` when either asset changes |
 
-Run all seven with Python 3 and nothing but the standard library:
+Run all eight with Python 3 and nothing but the standard library:
 
 ```sh
 python tools/pages/build.py

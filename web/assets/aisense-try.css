@@ -1,0 +1,20 @@
+/*
+ * The Try box of the endpoint pages: the form tools/pages/make_try_boxes.py writes into each page and
+ * assets/aisense-try.js wires up. Every color is a variable of aisense.css, so the dark theme needs nothing
+ * here.
+ */
+.try-api textarea, .try-api select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.try-api textarea { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.try-api select { min-height: 48px; font: inherit; }
+.try-api .button-row { margin: 14px 0; }
+.try-api pre { margin: 0; max-height: 520px; overflow: auto; }
+.try-api .try-save { margin: 12px 0 0; }
+
+/* The drop zone of the tool pages (aisense-tools.css), under its own name. */
+.try-drop { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: .15rem .45rem; margin-top: 12px; padding: .6rem 1rem; border: 2px dashed var(--border); border-radius: 10px; background: var(--tint); color: var(--body); font-size: .88rem; text-align: center; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.try-drop:hover, .try-drop:focus-visible, .try-drop.is-over { background: var(--current-bg); border-color: var(--blue); color: var(--blue-dark); }
+.try-drop:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.try-drop * { pointer-events: none; }
+.try-drop strong { font-weight: 600; }
+.try-drop.is-bad { border-color: var(--bad); }
+.try-drop.is-bad small { color: var(--bad); }
