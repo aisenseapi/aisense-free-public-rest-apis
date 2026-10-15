@@ -6,9 +6,12 @@
  *   data-try-endpoint  the path under https://aisenseapi.com/services/v1/
  *   data-try-limit     the most bytes the box sends, as text or as a file
  *   data-try-busy      the word the status line shows while the call runs
+ *   data-try-file      how a file goes: raw, the request body itself, or multipart, a form field named file
+ *   data-try-chars     present when the status line should count the characters of the answer
  *
  * The text in .try-input goes as {"data": text} in a JSON body. A file dropped on .try-drop, or chosen
- * through it, goes as the raw body, which the encoders read byte for byte. A select .try-accept sets the
+ * through it, goes as data-try-file says: the encoders read a raw body byte for byte, the hashes a
+ * multipart upload. A select .try-accept sets the
  * Accept header. An answer of application/octet-stream is shown as text when it is readable UTF-8 and
  * as hex otherwise, with a Save button for the bytes. The answer area stays hidden until there is one.
  */
@@ -67,6 +70,8 @@
     var endpoint = card.getAttribute('data-try-endpoint');
     var limit = parseInt(card.getAttribute('data-try-limit') || '1048576', 10);
     var busy = card.getAttribute('data-try-busy') || 'Sending';
+    var fileMode = card.getAttribute('data-try-file') || 'raw';
+    var countChars = card.hasAttribute('data-try-chars');
     var find = function (selector) { return card.querySelector(selector); };
     var input = find('.try-input');
     var accept = find('.try-accept');
@@ -126,9 +131,10 @@
             json = null;
           }
         }
-        if (file && json && response.ok) {
-          var keys = Object.keys(json).filter(function (key) { return typeof json[key] === 'string'; });
-          if (keys.length) { line += ' - ' + file.name + ', ' + size(file.size) + ' in, ' + json[keys[0]].length + ' characters out'; }
+        if (file && response.ok) {
+          line += ' - ' + file.name + ', ' + size(file.size) + (countChars ? ' in' : '');
+          var keys = json ? Object.keys(json).filter(function (key) { return typeof json[key] === 'string'; }) : [];
+          if (countChars && keys.length) { line += ', ' + json[keys[0]].length + ' characters out'; }
         }
         show(line, response.ok ? 'ok' : 'bad');
         out.textContent = text === '' ? '(no body)' : text;
@@ -139,7 +145,11 @@
     function send() {
       var file = chosen;
       var options = { method: 'POST', headers: {} };
-      if (file) {
+      if (file && fileMode === 'multipart') {
+        // The browser writes the multipart Content-Type with its boundary itself.
+        options.body = new FormData();
+        options.body.append('file', file, file.name);
+      } else if (file) {
         options.headers['Content-Type'] = 'application/octet-stream';
         options.body = file;
       } else {
