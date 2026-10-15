@@ -82,6 +82,8 @@ collapsed into a single row here. Each one is listed in `sitemap.xml`.
 | `assets/aisense.css` | shared stylesheet |
 | `assets/aisense-tools.css` | stylesheet for the browser tools, on top of `aisense.css` |
 | `assets/aisense-tools.js` | shared script for the browser tools |
+| `assets/aisense-try.css` | stylesheet for the Try box of the endpoint pages, on top of `aisense.css` |
+| `assets/aisense-try.js` | script for the Try box of the endpoint pages; `../tools/pages/make_try_boxes.py` writes the boxes and lists the pages |
 | `assets/copy-text.js` | a copy button for a block of text, made by the script so a page without JavaScript shows none; used by `/aisense-aiq` and `/aisense-aiq-versions` |
 | `assets/try-aamio.js` | script for `/try-aamio` |
 | `assets/aamio/` | the aamio, aamio-wasm and tweetnacl modules `/try-aamio` loads, copied unchanged from npm with their licences; `SOURCES.txt` says which versions |

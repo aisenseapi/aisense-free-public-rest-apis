@@ -368,7 +368,7 @@
       ]
     }
   }
-}</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
+}</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre id="decide-result" hidden><code id="decide-out"></code></pre></div></section>
 
 <section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. Tev1 is the smallest and fastest. Together AI tested it in English only, and it suits short, direct questions. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p><pre><code>{
   "model": "clef",
@@ -403,6 +403,7 @@
   var run = document.getElementById('decide-run');
   var status = document.getElementById('decide-status');
   var out = document.getElementById('decide-out');
+  var result = document.getElementById('decide-result');
 
   function show(text, state) {
     status.textContent = text;
@@ -417,10 +418,12 @@
     } catch (error) {
       show('The body is not valid JSON: ' + error.message, 'bad');
       out.textContent = '';
+      result.hidden = true;
       return;
     }
 
     run.disabled = true;
+    result.hidden = true;
     show('Deciding');
     fetch('https://aisenseapi.com/services/v1/decide', {
       method: 'POST',
@@ -430,6 +433,7 @@
       return response.json().then(function (json) {
         show('HTTP ' + response.status, response.ok ? 'ok' : 'bad');
         out.textContent = JSON.stringify(json, null, 2);
+        result.hidden = false;
       });
     }).catch(function (error) {
       show('The request failed: ' + error.message, 'bad');

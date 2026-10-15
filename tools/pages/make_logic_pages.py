@@ -151,7 +151,7 @@ DECIDE_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="examples"><h2>More examples</h2><h3>Can an agent run this command without asking?</h3><p>A cheap gate in front of an agent that runs commands. The default is yes, and dangerous patterns pull it down.</p>''' + example('command') + '''<p>3 &minus; 4 &minus; 1 + 1 = &minus;1 gives 0.2689: no, with a confidence of 0.46, so <code>hold</code> and ask a person. The same request with <code>git status</code> answers yes at 0.982 and <code>act</code>.</p><h3>How bad is this alert?</h3><p>A scale with four levels, acting at 0.8, because paging the person on call is right a little more often than it is wrong.</p>''' + example('alert') + '''<h3>Who should take the job?</h3><p>The cheapest layer first: rules, a small model, a large one, a person. Here the large model and the person tie, and the answer says so.</p>''' + example('route') + '''<p>A confidence of 0.20 gives <code>hold</code>. The rules say plainly that they cannot tell, and the code can then send the job to the safer of the two.</p></section>
 
-<section id="try"><h2>Try it</h2><p>Write the request yourself below, or build it in a form with examples and read the answer in plain words on <a href="/try-decide">Try Decide</a>.</p><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre><code id="decide-out"></code></pre></div></section>
+<section id="try"><h2>Try it</h2><p>Write the request yourself below, or build it in a form with examples and read the answer in plain words on <a href="/try-decide">Try Decide</a>.</p><div class="try-card try-api"><label for="decide-body">Request body</label><textarea id="decide-body" rows="20" spellcheck="false">''' + html.escape(DECIDE_TRY, quote=False) + '''</textarea><div class="button-row"><button type="button" class="button button-primary" id="decide-run">Decide</button></div><p class="try-status" id="decide-status" aria-live="polite"></p><pre id="decide-result" hidden><code id="decide-out"></code></pre></div></section>
 
 <section id="models"><h2>Optional decision models</h2><p>Send <code>"model"</code> set to <code>clef</code>, <code>nimble</code> or <code>tev1</code> with instructions and criteria instead of weighted rules. Clef is from Cloudflare, Nimble from Bespoke Labs and Tev1 from Together AI, and all three answer the same question types. Tev1 is the smallest and fastest. Together AI tested it in English only, and it suits short, direct questions. An unknown model returns 400, a request too long for the selected model 413, and a model that is temporarily unavailable 503. None of them falls back to rules.</p>''' + pre(json.dumps({
     "model": "clef",
@@ -202,6 +202,7 @@ DECIDE_SCRIPT = r'''
   var run = document.getElementById('decide-run');
   var status = document.getElementById('decide-status');
   var out = document.getElementById('decide-out');
+  var result = document.getElementById('decide-result');
 
   function show(text, state) {
     status.textContent = text;
@@ -216,10 +217,12 @@ DECIDE_SCRIPT = r'''
     } catch (error) {
       show('The body is not valid JSON: ' + error.message, 'bad');
       out.textContent = '';
+      result.hidden = true;
       return;
     }
 
     run.disabled = true;
+    result.hidden = true;
     show('Deciding');
     fetch('https://aisenseapi.com/services/v1/decide', {
       method: 'POST',
@@ -229,6 +232,7 @@ DECIDE_SCRIPT = r'''
       return response.json().then(function (json) {
         show('HTTP ' + response.status, response.ok ? 'ok' : 'bad');
         out.textContent = JSON.stringify(json, null, 2);
+        result.hidden = false;
       });
     }).catch(function (error) {
       show('The request failed: ' + error.message, 'bad');
@@ -316,7 +320,7 @@ MOCK_MAIN = '''<main id="main-content" class="api-detail-main">
 
 <section id="client-test"><h2>A client test in Python, with nothing to install</h2>''' + pre(PYTHON_TEST) + '''<p>It passes when the client tries three times with the two-second pause <code>Retry-After</code> asks for, and gives up on an answer slower than its deadline.</p></section>
 
-<section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="mock-path">Answer</label><select id="mock-path"><option value="503">503 Service Unavailable</option><option value="429">429 Too Many Requests</option><option value="401">401 Unauthorized</option><option value="500">500 Internal Server Error</option><option value="204">204 No Content</option><option value="200/3000">200 after 3 seconds</option><option value="html">html: a proxy&#39;s error page</option><option value="empty">empty: 200 with no body</option><option value="wrongtype">wrongtype: JSON labelled text/plain</option></select><div class="button-row"><button type="button" class="button button-primary" id="mock-run">Call</button></div><p class="try-status" id="mock-status" aria-live="polite"></p><pre><code id="mock-out"></code></pre></div></section>
+<section id="try"><h2>Try it</h2><div class="try-card try-api"><label for="mock-path">Answer</label><select id="mock-path"><option value="503">503 Service Unavailable</option><option value="429">429 Too Many Requests</option><option value="401">401 Unauthorized</option><option value="500">500 Internal Server Error</option><option value="204">204 No Content</option><option value="200/3000">200 after 3 seconds</option><option value="html">html: a proxy&#39;s error page</option><option value="empty">empty: 200 with no body</option><option value="wrongtype">wrongtype: JSON labelled text/plain</option></select><div class="button-row"><button type="button" class="button button-primary" id="mock-run">Call</button></div><p class="try-status" id="mock-status" aria-live="polite"></p><pre id="mock-result" hidden><code id="mock-out"></code></pre></div></section>
 
 <section id="errors"><h2>Errors</h2>''' + table(['Status', 'When'], [
     ['404', 'A path that is not one of the forms, or a status mock_response does not answer with. The <code>fix</code> lists the statuses and events'],
@@ -350,6 +354,7 @@ MOCK_SCRIPT = r'''
   var run = document.getElementById('mock-run');
   var status = document.getElementById('mock-status');
   var out = document.getElementById('mock-out');
+  var result = document.getElementById('mock-result');
 
   run.addEventListener('click', function () {
     var started = performance.now();
@@ -357,6 +362,7 @@ MOCK_SCRIPT = r'''
     status.className = 'try-status';
     status.textContent = 'Calling /mock_response/' + path.value;
     out.textContent = '';
+    result.hidden = true;
     fetch('https://aisenseapi.com/services/v1/mock_response/' + path.value).then(function (response) {
       return response.text().then(function (text) {
         var parts = ['HTTP ' + response.status, Math.round(performance.now() - started) + ' ms'];
@@ -366,6 +372,7 @@ MOCK_SCRIPT = r'''
         if (retry) { parts.push('Retry-After: ' + retry); }
         status.textContent = parts.join(' - ');
         out.textContent = text === '' ? '(no body)' : text;
+        result.hidden = false;
       });
     }).catch(function (error) {
       status.className = 'try-status is-bad';
