@@ -14,6 +14,13 @@
 .try-api select { min-height: 48px; font: inherit; }
 .try-api .button-row { margin: 14px 0; }
 .try-api pre { margin: 0; max-height: 520px; overflow: auto; }
+.try-drop { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: .15rem .45rem; margin-top: 12px; padding: .6rem 1rem; border: 2px dashed var(--border); border-radius: 10px; background: var(--tint); color: var(--body); font-size: .88rem; text-align: center; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.try-drop:hover, .try-drop:focus-visible, .try-drop.is-over { background: var(--current-bg); border-color: var(--blue); color: var(--blue-dark); }
+.try-drop:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.try-drop * { pointer-events: none; }
+.try-drop strong { font-weight: 600; }
+.try-drop.is-bad { border-color: var(--bad); }
+.try-drop.is-bad small { color: var(--bad); }
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Base64 Encode API Endpoint","description":"POST text or binary to the free Base64 encode API endpoint and receive standard Base64 with = padding in a single JSON field.","url":"https://aisense.no/free-public-api-base64-encode-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Base64 Encode API Endpoint","item":"https://aisense.no/free-public-api-base64-encode-api-endpoint"}]},{"@type":"WebPage","url":"https://aisense.no/free-public-api-base64-encode-api-endpoint","name":"Free Base64 Encode API Endpoint","description":"Reference for the POST /base64_encode endpoint: input forms, response field, padding rules and the standard Base64 alphabet.","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -30,7 +37,7 @@
 <section id="quick-start"><h2>One call to the free Base64 encode API endpoint</h2><p>Send a JSON body with a <code>data</code> key. One field comes back.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/base64_encode \
   -H "Content-Type: application/json" \
   -d '{"data":"Hello world"}'</code></pre><pre><code>{"base64_encoded_data":"SGVsbG8gd29ybGQ="}</code></pre><p>That is the entire contract for the free Base64 encode API endpoint. There is no key to request, no account to create and no signup step. The service-wide limit is 5000 requests per IP per day.</p></section>
-<section id="try"><h2>Try it</h2><p>Encode text here: your browser sends the same POST as the quick start. Leave secrets and personal data out.</p><div class="try-card try-api"><label for="b64e-input">Text</label><textarea id="b64e-input" rows="4" spellcheck="false">Hello world</textarea><div class="button-row"><button type="button" class="button button-primary" id="b64e-run">Encode</button></div><p class="try-status" id="b64e-status" aria-live="polite"></p><pre><code id="b64e-out"></code></pre></div></section>
+<section id="try"><h2>Try it</h2><p>Encode text or a file here: your browser sends the same POST as the examples, text in a JSON body and a file as the raw body. Leave secrets and personal data out.</p><div class="try-card try-api"><label for="b64e-input">Text</label><textarea id="b64e-input" rows="4" spellcheck="false">Hello world</textarea><div class="try-drop" id="b64e-drop" role="button" tabindex="0"><strong>Or drop a file here</strong> <small>or click to choose one, up to 1 MiB</small></div><input type="file" id="b64e-file" hidden><div class="button-row"><button type="button" class="button button-primary" id="b64e-run">Encode</button></div><p class="try-status" id="b64e-status" aria-live="polite"></p><pre id="b64e-result" hidden><code id="b64e-out"></code></pre></div></section>
 <section id="what-it-is"><h2>What Base64 encoding actually does</h2><p>Base64 is a transport format. It is not compression and it is not encryption. The encoder reads your input three bytes at a time, splits those 24 bits into four groups of six, and maps each group onto one character from a 64 character alphabet: <code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, <code>+</code> and <code>/</code>.</p><p>The benefit is safety. Every output character is ordinary printable ASCII, so the string travels intact through JSON documents, email bodies, HTTP headers, XML attributes, log lines and copy-paste. All of those would mangle raw bytes.</p><p>The cost is size. Three bytes in produce four characters out, so the output is roughly 33 percent larger than the input before padding is counted. Budget for that growth wherever you store or forward the result. A 3 MB image arrives back as about 4 MB of text, and a database column sized for the original will not hold it.</p><p>That ratio is fixed at four characters for every three bytes, which makes the growth easy to predict. Multiply the input size by four, divide by three, then round up to the next multiple of four. Content never changes the answer, because Base64 does not look at what the bytes mean.</p></section>
 <section id="input"><h2>Three ways to send the input</h2><p>The free Base64 encode API endpoint accepts three shapes of request body. Start with the simplest: a JSON body encodes the value of the <code>data</code> key.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/base64_encode \
   -H "Content-Type: application/json" \
@@ -60,41 +67,111 @@
 <script>
 (function () {
   var input = document.getElementById('b64e-input');
-  var accept = document.getElementById('b64e-accept');
+  var drop = document.getElementById('b64e-drop');
+  var picker = document.getElementById('b64e-file');
   var run = document.getElementById('b64e-run');
   var status = document.getElementById('b64e-status');
+  var result = document.getElementById('b64e-result');
   var out = document.getElementById('b64e-out');
+  var note = drop.querySelector('small');
+  var noteText = note.textContent;
+  var limit = 1048576;
+  var chosen = null;
 
   function show(text, state) {
     status.textContent = text;
     status.className = 'try-status' + (state ? ' is-' + state : '');
   }
 
-  run.addEventListener('click', function () {
-    var headers = { 'Content-Type': 'application/json' };
-    if (accept) { headers.Accept = accept.value; }
+  function size(n) {
+    return n < 1024 ? n + (n === 1 ? ' byte' : ' bytes') : n < 1048576 ? (n / 1024).toFixed(1) + ' KiB' : (n / 1048576).toFixed(1) + ' MiB';
+  }
+
+  function hasFiles(e) {
+    var types = e.dataTransfer && e.dataTransfer.types;
+    return !!types && Array.prototype.indexOf.call(types, 'Files') !== -1;
+  }
+
+  // A file goes as the raw body, text in a JSON body: the forms the input section shows.
+  function encode() {
+    var file = chosen;
     run.disabled = true;
-    show('Encoding');
+    result.hidden = true;
     out.textContent = '';
-    fetch('https://aisenseapi.com/services/v1/base64_encode', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ data: input.value })
-    }).then(function (response) {
+    show(file ? 'Encoding ' + file.name : 'Encoding');
+    fetch('https://aisenseapi.com/services/v1/base64_encode', file
+      ? { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file }
+      : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: input.value }) }
+    ).then(function (response) {
       return response.text().then(function (text) {
         var type = response.headers.get('Content-Type') || '';
-        if (type.indexOf('application/json') === 0) {
-          try { text = JSON.stringify(JSON.parse(text), null, 2); } catch (error) { }
-        }
-        show('HTTP ' + response.status + (type ? ' - ' + type : ''), response.ok ? 'ok' : 'bad');
+        var line = 'HTTP ' + response.status + (type ? ' - ' + type : '');
+        try {
+          var json = JSON.parse(text);
+          text = JSON.stringify(json, null, 2);
+          if (file && typeof json.base64_encoded_data === 'string') {
+            line += ' - ' + file.name + ', ' + size(file.size) + ' in, ' + json.base64_encoded_data.length + ' characters out';
+          }
+        } catch (error) { }
+        show(line, response.ok ? 'ok' : 'bad');
         out.textContent = text === '' ? '(no body)' : text;
+        result.hidden = false;
       });
     }).catch(function (error) {
       show('The request failed: ' + error.message, 'bad');
     }).then(function () {
       run.disabled = false;
     });
+  }
+
+  function take(file) {
+    if (!file) { return; }
+    if (file.size > limit) {
+      drop.classList.add('is-bad');
+      note.textContent = file.name + ' is ' + file.size + ' bytes. The box takes files up to 1 MiB, ' + limit + ' bytes.';
+      return;
+    }
+    chosen = file;
+    drop.classList.remove('is-bad');
+    note.textContent = file.name + ', ' + size(file.size) + '. Type in the text box to encode text again.';
+    encode();
+  }
+
+  input.addEventListener('input', function () {
+    if (chosen) {
+      chosen = null;
+      note.textContent = noteText;
+    }
   });
+  drop.addEventListener('click', function () { picker.click(); });
+  drop.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); picker.click(); }
+  });
+  picker.addEventListener('change', function () {
+    take(picker.files && picker.files[0]);
+    picker.value = '';
+  });
+  [drop, input].forEach(function (target) {
+    ['dragenter', 'dragover'].forEach(function (name) {
+      target.addEventListener(name, function (e) {
+        if (!hasFiles(e)) { return; }
+        e.preventDefault();
+        drop.classList.add('is-over');
+      });
+    });
+    target.addEventListener('dragleave', function () { drop.classList.remove('is-over'); });
+    target.addEventListener('drop', function (e) {
+      drop.classList.remove('is-over');
+      if (!hasFiles(e)) { return; }
+      e.preventDefault();
+      take(e.dataTransfer.files[0]);
+    });
+  });
+  // A file dropped anywhere else would make the browser open it and leave the page.
+  ['dragover', 'drop'].forEach(function (name) {
+    window.addEventListener(name, function (e) { if (hasFiles(e)) { e.preventDefault(); } });
+  });
+  run.addEventListener('click', encode);
 })();
 </script>
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
