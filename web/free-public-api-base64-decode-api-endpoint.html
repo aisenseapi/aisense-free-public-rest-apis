@@ -8,6 +8,13 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="AI SENSE"><meta property="og:title" content="Free Base64 Decode API Endpoint"><meta property="og:description" content="POST a Base64 string and get plain text, a typed JSON envelope or the raw bytes as a download. One Accept header picks the shape. No API key."><meta property="og:url" content="https://aisense.no/free-public-api-base64-decode-api-endpoint"><meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/assets/aisense.css?v=20261010a">
 <script src="/assets/aisense-theme.js?v=20261010a"></script>
+<style>
+.try-api textarea, .try-api select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.try-api textarea { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.try-api select { min-height: 48px; font: inherit; }
+.try-api .button-row { margin: 14px 0; }
+.try-api pre { margin: 0; max-height: 520px; overflow: auto; }
+</style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Base64 Decode API Endpoint","description":"Decode Base64 with one unauthenticated POST. The Accept header selects plain text, a typed JSON envelope or the raw bytes as a download.","url":"https://aisense.no/free-public-api-base64-decode-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Base64 Decode API Endpoint","item":"https://aisense.no/free-public-api-base64-decode-api-endpoint"}]},{"@type":"WebPage","@id":"https://aisense.no/free-public-api-base64-decode-api-endpoint","url":"https://aisense.no/free-public-api-base64-decode-api-endpoint","name":"Free Base64 Decode API Endpoint","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -24,6 +31,7 @@
   -H "Content-Type: application/json" \
   -H "Accept: text/plain" \
   -d '{"data":"SGVsbG8gd29ybGQ="}'</code></pre><pre><code>Hello world</code></pre><p>That is the whole happy path. Post the string, ask for text, read the body. There is no account, no API key and no signup step. The sections below cover the two other response shapes, the alphabet rules that decide what counts as valid input, and the one error you are likely to meet.</p><p>Going the other direction is a separate call. See the <a href="/free-public-api-base64-encode-api-endpoint">Base64 encode API endpoint</a> for turning bytes into a Base64 string.</p></section>
+<section id="try"><h2>Try it</h2><p>Decode a string here: your browser sends the same POST as the quick start, with the Accept header you pick. Leave secrets and personal data out.</p><div class="try-card try-api"><label for="b64d-input">Base64</label><textarea id="b64d-input" rows="4" spellcheck="false">SGVsbG8gd29ybGQ=</textarea><label for="b64d-accept">Answer as</label><select id="b64d-accept"><option value="text/plain">Text (Accept: text/plain)</option><option value="application/json">JSON envelope (Accept: application/json)</option></select><div class="button-row"><button type="button" class="button button-primary" id="b64d-run">Decode</button></div><p class="try-status" id="b64d-status" aria-live="polite"></p><pre><code id="b64d-out"></code></pre></div></section>
 <section id="accept-modes"><h2>Three response shapes, one Accept header</h2><p>Decoding produces bytes, and bytes can be anything: a sentence, a JSON document, a gzip stream, half a JPEG. No single response format serves all of those honestly. So the free Base64 decode API endpoint reads your Accept header and picks one of three modes. Callers who send no Accept header and expect text are the most common source of confusion here.</p><h3>1. Accept: text/plain returns the decoded text</h3><p>The body is the decoded text and nothing else, served as <code>text/plain; charset=utf-8</code>. No envelope, no quoting, no second decode step in your code. Use this whenever you know the payload is text.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/base64_decode \
   -H "Content-Type: application/json" \
   -H "Accept: text/plain" \
@@ -59,7 +67,47 @@ Hello world</code></pre><p>The free Base64 decode API endpoint speaks standard B
 <section id="use-cases"><h2>Common uses</h2><div class="use-case-grid"><article><h3>Read an opaque blob</h3><p>A webhook payload or queue message arrives as an unreadable string. One POST with <code>Accept: text/plain</code> tells you what it says.</p></article><article><h3>Recover a file</h3><p>Pull an attachment out of a Base64 field, decode with no Accept header, and write the bytes straight to disk with <code>-o</code>.</p></article><article><h3>Inspect a data URI</h3><p>Strip the <code>data:image/png;base64,</code> prefix and post the rest to see what the payload really contains.</p></article><article><h3>Give an agent a decoder</h3><p>A language model with HTTP access can decode a string it met in a document with a single call, instead of needing a code sandbox.</p></article></div></section>
 <section id="privacy"><h2>Privacy and limits</h2><div class="api-note warning-note"><p>Base64 is an encoding, not a cipher. Anyone holding the string can read the contents. Do not send production secrets, tokens or personal data to a public endpoint just to decode them; that conversion is a few lines of code in every language and belongs on your own machine.</p></div><p>Payloads travel in the POST body rather than the URL, so they never appear in request paths. There is no account and no API key, and the service-wide limit is 5000 requests per IP per day. Full terms and the rest of the catalogue sit on the <a href="/free-public-apis">free public REST APIs</a> reference.</p></section>
 <section id="related"><h2>Related APIs</h2><div class="related-api-grid"><a href="/encoding-apis">Encoding APIs<span>The hub for every encode and decode endpoint</span></a><a href="/free-public-api-base64-encode-api-endpoint">Base64 Encode API Endpoint<span>Bytes in, Base64 string out</span></a><a href="/free-public-api-base32-decode-api-endpoint">Base32 Decode API Endpoint<span>Case insensitive alphabet, same three modes</span></a><a href="/free-public-api-base58-decode-api-endpoint">Base58 Decode API Endpoint<span>No lookalike characters</span></a><a href="/free-public-api-jwt-decode-api-endpoint">JWT Decode API Endpoint<span>Read tokens built from Base64 segments</span></a><a href="/free-public-apis">Free public REST APIs<span>Every endpoint in the catalogue</span></a></div></section>
-</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Quick start</a></li><li><a href="#accept-modes">Response shapes</a></li><li><a href="#input">Sending the input</a></li><li><a href="#errors">Errors</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#privacy">Privacy</a></li></ul></aside></div>
+</article><aside class="on-this-page" aria-label="On this page"><p>On this page</p><ul><li><a href="#quick-start">Quick start</a></li><li><a href="#try">Try it</a></li><li><a href="#accept-modes">Response shapes</a></li><li><a href="#input">Sending the input</a></li><li><a href="#errors">Errors</a></li><li><a href="#use-cases">Use cases</a></li><li><a href="#privacy">Privacy</a></li></ul></aside></div>
 </main>
+<script>
+(function () {
+  var input = document.getElementById('b64d-input');
+  var accept = document.getElementById('b64d-accept');
+  var run = document.getElementById('b64d-run');
+  var status = document.getElementById('b64d-status');
+  var out = document.getElementById('b64d-out');
+
+  function show(text, state) {
+    status.textContent = text;
+    status.className = 'try-status' + (state ? ' is-' + state : '');
+  }
+
+  run.addEventListener('click', function () {
+    var headers = { 'Content-Type': 'application/json' };
+    if (accept) { headers.Accept = accept.value; }
+    run.disabled = true;
+    show('Decoding');
+    out.textContent = '';
+    fetch('https://aisenseapi.com/services/v1/base64_decode', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ data: input.value })
+    }).then(function (response) {
+      return response.text().then(function (text) {
+        var type = response.headers.get('Content-Type') || '';
+        if (type.indexOf('application/json') === 0) {
+          try { text = JSON.stringify(JSON.parse(text), null, 2); } catch (error) { }
+        }
+        show('HTTP ' + response.status + (type ? ' - ' + type : ''), response.ok ? 'ok' : 'bad');
+        out.textContent = text === '' ? '(no body)' : text;
+      });
+    }).catch(function (error) {
+      show('The request failed: ' + error.message, 'bad');
+    }).then(function () {
+      run.disabled = false;
+    });
+  });
+})();
+</script>
 <footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p></div></footer>
 </body></html>
