@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261015a'
+TRY_VERSION = '20261015b'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -54,7 +54,14 @@ def encoder(endpoint, sample, file=True, limit=MIB):
     else:
         intro = 'Encode text here, up to %s. Your browser sends it in a JSON body, as the quick start does.' % limit_text(limit)
     return {'endpoint': endpoint, 'label': 'Text', 'sample': sample, 'button': 'Encode', 'busy': 'Encoding',
-            'file': file, 'limit': limit, 'intro': intro + ' ' + LEAVE_OUT}
+            'file': 'raw' if file else None, 'chars': True, 'limit': limit, 'intro': intro + ' ' + LEAVE_OUT}
+
+
+def hasher(endpoint, verb='Hash', busy='Hashing'):
+    intro = ('%s text or a file here. Your browser sends the text in a JSON body, as the quick start does, '
+             'and a file as a multipart upload.' % verb)
+    return {'endpoint': endpoint, 'label': 'Text', 'sample': 'Hello world', 'button': verb, 'busy': busy,
+            'file': 'multipart', 'limit': MIB, 'intro': intro + ' ' + LEAVE_OUT}
 
 
 def decoder(endpoint, label, sample, accept=THREE, limit=MIB):
@@ -87,6 +94,18 @@ TRY = {
     'free-public-api-url-decode-api-endpoint.html': text('url_decode', 'Decode', 'Decoding', 'Encoded text', 'a%20b%2Fc+%C3%A9'),
     'free-public-api-html-encode-api-endpoint.html': text('html_encode', 'Encode', 'Encoding', 'Text', '<b>"Tom" & Jerry</b>'),
     'free-public-api-html-decode-api-endpoint.html': text('html_decode', 'Decode', 'Decoding', 'HTML', '&lt;b&gt; &amp; &eacute; &#233;'),
+    # The hashes take JSON data, text/plain or a multipart file named file; the box sends text as JSON and a file
+    # as multipart, up to 1 MiB, which is also BLAKE3's own limit.
+    'free-public-api-md5-hash-api-endpoint.html': hasher('md5_hash'),
+    'free-public-api-sha1-hash-api-endpoint.html': hasher('sha1_hash'),
+    'free-public-api-sha256-hash-api-endpoint.html': hasher('sha256_hash'),
+    'free-public-api-sha512-hash-api-endpoint.html': hasher('sha512_hash'),
+    'free-public-api-sha3-256-hash-api-endpoint.html': hasher('sha3_256_hash'),
+    'free-public-api-sha3-512-hash-api-endpoint.html': hasher('sha3_512_hash'),
+    'free-public-api-blake2b-hash-api-endpoint.html': hasher('blake2b_hash'),
+    'free-public-api-blake3-hash-api-endpoint.html': hasher('blake3_hash'),
+    'free-public-api-whirlpool-hash-api-endpoint.html': hasher('whirlpool_hash'),
+    'free-public-api-crc32-checksum-api-endpoint.html': hasher('crc32_checksum', 'Checksum', 'Computing'),
 }
 
 
@@ -96,7 +115,10 @@ def esc(value):
 
 def section(spec):
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),
-             '<div class="try-card try-api" data-try-endpoint="%s" data-try-limit="%d" data-try-busy="%s">' % (spec['endpoint'], spec['limit'], spec['busy']),
+             '<div class="try-card try-api" data-try-endpoint="%s" data-try-limit="%d" data-try-busy="%s"%s%s>' % (
+                 spec['endpoint'], spec['limit'], spec['busy'],
+                 ' data-try-file="%s"' % spec['file'] if spec.get('file') else '',
+                 ' data-try-chars' if spec.get('chars') else ''),
              '<label for="try-input">%s</label><textarea id="try-input" class="try-input" rows="4" spellcheck="false">%s</textarea>' % (esc(spec['label']), esc(spec['sample']))]
     if spec.get('file'):
         parts.append('<div class="try-drop" role="button" tabindex="0"><strong>Or drop a file here</strong> <small>or click to choose one, up to %s</small></div>'
