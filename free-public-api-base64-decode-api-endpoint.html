@@ -14,6 +14,7 @@
 .try-api select { min-height: 48px; font: inherit; }
 .try-api .button-row { margin: 14px 0; }
 .try-api pre { margin: 0; max-height: 520px; overflow: auto; }
+.try-api .try-save { margin: 12px 0 0; }
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Free Base64 Decode API Endpoint","description":"Decode Base64 with one unauthenticated POST. The Accept header selects plain text, a typed JSON envelope or the raw bytes as a download.","url":"https://aisense.no/free-public-api-base64-decode-api-endpoint","inLanguage":"en","author":{"@type":"Organization","name":"AI SENSE AS"},"publisher":{"@type":"Organization","name":"AI SENSE AS","url":"https://aisense.no"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aisense.no/"},{"@type":"ListItem","position":2,"name":"Free public REST APIs","item":"https://aisense.no/free-public-apis"},{"@type":"ListItem","position":3,"name":"Base64 Decode API Endpoint","item":"https://aisense.no/free-public-api-base64-decode-api-endpoint"}]},{"@type":"WebPage","@id":"https://aisense.no/free-public-api-base64-decode-api-endpoint","url":"https://aisense.no/free-public-api-base64-decode-api-endpoint","name":"Free Base64 Decode API Endpoint","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"AI SENSE","url":"https://aisense.no"}}]}</script>
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -31,7 +32,7 @@
   -H "Content-Type: application/json" \
   -H "Accept: text/plain" \
   -d '{"data":"SGVsbG8gd29ybGQ="}'</code></pre><pre><code>Hello world</code></pre><p>That is the whole happy path. Post the string, ask for text, read the body. There is no account, no API key and no signup step. The sections below cover the two other response shapes, the alphabet rules that decide what counts as valid input, and the one error you are likely to meet.</p><p>Going the other direction is a separate call. See the <a href="/free-public-api-base64-encode-api-endpoint">Base64 encode API endpoint</a> for turning bytes into a Base64 string.</p></section>
-<section id="try"><h2>Try it</h2><p>Decode a string here: your browser sends the same POST as the quick start, with the Accept header you pick. Leave secrets and personal data out.</p><div class="try-card try-api"><label for="b64d-input">Base64</label><textarea id="b64d-input" rows="4" spellcheck="false">SGVsbG8gd29ybGQ=</textarea><label for="b64d-accept">Answer as</label><select id="b64d-accept"><option value="text/plain">Text (Accept: text/plain)</option><option value="application/json">JSON envelope (Accept: application/json)</option></select><div class="button-row"><button type="button" class="button button-primary" id="b64d-run">Decode</button></div><p class="try-status" id="b64d-status" aria-live="polite"></p><pre><code id="b64d-out"></code></pre></div></section>
+<section id="try"><h2>Try it</h2><p>Decode a string here: your browser sends the same POST as the quick start, with the Accept header you pick. Bytes as a file shows the first bytes and lets you save them. Leave secrets and personal data out.</p><div class="try-card try-api"><label for="b64d-input">Base64</label><textarea id="b64d-input" rows="4" spellcheck="false">SGVsbG8gd29ybGQ=</textarea><label for="b64d-accept">Answer as</label><select id="b64d-accept"><option value="text/plain">Text (Accept: text/plain)</option><option value="application/json">JSON envelope (Accept: application/json)</option><option value="application/octet-stream">Bytes as a file (Accept: application/octet-stream)</option></select><div class="button-row"><button type="button" class="button button-primary" id="b64d-run">Decode</button></div><p class="try-status" id="b64d-status" aria-live="polite"></p><pre id="b64d-result" hidden><code id="b64d-out"></code></pre><p class="try-save" id="b64d-save-row" hidden><a class="button button-secondary" id="b64d-save" href="#" download="decoded_data.bin">Save decoded_data.bin</a></p></div></section>
 <section id="accept-modes"><h2>Three response shapes, one Accept header</h2><p>Decoding produces bytes, and bytes can be anything: a sentence, a JSON document, a gzip stream, half a JPEG. No single response format serves all of those honestly. So the free Base64 decode API endpoint reads your Accept header and picks one of three modes. Callers who send no Accept header and expect text are the most common source of confusion here.</p><h3>1. Accept: text/plain returns the decoded text</h3><p>The body is the decoded text and nothing else, served as <code>text/plain; charset=utf-8</code>. No envelope, no quoting, no second decode step in your code. Use this whenever you know the payload is text.</p><pre><code>curl -X POST https://aisenseapi.com/services/v1/base64_decode \
   -H "Content-Type: application/json" \
   -H "Accept: text/plain" \
@@ -75,31 +76,67 @@ Hello world</code></pre><p>The free Base64 decode API endpoint speaks standard B
   var accept = document.getElementById('b64d-accept');
   var run = document.getElementById('b64d-run');
   var status = document.getElementById('b64d-status');
+  var result = document.getElementById('b64d-result');
   var out = document.getElementById('b64d-out');
+  var saveRow = document.getElementById('b64d-save-row');
+  var save = document.getElementById('b64d-save');
+  var url = null;
 
   function show(text, state) {
     status.textContent = text;
     status.className = 'try-status' + (state ? ' is-' + state : '');
   }
 
+  // The first 64 bytes as hex, 16 to a line with their offset.
+  function hex(bytes) {
+    var lines = [];
+    var shown = Math.min(bytes.length, 64);
+    for (var i = 0; i < shown; i += 16) {
+      var row = [];
+      for (var j = i; j < Math.min(i + 16, shown); j++) {
+        row.push(('0' + bytes[j].toString(16)).slice(-2));
+      }
+      lines.push(('0000000' + i.toString(16)).slice(-8) + '  ' + row.join(' '));
+    }
+    if (bytes.length > shown) {
+      lines.push('(' + (bytes.length - shown) + ' more bytes in the file)');
+    }
+    return lines.join(String.fromCharCode(10));
+  }
+
   run.addEventListener('click', function () {
-    var headers = { 'Content-Type': 'application/json' };
-    if (accept) { headers.Accept = accept.value; }
+    var asFile = accept.value === 'application/octet-stream';
     run.disabled = true;
-    show('Decoding');
+    result.hidden = true;
+    saveRow.hidden = true;
     out.textContent = '';
+    show('Decoding');
     fetch('https://aisenseapi.com/services/v1/base64_decode', {
       method: 'POST',
-      headers: headers,
+      headers: { 'Content-Type': 'application/json', 'Accept': accept.value },
       body: JSON.stringify({ data: input.value })
     }).then(function (response) {
+      var type = response.headers.get('Content-Type') || '';
+      var line = 'HTTP ' + response.status + (type ? ' - ' + type : '');
+      if (asFile && response.ok) {
+        return response.arrayBuffer().then(function (buffer) {
+          var bytes = new Uint8Array(buffer);
+          show(line + ' - ' + bytes.length + (bytes.length === 1 ? ' byte' : ' bytes'), 'ok');
+          out.textContent = bytes.length === 0 ? '(no bytes)' : hex(bytes);
+          if (url) { URL.revokeObjectURL(url); }
+          url = URL.createObjectURL(new Blob([buffer], { type: 'application/octet-stream' }));
+          save.href = url;
+          result.hidden = false;
+          saveRow.hidden = false;
+        });
+      }
       return response.text().then(function (text) {
-        var type = response.headers.get('Content-Type') || '';
         if (type.indexOf('application/json') === 0) {
           try { text = JSON.stringify(JSON.parse(text), null, 2); } catch (error) { }
         }
-        show('HTTP ' + response.status + (type ? ' - ' + type : ''), response.ok ? 'ok' : 'bad');
+        show(line, response.ok ? 'ok' : 'bad');
         out.textContent = text === '' ? '(no body)' : text;
+        result.hidden = false;
       });
     }).catch(function (error) {
       show('The request failed: ' + error.message, 'bad');
