@@ -12,6 +12,10 @@
  *   data-try-image     a JSON field of the answer that holds a base64 image, which the box shows
  *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
+ *   data-try-method    GET for the endpoints whose quick start is a GET; POST otherwise
+ *
+ * A GET box sends no body: an input .try-args, when there is one, holds the arguments that follow the
+ * endpoint in the path, separated by /, and each one is percent-encoded on its own.
  *
  * The text in .try-input goes as {"<key>": text} in a JSON body. A select .try-path adds its value to the
  * path, and switching it puts that option's data-sample in the text field while the field still holds a
@@ -82,8 +86,10 @@
     var imageField = card.getAttribute('data-try-image');
     var sampleFile = card.getAttribute('data-try-sample');
     var countChars = card.hasAttribute('data-try-chars');
+    var method = (card.getAttribute('data-try-method') || 'POST').toUpperCase();
     var find = function (selector) { return card.querySelector(selector); };
     var input = find('.try-input');
+    var args = find('.try-args');
     var path = find('.try-path');
     var accept = find('.try-accept');
     var run = find('.try-run');
@@ -180,7 +186,41 @@
       });
     }
 
+    // Each argument percent-encoded on its own; : @ and + stay, so an IPv6 address or an offset such as
+    // +0200 reads as it is written.
+    function segment(text) {
+      return encodeURIComponent(text).replace(/%3A/gi, ':').replace(/%40/gi, '@').replace(/%2B/gi, '+');
+    }
+
+    function sendGet() {
+      var target = endpoint;
+      if (args) {
+        var parts = args.value.trim().split('/').filter(function (part) { return part !== ''; });
+        if (/[?#]/.test(args.value) || parts.some(function (part) { return part === '.' || part === '..'; })) {
+          clear();
+          show('The arguments go in the path, separated by /, with no ? or #.', 'bad');
+          return;
+        }
+        if (parts.length) { target += '/' + parts.map(segment).join('/'); }
+      }
+      run.disabled = true;
+      clear();
+      show(busy);
+      fetch(API + target, { method: 'GET' }).then(function (response) {
+        var type = response.headers.get('Content-Type') || '';
+        return textAnswer(response, 'GET /services/v1/' + target + ' - HTTP ' + response.status + (type ? ' - ' + type : ''), null);
+      }).catch(function (error) {
+        show('The request failed: ' + error.message, 'bad');
+      }).then(function () {
+        run.disabled = false;
+      });
+    }
+
     function send() {
+      if (method === 'GET') {
+        sendGet();
+        return;
+      }
       var file = chosen;
       var options = { method: 'POST', headers: {} };
       if (file && fileMode === 'multipart') {
@@ -261,6 +301,15 @@
         send();
       }
     });
+
+    if (args) {
+      args.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          send();
+        }
+      });
+    }
 
     if (path && input) {
       path.addEventListener('change', function () {
