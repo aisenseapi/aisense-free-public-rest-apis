@@ -116,10 +116,9 @@ TRY = {
     'free-public-api-base64url-decode-api-endpoint.html': decoder('base64url_decode', 'base64url', 'aGVsbG8_'),
     'free-public-api-base32-encode-api-endpoint.html': encoder('base32_encode', 'Hello world'),
     'free-public-api-base32-decode-api-endpoint.html': decoder('base32_decode', 'Base32', 'JBSWY3DPEB3W64TMMQ======', accept=TWO),
-    # base58 takes time that grows with the square of the input (8 KiB took over a second on 15 October 2026),
-    # so its boxes stop at 1 KiB and take no file.
-    'free-public-api-base58-encode-api-endpoint.html': encoder('base58_encode', 'Hello world', file=False, limit=1024),
-    'free-public-api-base58-decode-api-endpoint.html': decoder('base58_decode', 'Base58', 'JxF12TrwXzT5jvT', accept=TWO, limit=1024),
+    # Base58 takes at most 64 KiB in one request (its work grows faster than the input), so its boxes stop there.
+    'free-public-api-base58-encode-api-endpoint.html': encoder('base58_encode', 'Hello world', limit=64 * 1024),
+    'free-public-api-base58-decode-api-endpoint.html': decoder('base58_decode', 'Base58', 'JxF12TrwXzT5jvT', accept=TWO, limit=64 * 1024),
     'free-public-api-hex-encode-api-endpoint.html': encoder('hex_encode', 'hello'),
     'free-public-api-hex-decode-api-endpoint.html': decoder('hex_decode', 'Hex', '68656C6C6F'),
     'free-public-api-url-encode-api-endpoint.html': text('url_encode', 'Encode', 'Encoding', 'Text', 'a b/c?é'),
