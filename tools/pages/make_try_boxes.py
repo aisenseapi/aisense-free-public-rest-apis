@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261015c'
+TRY_VERSION = '20261015f'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -102,6 +102,19 @@ def qr_encoder():
                      'payload, as the quick start does, and draws the PNG that comes back. ' + LEAVE_OUT}
 
 
+def getter(endpoint, args=None, label=None, button='Send', busy='Calling', intro=None):
+    """A one-click GET: the request of the quick start, with the arguments that follow the endpoint editable."""
+    spec = {'endpoint': endpoint, 'method': 'GET', 'button': button, 'busy': busy, 'limit': 1024}
+    if args is None:
+        spec['intro'] = intro or 'Call it here. Your browser sends the GET request of the quick start and shows the answer.'
+    else:
+        spec['args'] = args
+        spec['args_label'] = label
+        spec['intro'] = intro or ('Call it here. Your browser sends the GET request of the quick start; change the %s in '
+                                  'the path to try others.' % label.lower())
+    return spec
+
+
 def qr_decoder():
     return {'endpoint': 'qrcode_decode', 'file': 'multipart', 'field': 'qrcode_image', 'sample_file': '/assets/aisense-try-qr.png',
             'drop': 'Drop a QR image here', 'button': 'Read the sample code', 'busy': 'Reading', 'limit': 8 * MIB,
@@ -157,6 +170,30 @@ TRY = {
               'JSON body, as the quick start does. Use a test address, or one you are free to share.'),
     'free-public-api-qr-code-encode-api-endpoint.html': qr_encoder(),
     'free-public-api-qr-code-decode-api-endpoint.html': qr_decoder(),
+    # One-click GETs. Left out: what makes an object or a public link (inbox, DNS names, short links, PDF to
+    # storage), what makes a secret others could use (the wallet generators), the crypto balances for now, and
+    # mock_response, which has a box of its own.
+    'free-public-api-uuid-api-endpoint.html': getter('uuid', button='Make a UUID', busy='Making'),
+    'free-public-api-guid-api-endpoint.html': getter('guid', button='Make a GUID', busy='Making'),
+    'free-public-api-password-api-endpoint.html': getter('password', '20', 'Length', button='Make a password', busy='Making'),
+    'free-public-api-passphrase-api-endpoint.html': getter('passphrase', '4', 'Groups', button='Make a passphrase', busy='Making'),
+    'free-public-api-random-number-api-endpoint.html': getter('random_number', '1/100', 'From and to', button='Draw', busy='Drawing'),
+    'free-public-api-random-color-api-endpoint.html': getter('random_color', button='Draw a color', busy='Drawing'),
+    'free-public-api-datetime-api-endpoint.html': getter(
+        'datetime', '', 'Time zone or offset (optional)', button='Ask', busy='Asking',
+        intro='Call it here. Your browser sends the GET request of the quick start, which answers in UTC; put a time '
+              'zone such as europe/oslo, or an offset such as +0200, in the path to ask for another.'),
+    'free-public-api-timestamp-api-endpoint.html': getter('timestamp', button='Ask', busy='Asking'),
+    'free-public-api-microtimestamp-api-endpoint.html': getter('microtimestamp', button='Ask', busy='Asking'),
+    'free-public-api-swatchinternettime-api-endpoint.html': getter('swatchinternettime', button='Ask', busy='Asking'),
+    'free-public-api-timezones-api-endpoint.html': getter('timezones', button='List the time zones', busy='Listing'),
+    'free-public-api-client-ip-api-endpoint.html': getter('client_ip', button='Show my IP', busy='Asking'),
+    'free-public-api-user-agent-api-endpoint.html': getter('user_agent', button='Show my user agent', busy='Asking'),
+    'free-public-api-ip-datetime-api-endpoint.html': getter('ip_datetime', '8.8.8.8', 'IP address', button='Look up', busy='Looking up'),
+    'free-public-api-domain-ip-lookup-api-endpoint.html': getter('domain_ip_lookup', 'example.com', 'Domain', button='Look up', busy='Looking up'),
+    'free-public-api-ip-reverse-lookup-api-endpoint.html': getter('ip_reverse_lookup', '8.8.8.8', 'IP address', button='Look up', busy='Looking up'),
+    'free-public-api-health-api-endpoint.html': getter('health', button='Check', busy='Checking'),
+    'free-public-api-ping-api-endpoint.html': getter('ping', button='Ping', busy='Pinging'),
 }
 
 
@@ -171,7 +208,7 @@ def attr(value):
 def section(spec):
     data = [('data-try-endpoint', spec['endpoint']), ('data-try-limit', '%d' % spec['limit']), ('data-try-busy', spec['busy'])]
     for name, key in (('data-try-key', 'key'), ('data-try-file', 'file'), ('data-try-field', 'field'),
-                      ('data-try-image', 'image'), ('data-try-sample', 'sample_file')):
+                      ('data-try-image', 'image'), ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
         if spec.get(key):
             data.append((name, spec[key]))
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),
@@ -184,6 +221,10 @@ def section(spec):
     if 'sample' in spec:
         parts.append('<label for="try-input">%s</label><textarea id="try-input" class="try-input" rows="4" spellcheck="false">%s</textarea>'
                      % (esc(spec['label']), esc(spec['sample'])))
+    if 'args' in spec:
+        parts.append('<label for="try-args">%s</label><div class="try-url"><code>https://aisenseapi.com/services/v1/%s/</code>'
+                     '<input id="try-args" class="try-args" type="text" value="%s" spellcheck="false" autocomplete="off"></div>'
+                     % (esc(spec['args_label']), esc(spec['endpoint']), attr(spec['args'])))
     if spec.get('file'):
         parts.append('<div class="try-drop" role="button" tabindex="0"><strong>%s</strong> <small>or click to choose one, up to %s</small></div>'
                      '<input type="file" class="try-file" hidden>' % (esc(spec.get('drop', 'Or drop a file here')), limit_text(spec['limit'])))

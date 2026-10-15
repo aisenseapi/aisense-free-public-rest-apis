@@ -10,6 +10,17 @@
 .try-api pre { margin: 0; max-height: 520px; overflow: auto; }
 .try-api .try-save { margin: 12px 0 0; }
 .try-api .try-image { margin: 0 0 12px; }
+
+/* A GET box: the fixed start of the URL, then the arguments the visitor can change, as one field. */
+.try-api .try-url { display: flex; flex-wrap: wrap; align-items: center; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.try-api .try-url:focus-within { outline: 2px solid var(--blue); outline-offset: 1px; }
+.try-api .try-url code { flex: 0 1 auto; min-width: 0; padding: 10px 0 10px 12px; border: 0; border-radius: 0; background: none; color: var(--body); font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: normal; overflow-wrap: anywhere; }
+.try-api .try-url input { flex: 1 1 6em; min-width: 6em; padding: 10px 12px 10px 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+/* On a phone the start of the URL takes the first lines and the arguments a line of their own. */
+@media (max-width: 600px) {
+  .try-api .try-url code { flex-basis: 100%; padding-right: 12px; padding-bottom: 0; }
+  .try-api .try-url input { flex-basis: 100%; padding-left: 12px; }
+}
 .try-api .try-image img { display: block; width: 200px; max-width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--border); border-radius: 6px; }
 
 /* The drop zone of the tool pages (aisense-tools.css), under its own name. */
