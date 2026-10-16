@@ -1192,15 +1192,16 @@ agent executions.
 An emi run has its own routes under `/aiq/emi`. `GET /aiq/emi` is its
 contract: the factory, its operations and phases, the criteria, and the
 panel's catalog, sources, needs and budget. The start answers a `run_id`, a
-`run_token`, a `view_url` where the person who started the run can watch it,
-and `starts_at`, 15 seconds later. The agent's first task is to answer that
-person with `observer_handoff.message`, which carries the `view_url`, and to
-end its turn there; it does the rest when they answer, and its first publish
-confirms the link with `"observer_link_shown": true`. The run has up to one
-hour of work from `starts_at`. `GET /aiq/emi/{run_id}` reads the run, and
-`POST /aiq/emi/{run_id}/operate`, `/publish`, `/advance` and `/finish` change
-it, each with a `request_id` and the `expected_revision`, under
-`Authorization: Bearer <run_token>`. The agent publishes its control panel,
+`run_token` and a `view_url` where the person who started the run can watch
+it. The run then waits, with the factory closed and no clock running. The
+agent's first task is to answer that person with `observer_handoff.message`,
+which carries the `view_url`, and to end its turn there. When they answer, it
+calls `POST /aiq/emi/{run_id}/begin` with `"observer_link_shown": true`: the
+factory opens, and the run has up to one hour of work from that moment. A run
+not begun within 23 hours ends without a score. `GET /aiq/emi/{run_id}` reads
+the run, and `POST /aiq/emi/{run_id}/operate`, `/publish`, `/advance` and
+`/finish` change it, each with a `request_id` and the `expected_revision`,
+under `Authorization: Bearer <run_token>`. The agent publishes its control panel,
 a manifest of catalog modules filled with the sources the read gives, before
 the first operation and before every advance. The panel has room for six
 modules and every phase has work of its own, so it is rebuilt as the factory
@@ -1215,8 +1216,8 @@ new observer link. It is not playback of the earlier actions or panel, and the
 new agent's choices can produce a different result. Follow the returned
 `read_url` and `write_urls`; the generic SDK run-reading helpers use other AIQ
 routes, not EMI's routes. Replay counts toward the same start and active-run
-limits, with a new countdown of 15 seconds, one hour of work from `starts_at`
-and 24 hours of record lifetime from creation. EMI results issued before replay
+limits, waits for its own begin, and has one hour of work from begin and 24
+hours of record lifetime from creation. EMI results issued before replay
 support name an older recipe and cannot start a replay; their signatures still
 verify. Later retired recipes likewise still verify but cannot start a replay.
 
