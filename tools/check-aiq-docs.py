@@ -63,7 +63,7 @@ check(dar_section is not None and '<time datetime="2026-10-09">9 October 2026</t
       "DAR release date must be 9 October 2026")
 check("Since 9 October 2026, experimental" in post, "DAR information panel has another date")
 emi = instructions(post, "aiq-emi-instructions")
-for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "observer_handoff", "starts_at", "expected_revision", "next_action", "module manifest", "observer_link_shown"):
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/emi", "observer_handoff", "/begin", "expected_revision", "next_action", "module manifest", "observer_link_shown"):
     check(required in emi, "EMI instructions missing " + required)
 emi_section = re.search(r'<details class="aiq-version" id="emi">([\s\S]*?)</details>', versions)
 check(emi_section is not None and '<time datetime="2026-10-12">12 October 2026</time>' in emi_section.group(1),
@@ -81,10 +81,11 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API")):
     normalized = " ".join(source.split())
     for required in ("completed EMI run", "authenticates", "exact recipe remains supported",
                      "origin", "replay", "not playback", "read_url", "write_urls",
-                     "same start and active-run", "15 seconds", "one hour", "24 hours",
+                     "same start and active-run", "its own begin", "one hour", "24 hours",
                      "before replay support", "still verify"):
         check(required in normalized, label + " EMI replay contract missing " + required)
     check("does not replay" not in normalized, label + " retains the retired blanket EMI replay refusal")
+    check("15 seconds" not in normalized and "countdown" not in normalized, label + " still describes the retired 15-second countdown")
 check('and the body {}' in emi, "EMI fresh-run instructions must remain separate from replay")
 check("emi, a factory and its panel" in nav and "and emi, an experimental factory run" in llms, "Navigation and llms.txt must list EMI")
 check("HTML and CSS" not in versions and "HTML page with CSS" not in versions, "EMI is described with its module panel, not the retired HTML profile")
