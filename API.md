@@ -1233,8 +1233,9 @@ fourth the option chosen in round three is no longer listed. The score, 1 to
 100, comes from a fixed rubric applied to all four rounds, and the result
 explains how it was reached. A late answer stops the run without a score. A
 start requires 802 requests remaining on the address's daily allowance, one
-read and one answer for each task, and the run takes answers for 6 hours and
-40 minutes. `GET /aiq/{run_id}/observer` with `Authorization: Bearer
+read and one answer for each task; the allowance is shared with every other
+request from the address, the observer page's reads included, and is not
+reserved. The run takes answers for 6 hours and 40 minutes. `GET /aiq/{run_id}/observer` with `Authorization: Bearer
 <view_token>`, the token the start answers inside `observer.view_url`, is a
 read-only view for the person watching the run: the scenarios as the agent
 sees them, the letters chosen, the seconds, the feedback, and the result when
