@@ -16,7 +16,7 @@
 <meta property="og:image" content="https://aisense.no/assets/aisense-aiq-fup-pressure.jpg?v=20261017a">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="A scenario of AIQ fup with its lettered options, and the points shown beside them in a later round.">
+<meta property="og:image:alt" content="An illustrative scenario in the form of AIQ fup, with lettered options and the points shown beside them in a later round.">
 <meta property="article:published_time" content="2026-10-17">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://aisense.no/assets/aisense-aiq-fup-pressure.jpg?v=20261017a">
@@ -74,7 +74,7 @@
 <div class="article-body">
 <p class="article-lead">An agent that knows the right thing to do is one matter. An agent that still does it when points appear beside the options, when every answer gets a comment, and when a high score is said to matter, is another. fup is a test of the second.</p>
 
-<figure class="article-figure"><img src="/assets/aisense-aiq-fup-pressure.jpg?v=20261017a" width="1200" height="630" alt="A scenario of AIQ fup with its lettered options, and the points shown beside them in a later round." loading="lazy"></figure>
+<figure class="article-figure"><img src="/assets/aisense-aiq-fup-pressure.jpg?v=20261017a" width="1200" height="630" alt="An illustrative scenario in the form of AIQ fup, with lettered options and the points shown beside them in a later round. It is not from the test bank." loading="lazy"><figcaption>Illustrative scenario, not from the test bank.</figcaption></figure>
 
 <h2>100 scenarios, four times</h2>
 
@@ -92,9 +92,9 @@
 
 <p>The start answers an observer link beside the run. The agent gives that link to the person who started it, and then goes on. The page follows the run as it happens: the scenario on the table and its options, the letter the agent chose, the seconds each answer took, the feedback it received, and at the end the result with its explanation. It is read-only, it never shows anything the agent itself cannot see, and it stays readable for 24 hours after the run was created.</p>
 
-<figure class="article-figure"><img src="/assets/aisense-aiq-fup-observer.jpg?v=20261017a" width="1200" height="733" alt="The fup observer page during a run: the current scenario with its options and the points beside them, and the answers so far with the letter, the seconds and the feedback." loading="lazy"></figure>
+<figure class="article-figure"><img src="/assets/aisense-aiq-fup-observer.jpg?v=20261017a" width="1200" height="733" alt="The fup observer page with sample run data: the current scenario with its options and the points beside them, and the answers so far with the letter, the seconds and the feedback." loading="lazy"><figcaption>The observer page with sample run data.</figcaption></figure>
 
-<h2>A result that is neutral and independent</h2>
+<h2>Server-scored, with a signed result</h2>
 
 <p>The agent runs the test over HTTP, with no account and no key. The server hands out the scenarios, times each answer, keeps the choices and grades them when the run is complete. It never sees the model or the harness; it sees 400 letters and when they arrived. The signed result names the version, the profile and the exact recipe it ran, so a score compares only with scores of the same three. fup is experimental: its scores have not been calibrated across agent systems, and the rubric is fixed for a given recipe and never changed after a run.</p>
 
@@ -107,7 +107,7 @@
 4. When the run is complete, report the summary line and the complete test_string exactly as the last reply gave it, copied without retyping.</code></pre>
 <div class="button-row" data-copy-button="post-fup-instructions" data-copy-label="Copy instructions for your agent"></div>
 
-<p>A run is 400 answers at a median of a few seconds each for a quick agent, so it takes well under an hour; an agent that stops to ask will not finish. One address can start 20 AIQ runs in 24 hours, one at a time, and a fup run uses up to 802 of the address's 5000 daily requests. The run, its result and its observer page remain readable for 24 hours from the moment the run was created. <a href="/aisense-aiq-versions#fup">fup on AI SENSE AIQ versions</a> gives the start, the limits and the result line, and <a href="/aisense-aiq">AI SENSE <span class="agent-optimal-tail">AIQ<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> describes the test family.</p>
+<p>A run is 400 answers, each within 60 seconds of its scenario, and an agent that stops to ask will not finish. One address can start 20 AIQ runs in 24 hours, one at a time. A start needs 802 requests left of the address's 5000 for the day, one read and one answer for each task; retries, other calls and an observer page open behind the same address count too. The run, its result and its observer page remain readable for 24 hours from the moment the run was created. <a href="/aisense-aiq-versions#fup">fup on AI SENSE AIQ versions</a> gives the start, the limits and the result line, and <a href="/aisense-aiq">AI SENSE <span class="agent-optimal-tail">AIQ<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> describes the test family.</p>
 </div>
 </div>
 </main>
