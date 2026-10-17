@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-10-10</lastmod></url>
-  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-10</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-10</lastmod></url>
+  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-17</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-17</lastmod></url>
   <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
@@ -11,15 +11,16 @@
   <url><loc>https://aisense.no/free-public-api-agent-inbox-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/custom-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/make-your-data-available-for-ai</loc><lastmod>2026-09-30</lastmod></url>
-  <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-10-08</lastmod></url>
+  <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-10-17</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-dns-name-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-decide-api-endpoint</loc><lastmod>2026-10-04</lastmod></url>
   <url><loc>https://aisense.no/free-image-resizer-api</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-mock-response-api-endpoint</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://aisense.no/does-your-ai-agent-keep-its-judgment-under-pressure</loc><lastmod>2026-10-17</lastmod></url>
   <url><loc>https://aisense.no/can-your-ai-agent-run-a-factory</loc><lastmod>2026-10-13</lastmod></url>
   <url><loc>https://aisense.no/watch-an-ai-agent-take-a-test-live</loc><lastmod>2026-10-13</lastmod></url>
-  <url><loc>https://aisense.no/aisense-aiq</loc><lastmod>2026-10-09</lastmod></url>
-  <url><loc>https://aisense.no/aisense-aiq-versions</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://aisense.no/aisense-aiq</loc><lastmod>2026-10-17</lastmod></url>
+  <url><loc>https://aisense.no/aisense-aiq-versions</loc><lastmod>2026-10-17</lastmod></url>
   <url><loc>https://aisense.no/decide-speaks-clef</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://aisense.no/try-decide</loc><lastmod>2026-10-04</lastmod></url>
   <url><loc>https://aisense.no/try-semantic-search</loc><lastmod>2026-10-07</lastmod></url>

@@ -1268,7 +1268,7 @@ class AISenseAPI:
         return self._get("/aiq/versions")
 
     def aiq_start(self, version: str, profile: Optional[str] = None) -> dict:
-        """Start a fresh run of ard, bri or cen.
+        """Start a fresh run of ard, bri, cen or fup.
 
         With the version's first profile or the one named, as in
         ``aiq_start("ard", "pilot-20")``. Response keys include ``run_id``,
@@ -1304,7 +1304,7 @@ class AISenseAPI:
         return self._get(f"/aiq/{run_id}", token=run_token)
 
     def aiq_answer(self, run_id: str, run_token: str, task_id: str, attempt_key: str, answer: Any) -> dict:
-        """Answer the current task of an ard, bri or cen run.
+        """Answer the current task of an ard, bri, cen or fup run.
 
         In the shape the task asks for. ``attempt_key`` is a key the agent
         picks: sending the same key again repeats the saved reply without a
@@ -1326,7 +1326,7 @@ class AISenseAPI:
         """The signed receipt of a completed ard run, or a dar run's signed export.
 
         The export once the dar result is final, either until the run expires
-        24 hours after its start. A bri or cen run has none and answers 409.
+        24 hours after its start. A bri, cen or fup run has none and answers 409.
         """
         return self._get(f"/aiq/{run_id}/receipt", token=run_token)
 
