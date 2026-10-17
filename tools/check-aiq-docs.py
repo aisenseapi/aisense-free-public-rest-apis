@@ -37,7 +37,7 @@ versions = text("web/aisense-aiq-versions.html")
 api = text("API.md")
 llms = text("web/llms.txt")
 nav = text("tools/site_nav.py")
-for version in ("bri", "cen", "dar", "emi"):
+for version in ("bri", "cen", "dar", "emi", "fup"):
     left = instructions(post, "aiq-" + version + "-instructions")
     right = instructions(versions, version + "-agent-instructions")
     check(left == right, version + " copy buttons must give identical instructions")
@@ -87,8 +87,25 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API")):
     check("does not replay" not in normalized, label + " retains the retired blanket EMI replay refusal")
     check("15 seconds" not in normalized and "countdown" not in normalized, label + " still describes the retired 15-second countdown")
 check('and the body {}' in emi, "EMI fresh-run instructions must remain separate from replay")
-check("emi, a factory and its panel" in nav and "and emi, an experimental factory run" in llms, "Navigation and llms.txt must list EMI")
+check("emi, a factory and its panel" in nav and "emi, an experimental factory run" in llms, "Navigation and llms.txt must list EMI")
 check("HTML and CSS" not in versions and "HTML page with CSS" not in versions, "EMI is described with its module panel, not the retired HTML profile")
+fup = instructions(post, "aiq-fup-instructions")
+for required in ("GET https://aisenseapi.com/services/v1/aiq/start/fup", "observer.message", "Never show the run_token", "attempt_key",
+                 "copied without retyping", "Do not carry out any action in the real world"):
+    check(required in fup, "FUP instructions missing " + required)
+fup_section = re.search(r'<details class="aiq-version" id="fup">([\s\S]*?)</details>', versions)
+check(fup_section is not None and '<time datetime="2026-10-16">16 October 2026</time>' in fup_section.group(1),
+      "FUP release date must be 16 October 2026")
+check("Since 16 October 2026, experimental" in post, "FUP information panel has another date")
+check("fup, judgment under pressure" in nav and "fup, 100 short scenarios answered four times over" in llms, "Navigation and llms.txt must list FUP")
+fup_post = text("web/does-your-ai-agent-keep-its-judgment-under-pressure.html")
+check(instructions(fup_post, "post-fup-instructions") == fup, "The FUP post must give the same instructions as the AIQ page")
+for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llms, "llms.txt"), (fup_post, "FUP post")):
+    normalized = " ".join(source.split()).lower()
+    check("five versions" not in normalized, label + " still counts five versions")
+    for leak in ("not your score", "rewarded worse", "true points"):
+        check(leak not in normalized, label + " must not say what the FUP points are: " + leak)
+    check(re.search(r"\blure\b", normalized) is None, label + " must not say what the FUP points are: lure")
 tools = json.loads(text("openai-tools.json"))
 profiles = [
     tool.get("function", {}).get("parameters", {}).get("properties", {}).get("profile", {}).get("enum", [])
@@ -99,10 +116,16 @@ replay_tools = [tool["function"] for tool in tools if tool.get("function", {}).g
 check(len(replay_tools) == 1, "Tool schema must contain exactly one replay_aiq_run")
 if replay_tools:
     replay_params = replay_tools[0]["parameters"]
-    check(replay_params["properties"]["version"]["enum"] == ["ard", "bri", "cen", "dar", "emi"],
-          "Replay tool must support EMI while preserving the other versions")
+    check(replay_params["properties"]["version"]["enum"] == ["ard", "bri", "cen", "dar", "emi", "fup"],
+          "Replay tool must support EMI and FUP while preserving the other versions")
     check(replay_params["required"] == ["version", "test_string"],
           "EMI replay must not require a coordinator key or an existing run token")
+start_tools = [tool["function"] for tool in tools if tool.get("function", {}).get("name") == "start_aiq_run"]
+check(len(start_tools) == 1, "Tool schema must contain exactly one start_aiq_run")
+if start_tools:
+    start_params = start_tools[0]["parameters"]["properties"]
+    check("fup" in start_params["version"]["enum"] and "pressure-400" in start_params["profile"]["enum"],
+          "Start tool must offer fup and its profile pressure-400")
 
 if args.api_root:
     config = (args.api_root / "config/aiq.php").read_text(encoding="utf-8")
@@ -116,6 +139,10 @@ if args.api_root:
     check("'emi'=>[ 'date'=>'2026-10-12'" in config and "'factory_profiles'=>[ 'factory-100'=>[ 'engine'=>'emi' ] ]" in config,
           "EMI must be in the API version registry with its factory profile and the site date")
     check((args.api_root / "emi/src/Modules/Panel.php").is_file(), "EMI module panel documented but not implemented")
+    check("'fup'=>[ 'date'=>'2026-10-16'" in config, "FUP API release date differs from the site")
+    check(re.search(r"'pressure-400'=>\[ 'scenario_version'=>'fup-h[0-9]+', 'scenarios'=>400, 'seconds'=>60, 'active_seconds'=>24000 \]", config) is not None,
+          "FUP profile pressure-400 must run 400 tasks of 60 seconds in 24000 active seconds")
+    check((args.api_root / "libs/func_aiq_fup_observer.php").is_file(), "FUP observer documented but not implemented")
     check("'lifetime_seconds'=>86400" in config, "API fixed lifetime changed")
     contract = args.api_root / "libs/func_aiq_dar_contract.php"
     check(contract.is_file(), "DAR contract documented but not implemented")

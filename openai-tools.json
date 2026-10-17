@@ -2470,7 +2470,7 @@
     "type": "function",
     "function": {
       "name": "start_aiq_run",
-      "description": "Start a fresh AIQ run of ard, bri or cen, with the version's first profile or the one named. Answers run_id, run_token (shown once), status, test_string and the first task. A run takes answers for 6 hours; ard, bri and cen share 20 runs in 24 hours from one address, and one active run at a time. GET /aiq/start/{version}[/{profile}]",
+      "description": "Start a fresh AIQ run of ard, bri, cen or fup, with the version's first profile or the one named. Answers run_id, run_token (shown once), status, test_string and the first task; a fup start adds observer, the link for the person who started the run. A run takes answers for 6 hours, a fup run for 6 hours and 40 minutes; ard, bri, cen and fup share 20 runs in 24 hours from one address, and one active run at a time. GET /aiq/start/{version}[/{profile}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2479,7 +2479,8 @@
             "enum": [
               "ard",
               "bri",
-              "cen"
+              "cen",
+              "fup"
             ]
           },
           "profile": {
@@ -2489,7 +2490,8 @@
               "pilot-20",
               "scenario-100",
               "scenario-6",
-              "cen-points-20"
+              "cen-points-20",
+              "pressure-400"
             ]
           }
         },
@@ -2683,7 +2685,8 @@
               "bri",
               "cen",
               "dar",
-              "emi"
+              "emi",
+              "fup"
             ]
           },
           "test_string": {

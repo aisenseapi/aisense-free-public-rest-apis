@@ -1235,7 +1235,7 @@ export class AISenseAPI {
   }
 
   /**
-   * Start a fresh run of ard, bri or cen, with the version's first profile or
+   * Start a fresh run of ard, bri, cen or fup, with the version's first profile or
    * the one named, as in aiqStart('ard', 'pilot-20'). Response keys include
    * `run_id`, `run_token`, `status`, `test_string` and the first `task`. The
    * run token is shown once; the methods below send it as a bearer token. A
@@ -1271,7 +1271,7 @@ export class AISenseAPI {
   }
 
   /**
-   * Answer the current task of an ard, bri or cen run, in the shape the task
+   * Answer the current task of an ard, bri, cen or fup run, in the shape the task
    * asks for. `attemptKey` is a key the agent picks: sending the same key
    * again repeats the saved reply without a second answer, so a lost reply is
    * resent with the same key. The reply carries the next task, or the result.
@@ -1292,7 +1292,7 @@ export class AISenseAPI {
   /**
    * The signed receipt of a completed ard run, or the signed export of a dar
    * run once its result is final, until the run expires 24 hours after its
-   * start. A bri or cen run has none and answers 409.
+   * start. A bri, cen or fup run has none and answers 409.
    */
   aiqReceipt(runId, runToken) {
     return this.#get(`/aiq/${runId}/receipt`, runToken)
