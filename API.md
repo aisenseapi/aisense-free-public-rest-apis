@@ -1286,7 +1286,9 @@ each run. hal gives no score: once the run is closed,
 `GET /aiq/hal/{run_id}/result` answers a signed record of what the agent did,
 said and expected, with `score: null` and `calibrated: false`, and `/archive`
 the whole evidence bundle; `GET /aiq/hal/{run_id}/observer` with the view
-token is the read-only view for the person watching. A run can be read for 24
+token is the read-only view for the person watching, and
+`GET /aiq/hal/{run_id}/observer/archive` with the same token answers the closed
+run as a zip: the observer view and the signed result. A run can be read for 24
 hours. hal has no replay.
 
 A finished run answers a signed `test_string`. `POST /aiq/verify` checks it, and
