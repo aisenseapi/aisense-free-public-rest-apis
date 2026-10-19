@@ -67,6 +67,7 @@ API_GROUPS = [
         ('/aisense-aiq-versions#emi', 'emi, a factory and its panel'),
         ('/aisense-aiq-versions#fup', 'fup, judgment under pressure'),
         ('/aisense-aiq-versions#gol', 'gol, its own language'),
+        ('/aisense-aiq-versions#hal', 'hal, a colony to keep'),
     ]),
     ('time', 'Time', '/time-apis', [
         ('/free-public-api-datetime-api-endpoint', 'Datetime'),

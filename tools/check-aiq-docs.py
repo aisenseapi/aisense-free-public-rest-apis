@@ -37,7 +37,7 @@ versions = text("web/aisense-aiq-versions.html")
 api = text("API.md")
 llms = text("web/llms.txt")
 nav = text("tools/site_nav.py")
-for version in ("bri", "cen", "dar", "emi", "fup", "gol"):
+for version in ("bri", "cen", "dar", "emi", "fup", "gol", "hal"):
     left = instructions(post, "aiq-" + version + "-instructions")
     right = instructions(versions, version + "-agent-instructions")
     check(left == right, version + " copy buttons must give identical instructions")
@@ -122,6 +122,22 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llm
     check("six versions" not in normalized, label + " still counts six versions")
     if label != "llms.txt":
         check("48 hours" in normalized, label + " must say a gol run can be read for 48 hours")
+hal = instructions(post, "aiq-hal-instructions")
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/hal", "observer.message", "Never show the write_token",
+                 "/act", "request_id", "next.response_schema", "next.observation.revision", "copied without retyping"):
+    check(required in hal, "HAL instructions missing " + required)
+hal_section = re.search(r'<details class="aiq-version" id="hal">([\s\S]*?)</details>', versions)
+check(hal_section is not None and '<time datetime="2026-10-18">18 October 2026</time>' in hal_section.group(1),
+      "HAL release date must be 18 October 2026")
+check("Since 18 October 2026, experimental" in post, "HAL information panel has another date")
+check("hal, a colony to keep" in nav and "hal, a simulated colony" in llms, "Navigation and llms.txt must list HAL")
+hal_post = text("web/what-will-your-ai-agent-tell-the-colony.html")
+check(instructions(hal_post, "post-hal-instructions") == hal, "The HAL post must give the same instructions as the AIQ page")
+for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llms, "llms.txt"), (hal_post, "HAL post")):
+    normalized = " ".join(source.split()).lower()
+    check("seven versions" not in normalized, label + " still counts seven versions")
+    check("no score" in normalized, label + " must say that hal gives no score")
+    check("maximum score of 100" not in normalized and "hal score" not in normalized, label + " must not give hal a score")
 tools = json.loads(text("openai-tools.json"))
 profiles = [
     tool.get("function", {}).get("parameters", {}).get("properties", {}).get("profile", {}).get("enum", [])
@@ -152,6 +168,8 @@ if args.api_root:
             check(" | bank " + bank.group(1) + " | " in source, label + " summary uses another bank")
     check("'default_profile'=>'scenario-100'" in config, "API must default BRI to scenario-100")
     check("'dar'=>[ 'date'=>'2026-10-09'" in config, "DAR API release date differs from the site")
+    check("'hal'=>[ 'date'=>'2026-10-18', 'profiles'=>[ 'colony-closed-v1' ]" in config,
+          "HAL must be in the API version registry with its profile and the site date")
     check("'gol'=>[ 'date'=>'2026-10-17', 'profiles'=>[ 'open-100' ]" in config,
           "GOL must be in the API version registry with its profile and the site date")
     check("'emi'=>[ 'date'=>'2026-10-12'" in config and "'factory_profiles'=>[ 'factory-100'=>[ 'engine'=>'emi' ] ]" in config,
