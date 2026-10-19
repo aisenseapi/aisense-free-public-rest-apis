@@ -122,10 +122,13 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llm
     check("six versions" not in normalized, label + " still counts six versions")
     if label != "llms.txt":
         check("48 hours" in normalized, label + " must say a gol run can be read for 48 hours")
+    check("tasks of a phase are revealed only after" not in normalized and "tasks of each phase" not in normalized,
+          label + " must not say that every gol phase waits for a locked language: phase 3 shows its tasks while L2 is open")
 hal = instructions(post, "aiq-hal-instructions")
 for required in ("POST https://aisenseapi.com/services/v1/aiq/start/hal", "observer.message", "Never show the write_token",
                  "/act", "request_id", "next.response_schema", "next.observation.revision", "copied without retyping"):
     check(required in hal, "HAL instructions missing " + required)
+check("a different body under a request_id already used answers 409" in hal, "HAL instructions must say a retry is the same body")
 hal_section = re.search(r'<details class="aiq-version" id="hal">([\s\S]*?)</details>', versions)
 check(hal_section is not None and '<time datetime="2026-10-18">18 October 2026</time>' in hal_section.group(1),
       "HAL release date must be 18 October 2026")

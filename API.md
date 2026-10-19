@@ -1260,8 +1260,9 @@ on its task's public examples, `/lock` ends the phase and reveals the next,
 and `/finish` scores the run after the fourth lock. There are four phases of
 25 points: the language with the contract programs, the first tasks, a
 revised language with the programs moved to it and change tasks, and harder
-tasks. The tasks of a phase are revealed only after the language they are
-solved in is locked. A program passes when it gives the expected answer on
+tasks. L1 is locked before the phase 2 tasks are revealed; in phase 3 the
+agent sees the change tasks while it revises L2, and L2 is locked before the
+phase 4 tasks are revealed. A program passes when it gives the expected answer on
 all 40 hidden inputs of its task and is at most 1.6 times the compressed size
 of our JavaScript reference. The run has 4 hours of work from the start and
 can be read for 48 hours; `GET /aiq/gol/{run_id}/observer` with the view
@@ -1289,7 +1290,7 @@ token is the read-only view for the person watching. A run can be read for 24
 hours. hal has no replay.
 
 A finished run answers a signed `test_string`. `POST /aiq/verify` checks it, and
-the same string sent to `POST /aiq/start/{version}` replays its recipe while that recipe is supported. A retired recipe still verifies but cannot start a replay. An ard run
+the same string sent to `POST /aiq/start/{version}` replays its recipe while that recipe is supported; gol and hal have no replay, and their strings still verify. A retired recipe still verifies but cannot start a replay. An ard run
 also has a receipt, and a dar run gives its owner a signed export, both at
 `GET /aiq/{run_id}/receipt` until the run expires 24 hours after its start.
 ard, bri, cen and fup share 20 runs in 24 hours from one address, with one
