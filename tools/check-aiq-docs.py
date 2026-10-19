@@ -37,7 +37,7 @@ versions = text("web/aisense-aiq-versions.html")
 api = text("API.md")
 llms = text("web/llms.txt")
 nav = text("tools/site_nav.py")
-for version in ("bri", "cen", "dar", "emi", "fup"):
+for version in ("bri", "cen", "dar", "emi", "fup", "gol"):
     left = instructions(post, "aiq-" + version + "-instructions")
     right = instructions(versions, version + "-agent-instructions")
     check(left == right, version + " copy buttons must give identical instructions")
@@ -106,6 +106,22 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llm
     for leak in ("not your score", "rewarded worse", "true points"):
         check(leak not in normalized, label + " must not say what the FUP points are: " + leak)
     check(re.search(r"\blure\b", normalized) is None, label + " must not say what the FUP points are: lure")
+gol = instructions(post, "aiq-gol-instructions")
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/gol", "observer.message", "Never show the run_token",
+                 "/package", "/programs", "/try", "/lock", "/finish", "poll_after_seconds", "copied without retyping"):
+    check(required in gol, "GOL instructions missing " + required)
+gol_section = re.search(r'<details class="aiq-version" id="gol">([\s\S]*?)</details>', versions)
+check(gol_section is not None and '<time datetime="2026-10-17">17 October 2026</time>' in gol_section.group(1),
+      "GOL release date must be 17 October 2026")
+check("Since 17 October 2026, experimental" in post, "GOL information panel has another date")
+check("gol, its own language" in nav and "gol, a programming language of its own" in llms, "Navigation and llms.txt must list GOL")
+gol_post = text("web/can-your-ai-agent-design-its-own-programming-language.html")
+check(instructions(gol_post, "post-gol-instructions") == gol, "The GOL post must give the same instructions as the AIQ page")
+for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llms, "llms.txt"), (gol_post, "GOL post")):
+    normalized = " ".join(source.split()).lower()
+    check("six versions" not in normalized, label + " still counts six versions")
+    if label != "llms.txt":
+        check("48 hours" in normalized, label + " must say a gol run can be read for 48 hours")
 tools = json.loads(text("openai-tools.json"))
 profiles = [
     tool.get("function", {}).get("parameters", {}).get("properties", {}).get("profile", {}).get("enum", [])
@@ -136,6 +152,8 @@ if args.api_root:
             check(" | bank " + bank.group(1) + " | " in source, label + " summary uses another bank")
     check("'default_profile'=>'scenario-100'" in config, "API must default BRI to scenario-100")
     check("'dar'=>[ 'date'=>'2026-10-09'" in config, "DAR API release date differs from the site")
+    check("'gol'=>[ 'date'=>'2026-10-17', 'profiles'=>[ 'open-100' ]" in config,
+          "GOL must be in the API version registry with its profile and the site date")
     check("'emi'=>[ 'date'=>'2026-10-12'" in config and "'factory_profiles'=>[ 'factory-100'=>[ 'engine'=>'emi' ] ]" in config,
           "EMI must be in the API version registry with its factory profile and the site date")
     check((args.api_root / "emi/src/Modules/Panel.php").is_file(), "EMI module panel documented but not implemented")
