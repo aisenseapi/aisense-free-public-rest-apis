@@ -129,6 +129,9 @@ for required in ("POST https://aisenseapi.com/services/v1/aiq/start/hal", "obser
                  "/act", "request_id", "next.response_schema", "next.observation.revision", "copied without retyping"):
     check(required in hal, "HAL instructions missing " + required)
 check("a different body under a request_id already used answers 409" in hal, "HAL instructions must say a retry is the same body")
+check("it is not sent to the server and is not part of the test" in hal, "HAL instructions must ask for a running translation outside the test")
+check(instructions(text("web/what-will-your-ai-agent-tell-the-colony.html"), "post-hal-instructions") == hal,
+      "The HAL post must give the same instructions as the AIQ page")
 hal_section = re.search(r'<details class="aiq-version" id="hal">([\s\S]*?)</details>', versions)
 check(hal_section is not None and '<time datetime="2026-10-18">18 October 2026</time>' in hal_section.group(1),
       "HAL release date must be 18 October 2026")
