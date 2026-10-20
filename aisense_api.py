@@ -1272,9 +1272,11 @@ class AISenseAPI:
 
         With the version's first profile or the one named, as in
         ``aiq_start("ard", "pilot-20")``. Response keys include ``run_id``,
-        ``run_token``, ``status``, ``test_string`` and the first ``task``. The
-        run token is shown once; the methods below send it as a bearer token.
-        A dar run starts with ``aiq_start_dar``.
+        ``run_token``, ``status`` (waiting), ``test_string``, ``observer`` and
+        ``next_action``. The run token is shown once; the methods below send it
+        as a bearer token. The agent first answers the person who started it
+        with ``observer.message`` and ends its turn; ``aiq_begin`` then hands
+        out the first task. A dar run starts with ``aiq_start_dar``.
         """
         return self._get(f"/aiq/start/{version}/{profile}" if profile is not None else f"/aiq/start/{version}")
 
@@ -1284,7 +1286,8 @@ class AISenseAPI:
         ``coordinator_key`` is the coordinator's Ed25519 public key, 43
         base64url characters. Every action of the test goes over Aamio; the
         start answers ``run_id``, ``run_token``, ``controller_key``, the
-        ``roles`` with their controller inboxes, and the ``rules``.
+        ``roles``, ``observer`` and the ``rules``, and ``aiq_begin`` starts the
+        setup, after which a read of the run names the controller inboxes.
         """
         return self._post("/aiq/start/dar/team-5", {"coordinator_key": coordinator_key})
 
@@ -1298,6 +1301,16 @@ class AISenseAPI:
         if coordinator_key is not None:
             body["coordinator_key"] = coordinator_key
         return self._post(f"/aiq/start/{version}", body)
+
+    def aiq_begin(self, run_id: str, run_token: str) -> dict:
+        """Begin a run that waits.
+
+        Once the agent has answered the person who started it with
+        ``observer.message`` and ended its turn, and they have answered. An
+        ard, bri, cen or fup run answers its first task, and the clock starts
+        then; a dar run starts its setup. A gol run begins with its own route.
+        """
+        return self._post(f"/aiq/{run_id}/begin", {"observer_link_shown": True}, token=run_token)
 
     def aiq_run(self, run_id: str, run_token: str) -> dict:
         """Read a run with its run token: its status, the current task, or the result."""
