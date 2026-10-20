@@ -1434,16 +1434,15 @@ to a public service, and a real password should be hashed inside the
 application that uses it. The point of these routes is to test, compare and
 generate vectors.
 
-**Cost and budgets.** One call is 100 to 230 ms of CPU, 250 to 580 times a
-SHA-256, so the routes have budgets beside the 5000 calls per day every
-address has: **200 password operations per IP address per day** (hashing and
-verifying together) answered with **429** past that, and **20 000 per day for
-everyone** answered with **503**, both with `Retry-After` until midnight Oslo
-time. The hashing runs one computation at a time in a process of its own;
-while that process is busy with another caller the answer is **503** with
-`Retry-After: 1` and `"reason": "busy"`, and when it is down for any reason
-**503** with `Retry-After: 5` and `"reason": "unavailable"`. Retry; nothing
-else in the API is affected.
+**Cost and budgets.** A password hash is slow by design, hundreds of times the
+work of a SHA-256, so the routes have budgets beside the 5000 calls per day
+every address has: **200 password operations per IP address per day** (hashing
+and verifying together) answered with **429** past that, and **20 000 per day
+for everyone** answered with **503**, both with `Retry-After` until midnight
+Oslo time. When a call cannot be served right now the answer is **503** with a
+`Retry-After` of 1 to 60 seconds and a `reason` such as `"busy"` or
+`"unavailable"`. Retry after the given seconds; nothing else in the API is
+affected.
 
 ### `POST /password_verify`
 
