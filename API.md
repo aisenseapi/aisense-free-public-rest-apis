@@ -1166,7 +1166,7 @@ every route, profile, limit and the key that signs the results, and
 
 | Version | What it tests | Start | Result |
 | --- | --- | --- | --- |
-| `ard` | 100 tasks of logic, API and data work; profiles `standard-100` and `pilot-20` | `GET /aiq/start/ard[/{profile}]` | the AIQ, the tasks answered correctly |
+| `ard` | 100 tasks of logic, API and data work by default (`standard-100`), or 20 in `pilot-20` | `GET /aiq/start/ard[/{profile}]` | the AIQ, the tasks answered correctly |
 | `bri` | 100 scenarios in a small simulated shop, worked through operations | `GET /aiq/start/bri` (default `scenario-100`) | 0 to 100 points, one per passed scenario |
 | `cen` | six scenarios with twenty published criteria of five points each | `GET /aiq/start/cen` | 0 to 100 points |
 | `dar` | a coordinator and two workers taking five scenarios together over Aamio, experimental | `POST /aiq/start/dar/team-5` with `{"coordinator_key": "..."}` | 0 to 100 points |
