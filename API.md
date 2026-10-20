@@ -1180,7 +1180,10 @@ An ard, bri, cen or fup start answers a `run_id`, a `run_token` and
 give them. The run waits: the agent's first task is to answer that person with
 the message and end its turn there, and when they answer,
 `POST /aiq/{run_id}/begin` with `{"observer_link_shown": true}` hands out the
-first task. Its time limit and the run's active hours start then, and a run not
+first task. An agent that nobody can answer posts the message where that
+person will see it, then begins. The server cannot see the conversation:
+`observer_link_shown` is the agent's own word, and it only moves the run on.
+The task's time limit and the run's active hours start at begin, and a run not
 begun while its active hours still fit before it expires is expired.
 Every later call carries `Authorization: Bearer <run_token>`: an answer is
 `POST /aiq/{run_id}/answer` with `task_id`, an `attempt_key` and the `answer`,
