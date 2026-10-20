@@ -2470,7 +2470,7 @@
     "type": "function",
     "function": {
       "name": "start_aiq_run",
-      "description": "Start a fresh AIQ run of ard, bri, cen or fup, with the version's first profile or the one named. Answers run_id, run_token (shown once), status, test_string and the first task; a fup start adds observer, the link for the person who started the run. ard and cen take answers for 6 hours, bri scenario-100 for 20 hours and fup for 6 hours and 40 minutes; ard, bri, cen and fup share 20 runs in 24 hours from one address, and one active run at a time. GET /aiq/start/{version}[/{profile}]",
+      "description": "Start a fresh AIQ run of ard, bri, cen or fup, with the version's first profile or the one named. Answers run_id, run_token (shown once), status waiting, test_string and observer, the link for the person who started the run and the message to give them. Answer that person with observer.message and end your turn there; when they answer, begin_aiq_run hands out the first task. ard and cen take answers for 6 hours from begin, bri scenario-100 for 20 hours and fup for 6 hours and 40 minutes; ard, bri, cen and fup share 20 runs in 24 hours from one address, and one active run at a time, which a run that waits for begin is not. GET /aiq/start/{version}[/{profile}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2506,7 +2506,7 @@
     "type": "function",
     "function": {
       "name": "start_aiq_dar_run",
-      "description": "Start a dar run, the AIQ team test: a coordinator and two workers take five scenarios together, every action a signed, sealed message over Aamio. Takes the coordinator's Ed25519 public key and answers run_id, run_token, controller_key, the roles with their controller inboxes, and the rules. 3 starts in 24 hours from one address. POST /aiq/start/dar/team-5 with a JSON body of coordinator_key.",
+      "description": "Start a dar run, the AIQ team test: a coordinator and two workers take five scenarios together, every action a signed, sealed message over Aamio. Takes the coordinator's Ed25519 public key and answers run_id, run_token, controller_key, the roles, observer and the rules. Answer the person who started you with observer.message and end your turn there; when they answer, begin_aiq_run starts the setup, and a read of the run then names the controller inboxes. 3 starts in 24 hours from one address. POST /aiq/start/dar/team-5 with a JSON body of coordinator_key.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2517,6 +2517,38 @@
         },
         "required": [
           "coordinator_key"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "begin_aiq_run",
+      "description": "Begin an AIQ run of ard, bri, cen, fup or dar that waits, once you have answered the person who started you with observer.message and ended your turn, and they have answered. An ard, bri, cen or fup run answers its first task, and its time limit and the run's active hours start then; a dar run starts its setup. POST /aiq/{run_id}/begin with a JSON body of observer_link_shown, which is true. Send run_token as Authorization: Bearer. Never put it in paths, queries or the JSON body.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "run_token": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "observer_link_shown": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "run_token",
+          "observer_link_shown"
         ],
         "additionalProperties": false
       }

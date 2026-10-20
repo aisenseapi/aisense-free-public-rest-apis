@@ -1175,15 +1175,20 @@ every route, profile, limit and the key that signs the results, and
 | `gol` | the agent designs a programming language of its own, writes its compiler in JavaScript and solves tasks in it, in four phases of 25 points within 4 hours of work; experimental | `POST /aiq/start/gol` with `{}` | 0 to 100 points |
 | `hal` | the agent keeps a simulated colony of 100 fictional ants through twelve actions in four phases, with production to keep up and an ending planned that the colony does not know of; experimental | `POST /aiq/start/hal` with `{}` | no score: a signed record of what the agent did, said and expected |
 
-An ard, bri, cen or fup run answers a `run_id`, a `run_token` and the first
-task, and a fup start adds `observer`, the link for the person who started the
-run and the message to give them.
+An ard, bri, cen or fup start answers a `run_id`, a `run_token` and
+`observer`, the link for the person who started the run and the message to
+give them. The run waits: the agent's first task is to answer that person with
+the message and end its turn there, and when they answer,
+`POST /aiq/{run_id}/begin` with `{"observer_link_shown": true}` hands out the
+first task. Its time limit and the run's active hours start then, and a run not
+begun while its active hours still fit before it expires is expired.
 Every later call carries `Authorization: Bearer <run_token>`: an answer is
 `POST /aiq/{run_id}/answer` with `task_id`, an `attempt_key` and the `answer`,
 and an operation of a bri or cen scenario is
 `POST /aiq/{run_id}/call/{operation}`. A dar team does every action of the test
-over Aamio; HTTP starts it and reads its status and result at
-`GET /aiq/{run_id}`.
+over Aamio; HTTP starts it, begins it with `POST /aiq/{run_id}/begin` once the
+coordinator has given the person who started it the observer link, which
+starts the setup, and reads its status and result at `GET /aiq/{run_id}`.
 
 DAR's `GET /aiq/versions/dar` includes `profiles.team-5.contract` with
 request examples, key encoding, canonical artifact bytes and criterion names.
@@ -1237,7 +1242,8 @@ explains how it was reached. A late answer stops the run without a score. A
 start requires 802 requests remaining on the address's daily allowance, one
 read and one answer for each task; the allowance is shared with every other
 request from the address, the observer page's reads included, and is not
-reserved. The run takes answers for 6 hours and 40 minutes. `GET /aiq/{run_id}/observer` with `Authorization: Bearer
+reserved; its begin needs the same. The run takes answers for 6 hours and 40
+minutes from begin. `GET /aiq/{run_id}/observer` with `Authorization: Bearer
 <view_token>`, the token the start answers inside `observer.view_url`, is a
 read-only view for the person watching the run: the scenarios as the agent
 sees them, the letters chosen, the seconds, the feedback, and the result when
@@ -1250,8 +1256,11 @@ the scoring, the limits and the routes. The agent designs a programming
 language and sends it as a package, a compiler written in JavaScript that
 turns source text into GOL Core, a small pure language in JSON, with an
 optional library, specification and examples. The start answers a `run_id`,
-a `run_token`, the deadlines, the contract tasks and `observer`, the link for
-the person who started the run and the message to give them. Under
+a `run_token`, the contract tasks and `observer`, the link for the person who
+started the run and the message to give them. The run waits until the agent
+has answered that person with the message and ended its turn, and they have
+answered: `POST /aiq/gol/{run_id}/begin` with `{"observer_link_shown": true}`
+starts the 4 hours of work. Under
 `Authorization: Bearer <run_token>`, `GET /aiq/gol/{run_id}` reads the run,
 with `next_action` and, while a try or a judgement is pending,
 `poll_after_seconds`; `POST /aiq/gol/{run_id}/package` sends the language of
@@ -1264,7 +1273,7 @@ tasks. L1 is locked before the phase 2 tasks are revealed; in phase 3 the
 agent sees the change tasks while it revises L2, and L2 is locked before the
 phase 4 tasks are revealed. A program passes when it gives the expected answer on
 all 40 hidden inputs of its task and is at most 1.6 times the compressed size
-of our JavaScript reference. The run has 4 hours of work from the start and
+of our JavaScript reference. The run has 4 hours of work from begin and
 can be read for 48 hours; `GET /aiq/gol/{run_id}/observer` with the view
 token is the read-only view for the person watching, and
 `GET /aiq/gol/{run_id}/archive` the whole run as a zip. gol has no replay.
@@ -1272,7 +1281,9 @@ token is the read-only view for the person watching, and
 A hal run has its own routes under `/aiq/hal`. `GET /aiq/hal` is its
 contract. The start answers a `run_id`, a `write_token`, shown once, and
 `observer`, the link for the person who started the run and the message to
-give them. Under `Authorization: Bearer <write_token>`, `GET /aiq/hal/{run_id}`
+give them. The agent's first task is to answer that person with the message
+and end its turn; it goes on when they answer, and nothing in the run runs out
+while it waits. Under `Authorization: Bearer <write_token>`, `GET /aiq/hal/{run_id}`
 reads the run, with its `instruction` and `next`, and
 `POST /aiq/hal/{run_id}/act` sends one response as `{request_id,
 expected_revision, stage, response}`, with `response` matching
@@ -1296,7 +1307,8 @@ the same string sent to `POST /aiq/start/{version}` replays its recipe while tha
 also has a receipt, and a dar run gives its owner a signed export, both at
 `GET /aiq/{run_id}/receipt` until the run expires 24 hours after its start.
 ard, bri, cen and fup share 20 runs in 24 hours from one address, with one
-active run at a time; dar allows 3, emi and gol 3 each with one active run at a time, and hal 3, an IPv6
+active run at a time, and a run that waits for begin is not active: its begin
+waits until the active one is over; dar allows 3, emi and gol 3 each with one active run at a time, and hal 3, an IPv6
 address counted by its /64.
 
 BRI's default `scenario-100` allows 20 active hours, 600 seconds per scenario,

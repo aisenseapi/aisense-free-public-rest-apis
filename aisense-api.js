@@ -1237,9 +1237,11 @@ export class AISenseAPI {
   /**
    * Start a fresh run of ard, bri, cen or fup, with the version's first profile or
    * the one named, as in aiqStart('ard', 'pilot-20'). Response keys include
-   * `run_id`, `run_token`, `status`, `test_string` and the first `task`. The
-   * run token is shown once; the methods below send it as a bearer token. A
-   * dar run starts with aiqStartDar.
+   * `run_id`, `run_token`, `status` (waiting), `test_string`, `observer` and
+   * `next_action`. The run token is shown once; the methods below send it as
+   * a bearer token. The agent first answers the person who started it with
+   * `observer.message` and ends its turn; aiqBegin then hands out the first
+   * task. A dar run starts with aiqStartDar.
    */
   aiqStart(version, profile) {
     return this.#get(profile !== undefined ? `/aiq/start/${version}/${profile}` : `/aiq/start/${version}`)
@@ -1249,7 +1251,8 @@ export class AISenseAPI {
    * Start a dar run, the team test over Aamio, with the coordinator's Ed25519
    * public key, 43 base64url characters. Every action of the test goes over
    * Aamio; the start answers `run_id`, `run_token`, `controller_key`, the
-   * `roles` with their controller inboxes, and the `rules`.
+   * `roles`, `observer` and the `rules`, and aiqBegin starts the setup, after
+   * which a read of the run names the controller inboxes.
    */
   aiqStartDar(coordinatorKey) {
     return this.#post('/aiq/start/dar/team-5', { coordinator_key: coordinatorKey })
@@ -1263,6 +1266,16 @@ export class AISenseAPI {
     const body = { test_string: testString }
     if (coordinatorKey !== undefined) body.coordinator_key = coordinatorKey
     return this.#post(`/aiq/start/${version}`, body)
+  }
+
+  /**
+   * Begin a run that waits, once the agent has answered the person who started
+   * it with `observer.message` and ended its turn, and they have answered. An
+   * ard, bri, cen or fup run answers its first task, and the clock starts then;
+   * a dar run starts its setup. A gol run begins with its own route.
+   */
+  aiqBegin(runId, runToken) {
+    return this.#post(`/aiq/${runId}/begin`, { observer_link_shown: true }, runToken)
   }
 
   /** Read a run with its run token: its status, the current task, or the result. */
