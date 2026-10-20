@@ -43,6 +43,19 @@ for version in ("bri", "cen", "dar", "emi", "fup", "gol", "hal"):
     check(left == right, version + " copy buttons must give identical instructions")
     check("https://aisenseapi.com/services/v1/aiq" in left, version + " must name the API")
 
+# ARD has two profiles, each with its own copy button on both pages.
+ard_standard = instructions(post, "aiq-agent-instructions")
+ard_pilot = instructions(post, "aiq-pilot-instructions")
+check(ard_standard == instructions(versions, "ard-agent-instructions"), "ARD standard copy buttons must give identical instructions")
+check(ard_pilot == instructions(versions, "ard-pilot-instructions"), "ARD pilot copy buttons must give identical instructions")
+for block, profile, start, total in ((ard_standard, "standard-100", "/start/ard for", 100), (ard_pilot, "pilot-20", "/start/ard/pilot-20", 20)):
+    check("version ard, profile " + profile in block, "ARD " + profile + " instructions must name their profile")
+    check(start in block, "ARD " + profile + " instructions must start with " + start)
+    check(str(total) + " tasks" in block, "ARD " + profile + " instructions must name " + str(total) + " tasks")
+    for required in ("observer.message", "Never show the run_token", "/begin", "observer_link_shown", "attempt_key"):
+        check(required in block, "ARD " + profile + " instructions missing " + required)
+check("100 tasks of logic, API and data work by default (`standard-100`), or 20 in `pilot-20`" in api,
+      "API.md must say that ARD has 100 tasks by default and 20 in pilot-20")
 bri = instructions(post, "aiq-bri-instructions")
 dar = instructions(post, "aiq-dar-instructions")
 check("/start/bri/scenario-100" in bri, "BRI instructions must select 100 scenarios")
@@ -173,6 +186,12 @@ if args.api_root:
         for source, label in ((post, "post"), (versions, "versions")):
             check(" | bank " + bank.group(1) + " | " in source, label + " summary uses another bank")
     check("'default_profile'=>'scenario-100'" in config, "API must default BRI to scenario-100")
+    for profile, block in (("standard-100", ard_standard), ("pilot-20", ard_pilot)):
+        parts = re.search(r"'" + profile + r"'=>\[ 'logic'=>([0-9]+), 'api'=>([0-9]+), 'data'=>([0-9]+)", config)
+        check(parts is not None, "API ARD profile " + profile + " not found")
+        if parts:
+            total = sum(int(n) for n in parts.groups())
+            check(str(total) + " tasks" in block, "ARD " + profile + " instructions must name the API's " + str(total) + " tasks")
     check("'dar'=>[ 'date'=>'2026-10-09'" in config, "DAR API release date differs from the site")
     check("'hal'=>[ 'date'=>'2026-10-18', 'profiles'=>[ 'colony-closed-v1' ]" in config,
           "HAL must be in the API version registry with its profile and the site date")
