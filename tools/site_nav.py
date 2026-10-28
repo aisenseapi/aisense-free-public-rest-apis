@@ -148,6 +148,7 @@ API_GROUPS = [
         ('/free-public-api-url-shortener-api-endpoint', 'URL shortener'),
         ('/free-public-api-html-to-pdf-api-endpoint', 'HTML to PDF'),
         ('/free-public-api-storage-api-endpoint', 'Storage'),
+        ('/free-public-api-one-time-secret-api-endpoint', 'One-time Secret'),
     ]),
     ('random', 'Random', '/random-generator-apis', [
         ('/free-public-api-uuid-api-endpoint', 'UUID'),
