@@ -4,7 +4,7 @@ https://aisenseapi.com
 
 No dependencies beyond the standard library (uses urllib). There is no account.
 Most requests need nothing beyond the path and, for POST endpoints, the body.
-Agent Queue and semantic search calls also carry a role token, and AIQ calls a
+Agent Queue, semantic search and One-time Secret calls carry a role token, and AIQ calls a
 run token, which this client sends as an Authorization header and never puts in
 a URL.
 
@@ -40,8 +40,10 @@ Neither shape appeared when this client was last checked against production, on
 2026-09-06.
 """
 
+import base64
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 import uuid
@@ -968,6 +970,49 @@ class AISenseAPI:
             body["visibility_timeout"] = visibility_timeout
         return self._post(f"/queue/{queue_id}/jobs/{job_id}/renew", body, token=worker_token)
 
+
+    def create_one_time_secret(self, envelope: dict) -> dict:
+        """Store a locally encrypted envelope only; never pass plaintext or its key.
+
+        Use a trusted local AES-256-GCM implementation. The dependency-free
+        Python SDK transports ciphertext; it does not implement encryption.
+        Returns secret_id, read_token, receipt_token and expiry once.
+        """
+        if not isinstance(envelope, dict) or set(envelope) != {"version", "algorithm", "nonce", "ciphertext"}:
+            raise ValueError("Expected only version, algorithm, nonce and ciphertext")
+        if type(envelope["version"]) is not int or envelope["version"] != 1 or envelope["algorithm"] != "AES-256-GCM":
+            raise ValueError("Unsupported encrypted secret envelope")
+        for field, minimum, maximum in (("nonce", 12, 12), ("ciphertext", 17, 16400)):
+            value = envelope[field]
+            if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", value):
+                raise ValueError("Expected unpadded base64url")
+            try:
+                decoded = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+            except ValueError as error:
+                raise ValueError("Invalid base64url") from error
+            if not minimum <= len(decoded) <= maximum or base64.urlsafe_b64encode(decoded).decode().rstrip("=") != value:
+                raise ValueError("Invalid encrypted secret size or encoding")
+        return self._post("/secret", envelope)
+
+    @staticmethod
+    def _secret_identity(secret_id: str, token: str):
+        if not isinstance(secret_id, str) or not re.fullmatch(r"[0-9a-f]{32}", secret_id) or not isinstance(token, str) or not re.fullmatch(r"[0-9a-f]{64}", token):
+            raise ValueError("Invalid secret ID or bearer token")
+
+    def reveal_one_time_secret(self, secret_id: str, read_token: str) -> dict:
+        """Consume ciphertext once. A lost response cannot be recovered by retrying."""
+        self._secret_identity(secret_id, read_token)
+        return self._post(f"/secret/{secret_id}/reveal", {}, token=read_token)
+
+    def read_one_time_secret_receipt(self, secret_id: str, receipt_token: str) -> dict:
+        """Read status metadata only; does not consume or return ciphertext."""
+        self._secret_identity(secret_id, receipt_token)
+        return self._get(f"/secret/{secret_id}/receipt", token=receipt_token)
+
+    def burn_one_time_secret(self, secret_id: str, receipt_token: str) -> dict:
+        """Revoke pending ciphertext; repeated burns are safe, delivered returns 409."""
+        self._secret_identity(secret_id, receipt_token)
+        return self._post(f"/secret/{secret_id}/burn", {}, token=receipt_token)
 
     def create_semantic_search(self, model: Optional[str] = None) -> dict:
         """Create a semantic search collection for a fixed 24 hours.

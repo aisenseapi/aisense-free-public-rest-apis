@@ -30,9 +30,9 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.13.1`. It offers the workflow tools and the
-REST utility endpoints below as tools, apart from AIQ, `ip_datetime` and
-`ping`, which stay on REST. The official MCP Registry lists
+The server reports version `1.14.0` and offers 70 tools: the workflow tools
+and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
+and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.13.1` as active and latest,
 published 6 October 2026 at 14:05 UTC.
 
@@ -286,6 +286,24 @@ See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-w
 [website guide](web/free-public-api-agent-queue-api-endpoint.html).
 
 ---
+
+### One-time Secret - an encrypted handoff with one reveal
+
+Encrypt in your browser or local application, store only the encrypted envelope,
+and give the recipient a read capability plus the decryption key. Keep the
+separate receipt capability to inspect status or revoke a pending handoff. The
+server never receives the key or plaintext. A browser share link keeps secrets
+in its fragment and reveals only after a deliberate click.
+
+The envelope expires after 24 hours and supports up to 16 KiB of plaintext.
+Reveal consumes before the response: a network failure can lose the only copy,
+so never retry it automatically. Receipt status is a server event, not proof a
+person read the message. MCP clients must receive only pre-encrypted envelopes;
+never put plaintext or decryption keys in a chat or tool call.
+
+See the [REST contract](API.md#one-time-secret---client-encrypted-single-reveal),
+[MCP guide](MCP.md#one-time-secret), and local JavaScript encryption helpers
+`encryptOneTimeSecret` / `decryptOneTimeSecret` in [aisense-api.js](aisense-api.js).
 
 ### Semantic search - find earlier notes by meaning
 

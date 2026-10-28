@@ -1,13 +1,13 @@
 ---
 name: free-public-rest-apis
-description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, semantic search of short agent notes by meaning across wording and languages, IBAN/card/phone/Norwegian org and account number validation, temporary DNS names that expire after 24 hours, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
+description: "Use this skill whenever the user wants to integrate with, call, test, or learn about the free public REST APIs from AI SENSE AS (aisenseapi.com). Triggers include: requests for current time/datetime/timestamp, random numbers, random colors, passwords, UUIDs, GUIDs, Base64/Base58/Base32 encoding or decoding, JWT encode/decode, QR code generation or decoding, MD5/SHA1/SHA256/SHA512 hashing, CRC32 checksums, ping/health checks, client IP lookup, user agent, IP geolocation/reverse lookup, domain-to-IP resolution, timestamp conversion between unix/ISO/RFC formats, email address validation with MX lookup, hash verification, text slugification, delayed webhook delivery and scheduling, durable Agent Wake tasks for webhooks, human answers or time events, disposable agent email inboxes for verification codes, confirmation links or sign-up mail, heartbeat monitoring for missed agent check-ins, anonymous leases, idempotency claims and fencing tokens, temporary Agent Queue jobs with read/write/worker capabilities, locally encrypted one-time secret handoffs, semantic search of short agent notes by meaning across wording and languages, IBAN/card/phone/Norwegian org and account number validation, temporary DNS names that expire after 24 hours, temporary JSON/text/file storage, URL shortening, webhook capture, webhook action forms for human-in-the-loop approval, or crypto wallet generation and balance lookup (Solana, Bitcoin, Ethereum). Also use when the user asks for a quick utility API without authentication. Do NOT use for paid APIs, account-bound services, or operations requiring persistent storage beyond 24 hours."
 license: MIT
 ---
 
 # Free Public REST APIs - AI SENSE AS
 
 **Base URL:** `https://aisenseapi.com/services/v1`
-No account or API key. Queue and semantic search operations require the role tokens issued at creation. Hosted by AI SENSE AS, Oslo.
+No account or API key. Queue, semantic search and One-time Secret operations require the role tokens issued at creation. Hosted by AI SENSE AS, Oslo.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
@@ -899,3 +899,40 @@ directly from browser JavaScript.
 
 **AI SENSE AS** | Postboks 1202 Vika, 0110 Oslo, Norway
 [aisenseapi.com](https://aisenseapi.com)
+
+## One-time Secret
+
+Encrypt locally before creation with AES-256-GCM, a fresh 32-byte key and a fresh
+12-byte nonce. Submit only `version: 1`, `algorithm: "AES-256-GCM"`, `nonce` and
+`ciphertext`; nonce and ciphertext use canonical unpadded base64url. Ciphertext
+includes the 16-byte GCM tag. Plaintext must be 1 to 16384 UTF-8 bytes. Do not send
+plaintext or the decryption key to MCP, chat, the API or another remote tool.
+MCP clients can retain tool arguments, results and bearer tokens; using MCP is
+not a promise of secrecy from the client or model.
+
+`create_one_time_secret` returns `secret_id`, a `read_token` and a separate
+`receipt_token` once. The read token authorizes `reveal_one_time_secret`; the
+receipt token authorizes `read_one_time_secret_receipt` and `burn_one_time_secret`.
+A receipt token cannot reveal, and a read token cannot read receipts or burn.
+Keep the receipt capability with the sender and share only the read capability
+and decryption key with the intended recipient through an appropriate channel.
+
+Reveal requires explicit intent. It consumes ciphertext before the outbound
+response, so a lost response cannot be recovered by retrying. Never auto-retry
+reveal. GET and HEAD never consume. Receipt reads contain status and timestamps,
+never ciphertext; a delivered status is a server event, not proof that a person
+read or understood anything. Repeated burn is safe; an already delivered record
+returns 409 because the service cannot revoke a previously delivered copy.
+
+Expiry is fixed at 24 hours and activity does not extend it. Creation is limited
+to 100 per client IP per UTC calendar day and 4096 records globally, in addition
+to the shared REST/MCP budget. A quota failure is 429; capacity/storage failure
+is 503. Do not blindly retry creation after an uncertain response: tokens are
+returned once, and a retry creates a different record.
+
+REST paths are `POST /services/v1/secret`, `POST /services/v1/secret/{id}/reveal`,
+`GET /services/v1/secret/{id}/receipt` and `POST /services/v1/secret/{id}/burn`.
+REST tokens belong only in `Authorization: Bearer TOKEN`; never put them in an
+API path, query string or JSON body. Browser share links can keep capabilities
+and keys in the URL fragment, which is not part of the HTTP request. The browser
+must encrypt and decrypt locally and require a deliberate reveal action.

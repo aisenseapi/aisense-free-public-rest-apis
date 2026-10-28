@@ -43,7 +43,11 @@
     "function": {
       "name": "get_timestamp",
       "description": "Current Unix timestamp in seconds. Returns {\"timestamp\": 1786873261}. GET /timestamp",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -51,7 +55,11 @@
     "function": {
       "name": "get_microtimestamp",
       "description": "Unix timestamp with microsecond precision. Returns {\"microtimestamp\": 1786873474.745043}. GET /microtimestamp",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -77,7 +85,11 @@
     "function": {
       "name": "get_swatch_internet_time",
       "description": "Swatch Internet Time. Returns {\"beat\": \"@444\", \"date\": \"2026-08-16\"}. Note beat is a string with a leading @, not a number. GET /swatchinternettime",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -88,8 +100,14 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "from": { "type": "integer", "description": "Lower bound, inclusive." },
-          "to": { "type": "integer", "description": "Upper bound, inclusive." }
+          "from": {
+            "type": "integer",
+            "description": "Lower bound, inclusive."
+          },
+          "to": {
+            "type": "integer",
+            "description": "Upper bound, inclusive."
+          }
         },
         "required": []
       }
@@ -100,7 +118,11 @@
     "function": {
       "name": "get_random_color",
       "description": "Random hex color. Returns {\"random_color\": \"#9b6bbf\"}. GET /random_color",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -108,7 +130,11 @@
     "function": {
       "name": "get_uuid",
       "description": "Generate a UUID v4. Returns {\"uuid\": \"429151ee-82a1-4438-b2f1-b6b9c9e4a41f\"}. GET /uuid",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -116,7 +142,11 @@
     "function": {
       "name": "get_guid",
       "description": "Generate a GUID. Returns {\"guid\": \"...\"}. GET /guid",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -127,7 +157,12 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "length": { "type": "integer", "minimum": 6, "maximum": 128, "description": "Password length, 6 to 128. Defaults to 12." }
+          "length": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 128,
+            "description": "Password length, 6 to 128. Defaults to 12."
+          }
         },
         "required": []
       }
@@ -140,8 +175,15 @@
       "description": "Encode text to Base64. Returns {\"base64_encoded_data\": \"SGVsbG8gd29ybGQ=\"}. POST /base64_encode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Text to encode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -152,8 +194,15 @@
       "description": "Decode Base64. Returns the raw decoded bytes as application/octet-stream, NOT JSON - unless the request sends Accept: application/json, in which case it returns {\"type\": \"json\"|\"binary\", \"decoded_data\": ...}. POST /base64_decode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Base64 string to decode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Base64 string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -164,8 +213,15 @@
       "description": "Encode text to Base58. Returns {\"base58_encoded_data\": \"9Ajdvzr\"}. POST /base58_encode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Text to encode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -176,8 +232,15 @@
       "description": "Decode Base58. Returns raw bytes, or a typed envelope with Accept: application/json. An invalid character returns HTTP 400 with {\"error\": \"Invalid Base58 input.\"}. POST /base58_decode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Base58 string to decode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Base58 string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -188,8 +251,15 @@
       "description": "Encode text to Base32. Returns {\"base32_encoded_data\": \"JBSWY3DP\"}. POST /base32_encode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Text to encode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -200,8 +270,15 @@
       "description": "Decode Base32. Returns raw bytes, or a typed envelope with Accept: application/json. POST /base32_decode",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "Base32 string to decode." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Base32 string to decode."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -406,9 +483,15 @@
           "data": {
             "description": "The claims: a JSON object, or a string containing JSON."
           },
-          "secret": { "type": "string", "description": "Secret key used to sign the token." }
+          "secret": {
+            "type": "string",
+            "description": "Secret key used to sign the token."
+          }
         },
-        "required": ["data", "secret"]
+        "required": [
+          "data",
+          "secret"
+        ]
       }
     }
   },
@@ -420,10 +503,19 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "data": { "type": "string", "description": "The JWT token string." },
-          "secret": { "type": "string", "description": "Secret key used to sign it." }
+          "data": {
+            "type": "string",
+            "description": "The JWT token string."
+          },
+          "secret": {
+            "type": "string",
+            "description": "Secret key used to sign it."
+          }
         },
-        "required": ["data", "secret"]
+        "required": [
+          "data",
+          "secret"
+        ]
       }
     }
   },
@@ -435,9 +527,14 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "payload": { "type": "string", "description": "Text or URL to encode. Field name is payload, not data." }
+          "payload": {
+            "type": "string",
+            "description": "Text or URL to encode. Field name is payload, not data."
+          }
         },
-        "required": ["payload"]
+        "required": [
+          "payload"
+        ]
       }
     }
   },
@@ -449,9 +546,14 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "payload": { "type": "string", "description": "Base64-encoded QR image. Field name is payload, not data." }
+          "payload": {
+            "type": "string",
+            "description": "Base64-encoded QR image. Field name is payload, not data."
+          }
         },
-        "required": ["payload"]
+        "required": [
+          "payload"
+        ]
       }
     }
   },
@@ -462,8 +564,15 @@
       "description": "MD5 hash. Returns {\"md5_hash\": \"8b1a9953c4611296a827abf8c47804d7\"} - the key is md5_hash, not hash. POST /md5_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -474,8 +583,15 @@
       "description": "SHA1 hash. Returns {\"sha1_hash\": \"...\"} - the key is sha1_hash, not hash. POST /sha1_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -486,8 +602,15 @@
       "description": "SHA256 hash. Returns {\"sha256_hash\": \"...\"} - the key is sha256_hash, not hash. POST /sha256_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -498,8 +621,15 @@
       "description": "SHA512 hash. Returns {\"sha512_hash\": \"...\"} - the key is sha512_hash, not hash. POST /sha512_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -510,8 +640,15 @@
       "description": "CRC32 checksum. Returns {\"crc32_checksum\": 4157704578} - an integer, not a hex string. POST /crc32_checksum",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to checksum." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to checksum."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -522,8 +659,15 @@
       "description": "Whirlpool hash, 128 hex characters. Returns {\"whirlpool_hash\": \"...\"} - the key is whirlpool_hash, not hash. POST /whirlpool_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -534,8 +678,15 @@
       "description": "SHA3-256 hash. Returns {\"sha3_256_hash\": \"...\"} - the key is sha3_256_hash, not hash. POST /sha3_256_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -546,8 +697,15 @@
       "description": "SHA3-512 hash. Returns {\"sha3_512_hash\": \"...\"} - the key is sha3_512_hash, not hash. POST /sha3_512_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -558,52 +716,91 @@
       "description": "BLAKE2b-256 hash. Returns {\"blake2b_hash\": \"...\"} - the key is blake2b_hash, not hash. POST /blake2b_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
-  },  {
+  },
+  {
     "type": "function",
     "function": {
       "name": "hash_blake3",
       "description": "BLAKE3 hash, input at most 1 MiB. Returns {\"blake3_hash\": \"...\"} - 64 hex characters. POST /blake3_hash",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "String to hash." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "String to hash."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
-  },  {
+  },
+  {
     "type": "function",
     "function": {
       "name": "hash_argon2id",
       "description": "Argon2id password hash, 64 MiB, 3 passes, a new salted PHC string every call. For test data: 200 operations per IP per day, 503 with Retry-After while the hashing process is busy. Returns {\"argon2id_hash\": \"$argon2id$v=19$m=65536,t=3,p=1$...\"}. POST /argon2id_hash",
       "parameters": {
         "type": "object",
-        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 1024 bytes. Use test data." } },
-        "required": ["password"]
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Password to hash, 1 to 1024 bytes. Use test data."
+          }
+        },
+        "required": [
+          "password"
+        ]
       }
     }
-  },  {
+  },
+  {
     "type": "function",
     "function": {
       "name": "hash_bcrypt",
       "description": "bcrypt password hash, cost 12, input at most 72 bytes without NUL. For test data: 200 operations per IP per day. Returns {\"bcrypt_hash\": \"$2b$12$...\"}. POST /bcrypt_hash",
       "parameters": {
         "type": "object",
-        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 72 bytes. Use test data." } },
-        "required": ["password"]
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Password to hash, 1 to 72 bytes. Use test data."
+          }
+        },
+        "required": [
+          "password"
+        ]
       }
     }
-  },  {
+  },
+  {
     "type": "function",
     "function": {
       "name": "hash_scrypt",
       "description": "scrypt password hash, N 2^17, r 8, p 1, a PHC string. For test data: 200 operations per IP per day. Returns {\"scrypt_hash\": \"$scrypt$ln=17,r=8,p=1$...\"}. POST /scrypt_hash",
       "parameters": {
         "type": "object",
-        "properties": { "password": { "type": "string", "description": "Password to hash, 1 to 1024 bytes. Use test data." } },
-        "required": ["password"]
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Password to hash, 1 to 1024 bytes. Use test data."
+          }
+        },
+        "required": [
+          "password"
+        ]
       }
     }
   },
@@ -612,7 +809,11 @@
     "function": {
       "name": "ping",
       "description": "Connectivity check. Returns {\"ping\": \"pong\"} - the key is ping, not response. GET /ping",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -620,7 +821,11 @@
     "function": {
       "name": "health_check",
       "description": "Health check. Returns {\"status\": \"ok\", \"microtimestamp\": 1786873258.589068} - the second key is microtimestamp, not timestamp. GET /health",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -628,7 +833,11 @@
     "function": {
       "name": "get_client_ip",
       "description": "Public IP address of the caller. Returns {\"ip\": \"203.0.113.42\"}. GET /client_ip",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -636,7 +845,11 @@
     "function": {
       "name": "get_user_agent",
       "description": "The User-Agent string the API saw. Returns {\"user_agent\": \"curl/8.5.0\"}. GET /user_agent",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -646,8 +859,15 @@
       "description": "Geolocate an IP. Returns {\"ip\", \"country\", \"city\", \"location\": {\"lat\", \"lng\"}, \"place\", \"timezone\"}. city and place are frequently null, and coordinates fall back to the country centroid. GET /ip_reverse_lookup/{ip}",
       "parameters": {
         "type": "object",
-        "properties": { "ip": { "type": "string", "description": "IP address, e.g. \"8.8.8.8\"." } },
-        "required": ["ip"]
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "IP address, e.g. \"8.8.8.8\"."
+          }
+        },
+        "required": [
+          "ip"
+        ]
       }
     }
   },
@@ -658,8 +878,15 @@
       "description": "Resolve a domain to an IP. Returns {\"domain\": \"example.com\", \"ip\": \"104.20.23.154\"}. GET /domain_ip_lookup/{domain}",
       "parameters": {
         "type": "object",
-        "properties": { "domain": { "type": "string", "description": "Domain name, e.g. \"example.com\"." } },
-        "required": ["domain"]
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name, e.g. \"example.com\"."
+          }
+        },
+        "required": [
+          "domain"
+        ]
       }
     }
   },
@@ -671,10 +898,19 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "data": { "description": "Value to store. Sent as the request body verbatim." },
-          "max_downloads": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Optional. Remove the object after this many downloads, 1 to 100. The answer then also carries downloads_max and downloads_left, every GET says how many remain in a Downloads-Left header, and a spent id answers 410 with {\"error\": \"Storage object gone\"}. POST /storage/max_downloads/{n}" }
+          "data": {
+            "description": "Value to store. Sent as the request body verbatim."
+          },
+          "max_downloads": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Optional. Remove the object after this many downloads, 1 to 100. The answer then also carries downloads_max and downloads_left, every GET says how many remain in a Downloads-Left header, and a spent id answers 410 with {\"error\": \"Storage object gone\"}. POST /storage/max_downloads/{n}"
+          }
         },
-        "required": ["data"]
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -685,8 +921,15 @@
       "description": "Retrieve stored data, returned verbatim, with an ETag that is sha256_hash in quotes. GET /storage/{storage_id}/sha256/{64 hex} serves the same bytes only if they hash to that value and answers 412 if they do not, so a link can carry its own expectation. An unknown or expired id returns {\"error\": \"Storage id unknown\"}, and one whose downloads are all taken answers 410 with {\"error\": \"Storage object gone\"}. GET /storage/{storage_id}",
       "parameters": {
         "type": "object",
-        "properties": { "storage_id": { "type": "string", "description": "The storage_id returned by storage_set." } },
-        "required": ["storage_id"]
+        "properties": {
+          "storage_id": {
+            "type": "string",
+            "description": "The storage_id returned by storage_set."
+          }
+        },
+        "required": [
+          "storage_id"
+        ]
       }
     }
   },
@@ -697,8 +940,15 @@
       "description": "Shorten a URL for 24 hours. Returns {\"short_url\": \"https://307.fi/KtNshX2B\", \"expire_timestamp\": ...}. This is a GET with the target URL inline in the path, not a POST. GET /url_shortener/{url}",
       "parameters": {
         "type": "object",
-        "properties": { "url": { "type": "string", "description": "Full URL to shorten." } },
-        "required": ["url"]
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Full URL to shorten."
+          }
+        },
+        "required": [
+          "url"
+        ]
       }
     }
   },
@@ -909,7 +1159,11 @@
     "function": {
       "name": "generate_bitcoin_wallet",
       "description": "Generate a Bitcoin wallet. Returns {\"private_key\", \"private_key_wif\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY. Never fund it. GET /bitcoin/generate_new_wallet",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -917,7 +1171,11 @@
     "function": {
       "name": "generate_ethereum_wallet",
       "description": "Generate an Ethereum wallet. Returns {\"private_key\", \"public_address\"}. FOR DEVELOPMENT AND TESTING ONLY. Never fund it. GET /ethereum/generate_new_wallet",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -927,8 +1185,15 @@
       "description": "Solana balance. Returns {\"wallet\", \"balance_sol\", \"balance_lamports\"}. GET /solana/balance/{address}",
       "parameters": {
         "type": "object",
-        "properties": { "address": { "type": "string", "description": "Solana address." } },
-        "required": ["address"]
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Solana address."
+          }
+        },
+        "required": [
+          "address"
+        ]
       }
     }
   },
@@ -939,8 +1204,15 @@
       "description": "Bitcoin balance. Returns {\"wallet\", \"final_balance_btc\", \"final_balance_sats\"}. GET /bitcoin/balance/{address}",
       "parameters": {
         "type": "object",
-        "properties": { "address": { "type": "string", "description": "Bitcoin address." } },
-        "required": ["address"]
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Bitcoin address."
+          }
+        },
+        "required": [
+          "address"
+        ]
       }
     }
   },
@@ -951,8 +1223,15 @@
       "description": "Ethereum balance. Returns {\"wallet\", \"balance_eth\", \"balance_wei\"} where both balances are STRINGS, because Wei routinely exceeds 2^53 and would lose precision as a JSON number. GET /ethereum/balance/{address}",
       "parameters": {
         "type": "object",
-        "properties": { "address": { "type": "string", "description": "Ethereum address, 0x-prefixed." } },
-        "required": ["address"]
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Ethereum address, 0x-prefixed."
+          }
+        },
+        "required": [
+          "address"
+        ]
       }
     }
   },
@@ -990,8 +1269,15 @@
       "description": "Validate an email address: syntax, then DNS. Returns {\"email\", \"valid_syntax\", \"domain\", \"has_mx\", \"mx_hosts\", \"has_address_record\"}. A failing address is a RESULT with valid_syntax false, not an error. has_address_record covers the RFC 5321 A-record fallback, so absent MX alone does not prove the address dead. Does not verify the mailbox exists. POST /email_validate",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "The email address to validate." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The email address to validate."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -1017,7 +1303,18 @@
           },
           "algorithm": {
             "type": "string",
-            "enum": ["md5", "sha1", "sha256", "sha512", "crc32", "whirlpool", "sha3_256", "sha3_512", "blake2b", "blake3"],
+            "enum": [
+              "md5",
+              "sha1",
+              "sha256",
+              "sha512",
+              "crc32",
+              "whirlpool",
+              "sha3_256",
+              "sha3_512",
+              "blake2b",
+              "blake3"
+            ],
             "description": "Optional for the first five, required for the rest."
           }
         },
@@ -1059,8 +1356,15 @@
       "description": "Turn text into a URL slug. Scandinavian letters and common Latin diacritics are transliterated by a fixed table (deterministic across machines): \"Blåbærsyltetøy på Ås!\" becomes \"blabaersyltetoy-pa-as\". Returns {\"slug\"}. Input with no sluggable characters returns HTTP 400 rather than an empty slug. POST /slugify",
       "parameters": {
         "type": "object",
-        "properties": { "data": { "type": "string", "description": "The text to slugify." } },
-        "required": ["data"]
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text to slugify."
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     }
   },
@@ -1276,7 +1580,11 @@
     "function": {
       "name": "agent_inbox_create",
       "description": "Create a disposable mail inbox that lasts at most 24 hours. Takes no arguments. Returns {\"ok\", \"inbox_id\", \"slug\", \"address\", \"read_url\", \"wait_url\", \"expire_timestamp\"}. The slug is seven characters of a-z0-9 and appears in the address, so it is public by construction: knowing it lets anyone send mail to the inbox and never lets anyone read it. The inbox_id is a UUID, is returned once, and is the only credential that reads the mail. The lifetime is fixed and not extendable. GET /inbox",
-      "parameters": { "type": "object", "properties": {}, "required": [] }
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
   },
   {
@@ -2992,6 +3300,122 @@
           "collection_id",
           "note_id",
           "write_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_one_time_secret",
+      "description": "Store only a locally encrypted AES-256-GCM envelope for 24 hours. Never send plaintext or the decryption key to this tool, chat or the API. MCP/tool clients can retain arguments and tokens. Maximum plaintext before encryption is 16384 bytes. Returns secret_id, read_token, receipt_token and expiry once. Creation is not idempotent. POST /secret",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "AES-256-GCM"
+            ]
+          },
+          "nonce": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{16}$"
+          },
+          "ciphertext": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "minLength": 23,
+            "maxLength": 21867
+          }
+        },
+        "required": [
+          "version",
+          "algorithm",
+          "nonce",
+          "ciphertext"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "reveal_one_time_secret",
+      "description": "Destructively consume and return ciphertext once; decrypt locally and never send the key to this tool. Explicit action only; consumption happens before responding, so a lost response cannot be recovered by retrying. Send read_token in Authorization: Bearer, never in URL or body. POST /secret/{secret_id}/reveal",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "secret_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "read_token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "secret_id",
+          "read_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_one_time_secret_receipt",
+      "description": "Read status and timestamps without consuming or returning ciphertext. A delivered event is not proof a person read the message. Send receipt_token in Authorization: Bearer, never in URL or body. GET /secret/{secret_id}/receipt",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "secret_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "receipt_token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "secret_id",
+          "receipt_token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "burn_one_time_secret",
+      "description": "Permanently revoke pending ciphertext. Repeat burn is safe; already delivered returns 409. Send receipt_token in Authorization: Bearer, never in URL or body. POST /secret/{secret_id}/burn",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "secret_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "receipt_token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "secret_id",
+          "receipt_token"
         ],
         "additionalProperties": false
       }

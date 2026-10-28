@@ -13,10 +13,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.13.1`. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.13.1` as active and latest,
-published 6 October 2026 at 14:05 UTC. Both are server release versions,
-separate from the agent guide resource version, which is 1.8.5.
+The server reports version `1.14.0` and offers 70 tools. The official MCP
+Registry lists `com.aisenseapi/free-public-tools` version `1.13.1` as active
+and latest, published 6 October 2026 at 14:05 UTC. Both are server release
+versions, separate from the agent guide resource version, which is 1.8.6.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -67,6 +67,10 @@ proxy these tools either.
 
 | Tool | What it does |
 |------|--------------|
+| `create_one_time_secret` | Stores only a locally encrypted envelope; returns separate read and receipt tokens |
+| `reveal_one_time_secret` | Consumes ciphertext before responding; destructive and never automatically retried |
+| `read_one_time_secret_receipt` | Reads status metadata without consuming or returning ciphertext |
+| `burn_one_time_secret` | Revokes pending ciphertext; repeated burns are safe |
 | `get_current_time` | Returns the current time for an IANA timezone or UTC offset |
 | `generate_uuid` | Generates a UUID version 4 |
 | `shorten_url` | Creates a 307.fi link that expires after 24 hours |
@@ -814,13 +818,13 @@ pricing promise.
 - Group approval links, Heartbeat IDs, Lease namespaces, owner tokens and inbox IDs are bearer secrets.
 - An Agent Inbox address is public by construction. The inbox ID is the only credential that reads the mail, so share the address and keep the ID.
 - Queue read, write and worker tokens are separate bearer secrets. Receipts identify one claim. All Queue state expires 24 hours after creation.
-- Do not store passwords, private keys, health data or long-lived confidential data.
+- Do not store plaintext passwords, private keys or health data. One-time Secret accepts only encrypted envelopes with keys kept locally. Temporary services are not durable storage.
 - Requests with a browser `Origin` header are accepted only from approved origins.
 - Tool descriptions and annotations are hints. Clients should still apply their own approval policy.
 - The Verifyum resource is read-only and contains no user data.
 - The Verifyum MCP endpoint is separate from the AI SENSE MCP endpoint.
 - Verifyum anchor input is public and permanent. The source file and private proof data stay local.
-- MCP logs contain the JSON-RPC method and tool name, not tool arguments or results.
+- Server method logs contain the JSON-RPC method and tool name, not tool arguments or results. MCP clients can retain arguments, results and capabilities.
 
 The endpoint is public because the tools create short-lived records that are
 not bound to a user account. What a record holds is reached by the bearer
@@ -857,3 +861,40 @@ MCP tool list and its function count and names need not match MCP discovery.
 - REST API reference: [`API.md`](API.md)
 - A2A agent card: [aisenseapi.com/.well-known/agent-card.json](https://aisenseapi.com/.well-known/agent-card.json)
 - Source and tests: [github.com/aisenseapi/aisense-free-public-rest-apis](https://github.com/aisenseapi/aisense-free-public-rest-apis)
+
+## One-time Secret
+
+Encrypt locally before creation with AES-256-GCM, a fresh 32-byte key and a fresh
+12-byte nonce. Submit only `version: 1`, `algorithm: "AES-256-GCM"`, `nonce` and
+`ciphertext`; nonce and ciphertext use canonical unpadded base64url. Ciphertext
+includes the 16-byte GCM tag. Plaintext must be 1 to 16384 UTF-8 bytes. Do not send
+plaintext or the decryption key to MCP, chat, the API or another remote tool.
+MCP clients can retain tool arguments, results and bearer tokens; using MCP is
+not a promise of secrecy from the client or model.
+
+`create_one_time_secret` returns `secret_id`, a `read_token` and a separate
+`receipt_token` once. The read token authorizes `reveal_one_time_secret`; the
+receipt token authorizes `read_one_time_secret_receipt` and `burn_one_time_secret`.
+A receipt token cannot reveal, and a read token cannot read receipts or burn.
+Keep the receipt capability with the sender and share only the read capability
+and decryption key with the intended recipient through an appropriate channel.
+
+Reveal requires explicit intent. It consumes ciphertext before the outbound
+response, so a lost response cannot be recovered by retrying. Never auto-retry
+reveal. GET and HEAD never consume. Receipt reads contain status and timestamps,
+never ciphertext; a delivered status is a server event, not proof that a person
+read or understood anything. Repeated burn is safe; an already delivered record
+returns 409 because the service cannot revoke a previously delivered copy.
+
+Expiry is fixed at 24 hours and activity does not extend it. Creation is limited
+to 100 per client IP per UTC calendar day and 4096 records globally, in addition
+to the shared REST/MCP budget. A quota failure is 429; capacity/storage failure
+is 503. Do not blindly retry creation after an uncertain response: tokens are
+returned once, and a retry creates a different record.
+
+REST paths are `POST /services/v1/secret`, `POST /services/v1/secret/{id}/reveal`,
+`GET /services/v1/secret/{id}/receipt` and `POST /services/v1/secret/{id}/burn`.
+REST tokens belong only in `Authorization: Bearer TOKEN`; never put them in an
+API path, query string or JSON body. Browser share links can keep capabilities
+and keys in the URL fragment, which is not part of the HTTP request. The browser
+must encrypt and decrypt locally and require a deliberate reveal action.
