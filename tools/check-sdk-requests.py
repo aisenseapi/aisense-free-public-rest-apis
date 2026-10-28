@@ -27,6 +27,7 @@ import aisense_api  # noqa: E402
 # A PNG signature and filler. The stub never decodes it.
 IMAGE = bytes.fromhex("89504e470d0a1a0a") + b"synthetic image bytes \x00\xff\r\n end"
 RECORDED = []
+SECRET_ENVELOPE = {"version": 1, "algorithm": "AES-256-GCM", "nonce": "AAAAAAAAAAAAAAAA", "ciphertext": "AAAAAAAAAAAAAAAAAAAAAAA"}
 
 DECIDE_QUESTIONS = {"urgent": {"type": "noul", "instructions": "Is this urgent?", "criteria": {"true": "Yes.", "false": "No."}}}
 JSON_POSTS = [
@@ -44,6 +45,10 @@ EXPECTED += [
     ("GET", "/dns/abcdefg", None, None, None, None),
     ("POST", "/dns/abcdefg/update/198.51.100.8", "json", {}, None, "dns-token-1"),
     ("POST", "/dns/abcdefg/delete", "json", {}, None, "dns-token-1"),
+    ("POST", "/secret", "json", SECRET_ENVELOPE, None, None),
+    ("POST", "/secret/" + "a" * 32 + "/reveal", "json", {}, None, "b" * 64),
+    ("GET", "/secret/" + "a" * 32 + "/receipt", None, None, None, "c" * 64),
+    ("POST", "/secret/" + "a" * 32 + "/burn", "json", {}, None, "c" * 64),
     ("POST", "/semantic_search", "json", {"model": "qwen3-embedding-4b"}, None, None),
     ("GET", "/semantic_search/" + "c" * 32, None, None, None, "read-token-1"),
     ("POST", "/semantic_search/" + "c" * 32 + "/notes", "json", {"notes": [{"text": "Refund ORD-4410", "key": "job:4410"}]}, None, "write-token-1"),
@@ -95,6 +100,10 @@ await api.dnsCreate('198.51.100.7')
 await api.dnsRead('abcdefg')
 await api.dnsUpdate('abcdefg', '198.51.100.8', 'dns-token-1')
 await api.dnsDelete('abcdefg', 'dns-token-1')
+await api.createOneTimeSecret({ version: 1, algorithm: 'AES-256-GCM', nonce: 'AAAAAAAAAAAAAAAA', ciphertext: 'AAAAAAAAAAAAAAAAAAAAAAA' })
+await api.revealOneTimeSecret('a'.repeat(32), 'b'.repeat(64))
+await api.readOneTimeSecretReceipt('a'.repeat(32), 'c'.repeat(64))
+await api.burnOneTimeSecret('a'.repeat(32), 'c'.repeat(64))
 await api.createSemanticSearch('qwen3-embedding-4b')
 await api.readSemanticSearch('cccccccccccccccccccccccccccccccc', 'read-token-1')
 await api.addSemanticSearchNotes('cccccccccccccccccccccccccccccccc', 'write-token-1', [{ text: 'Refund ORD-4410', key: 'job:4410' }])
@@ -232,6 +241,10 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.dns_read("abcdefg")
     api.dns_update("abcdefg", "198.51.100.8", "dns-token-1")
     api.dns_delete("abcdefg", "dns-token-1")
+    api.create_one_time_secret(SECRET_ENVELOPE)
+    api.reveal_one_time_secret("a" * 32, "b" * 64)
+    api.read_one_time_secret_receipt("a" * 32, "c" * 64)
+    api.burn_one_time_secret("a" * 32, "c" * 64)
     api.create_semantic_search("qwen3-embedding-4b")
     api.read_semantic_search("c" * 32, "read-token-1")
     api.add_semantic_search_notes("c" * 32, "write-token-1", [{"text": "Refund ORD-4410", "key": "job:4410"}])

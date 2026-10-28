@@ -4,9 +4,9 @@
  *
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
  * There is no account. Most requests need nothing beyond the path and, for POST
- * endpoints, the body. Agent Queue and semantic search calls also carry a role
+ * endpoints, the body. Agent Queue, semantic search and One-time Secret calls carry a role
  * token, and AIQ calls a run token, which this client sends as an
- * Authorization header and never puts in a URL. All three answer the browser
+ * Authorization header and never puts in a URL. These endpoints answer the browser
  * preflight for that header, so those calls work from a page as well as from
  * Node.
  *
@@ -57,6 +57,63 @@ export class AISenseAPIError extends Error {
     this.status = status
     this.body = body
   }
+}
+
+function secretBase64url(bytes) {
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+function secretBytes(value) {
+  if (typeof value !== 'string' || !/^[A-Za-z0-9_-]+$/.test(value)) throw new TypeError('Expected unpadded base64url')
+  const bytes = Uint8Array.from(atob(value.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
+  if (secretBase64url(bytes) !== value) throw new TypeError('Non-canonical base64url')
+  return bytes
+}
+
+function secretEnvelope(envelope) {
+  if (!envelope || Object.keys(envelope).sort().join(',') !== 'algorithm,ciphertext,nonce,version' ||
+      envelope.version !== 1 || envelope.algorithm !== 'AES-256-GCM' ||
+      secretBytes(envelope.nonce).length !== 12) throw new TypeError('Invalid encrypted secret envelope')
+  const size = secretBytes(envelope.ciphertext).length
+  if (size < 17 || size > 16400) throw new TypeError('Ciphertext must contain 1 byte to 16 KiB plus its 16-byte tag')
+  return envelope
+}
+
+function secretIdentity(id, token) {
+  if (typeof id !== 'string' || !/^[0-9a-f]{32}$/.test(id) ||
+      typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token)) throw new TypeError('Invalid secret ID or bearer token')
+}
+
+async function secretCrypto() {
+  if (globalThis.crypto?.subtle) return globalThis.crypto
+  if (typeof process !== 'undefined' && process.versions?.node) return (await import('node:crypto')).webcrypto
+  throw new Error('Web Crypto requires HTTPS or localhost')
+}
+
+/** Encrypt UTF-8 locally. Keep returned key out of API/MCP/chat and logs. */
+export async function encryptOneTimeSecret(plaintext) {
+  if (typeof plaintext !== 'string') throw new TypeError('Plaintext must be a string')
+  const bytes = new TextEncoder().encode(plaintext)
+  if (bytes.length === 0 || bytes.length > 16384) throw new RangeError('Plaintext must be 1 byte to 16 KiB UTF-8')
+  const crypto = await secretCrypto()
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
+  const nonce = crypto.getRandomValues(new Uint8Array(12))
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce, tagLength: 128 }, key, bytes))
+  return {
+    envelope: { version: 1, algorithm: 'AES-256-GCM', nonce: secretBase64url(nonce), ciphertext: secretBase64url(ciphertext) },
+    key: secretBase64url(new Uint8Array(await crypto.subtle.exportKey('raw', key))),
+  }
+}
+
+/** Decrypt locally after an explicit reveal. Authentication failure cannot undo consumption. */
+export async function decryptOneTimeSecret(envelope, localKey) {
+  secretEnvelope(envelope)
+  const keyBytes = secretBytes(localKey)
+  if (keyBytes.length !== 32) throw new TypeError('AES-256 requires a 32-byte key')
+  const crypto = await secretCrypto()
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt'])
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: secretBytes(envelope.nonce), tagLength: 128 }, key, secretBytes(envelope.ciphertext))
+  return new TextDecoder('utf-8', { fatal: true }).decode(plaintext)
 }
 
 export class AISenseAPI {
@@ -970,6 +1027,29 @@ export class AISenseAPI {
    */
   createSemanticSearch(model) {
     return this.#post('/semantic_search', model === undefined ? {} : { model })
+  }
+
+  /** Store ciphertext only. Response: secret_id, read_token, receipt_token and expiry. */
+  createOneTimeSecret(envelope) {
+    return this.#post('/secret', secretEnvelope(envelope))
+  }
+
+  /** Consume ciphertext once. Never automatically retry: a lost response is unrecoverable. */
+  revealOneTimeSecret(secretId, readToken) {
+    secretIdentity(secretId, readToken)
+    return this.#post(`/secret/${secretId}/reveal`, {}, readToken)
+  }
+
+  /** Read metadata only; never consumes or returns ciphertext. */
+  readOneTimeSecretReceipt(secretId, receiptToken) {
+    secretIdentity(secretId, receiptToken)
+    return this.#get(`/secret/${secretId}/receipt`, receiptToken)
+  }
+
+  /** Revoke pending ciphertext. Repeated burns are safe; already delivered returns 409. */
+  burnOneTimeSecret(secretId, receiptToken) {
+    secretIdentity(secretId, receiptToken)
+    return this.#post(`/secret/${secretId}/burn`, {}, receiptToken)
   }
 
   /**

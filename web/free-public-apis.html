@@ -138,6 +138,7 @@
     <a href="/free-public-api-agent-inbox-api-endpoint"><strong>Agent Inbox <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></strong><span>Read mail sent to a disposable address.</span></a>
     <a href="/free-public-api-webhook-capture-api-endpoint"><strong>Webhook Capture API</strong><span>Receive, wait for and inspect one webhook.</span></a>
     <a href="/free-public-api-webhook-action-api-endpoint"><strong>Webhook Action <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></strong><span>Ask one person or a group for answers.</span></a>
+    <a href="/free-public-api-one-time-secret-api-endpoint"><strong>One-time Secret API</strong><span>Encrypt locally and deliver a short message once.</span></a>
     <a href="/free-public-api-storage-api-endpoint"><strong>Temporary Storage API</strong><span>Store JSON, text or files for 24 hours.</span></a>
     <a href="/free-public-api-url-shortener-api-endpoint"><strong>URL Shortener API</strong><span>Create short links that expire after 24 hours.</span></a>
     <a href="/free-public-api-dns-name-api-endpoint"><strong>Temporary DNS Name API</strong><span>Point a public name at an address for 24 hours.</span></a>     <a href="/free-public-api-semantic-search-api-endpoint"><strong>Semantic Search <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></strong><span>Find earlier notes by meaning for 24 hours.</span></a>
@@ -949,6 +950,13 @@ POST /lease
   "ttl_seconds": 60, "fingerprint": "charge-order-501" }
   -> { "status": "held", "owner_token": "own_...", "fencing_token": 184 }</code></pre>
 <p>A lease can be renewed, released or completed. The absolute lifecycle ends 24 hours after its first acquisition and cannot be extended. <a href="/free-public-api-lease-api-endpoint">Read the Lease guide</a>.</p>
+</article>
+
+<article class="endpoint" id="one-time-secret">
+<h3><a href="/free-public-api-one-time-secret-api-endpoint">One-time Secret REST API Endpoint</a></h3>
+<p class="sig"><span class="method post">POST</span> <span class="path">/secret</span> - <span class="method post">POST</span> <span class="path">/secret/{secret_id}/reveal</span></p>
+<p>Share an encrypted message for one delivery with a fixed 24-hour expiry. The <a href="/one-time-secret">One-time Secret browser tool</a> encrypts locally using AES-256-GCM; the plaintext and key never reach the service. A separate receipt token can check availability or revoke the secret.</p>
+<p>REST and MCP accept encrypted envelopes only, up to 16 KiB of UTF-8 plaintext before encryption. A lost reveal response may lose the message. Delivered does not prove identity or human reading. <a href="/free-public-api-one-time-secret-api-endpoint">Read the One-time Secret guide</a>.</p>
 </article>
 
 <article class="endpoint" id="agent-queue">
