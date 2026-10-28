@@ -71,7 +71,7 @@
 <div class="hero">
   <h1>Terms of Service</h1>
   <p class="lede">For the free public REST APIs at <code>aisenseapi.com/services/v1</code>. Custom API work is covered by its own written agreement, not by this page.</p>
-  <p><small>Last updated 9 September 2026.</small></p>
+  <p><small>Last updated 28 October 2026.</small></p>
 </div>
 
 <h2 id="what">What you are getting</h2>
@@ -87,6 +87,11 @@
 <p>Jobs can be delivered again after a claim expires or is released. Queue expiry and the attempt limit may leave jobs unfinished. Initial delivery and exactly-once execution are not guaranteed. Make external actions idempotent. The service does not execute jobs, fetch payload URLs or send callbacks.</p>
 <p>Semantic search collections, their notes and vectors expire exactly 24 hours after creation. No activity extends that deadline. Each collection accepts up to 500 notes over its lifetime, deleted notes included, and new collections are limited to 20 per client IP per 24 hours. A search answers ranked suggestions with scores, not a decision that a match exists, and you remain responsible for what you do with a result. Note content stays yours. Keep the read and write tokens private: anyone holding the read token can search the notes.</p>
 <p>Queue content also stays yours. Its separate read, write and worker tokens grant access only to their corresponding operations. Workers receive payloads when claiming. Keep these tokens and claim receipts private. A queue ID alone does not authorize access. The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization.</p>
+
+<h2 id="one-time-secret">One-time Secret</h2>
+<p>One-time Secret provides at-most-once delivery of an encrypted envelope with a fixed 24-hour expiry. Clients must encrypt and decrypt locally. The browser tool does this on your device; the service does not receive the encryption key or plaintext. Keep the complete share link and separate receipt link private. Anyone with the share link can attempt the one reveal, and anyone with the receipt link can check status or revoke an unopened secret.</p>
+<p>A reveal consumes access before the response is sent. If that response is lost, the message may be unrecoverable. Delivered means the service released encrypted data, not that the intended person received, decrypted or read it. Revocation cannot undo an earlier delivery. Recipients can save, copy or photograph plaintext.</p>
+<p>Expiry, revocation and delivery end access; they do not promise immediate or secure erasure of encrypted records. Such records and metadata may remain until cleanup, including across service restarts. The browser, its extensions, page code and sharing channel must be trusted. The service is provided as-is, may become unavailable early, and is not a backup. Content remains yours. See <a href="/privacy#one-time-secret">Privacy</a> for what is stored.</p>
 
 <h2 id="not-a-backup">This is not storage you can rely on</h2>
 <div class="warning">

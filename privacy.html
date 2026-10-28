@@ -86,7 +86,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 20 October 2026.</small></p>
+  <p><small>Last updated 28 October 2026.</small></p>
 </div>
 
 <h2 id="controller">Who operates this service</h2>
@@ -142,6 +142,12 @@
 <p>The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Authorized readers and claiming workers can read the content. Keep credentials and sensitive personal data out of them. Queue processing does not execute payloads, fetch URLs, make callbacks or send content to outside services. </p>
 <p>Agent Queue uses separate read, write and worker bearer tokens issued only at queue creation. A queue ID alone grants no access. REST clients send the required token in the Authorization header, never in a URL. MCP clients pass it as a tool argument. A claim receipt identifies the current attempt and is disclosed only to the claiming worker.</p>
 
+<h2 id="one-time-secret">One-time Secret</h2>
+<p>The One-time Secret browser tool encrypts text on the device using AES-256-GCM and a freshly generated key before upload. The API receives an encrypted envelope, not the plaintext or encryption key. The key and read token are carried in the share URL fragment, after <code>#</code>, which browsers do not send in HTTP requests. A separate receipt link contains only the ID and receipt token.</p>
+<p>The service stores the encrypted envelope, hashes of the read and receipt tokens, and lifecycle metadata. Access ends after one delivery, revocation or a fixed 24-hour expiry. Encrypted records and metadata may remain until cleanup, including across service restarts. This is not a guarantee of secure erasure from disks, backups, memory or recipients' devices. Operational request logging remains subject to the logging and retention practices described on this page.</p>
+<p>The tool page uses no browser analytics, third-party scripts, remote fonts, local storage or session storage. It removes the URL fragment from the address bar after its script starts and keeps access details only in page memory. The device, browser extensions, page code, clipboard and sharing channel can still access the message or complete link. Recipients can keep copies. A delivery receipt records that the service released encrypted data; it is not evidence of identity, decryption or human reading.</p>
+<p>REST and MCP clients must encrypt and decrypt locally. Never send plaintext, encryption keys or a complete share link to an MCP tool or an AI conversation. MCP clients may retain operation tokens in their own logs and conversation history. Read the <a href="/free-public-api-one-time-secret-api-endpoint">One-time Secret documentation</a> for the access model.</p>
+
 <h2 id="not">What we do not do</h2>
 <p>No cookies from the API. No advertising, browser tracking scripts or automated decisions about access based on personal profiles. Operational request statistics are described above. We do not sell or rent anything to anyone. We do not attempt to identify who you are, and without accounts we generally cannot.</p>
 <p>IP geolocation via <code>/ip_reverse_lookup</code> runs against database files on our own server. The address you look up is not sent anywhere.</p>
@@ -152,6 +158,7 @@
 <thead><tr><th scope="col">Data</th><th scope="col">Kept for</th></tr></thead>
 <tbody>
 <tr><td>Storage, URL shortener, webhook capture, webhook action, Agent Wake</td><td>Up to 24 hours</td></tr>
+<tr><td>One-time Secret encrypted envelopes and receipt metadata</td><td>Message access ends after one delivery, revocation or the fixed 24-hour expiry. Encrypted records and metadata can remain until cleanup, including across restarts</td></tr>
 <tr><td>Webhook Schedule</td><td>Scheduled for up to 24 hours. The final result can remain readable for another 24 hours</td></tr>
 <tr><td>Heartbeat</td><td>Armed for no more than 24 hours. Terminal timing and delivery state can remain readable for another 24 hours</td></tr>
 <tr><td>Lease</td><td>Until the fixed absolute expiry 24 hours after the first acquisition. Renewals do not extend it</td></tr>
