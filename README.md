@@ -909,7 +909,7 @@ it will use these APIs as tools automatically.
 | [`tools/check-text.php`](tools/check-text.php) | Checks documentation punctuation before commit |
 | [`tools/check-sdk-coverage.py`](tools/check-sdk-coverage.py) | Fails when an endpoint in API.md is missing from a client or from `openai-tools.json` |
 | [`tools/check-sdk-requests.py`](tools/check-sdk-requests.py) | Runs both clients against a local stub and checks each request for the newer endpoints |
-| [`tools/check-site-counts.py`](tools/check-site-counts.py) | Checks the endpoint count and the AIQ version count stated in the public texts against the catalog table and the site menu |
+| [`tools/check-site-counts.py`](tools/check-site-counts.py) | Checks the endpoint count, the AIQ version count and the MCP tool count stated in the public texts against the catalog table, the site menu and the tool tables of the MCP page, which MCP.md and AGENT-GUIDE.md must repeat name for name; `--live` compares the tool names with the public server |
 | [`tools/pages/`](tools/pages/) | Generators for the image tool pages and the three image guides in `web/` |
 
 `test.sh` asserts on response bodies as well as status codes. Bodies are the
