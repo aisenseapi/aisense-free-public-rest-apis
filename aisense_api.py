@@ -4,7 +4,7 @@ https://aisenseapi.com
 
 No dependencies beyond the standard library (uses urllib). There is no account.
 Most requests need nothing beyond the path and, for POST endpoints, the body.
-Agent Queue, semantic search and One-time Secret calls carry a role token, and AIQ calls a
+Agent Queue, semantic search, One-time Secret and Agent Handoff calls carry a role token, and AIQ calls a
 run token, which this client sends as an Authorization header and never puts in
 a URL.
 
@@ -1013,6 +1013,63 @@ class AISenseAPI:
         """Revoke pending ciphertext; repeated burns are safe, delivered returns 409."""
         self._secret_identity(secret_id, receipt_token)
         return self._post(f"/secret/{secret_id}/burn", {}, token=receipt_token)
+
+    @staticmethod
+    def _handoff_identity(handoff_id: str, token: str):
+        if not isinstance(handoff_id, str) or not re.fullmatch(r"[0-9a-f]{32}", handoff_id) or not isinstance(token, str) or not re.fullmatch(r"[0-9a-f]{64}", token):
+            raise ValueError("Invalid handoff ID or bearer token")
+
+    @staticmethod
+    def _handoff_state(name) -> bool:
+        return isinstance(name, str) and re.fullmatch(r"[a-z][a-z0-9_]{0,31}", name) is not None and name != "wait"
+
+    def create_agent_handoff(self, payload: Any, states: Optional[list] = None, final: Optional[list] = None,
+                             transitions: Optional[dict] = None, note: Optional[str] = None,
+                             notify_url: Optional[str] = None) -> dict:
+        """Create a handoff: one piece of work as a small state machine for 24 hours.
+
+        ``payload`` is any JSON value but ``None``. ``states``, ``final`` and
+        ``transitions`` declare the machine; without them the states are
+        offered, accepted, working, done, failed and returned. Response keys:
+        ``handoff_id``, ``owner_token`` and ``receiver_token`` (shown once),
+        ``state``, ``version``, ``states``, ``final``, ``transitions`` and the
+        fixed expiry.
+        """
+        if payload is None:
+            raise ValueError("payload is required")
+        body: dict = {"payload": payload}
+        for key, value in (("states", states), ("final", final), ("transitions", transitions), ("note", note), ("notify_url", notify_url)):
+            if value is not None:
+                body[key] = value
+        return self._post("/handoff", body)
+
+    def read_agent_handoff(self, handoff_id: str, token: str, wait_seconds: Optional[int] = None) -> dict:
+        """Read a handoff with either token; ``wait_seconds`` 0 to 25 waits for a change."""
+        self._handoff_identity(handoff_id, token)
+        path = f"/handoff/{handoff_id}"
+        if wait_seconds is not None:
+            if type(wait_seconds) is not int or not 0 <= wait_seconds <= 25:
+                raise ValueError("wait_seconds must be an integer from 0 to 25")
+            path += f"/wait/{wait_seconds}"
+        return self._get(path, token=token)
+
+    def advance_agent_handoff(self, handoff_id: str, token: str, to: str, from_state: str,
+                              note: Optional[str] = None, nonce: Optional[str] = None) -> dict:
+        """Move a handoff to ``to``, naming in ``from_state`` the state it is expected to be in now.
+
+        The server commits the move only from exactly that state over an allowed
+        transition and otherwise answers 409 with the real state. The same
+        ``nonce`` makes a repeat after a lost answer safe.
+        """
+        self._handoff_identity(handoff_id, token)
+        if not self._handoff_state(to) or not self._handoff_state(from_state):
+            raise ValueError("to and from_state must be state names")
+        body: dict = {"from": from_state}
+        if note is not None:
+            body["note"] = note
+        if nonce is not None:
+            body["nonce"] = nonce
+        return self._post(f"/handoff/{handoff_id}/{to}", body, token=token)
 
     def create_semantic_search(self, model: Optional[str] = None) -> dict:
         """Create a semantic search collection for a fixed 24 hours.
