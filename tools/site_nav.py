@@ -58,7 +58,7 @@ API_GROUPS = [
         ('/free-public-api-decide-api-endpoint', 'Decide'),
         ('/free-public-api-mock-response-api-endpoint', 'Mock response'),
     ]),
-    # The five versions of the agent test, each opening its box on the versions page.
+    # The versions of the agent test, each opening its box on the versions page; tools/check-site-counts.py counts them.
     ('aiq', 'AIQ agent tests', '/aisense-aiq', [
         ('/aisense-aiq-versions#ard', 'ard, 100 tasks'),
         ('/aisense-aiq-versions#bri', 'bri, 100 scenarios'),
