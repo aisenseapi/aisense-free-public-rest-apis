@@ -4,7 +4,7 @@
  *
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
  * There is no account. Most requests need nothing beyond the path and, for POST
- * endpoints, the body. Agent Queue, semantic search and One-time Secret calls carry a role
+ * endpoints, the body. Agent Queue, semantic search, One-time Secret and Agent Handoff calls carry a role
  * token, and AIQ calls a run token, which this client sends as an
  * Authorization header and never puts in a URL. These endpoints answer the browser
  * preflight for that header, so those calls work from a page as well as from
@@ -114,6 +114,20 @@ export async function decryptOneTimeSecret(envelope, localKey) {
   const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt'])
   const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: secretBytes(envelope.nonce), tagLength: 128 }, key, secretBytes(envelope.ciphertext))
   return new TextDecoder('utf-8', { fatal: true }).decode(plaintext)
+}
+
+function handoffIdentity(id, token) {
+  if (typeof id !== 'string' || !/^[0-9a-f]{32}$/.test(id) ||
+      typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token)) throw new TypeError('Invalid handoff ID or bearer token')
+}
+
+function handoffState(name) {
+  return typeof name === 'string' && /^[a-z][a-z0-9_]{0,31}$/.test(name) && name !== 'wait'
+}
+
+function handoffWait(seconds) {
+  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 25) throw new RangeError('waitSeconds must be an integer from 0 to 25')
+  return seconds
 }
 
 export class AISenseAPI {
@@ -1050,6 +1064,46 @@ export class AISenseAPI {
   burnOneTimeSecret(secretId, receiptToken) {
     secretIdentity(secretId, receiptToken)
     return this.#post(`/secret/${secretId}/burn`, {}, receiptToken)
+  }
+
+  /**
+   * Create a handoff: one piece of work as a small state machine for 24 hours.
+   * `payload` is required (any JSON value but null); `states`, `final`,
+   * `transitions`, `note` and `notifyUrl` are optional. Response keys:
+   * `handoff_id`, `owner_token` and `receiver_token` (shown once), `state`,
+   * `version`, `states`, `final`, `transitions` and the fixed expiry.
+   */
+  createAgentHandoff({ payload, states, final, transitions, note, notifyUrl } = {}) {
+    if (payload === undefined || payload === null) throw new TypeError('payload is required')
+    const body = { payload }
+    if (states !== undefined) body.states = states
+    if (final !== undefined) body.final = final
+    if (transitions !== undefined) body.transitions = transitions
+    if (note !== undefined) body.note = note
+    if (notifyUrl !== undefined) body.notify_url = notifyUrl
+    return this.#post('/handoff', body)
+  }
+
+  /** Read a handoff with either token; `waitSeconds` 0 to 25 waits for a change. */
+  readAgentHandoff(handoffId, token, waitSeconds) {
+    handoffIdentity(handoffId, token)
+    const wait = waitSeconds === undefined ? '' : `/wait/${handoffWait(waitSeconds)}`
+    return this.#get(`/handoff/${handoffId}${wait}`, token)
+  }
+
+  /**
+   * Move a handoff to `to`, naming in `from` the state it is expected to be in
+   * now. The server commits the move only from exactly that state over an
+   * allowed transition and otherwise answers 409 with the real state. The same
+   * `nonce` makes a repeat after a lost answer safe; `note` is optional.
+   */
+  advanceAgentHandoff(handoffId, token, to, { from, note, nonce } = {}) {
+    handoffIdentity(handoffId, token)
+    if (!handoffState(to) || !handoffState(from)) throw new TypeError('to and from must be state names')
+    const body = { from }
+    if (note !== undefined) body.note = note
+    if (nonce !== undefined) body.nonce = nonce
+    return this.#post(`/handoff/${handoffId}/${to}`, body, token)
   }
 
   /**

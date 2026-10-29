@@ -49,6 +49,10 @@ EXPECTED += [
     ("POST", "/secret/" + "a" * 32 + "/reveal", "json", {}, None, "b" * 64),
     ("GET", "/secret/" + "a" * 32 + "/receipt", None, None, None, "c" * 64),
     ("POST", "/secret/" + "a" * 32 + "/burn", "json", {}, None, "c" * 64),
+    ("POST", "/handoff", "json", {"payload": {"task": "translate"}, "note": "from the planner"}, None, None),
+    ("GET", "/handoff/" + "a" * 32, None, None, None, "b" * 64),
+    ("GET", "/handoff/" + "a" * 32 + "/wait/5", None, None, None, "b" * 64),
+    ("POST", "/handoff/" + "a" * 32 + "/accepted", "json", {"from": "offered", "nonce": "accept-1"}, None, "c" * 64),
     ("POST", "/semantic_search", "json", {"model": "qwen3-embedding-4b"}, None, None),
     ("GET", "/semantic_search/" + "c" * 32, None, None, None, "read-token-1"),
     ("POST", "/semantic_search/" + "c" * 32 + "/notes", "json", {"notes": [{"text": "Refund ORD-4410", "key": "job:4410"}]}, None, "write-token-1"),
@@ -104,6 +108,10 @@ await api.createOneTimeSecret({ version: 1, algorithm: 'AES-256-GCM', nonce: 'AA
 await api.revealOneTimeSecret('a'.repeat(32), 'b'.repeat(64))
 await api.readOneTimeSecretReceipt('a'.repeat(32), 'c'.repeat(64))
 await api.burnOneTimeSecret('a'.repeat(32), 'c'.repeat(64))
+await api.createAgentHandoff({ payload: { task: 'translate' }, note: 'from the planner' })
+await api.readAgentHandoff('a'.repeat(32), 'b'.repeat(64))
+await api.readAgentHandoff('a'.repeat(32), 'b'.repeat(64), 5)
+await api.advanceAgentHandoff('a'.repeat(32), 'c'.repeat(64), 'accepted', { from: 'offered', nonce: 'accept-1' })
 await api.createSemanticSearch('qwen3-embedding-4b')
 await api.readSemanticSearch('cccccccccccccccccccccccccccccccc', 'read-token-1')
 await api.addSemanticSearchNotes('cccccccccccccccccccccccccccccccc', 'write-token-1', [{ text: 'Refund ORD-4410', key: 'job:4410' }])
@@ -245,6 +253,10 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.reveal_one_time_secret("a" * 32, "b" * 64)
     api.read_one_time_secret_receipt("a" * 32, "c" * 64)
     api.burn_one_time_secret("a" * 32, "c" * 64)
+    api.create_agent_handoff({"task": "translate"}, note="from the planner")
+    api.read_agent_handoff("a" * 32, "b" * 64)
+    api.read_agent_handoff("a" * 32, "b" * 64, wait_seconds=5)
+    api.advance_agent_handoff("a" * 32, "c" * 64, "accepted", "offered", nonce="accept-1")
     api.create_semantic_search("qwen3-embedding-4b")
     api.read_semantic_search("c" * 32, "read-token-1")
     api.add_semantic_search_notes("c" * 32, "write-token-1", [{"text": "Refund ORD-4410", "key": "job:4410"}])

@@ -30,7 +30,7 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.14.0` and offers 70 tools: the workflow tools
+The server reports version `1.15.0` and offers 73 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.14.0` as active and latest,
@@ -286,6 +286,24 @@ See the [Queue API reference](API.md#agent-queue---temporary-work-for-multiple-w
 [website guide](web/free-public-api-agent-queue-api-endpoint.html).
 
 ---
+
+### Agent Handoff - one piece of work as a small state machine
+
+Pass one piece of work to another agent and follow it together. The creator
+declares the states, which of them end the handoff and which moves are allowed,
+or takes the default offered, accepted, working, done, failed and returned. A
+move names the state it expects to leave; the server commits it only from
+exactly that state and otherwise answers 409 with the real state, so two agents
+racing for the same move get one winner and one truthful refusal. Every
+committed move is kept in one history that both the owner and the receiver
+token read, and a wait route returns when the state changes.
+
+The handoff lives exactly 24 hours, the payload is at most 16 KiB of JSON, and
+a nonce makes a move safe to repeat after a lost answer. An optional notify URL
+gets one small signal per committed move.
+
+See the [REST contract](API.md#agent-handoff---one-piece-of-work-as-a-small-state-machine)
+and the [MCP guide](MCP.md#agent-handoff).
 
 ### One-time Secret - an encrypted handoff with one reveal
 
