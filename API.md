@@ -2633,7 +2633,7 @@ say whether the handoff has moved on since.
 | 404 | Unknown ID, malformed or wrong token, or an unknown route |
 | 405 | GET on create or advance, POST on read or wait |
 | 409 | `from` is not the current state, the machine does not allow the move (the answer names `allowed`), the handoff has ended, or the nonce was used for another move. The answer carries the real `state`, `version` and `ended` |
-| 410 | The handoff expired |
+| 410 | The handoff expired; once the hourly cleanup has removed it, the ID answers 404 |
 | 413 | Payload over 16 KiB as JSON, or request over 24 KiB |
 | 415 | Creation or advance body is not JSON |
 | 429 | More than 100 creations from one address in a UTC day; honor Retry-After |
