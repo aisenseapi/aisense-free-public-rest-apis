@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-10-10</lastmod></url>
-  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-30</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-30</lastmod></url>
+  <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-10-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-heartbeat-api-endpoint</loc><lastmod>2026-09-05</lastmod></url>
@@ -11,11 +11,12 @@
   <url><loc>https://aisense.no/free-public-api-agent-inbox-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/custom-apis</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/make-your-data-available-for-ai</loc><lastmod>2026-09-30</lastmod></url>
-  <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://aisense.no/ai-sense-posts</loc><lastmod>2026-10-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-dns-name-api-endpoint</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-decide-api-endpoint</loc><lastmod>2026-10-04</lastmod></url>
   <url><loc>https://aisense.no/free-image-resizer-api</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-mock-response-api-endpoint</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://aisense.no/a-handoff-that-refuses-the-wrong-move</loc><lastmod>2026-10-30</lastmod></url>
   <url><loc>https://aisense.no/a-secret-link-that-opens-once</loc><lastmod>2026-10-28</lastmod></url>
   <url><loc>https://aisense.no/agentsync-max</loc><lastmod>2026-10-26</lastmod></url>
   <url><loc>https://aisense.no/what-will-your-ai-agent-tell-the-colony</loc><lastmod>2026-10-19</lastmod></url>
@@ -62,8 +63,8 @@
   <url><loc>https://aisense.no/free-exif-remover-api</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/free-image-color-palette-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-favicon-generator-api</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/terms</loc><lastmod>2026-10-28</lastmod></url>
-  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-10-28</lastmod></url>
+  <url><loc>https://aisense.no/terms</loc><lastmod>2026-10-30</lastmod></url>
+  <url><loc>https://aisense.no/privacy</loc><lastmod>2026-10-30</lastmod></url>
   <url><loc>https://aisense.no/tokenizer-cost-study</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/smart-beehive-monitoring-system</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/encoding-apis</loc><lastmod>2026-10-03</lastmod></url>

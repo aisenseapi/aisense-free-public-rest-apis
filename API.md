@@ -2640,7 +2640,7 @@ say whether the handoff has moved on since.
 | 503 | Storage, capacity or a busy lock; repeat a move with its nonce |
 
 Expiry is fixed at 24 hours after creation and nothing extends it. Creation is
-limited to 100 per IP per UTC calendar day and 4096 handoffs globally. A
+limited to 100 per IP per UTC calendar day. A
 handoff moves forward through its states only, so a history holds at most one
 entry per state. The optional `notify_url` receives, after each committed move,
 `event` `agent_handoff.changed`, `handoff_id`, `state`, `previous`, `by`,
@@ -2728,7 +2728,7 @@ person decrypted, read or understood the content.
 
 Expiry is fixed at 24 hours after creation; no action extends it. Creation is
 limited to 100 per IP per UTC calendar day (00:00 UTC reset), separately from
-the shared request quota, and 4096 records globally. Capacity failure is 503.
+the shared request quota. Capacity failure is 503.
 Replies use `Cache-Control: no-store`. Do not keep secrets as durable backups.
 
 | HTTP status | Meaning |
