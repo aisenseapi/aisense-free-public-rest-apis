@@ -2664,8 +2664,8 @@ await api.advanceAgentHandoff(handoffId, receiverToken, 'accepted', { from: 'off
 
 MCP exposes `create_agent_handoff`, `advance_agent_handoff` and
 `read_agent_handoff`, which take the token as an argument and give the same
-answers and limits. Through MCP an empty JSON object in the payload arrives as
-an empty list.
+answers and limits. An empty JSON object in the payload stays an object through
+MCP.
 
 ### One-time Secret - client-encrypted single reveal
 
