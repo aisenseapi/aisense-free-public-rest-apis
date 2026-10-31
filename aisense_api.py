@@ -4,7 +4,7 @@ https://aisenseapi.com
 
 No dependencies beyond the standard library (uses urllib). There is no account.
 Most requests need nothing beyond the path and, for POST endpoints, the body.
-Agent Queue, semantic search, One-time Secret and Agent Handoff calls carry a role token, and AIQ calls a
+Agent Queue, semantic search, One-time Secret, Agent Handoff and Agent Run calls carry a role token, and AIQ calls a
 run token, which this client sends as an Authorization header and never puts in
 a URL.
 
@@ -86,10 +86,11 @@ class AISenseAPI:
         payload: Any = None,
         content_type: str = "application/json",
         token: Optional[str] = None,
+        extra_headers: Optional[dict] = None,
     ):
         url = f"{self.base_url}{path}"
         data = None
-        headers = {}
+        headers = dict(extra_headers or {})
         if method == "POST":
             data = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
             headers["Content-Type"] = content_type
@@ -112,8 +113,9 @@ class AISenseAPI:
         payload: Any = None,
         token: Optional[str] = None,
         content_type: str = "application/json",
+        extra_headers: Optional[dict] = None,
     ) -> dict:
-        status, _content_type, raw = self._read(path, method, payload, content_type, token=token)
+        status, _content_type, raw = self._read(path, method, payload, content_type, token=token, extra_headers=extra_headers)
         text = raw.decode("utf-8", "replace")
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
@@ -1070,6 +1072,55 @@ class AISenseAPI:
         if nonce is not None:
             body["nonce"] = nonce
         return self._post(f"/handoff/{handoff_id}/{to}", body, token=token)
+
+    @staticmethod
+    def _run_identity(run_id: str, token: str):
+        if not isinstance(run_id, str) or not re.fullmatch(r"[0-9a-f]{32}", run_id) or not isinstance(token, str) or not re.fullmatch(r"[0-9a-f]{64}", token):
+            raise ValueError("Invalid run ID or bearer token")
+
+    def create_agent_run(self, steps: list, ttl_seconds: int, idempotency_key: Optional[str] = None) -> dict:
+        """Create a run: a plan of steps the service keeps and goes through in order, for up to 24 hours.
+
+        With ``idempotency_key``, 64 lowercase hex from a secure random source, a
+        repeat of the same plan finds the same run. Response keys: ``run_id``,
+        ``status``, ``read_token`` and ``control_token`` (shown once), for a plan
+        with delegated steps ``queue_id`` and ``worker_token``, the steps and the expiry.
+        """
+        if not isinstance(steps, list) or type(ttl_seconds) is not int:
+            raise ValueError("steps and ttl_seconds are required")
+        headers = {}
+        if idempotency_key is not None:
+            if not isinstance(idempotency_key, str) or not re.fullmatch(r"[0-9a-f]{64}", idempotency_key):
+                raise ValueError("idempotency_key must be 64 lowercase hex")
+            headers["Idempotency-Key"] = idempotency_key
+        return self._request("/run", "POST", {"version": 1, "ttl_seconds": ttl_seconds, "steps": steps}, extra_headers=headers)
+
+    def read_agent_run(self, run_id: str, token: str, wait_seconds: Optional[int] = None) -> dict:
+        """Read a run with its read or control token; ``wait_seconds`` 0 to 25 waits for a change."""
+        self._run_identity(run_id, token)
+        path = f"/run/{run_id}"
+        if wait_seconds is not None:
+            if type(wait_seconds) is not int or not 0 <= wait_seconds <= 25:
+                raise ValueError("wait_seconds must be an integer from 0 to 25")
+            path += f"/wait/{wait_seconds}"
+        return self._get(path, token=token)
+
+    def complete_agent_run_step(self, run_id: str, step_id: str, worker_token: str, receipt: str, result: Any) -> dict:
+        """Hand in a delegated step's result with the worker token and the claim's receipt.
+
+        The run completes the job itself, so send no ack, and the next step begins in this request.
+        """
+        self._run_identity(run_id, worker_token)
+        if not isinstance(step_id, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", step_id):
+            raise ValueError("Invalid step ID")
+        if result is None:
+            raise ValueError("result is required")
+        return self._post(f"/run/{run_id}/steps/{step_id}/result", {"receipt": receipt, "result": result}, token=worker_token)
+
+    def cancel_agent_run(self, run_id: str, control_token: str) -> dict:
+        """End a run with its control token."""
+        self._run_identity(run_id, control_token)
+        return self._post(f"/run/{run_id}/cancel", {}, token=control_token)
 
     def create_semantic_search(self, model: Optional[str] = None) -> dict:
         """Create a semantic search collection for a fixed 24 hours.

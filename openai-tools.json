@@ -3566,5 +3566,148 @@
         "additionalProperties": false
       }
     }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "create_agent_run",
+      "description": "Create a run: a plan of 1 to 16 steps that the service keeps and goes through in order, with its deadlines and recovery, for up to 24 hours. A step is delegate, a job workers claim through Agent Queue; wait, on a time, an outside event or a person; decide, rules over the last result; and complete, always the last one. Returns run_id, read_token and control_token once, and for a plan with delegated steps queue_id and worker_token for the workers. Send a fresh Idempotency-Key header, so a repeat after a lost answer finds the same run. Creation allows 20 per IP per UTC day. No account or API key. POST /run",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "enum": [
+              1
+            ]
+          },
+          "ttl_seconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 86400,
+            "description": "The run's lifetime, fixed at creation and extended by nothing."
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 16,
+            "items": {
+              "type": "object"
+            },
+            "description": "The steps in order. Each has id and type. delegate takes task and timeout_seconds, wait takes event (time with delay_seconds, external or human with timeout_seconds, human with an optional prompt), decide takes request and optional require, and the last step is complete."
+          },
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "32 bytes from a secure random source as lower-case hex, sent as the Idempotency-Key header."
+          }
+        },
+        "required": [
+          "version",
+          "ttl_seconds",
+          "steps"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_agent_run",
+      "description": "Read a run's status, steps, results and time left. A control token also sees the form_url and wake_url of a step waiting for an answer, each a link to hand to whoever should answer. wait_seconds, up to 25, waits for a change or the end before answering, on the route with /wait/{seconds}. Send the read or control token in Authorization: Bearer, never in the URL or body. GET /run/{run_id}",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The read_token or the control_token returned once at creation."
+          },
+          "wait_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25
+          }
+        },
+        "required": [
+          "run_id",
+          "token"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "complete_agent_run_step",
+      "description": "Hand in the result of a delegated step, with the worker_token and the receipt of the current claim from Agent Queue. The run completes the job itself, so send no ack, and the next step begins in this request. Repeat the same request after a lost answer or while submission_status says verifying. A 409 carries a code saying what to do. Send the token in Authorization: Bearer, never in the URL or body. POST /run/{run_id}/steps/{step_id}/result",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "step_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$"
+          },
+          "token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The worker_token returned once at creation."
+          },
+          "receipt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "The receipt of the current claim."
+          },
+          "result": {
+            "description": "Any JSON value but null, at most 7 KiB as JSON."
+          }
+        },
+        "required": [
+          "run_id",
+          "step_id",
+          "token",
+          "receipt",
+          "result"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "cancel_agent_run",
+      "description": "End a run with its control token. Nothing further starts, and a cancel after the end answers 409 with the real status. Send the token in Authorization: Bearer, never in the URL or body. POST /run/{run_id}/cancel",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "token": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "The control_token returned once at creation."
+          }
+        },
+        "required": [
+          "run_id",
+          "token"
+        ],
+        "additionalProperties": false
+      }
+    }
   }
 ]

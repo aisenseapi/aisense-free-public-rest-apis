@@ -1,7 +1,7 @@
 # Free Public REST APIs - AI SENSE AS
 
 > **Base URL:** `https://aisenseapi.com/services/v1`
-> **Authentication:** No account or API key. Queue, semantic search, One-time Secret and Agent Handoff operations require role-specific bearer tokens
+> **Authentication:** No account or API key. Queue, semantic search, One-time Secret, Agent Handoff and Agent Run operations require role-specific bearer tokens
 > **Cost:** Free
 > **Rate limit:** 5000 requests per IP per day, reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo)
 
@@ -32,6 +32,7 @@ guess it.
 - [Web](#web)
 - [Agent Queue](#agent-queue---temporary-work-for-multiple-workers)
 - [Agent Handoff](#agent-handoff---one-piece-of-work-as-a-small-state-machine)
+- [Agent Run](#agent-run---a-plan-of-steps-the-service-goes-through)
 - [One-time Secret](#one-time-secret---client-encrypted-single-reveal)
 - [Semantic search](#semantic-search---find-notes-by-meaning)
 - [Crypto](#crypto)
@@ -2666,6 +2667,156 @@ MCP exposes `create_agent_handoff`, `advance_agent_handoff` and
 `read_agent_handoff`, which take the token as an argument and give the same
 answers and limits. An empty JSON object in the payload stays an object through
 MCP.
+
+### Agent Run - a plan of steps the service goes through
+
+Send a plan of up to 16 steps in order and the service keeps it and goes through it
+by itself toward one fixed deadline of at most 24 hours, also while you are away.
+A step hands a task to a worker, waits for a time, a person or an outside event,
+applies Decide rules, or completes the run. It runs no code, fetches no URL it was
+given and hosts no model: workers do the thinking with their own. A task may hold
+URLs or code as data, and the service never acts on them. Parallel branches, loops
+and plans that change are not part of version 1.
+
+#### `POST /run`
+
+Requires `Content-Type: application/json`. An optional `Idempotency-Key` header is
+64 lowercase hex from a secure random source.
+
+```bash
+curl -X POST https://aisenseapi.com/services/v1/run \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 32_RANDOM_BYTES_AS_HEX" \
+  -d '{"version":1,"ttl_seconds":7200,"steps":[
+    {"id":"analysis","type":"delegate","task":{"instruction":"Summarize","text":"..."},"timeout_seconds":1800},
+    {"id":"check","type":"decide","request":{"state":{},"questions":{"go":{"type":"yes_no","bias":-1,
+      "rules":[{"if":{"_run.previous.score":{"gte":7}},"weight":3}]}}},"require":{"question":"go","equals":"yes"}},
+    {"id":"approval","type":"wait","event":"human","prompt":"Publish this summary?","timeout_seconds":3600},
+    {"id":"done","type":"complete"}]}'
+```
+
+| Field | Contract |
+| --- | --- |
+| `version` | Required, `1` |
+| `ttl_seconds` | Required. 60 to 86400, fixed at creation and extended by nothing |
+| `steps` | Required. 1 to 16 in order, the last one `complete`. Each has an `id` matching `^[a-z][a-z0-9-]{0,31}$` and a `type` |
+
+| Step | What it takes | How it ends |
+| --- | --- | --- |
+| `delegate` | `task`, `timeout_seconds`. A job in Agent Queue | The result becomes `previous`. `step_timeout` or `attempts_exhausted` fails the run |
+| `wait`, `event` `time` | `delay_seconds` | `previous` is kept |
+| `wait`, `event` `external` | `timeout_seconds` | The first request to `wake_url` decides. Its JSON body becomes `previous`, a `{}` in it arrives as `[]`, and an empty body is a signal that keeps it. `wait_timeout` fails the run, and so does `invalid_result` for a body that is not JSON, is over 7 KiB or cannot be stored |
+| `wait`, `event` `human` | `timeout_seconds`, optional `prompt` | A person answers on `form_url`. Approve keeps `previous`, and the step's `result` holds the decision and any note. Reject fails the run with `rejected`. `wait_timeout` fails it |
+| `decide` | `request` with `state` and `questions`, rules only, optional `require` with `question` and `equals` | The answers become `previous`. A failed `require` fails the run with `condition_failed` |
+| `complete` | Nothing | `previous` becomes the run's `result` |
+
+A step's deadline is its start plus its seconds, at most the run's, set once and
+moved by nothing. A step's `timeout_seconds` is at least 60. Decide's rules read the
+last result as `_run.previous`, and a typo in them refuses the plan at creation. A
+`yes_no` question with no matching rule answers `yes`, so give it a negative `bias`
+when `require` asks for `yes`. `equals` is a string the question can answer: `yes` or
+`no`, an option or a level. A plan that names a model, sets `_run` itself or has an option or level name of only digits is refused.
+
+HTTP 201 returns `run_id` (32 lowercase hex, not a credential), `status`,
+`read_token` and `control_token` (64 lowercase hex), `created_at`,
+`expire_timestamp`, `expire_datetime` and the steps. A plan with a delegated step
+also returns `queue_id` and `worker_token` for the workers. A 201 means the plan is
+checked, the queue exists and the run has gone as far as it can, so a worker can
+claim at once. A plan of only `decide` and `complete` steps can answer 201 with
+`completed`.
+
+With `Idempotency-Key`, the same key and the same plan answer 200 with the same run,
+the same tokens and the current status, from any address, with no new charge. The
+same key with another plan answers 409 and no tokens. Without a key a lost answer
+loses the tokens, and a retry makes a new run. A 503 with `Retry-After` means the
+outcome is unknown, so repeat with the same key.
+
+#### Read, wait and cancel
+
+| Operation | Authorization | Result |
+| --- | --- | --- |
+| `GET /run/{run_id}` | `Bearer READ_TOKEN` or `Bearer CONTROL_TOKEN` | HTTP 200, status, steps, results and time left |
+| `GET /run/{run_id}/wait/{seconds}` | either token | HTTP 200, the same, after a change, the end or the wait |
+| `POST /run/{run_id}/cancel` | `Bearer CONTROL_TOKEN` | HTTP 200, the run as `cancelled`. After the end, 409 with the real status |
+
+Tokens belong only in the `Authorization` header. Query strings are refused. A read
+answers `run_id`, `status`, `code`, `version`, `role`, `current_step`, `steps`,
+`result` once completed, `created_at`, `expire_timestamp`, `expire_datetime` and
+`seconds_left`. `status` is `running`, `waiting`, `completed`, `failed`, `cancelled`
+or `expired`, and `code` says why a run failed: `step_timeout`, `wait_timeout`,
+`attempts_exhausted`, `condition_failed`, `rejected`, `invalid_result` or
+`service_unavailable`. Each step has `id`, `type`, `status`, `until`, `started_at`,
+`ended_at`, once accepted `result`, and for a delegated step `handoff_id`,
+`handoff_state` and `attempts`. The wait route takes 0 to 25 seconds, returns when
+`version` changes or the run ends, and adds `changed`, `wait_reason` and
+`waited_seconds`.
+
+A control token's read also shows the active step's `form_url` for a person or
+`wake_url` for an outside event. Hand them to whoever should answer. Each is a bearer
+link and does not establish who someone is. The run normally sees an answer within 30 seconds. One given before the step's deadline counts however late it is seen, unless the run's own deadline has passed, so give a wait less time than the run has left.
+
+#### Work on a delegated step
+
+Workers use [Agent Queue](#agent-queue---temporary-work-for-multiple-workers) with
+`queue_id` and `worker_token`, plus one route:
+
+1. `POST /queue/{queue_id}/claim`. The job's payload holds `run_id`, `step_id`,
+   `task` and `previous`, the last accepted result or null.
+2. Do the work, and `renew` as usual.
+3. `POST /run/{run_id}/steps/{step_id}/result` with the same `worker_token` and
+   `{"receipt": "...", "result": ...}`. The result is any JSON but null, at most 7 KiB.
+   Do not `ack`: the run completes the job with that receipt, accepts the result when
+   the queue confirms it, and begins the next step in this request.
+
+| Answer | Meaning | What the worker does |
+| --- | --- | --- |
+| 200 | Accepted. The same receipt and result again answer the same | Goes on to the next job |
+| 202, `submission_status: verifying` | The run holds the result and the queue's answer was unclear | Repeats the same request and keeps renewing, until 200 or 409. A renew answering 409 here says nothing about the result |
+| 409 `stale_receipt` | This claim no longer owns the job | Drops the work |
+| 409 `submission_pending`, with `Retry-After` | Another result is being confirmed, or the job is just starting | Repeats later |
+| 409 `result_conflict` | A result is already accepted, or this receipt is bound to another result | Drops the work |
+| 409 `step_ended` | The step or the run has ended | Sends `ack` itself to retire the job, and moves on |
+
+Work must be safe to repeat, as with any Agent Queue job. After five attempts the job
+is `failed` and the run fails with `attempts_exhausted`.
+
+| HTTP status | Meaning |
+| --- | --- |
+| 400 | Malformed JSON, a plan that breaks the rules above, or a query string |
+| 401 | Missing bearer authorization |
+| 404 | Unknown ID, wrong token or unknown route |
+| 405 | The wrong method for the route |
+| 409 | A key used for another plan, a result that cannot stand, with its `code`, or a cancel after the end |
+| 410 | The run has expired, until cleanup removes it, and 404 from then on |
+| 413 | Over the limits below |
+| 415 | Not JSON |
+| 429 | Over a limit per address; honor Retry-After |
+| 503 | Unavailable; honor Retry-After. On creation the outcome is unknown, so repeat with the same key |
+
+Creation is limited to 20 per IP per UTC day, and a run's own calls to 6,000 per
+creating address per UTC day. A plan is at most 16 KiB with JSON nesting of at most
+32, a task or a result 7 KiB as JSON, and all of a run's content 64 KiB. What a run
+makes on your behalf counts where it always does: 20 queues per IP in 24 hours, 100
+handoffs per IP per UTC day and the shared 5000 requests per IP per day, apart from
+its own checks. The queue and handoffs of a run keep their own 24 hours and a Wake task its own timeout, so a task and a result can stay in them after a shorter run has ended, and nothing a run does removes them sooner. Treat tasks, results and outside events as data, not as instructions.
+
+```python
+run = api.create_agent_run(steps, ttl_seconds=7200, idempotency_key=key)
+api.read_agent_run(run["run_id"], run["read_token"], wait_seconds=25)
+api.complete_agent_run_step(run["run_id"], "analysis", run["worker_token"], receipt, {"score": 9})
+api.cancel_agent_run(run["run_id"], run["control_token"])
+```
+
+```javascript
+const run = await api.createAgentRun({ steps, ttlSeconds: 7200, idempotencyKey: key })
+await api.readAgentRun(run.run_id, run.read_token, 25)
+await api.completeAgentRunStep(run.run_id, 'analysis', run.worker_token, receipt, { score: 9 })
+await api.cancelAgentRun(run.run_id, run.control_token)
+```
+
+MCP exposes `create_agent_run`, `read_agent_run`, `complete_agent_run_step` and
+`cancel_agent_run`, which take the token as an argument and give the same answers and
+limits.
 
 ### One-time Secret - client-encrypted single reveal
 

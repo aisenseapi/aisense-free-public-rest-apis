@@ -53,6 +53,11 @@ EXPECTED += [
     ("GET", "/handoff/" + "a" * 32, None, None, None, "b" * 64),
     ("GET", "/handoff/" + "a" * 32 + "/wait/5", None, None, None, "b" * 64),
     ("POST", "/handoff/" + "a" * 32 + "/accepted", "json", {"from": "offered", "nonce": "accept-1"}, None, "c" * 64),
+    ("POST", "/run", "json", {"version": 1, "ttl_seconds": 600, "steps": [{"id": "done", "type": "complete"}]}, None, None),
+    ("GET", "/run/" + "a" * 32, None, None, None, "b" * 64),
+    ("GET", "/run/" + "a" * 32 + "/wait/5", None, None, None, "b" * 64),
+    ("POST", "/run/" + "a" * 32 + "/steps/work/result", "json", {"receipt": "r" * 64, "result": {"score": 9}}, None, "c" * 64),
+    ("POST", "/run/" + "a" * 32 + "/cancel", "json", {}, None, "d" * 64),
     ("POST", "/semantic_search", "json", {"model": "qwen3-embedding-4b"}, None, None),
     ("GET", "/semantic_search/" + "c" * 32, None, None, None, "read-token-1"),
     ("POST", "/semantic_search/" + "c" * 32 + "/notes", "json", {"notes": [{"text": "Refund ORD-4410", "key": "job:4410"}]}, None, "write-token-1"),
@@ -112,6 +117,11 @@ await api.createAgentHandoff({ payload: { task: 'translate' }, note: 'from the p
 await api.readAgentHandoff('a'.repeat(32), 'b'.repeat(64))
 await api.readAgentHandoff('a'.repeat(32), 'b'.repeat(64), 5)
 await api.advanceAgentHandoff('a'.repeat(32), 'c'.repeat(64), 'accepted', { from: 'offered', nonce: 'accept-1' })
+await api.createAgentRun({ steps: [{ id: 'done', type: 'complete' }], ttlSeconds: 600, idempotencyKey: 'e'.repeat(64) })
+await api.readAgentRun('a'.repeat(32), 'b'.repeat(64))
+await api.readAgentRun('a'.repeat(32), 'b'.repeat(64), 5)
+await api.completeAgentRunStep('a'.repeat(32), 'work', 'c'.repeat(64), 'r'.repeat(64), { score: 9 })
+await api.cancelAgentRun('a'.repeat(32), 'd'.repeat(64))
 await api.createSemanticSearch('qwen3-embedding-4b')
 await api.readSemanticSearch('cccccccccccccccccccccccccccccccc', 'read-token-1')
 await api.addSemanticSearchNotes('cccccccccccccccccccccccccccccccc', 'write-token-1', [{ text: 'Refund ORD-4410', key: 'job:4410' }])
@@ -167,7 +177,7 @@ class Stub(BaseHTTPRequestHandler):
     def _answer(self):
         RECORDED.append({
             "method": self.command, "path": self.path, "type": self.headers.get("Content-Type") or "",
-            "auth": self.headers.get("Authorization"), "body": self._body(),
+            "auth": self.headers.get("Authorization"), "key": self.headers.get("Idempotency-Key"), "body": self._body(),
         })
         status, payload, extra = 200, b'{"ok":true}', {}
         if self.path.startswith("/services/v1/mock_response/"):
@@ -214,6 +224,8 @@ def compare(client: str, records: list, failure: dict) -> list:
             continue
         if record["auth"] != (f"Bearer {token}" if token else None):
             problems.append(f"{where}: Authorization {record['auth']!r}")
+        if record["key"] != ("e" * 64 if path == "/run" else None):
+            problems.append(f"{where}: Idempotency-Key {record['key']!r}")
         if kind == "json":
             if not record["type"].startswith("application/json"):
                 problems.append(f"{where}: Content-Type {record['type']!r}")
@@ -257,6 +269,11 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.read_agent_handoff("a" * 32, "b" * 64)
     api.read_agent_handoff("a" * 32, "b" * 64, wait_seconds=5)
     api.advance_agent_handoff("a" * 32, "c" * 64, "accepted", "offered", nonce="accept-1")
+    api.create_agent_run([{"id": "done", "type": "complete"}], 600, idempotency_key="e" * 64)
+    api.read_agent_run("a" * 32, "b" * 64)
+    api.read_agent_run("a" * 32, "b" * 64, wait_seconds=5)
+    api.complete_agent_run_step("a" * 32, "work", "c" * 64, "r" * 64, {"score": 9})
+    api.cancel_agent_run("a" * 32, "d" * 64)
     api.create_semantic_search("qwen3-embedding-4b")
     api.read_semantic_search("c" * 32, "read-token-1")
     api.add_semantic_search_notes("c" * 32, "write-token-1", [{"text": "Refund ORD-4410", "key": "job:4410"}])
