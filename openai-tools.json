@@ -964,7 +964,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers."
+            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers. Use a host name: a URL with an IP address is refused."
           }
         },
         "additionalProperties": false
@@ -1107,7 +1107,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers."
+            "description": "Optional public HTTP(S) URL on port 80 or 443 for one best-effort event signal. No redirects. Private/reserved targets are rejected. It does not receive the full captured request or form answers. Use a host name: a URL with an IP address is refused."
           }
         },
         "required": [],
@@ -1378,7 +1378,7 @@
         "properties": {
           "url": {
             "type": "string",
-            "description": "Public http/https URL to POST the payload to.",
+            "description": "Public http/https URL to POST the payload to. Use a host name: a URL with an IP address is refused.",
             "format": "uri",
             "maxLength": 2048
           },
@@ -1706,7 +1706,7 @@
           },
           "on_miss": {
             "type": "object",
-            "description": "Exactly one miss target. Use url for a public HTTP or HTTPS webhook on port 80 or 443, or wake_task_id for an active Agent Wake webhook task.",
+            "description": "Exactly one miss target. Use url for a public HTTP or HTTPS webhook with a host name, not an IP address, on port 80 or 443, or wake_task_id for an active Agent Wake webhook task.",
             "oneOf": [
               {
                 "properties": {
@@ -3478,7 +3478,7 @@
           "notify_url": {
             "type": "string",
             "maxLength": 2048,
-            "description": "A public http or https URL that receives a small JSON signal after each committed move."
+            "description": "A public http or https URL that receives a small JSON signal after each committed move. Use a host name: a URL with an IP address is refused."
           }
         },
         "required": [

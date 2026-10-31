@@ -1731,7 +1731,8 @@ GET /url_shortener/https://developer.mozilla.org/some/long/path
 **Create:** `POST /webhook_capture`
 
 The JSON body may be empty. Add `notify_url` when you want one completion
-signal sent to a public HTTP or HTTPS URL after the first request arrives.
+signal sent to a public HTTP or HTTPS URL after the first request arrives. It
+must use a host name: a URL with an IP address is refused.
 
 ```json
 {
@@ -1858,7 +1859,8 @@ individual bearer tokens are stored.
 
 When `notify_url` is present, the service sends one small signal after a single
 answer or the last group answer. The signal names the action, status and result
-URL. It does not contain submitted answers. Create bodies are capped at 64 KB,
+URL. It does not contain submitted answers. `notify_url` must use a host name: a
+URL with an IP address is refused. Create bodies are capped at 64 KB,
 with at most 20 fields and 50 options per field.
 
 ---
@@ -1927,8 +1929,8 @@ skipped rather than delivered late. It normally ends as `completed` after its
 fixed 24-hour window. Three consecutive transport failures stop it. A creator
 address can cause at most 1440 delivery attempts per 24 hours.
 
-The target must be an `http`/`https` URL on port 80 or 443 that resolves to a
-**public** address. Private, loopback, link-local and reserved ranges are
+The target must be an `http`/`https` URL on port 80 or 443 with a host name that
+resolves to a **public** address. A URL with an IP address is refused. Private, loopback, link-local and reserved ranges are
 refused, at creation and again at delivery time; redirects are never followed.
 Credentials in the URL are rejected. Payload maximum 32 KB.
 
@@ -2207,7 +2209,7 @@ to see whether a webhook accepted it. A failure before an attempt leaves the
 status as `missed` with an honest delivery error.
 
 Webhook targets must use HTTP or HTTPS on port 80 or 443 and resolve to a
-public address. Credentials and fragments are refused. DNS is checked again
+public address. A URL with an IP address, credentials or a fragment is refused. DNS is checked again
 at delivery, redirects are disabled and private, loopback, link-local and
 reserved ranges are blocked.
 
@@ -2581,7 +2583,7 @@ Requires `Content-Type: application/json`. The body is a JSON object:
 | `final` | Optional. The states that end the handoff: by default the last declared state, or `done`, `failed` and `returned` for the default machine. The first state cannot be final |
 | `transitions` | Optional. An object mapping a state to the later states it may move to. A state left out may move to every later state, a final state has no moves, and a state that is not final must be able to move on |
 | `note` | Optional. 1 to 500 characters, kept as the note of the first history entry |
-| `notify_url` | Optional. A public http or https URL that receives one small JSON signal per committed move |
+| `notify_url` | Optional. A public http or https URL with a host name, not an IP address, that receives one small JSON signal per committed move |
 
 The request is at most 24 KiB. HTTP 201 returns `handoff_id` (32 lowercase
 hex), `owner_token` and `receiver_token` (64 lowercase hex each), `state`,

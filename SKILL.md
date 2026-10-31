@@ -333,7 +333,7 @@ Send any HTTP method to `update_url`, then `GET /webhook_capture/{capture_id}`:
 
 Use `GET /webhook_capture/{capture_id}/wait/{seconds}` to wait from 0 to 25
 seconds for the first request. Add `notify_url` to the create body for one
-completion signal. The first inbound request wins, later retries cannot replace
+completion signal. It must use a host name, not an IP address. The first inbound request wins, later retries cannot replace
 it, and request bodies are capped at 256 KB.
 
 ### Webhook action - human-in-the-loop, 24h TTL
@@ -393,7 +393,8 @@ plain strings or `{"value": ..., "label": ...}` objects.
 Set `respondents` from 2 to 20 for separate one-use bearer links. The create
 response returns `form_urls`. Reads then include `respondents`, `answered`,
 `tally` and `responses`, while status moves through `pending`, `partial` and
-`answered`. Add `notify_url` for one terminal signal. Use
+`answered`. Add `notify_url` for one terminal signal, with a host name and not an
+IP address. Use
 `GET /webhook_action/{action_id}/wait/{seconds}` to wait for a change for up to
 25 seconds.
 
@@ -547,8 +548,8 @@ For a webhook, `delivery.delivered` says whether the target answered with a
 The same operations are available through MCP as `create_heartbeat`,
 `read_heartbeat` and `ping_heartbeat`.
 
-Webhook URLs may use HTTP or HTTPS on port 80 or 443 and must resolve to a
-public address. Private and reserved addresses, redirects, credentials and
+Webhook URLs may use HTTP or HTTPS on port 80 or 443 and must use a host name
+that resolves to a public address. IP addresses, private and reserved addresses, redirects, credentials and
 fragments are blocked. Treat the heartbeat ID as a bearer secret. The target
 is removed at terminal state, which stays readable for up to another 24
 hours.
