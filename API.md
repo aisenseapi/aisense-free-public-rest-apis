@@ -1929,9 +1929,8 @@ address can cause at most 1440 delivery attempts per 24 hours.
 
 The target must be an `http`/`https` URL on port 80 or 443 that resolves to a
 **public** address. Private, loopback, link-local and reserved ranges are
-refused, at creation and again at delivery time with the connection pinned to
-the vetted address; redirects are never followed. Credentials in the URL are
-rejected. Payload maximum 32 KB.
+refused, at creation and again at delivery time; redirects are never followed.
+Credentials in the URL are rejected. Payload maximum 32 KB.
 
 ---
 
@@ -2209,8 +2208,8 @@ status as `missed` with an honest delivery error.
 
 Webhook targets must use HTTP or HTTPS on port 80 or 443 and resolve to a
 public address. Credentials and fragments are refused. DNS is checked again
-at delivery, the connection is pinned to the checked address, redirects are
-disabled and private, loopback, link-local and reserved ranges are blocked.
+at delivery, redirects are disabled and private, loopback, link-local and
+reserved ranges are blocked.
 
 The 64-character heartbeat ID is a bearer secret. There is no list operation.
 The target URL, payload or Agent Wake task ID is removed when the monitor
