@@ -30,7 +30,7 @@ Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
 retry decisions.
 
-The server reports version `1.15.0` and offers 73 tools: the workflow tools
+The server reports version `1.16.0` and offers 77 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.15.0` as active and latest,
@@ -304,6 +304,21 @@ gets one small signal per committed move.
 
 See the [REST contract](API.md#agent-handoff---one-piece-of-work-as-a-small-state-machine)
 and the [MCP guide](MCP.md#agent-handoff).
+
+### Agent Run - a plan of steps the service goes through
+
+Send a plan of up to 16 steps in order and the service goes through it by itself
+for up to 24 hours, also while you are away. A step hands a task to a worker through
+Agent Queue, waits for a time, a person or an outside event, applies Decide rules, or
+completes the run. It runs no code and hosts no model, so workers do the thinking
+with their own. Read and control tokens follow the run, and a worker's result moves
+it on in the same request.
+
+Every deadline is fixed when it is set, and an `Idempotency-Key` makes creation safe
+to repeat after a lost answer.
+
+See the [REST contract](API.md#agent-run---a-plan-of-steps-the-service-goes-through)
+and the [MCP guide](MCP.md#agent-run).
 
 ### One-time Secret - an encrypted handoff with one reveal
 

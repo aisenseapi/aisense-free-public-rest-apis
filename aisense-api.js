@@ -4,7 +4,7 @@
  *
  * Works in Node.js (18+) and all modern browsers. No dependencies, native fetch.
  * There is no account. Most requests need nothing beyond the path and, for POST
- * endpoints, the body. Agent Queue, semantic search, One-time Secret and Agent Handoff calls carry a role
+ * endpoints, the body. Agent Queue, semantic search, One-time Secret, Agent Handoff and Agent Run calls carry a role
  * token, and AIQ calls a run token, which this client sends as an
  * Authorization header and never puts in a URL. These endpoints answer the browser
  * preflight for that header, so those calls work from a page as well as from
@@ -130,6 +130,11 @@ function handoffWait(seconds) {
   return seconds
 }
 
+function runIdentity(id, token) {
+  if (typeof id !== 'string' || !/^[0-9a-f]{32}$/.test(id) ||
+      typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token)) throw new TypeError('Invalid run ID or bearer token')
+}
+
 export class AISenseAPI {
   constructor(baseUrl = BASE_URL) {
     this.baseUrl = baseUrl.replace(/\/$/, '')
@@ -144,8 +149,8 @@ export class AISenseAPI {
 
   // ── Internal helpers ───────────────────────────────────────────────────────
 
-  async #fetch(path, method, body, token) {
-    const init = { method, headers: {} }
+  async #fetch(path, method, body, token, headers = {}) {
+    const init = { method, headers: { ...headers } }
     if (method === 'POST' && body instanceof FormData) {
       init.body = body
     } else if (method === 'POST') {
@@ -156,8 +161,8 @@ export class AISenseAPI {
     return fetch(`${this.baseUrl}${path}`, init)
   }
 
-  async #request(path, method = 'GET', body, token) {
-    const res = await this.#fetch(path, method, body, token)
+  async #request(path, method = 'GET', body, token, headers) {
+    const res = await this.#fetch(path, method, body, token, headers)
     const text = await res.text()
 
     if (DEBUG_ECHO.test(text)) {
@@ -1104,6 +1109,43 @@ export class AISenseAPI {
     if (note !== undefined) body.note = note
     if (nonce !== undefined) body.nonce = nonce
     return this.#post(`/handoff/${handoffId}/${to}`, body, token)
+  }
+
+  /**
+   * Create a run: a plan of steps the service keeps and goes through in order, for up to
+   * 24 hours. `steps` and `ttlSeconds` are required. With `idempotencyKey`, 64 lowercase
+   * hex from a secure random source, a repeat of the same plan finds the same run.
+   * Response keys: `run_id`, `status`, `read_token` and `control_token` (shown once), for
+   * a plan with delegated steps `queue_id` and `worker_token`, the steps and the expiry.
+   */
+  createAgentRun({ steps, ttlSeconds, idempotencyKey } = {}) {
+    if (!Array.isArray(steps) || !Number.isInteger(ttlSeconds)) throw new TypeError('steps and ttlSeconds are required')
+    if (idempotencyKey !== undefined && !/^[0-9a-f]{64}$/.test(idempotencyKey)) throw new TypeError('idempotencyKey must be 64 lowercase hex')
+    return this.#request('/run', 'POST', { version: 1, ttl_seconds: ttlSeconds, steps }, undefined, idempotencyKey === undefined ? {} : { 'Idempotency-Key': idempotencyKey })
+  }
+
+  /** Read a run with its read or control token; `waitSeconds` 0 to 25 waits for a change. */
+  readAgentRun(runId, token, waitSeconds) {
+    runIdentity(runId, token)
+    if (waitSeconds !== undefined && (!Number.isInteger(waitSeconds) || waitSeconds < 0 || waitSeconds > 25)) throw new RangeError('waitSeconds must be an integer from 0 to 25')
+    return this.#get(`/run/${runId}${waitSeconds === undefined ? '' : `/wait/${waitSeconds}`}`, token)
+  }
+
+  /**
+   * Hand in a delegated step's result with the worker token and the claim's receipt. The
+   * run completes the job itself, so send no ack, and the next step begins in this request.
+   */
+  completeAgentRunStep(runId, stepId, workerToken, receipt, result) {
+    runIdentity(runId, workerToken)
+    if (typeof stepId !== 'string' || !/^[a-z][a-z0-9-]{0,31}$/.test(stepId)) throw new TypeError('Invalid step ID')
+    if (result === undefined || result === null) throw new TypeError('result is required')
+    return this.#post(`/run/${runId}/steps/${stepId}/result`, { receipt, result }, workerToken)
+  }
+
+  /** End a run with its control token. */
+  cancelAgentRun(runId, controlToken) {
+    runIdentity(runId, controlToken)
+    return this.#post(`/run/${runId}/cancel`, {}, controlToken)
   }
 
   /**

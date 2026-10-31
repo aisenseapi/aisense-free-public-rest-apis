@@ -48,6 +48,7 @@ API_GROUPS = [
         ('/free-public-api-agent-wake-api-endpoint', 'Agent Wake'),
         ('/free-public-api-agent-queue-api-endpoint', 'Agent Queue'),
         ('/free-public-api-agent-handoff-api-endpoint', 'Agent Handoff'),
+        ('/free-public-api-agent-run-api-endpoint', 'Agent Run'),
         ('/free-public-api-agent-inbox-api-endpoint', 'Agent Inbox'),
         ('/free-public-api-heartbeat-api-endpoint', 'Heartbeat'),
         ('/free-public-api-lease-api-endpoint', 'Lease'),
