@@ -203,11 +203,12 @@
 <tr><td><code>/heartbeat</code> with a webhook action</td><td>The public webhook URL you supplied</td><td>The heartbeat miss event and your optional JSON payload</td></tr>
 <tr><td><code>/blake3_hash</code>, <code>/hash_verify</code> with BLAKE3, <code>/argon2id_hash</code>, <code>/bcrypt_hash</code>, and <code>/password_verify</code> for Argon2id and bcrypt strings</td><td>Cloudflare, which computes these hashes for us</td><td>The bytes to hash, or the password and the hash to verify. Not your IP address or the headers of your request</td></tr>
 <tr><td><code>/run</code></td><td>A cloud provider in the EU that runs this service for us</td><td>Your plan, the results and answers it receives, and your IP address</td></tr>
+<tr><td><code>/webhook_schedule</code>, a <code>notify_url</code> and a Heartbeat webhook</td><td>A cloud provider that makes these calls for us</td><td>The URL you supplied and what the call sends. Not your IP address</td></tr>
 </tbody>
 </table>
 </div>
 <p>Creating a short link stores the destination mapping within this service and returns a <code>307.fi</code> URL. Creation does not contact the destination or send it to a separate redirect provider.</p>
-<p>For the hash endpoints above this includes the password you send, so use test data with them and hash production passwords inside your own application. Apart from those and <code>/run</code>, no free REST endpoint sends your supplied content to a fixed third party, and an Agent Wake heartbeat action stays inside AI SENSE.</p>
+<p>For the hash endpoints above this includes the password you send, so use test data with them and hash production passwords inside your own application. Apart from those, <code>/run</code> and the calls to a URL you supplied, no free REST endpoint sends your supplied content to a fixed third party, and an Agent Wake heartbeat action stays inside AI SENSE.</p>
 <p>The client login on <a href="/login">aisense.no/login</a> has no accounts behind it yet. When someone uses it, the email address typed into it and the time are sent to our internal Slack channel, so that we can see the attempt and offer access. The password is cleared in the browser and never sent anywhere, and the page says that you were not signed in.</p>
 
 <h2 id="cors">Calls from other websites</h2>
