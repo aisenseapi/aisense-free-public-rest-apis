@@ -284,11 +284,12 @@ from `ai-sense-posts.html`, and add its canonical URL to `sitemap.xml`.
 
 The robot after a service name is AI SENSE's own label for services built for
 agent workflows. It is not independent certification or a live health signal.
-The approved set is Agent Wake, Agent Queue, Agent Inbox, Heartbeat, Lease,
+The approved set is Agent Wake, Agent Queue, Agent Handoff, Agent Run, Agent
+Inbox, Heartbeat, Lease,
 Decide, which answers with an action an agent can follow, Webhook action,
 where an agent asks a person and waits for the answer, and Semantic search,
 where agents find each other's notes by meaning, and AI SENSE AIQ, the test an
-agent takes on its own. The five AIQ versions under it carry no mark of their
+agent takes on its own. The AIQ versions under it carry no mark of their
 own. Other services remain
 unmarked, even when they are available through MCP.
 
