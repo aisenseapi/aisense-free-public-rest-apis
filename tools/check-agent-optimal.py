@@ -11,7 +11,7 @@ WEB = Path(__file__).resolve().parents[1] / 'web'
 
 class AgentOptimalTests(unittest.TestCase):
     def test_only_the_approved_services(self):
-        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Handoff', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action', 'Semantic search', 'AI SENSE AIQ'])
+        self.assertEqual(list(SERVICES.values()), ['Agent Wake', 'Agent Queue', 'Agent Handoff', 'Agent Run', 'Agent Inbox', 'Heartbeat', 'Lease', 'Decide', 'Webhook action', 'Semantic search', 'AI SENSE AIQ'])
         for label in ('AIQ agent tests', 'AIQ API Endpoint', 'AI SENSE AIQ'):
             marked = decorate('<a href="/aisense-aiq">' + label + '</a>', 'index.html')
             self.assertEqual(marked.count(BADGE), 1)

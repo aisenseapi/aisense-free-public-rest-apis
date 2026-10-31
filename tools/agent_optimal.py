@@ -1,4 +1,4 @@
-"""The ten Agent Optimal labels selected for the website.
+"""The eleven Agent Optimal labels selected for the website.
 
 This is an AI SENSE editorial label for agent workflows, not a certification
 or a production health signal. Used by site_nav.py after rendering the header.
@@ -13,6 +13,7 @@ SERVICES = {
     '/free-public-api-agent-wake-api-endpoint': 'Agent Wake',
     '/free-public-api-agent-queue-api-endpoint': 'Agent Queue',
     '/free-public-api-agent-handoff-api-endpoint': 'Agent Handoff',
+    '/free-public-api-agent-run-api-endpoint': 'Agent Run',
     '/free-public-api-agent-inbox-api-endpoint': 'Agent Inbox',
     '/free-public-api-heartbeat-api-endpoint': 'Heartbeat',
     '/free-public-api-lease-api-endpoint': 'Lease',

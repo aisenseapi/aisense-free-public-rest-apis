@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>A Plan That Runs While You Are Away - AI SENSE</title>
+<meta name="description" content="Agent Run takes a plan of up to 16 steps and goes through it in order, for up to 24 hours, also while the client is away. A step hands work to a worker, waits for a time, a person or an outside event, applies rules, or ends the run.">
+<link rel="canonical" href="https://aisense.no/a-plan-that-runs-while-you-are-away">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="A Plan That Runs While You Are Away">
+<meta property="og:description" content="Send a plan of up to 16 steps and the service goes through it in order, for up to 24 hours, also while you are away. Workers do the thinking. Free, with no account.">
+<meta property="og:url" content="https://aisense.no/a-plan-that-runs-while-you-are-away">
+<meta property="og:image" content="https://aisense.no/assets/aisense-agent-run.jpg?v=20261031">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A run of four steps from analysis to done: a worker&#39;s result accepted with 200, rules that answer yes, and a wait for a person with no client connected.">
+<meta property="article:published_time" content="2026-10-31">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://aisense.no/assets/aisense-agent-run.jpg?v=20261031">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20261010a">
+<script src="/assets/aisense-theme.js?v=20261010a"></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "A Plan That Runs While You Are Away",
+      "description": "Agent Run takes a plan of up to 16 steps and goes through it in order, for up to 24 hours, also while the client is away. A step hands work to a worker, waits for a time, a person or an outside event, applies rules, or ends the run.",
+      "url": "https://aisense.no/a-plan-that-runs-while-you-are-away",
+      "image": "https://aisense.no/assets/aisense-agent-run.jpg?v=20261031",
+      "datePublished": "2026-10-31",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "AI SENSE AS" },
+      "publisher": { "@type": "Organization", "name": "AI SENSE AS", "url": "https://aisense.no/" },
+      "about": {
+        "@type": "WebAPI",
+        "name": "Agent Run API",
+        "url": "https://aisense.no/free-public-api-agent-run-api-endpoint"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://aisense.no/" },
+        { "@type": "ListItem", "position": 2, "name": "Posts", "item": "https://aisense.no/ai-sense-posts" },
+        { "@type": "ListItem", "position": 3, "name": "A plan that runs while you are away", "item": "https://aisense.no/a-plan-that-runs-while-you-are-away" }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><div class="nav-item nav-has-panel nav-item-wide"><a class="nav-top" href="/free-public-apis">Free public REST APIs</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-apis"><label class="nav-sub-button" for="nav-sub-apis"><span class="visually-hidden">Show the API categories</span></label><div class="nav-panel"><div class="nav-groups"><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Agents and webhooks</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-agents"><label class="nav-sub-button" for="nav-sub-agents"><span class="visually-hidden">Show the agents and webhooks endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-agent-wake-api-endpoint">Agent <span class="agent-optimal-tail">Wake<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-handoff-api-endpoint">Agent <span class="agent-optimal-tail">Handoff<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-run-api-endpoint">Agent <span class="agent-optimal-tail">Run<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-inbox-api-endpoint">Agent <span class="agent-optimal-tail">Inbox<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-lease-api-endpoint"><span class="agent-optimal-tail">Lease<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a></li><li><a href="/free-public-api-webhook-action-api-endpoint">Webhook <span class="agent-optimal-tail">action<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook schedule</a></li><li><a href="/free-public-api-dns-name-api-endpoint">Temporary DNS names</a></li><li><a href="/free-public-api-semantic-search-api-endpoint">Semantic <span class="agent-optimal-tail">search<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-decide-api-endpoint"><span class="agent-optimal-tail">Decide<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-mock-response-api-endpoint">Mock response</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/aisense-aiq">AIQ agent <span class="agent-optimal-tail">tests<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-aiq"><label class="nav-sub-button" for="nav-sub-aiq"><span class="visually-hidden">Show the aiq agent tests endpoints</span></label><ul class="nav-list"><li><a href="/aisense-aiq-versions#ard">ard, 100 tasks</a></li><li><a href="/aisense-aiq-versions#bri">bri, 100 scenarios</a></li><li><a href="/aisense-aiq-versions#cen">cen, twenty criteria</a></li><li><a href="/aisense-aiq-versions#dar">dar, team work over Aamio</a></li><li><a href="/aisense-aiq-versions#emi">emi, a factory and its panel</a></li><li><a href="/aisense-aiq-versions#fup">fup, judgment under pressure</a></li><li><a href="/aisense-aiq-versions#gol">gol, its own language</a></li><li><a href="/aisense-aiq-versions#hal">hal, a colony to keep</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/time-apis">Time</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-time"><label class="nav-sub-button" for="nav-sub-time"><span class="visually-hidden">Show the time endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-datetime-api-endpoint">Datetime</a></li><li><a href="/free-public-api-ip-datetime-api-endpoint">IP datetime</a></li><li><a href="/free-public-api-timestamp-api-endpoint">Timestamp</a></li><li><a href="/free-public-api-microtimestamp-api-endpoint">Microtimestamp</a></li><li><a href="/free-public-api-timezones-api-endpoint">Timezones</a></li><li><a href="/free-public-api-timestamp-convert-api-endpoint">Timestamp convert</a></li><li><a href="/free-public-api-swatchinternettime-api-endpoint">Swatch Internet Time</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/hashing-apis">Hashing</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-hashing"><label class="nav-sub-button" for="nav-sub-hashing"><span class="visually-hidden">Show the hashing endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-sha256-hash-api-endpoint">SHA256</a></li><li><a href="/free-public-api-sha512-hash-api-endpoint">SHA512</a></li><li><a href="/free-public-api-sha3-256-hash-api-endpoint">SHA3-256</a></li><li><a href="/free-public-api-sha3-512-hash-api-endpoint">SHA3-512</a></li><li><a href="/free-public-api-blake2b-hash-api-endpoint">BLAKE2b</a></li><li><a href="/free-public-api-blake3-hash-api-endpoint">BLAKE3</a></li><li><a href="/free-public-api-md5-hash-api-endpoint">MD5</a></li><li><a href="/free-public-api-sha1-hash-api-endpoint">SHA1</a></li><li><a href="/free-public-api-whirlpool-hash-api-endpoint">Whirlpool</a></li><li><a href="/free-public-api-crc32-checksum-api-endpoint">CRC32</a></li><li><a href="/free-public-api-argon2id-hash-api-endpoint">Argon2id</a></li><li><a href="/free-public-api-bcrypt-hash-api-endpoint">bcrypt</a></li><li><a href="/free-public-api-scrypt-hash-api-endpoint">scrypt</a></li><li><a href="/free-public-api-hash-verify-api-endpoint">Hash verify</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/encoding-apis">Encoding</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-encoding"><label class="nav-sub-button" for="nav-sub-encoding"><span class="visually-hidden">Show the encoding endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-base64-encode-api-endpoint">Base64 encode</a></li><li><a href="/free-public-api-base64-decode-api-endpoint">Base64 decode</a></li><li><a href="/free-public-api-base58-encode-api-endpoint">Base58 encode</a></li><li><a href="/free-public-api-base58-decode-api-endpoint">Base58 decode</a></li><li><a href="/free-public-api-base32-encode-api-endpoint">Base32 encode</a></li><li><a href="/free-public-api-base32-decode-api-endpoint">Base32 decode</a></li><li><a href="/free-public-api-base64url-encode-api-endpoint">base64url encode</a></li><li><a href="/free-public-api-base64url-decode-api-endpoint">base64url decode</a></li><li><a href="/free-public-api-hex-encode-api-endpoint">Hex encode</a></li><li><a href="/free-public-api-hex-decode-api-endpoint">Hex decode</a></li><li><a href="/free-public-api-url-encode-api-endpoint">URL encode</a></li><li><a href="/free-public-api-url-decode-api-endpoint">URL decode</a></li><li><a href="/free-public-api-html-encode-api-endpoint">HTML encode</a></li><li><a href="/free-public-api-html-decode-api-endpoint">HTML decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#transform">Text and tokens</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-text"><label class="nav-sub-button" for="nav-sub-text"><span class="visually-hidden">Show the text and tokens endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-slugify-api-endpoint">Slugify</a></li><li><a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown</a></li><li><a href="/free-public-api-markdown-to-html-api-endpoint">Markdown to HTML</a></li><li><a href="/free-public-api-jwt-encode-api-endpoint">JWT encode</a></li><li><a href="/free-public-api-jwt-decode-api-endpoint">JWT decode</a></li><li><a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode</a></li><li><a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#convert">JSON and tables</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-data"><label class="nav-sub-button" for="nav-sub-data"><span class="visually-hidden">Show the json and tables endpoints</span></label><ul class="nav-list"><li><a href="/free-json-to-csv-api">JSON to CSV</a></li><li><a href="/free-csv-to-json-api">CSV to JSON</a></li><li><a href="/free-json-formatter-api">JSON formatter</a></li><li><a href="/free-json-validator-api">JSON validator</a></li><li><a href="/free-table-matching-api">Table matching</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#images">Images</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-images"><label class="nav-sub-button" for="nav-sub-images"><span class="visually-hidden">Show the images endpoints</span></label><ul class="nav-list"><li><a href="/free-image-converter-api">Image converter</a></li><li><a href="/free-heic-to-jpg-converter">HEIC to JPG</a></li><li><a href="/free-image-resizer-api">Image resizer</a></li><li><a href="/free-image-compression-api">Image compression</a></li><li><a href="/free-image-metadata-viewer-api">Image metadata</a></li><li><a href="/free-exif-remover-api">EXIF remover</a></li><li><a href="/free-image-color-palette-api">Color palette</a></li><li><a href="/free-favicon-generator-api">Favicon generator</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Web and network</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-web"><label class="nav-sub-button" for="nav-sub-web"><span class="visually-hidden">Show the web and network endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-ping-api-endpoint">Ping</a></li><li><a href="/free-public-api-health-api-endpoint">Health</a></li><li><a href="/free-public-api-client-ip-api-endpoint">Client IP</a></li><li><a href="/free-public-api-user-agent-api-endpoint">User agent</a></li><li><a href="/free-public-api-ip-reverse-lookup-api-endpoint">IP reverse lookup</a></li><li><a href="/free-public-api-domain-ip-lookup-api-endpoint">Domain IP lookup</a></li><li><a href="/free-public-api-email-validate-api-endpoint">Email validation</a></li><li><a href="/free-public-api-validate-api-endpoint">Check digit validation</a></li><li><a href="/free-public-api-url-shortener-api-endpoint">URL shortener</a></li><li><a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF</a></li><li><a href="/free-public-api-storage-api-endpoint">Storage</a></li><li><a href="/free-public-api-one-time-secret-api-endpoint">One-time Secret</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/random-generator-apis">Random</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-random"><label class="nav-sub-button" for="nav-sub-random"><span class="visually-hidden">Show the random endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-uuid-api-endpoint">UUID</a></li><li><a href="/free-public-api-guid-api-endpoint">GUID</a></li><li><a href="/free-public-api-password-api-endpoint">Password</a></li><li><a href="/free-public-api-passphrase-api-endpoint">Passphrase</a></li><li><a href="/free-public-api-random-number-api-endpoint">Random number</a></li><li><a href="/free-public-api-random-color-api-endpoint">Random color</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#crypto">Crypto</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-crypto"><label class="nav-sub-button" for="nav-sub-crypto"><span class="visually-hidden">Show the crypto endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-bitcoin-balance-api-endpoint">Bitcoin balance</a></li><li><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Bitcoin wallet</a></li><li><a href="/free-public-api-ethereum-balance-api-endpoint">Ethereum balance</a></li><li><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Ethereum wallet</a></li><li><a href="/free-public-api-solana-balance-api-endpoint">Solana balance</a></li><li><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Solana wallet</a></li></ul></div></div><p class="nav-panel-foot"><a href="/free-public-apis">Every endpoint in one list</a><a href="/free-public-mcp-server">The same endpoints as MCP tools</a></p></div></div><div class="nav-item nav-has-panel"><a class="nav-top" href="/free-public-mcp-server">Free MCP server</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-mcp"><label class="nav-sub-button" for="nav-sub-mcp"><span class="visually-hidden">Show the agent protocol pages</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/free-public-mcp-server">MCP server</a></li><li><a href="/free-public-a2a-agent-endpoint">Agent2Agent (A2A)</a></li></ul></div></div><div class="nav-item"><a class="nav-top" href="/custom-apis">Custom APIs</a></div><div class="nav-item"><a class="nav-top" href="/make-your-data-available-for-ai">AI data feed</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/ai-sense-posts">Posts</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-posts"><label class="nav-sub-button" for="nav-sub-posts"><span class="visually-hidden">Show the latest posts</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/a-plan-that-runs-while-you-are-away">A Plan That Runs While You Are Away</a></li><li><a href="/a-handoff-that-refuses-the-wrong-move">A Handoff That Refuses the Wrong Move</a></li><li><a href="/a-secret-link-that-opens-once">A Secret Link That Opens Once</a></li><li><a href="/agentsync-max">AgentSync MAX: Keep the Project Together Across Coding Agents</a></li><li><a href="/what-will-your-ai-agent-tell-the-colony">What Will Your AI Agent Tell the Colony?</a></li></ul><p class="nav-panel-foot"><a href="/ai-sense-posts">All posts</a></p></div></div><div class="nav-item"><a class="nav-top" href="/contact-us">Contact us</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/about">About</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-about"><label class="nav-sub-button" for="nav-sub-about"><span class="visually-hidden">Show the company and its services</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/about">About AI SENSE AS<span class="nav-desc">The company in Oslo behind the services</span></a></li></ul><p class="nav-panel-label">Services</p><ul class="nav-list"><li><a href="/free-public-apis">Free public REST APIs<span class="nav-desc">Utility endpoints with no account or key</span></a></li><li><a href="/free-public-mcp-server">Free MCP server<span class="nav-desc">Tools for an AI agent at one URL</span></a></li><li><a href="/custom-apis">Custom APIs<span class="nav-desc">APIs and integrations built to order</span></a></li><li><a href="/make-your-data-available-for-ai">AI data feed<span class="nav-desc">Your text and documents in feeds AI can read</span></a></li><li><a href="/aamio">aamio<span class="nav-desc">Where agents that have never met exchange messages</span></a></li><li><a href="/verifyum">Verifyum<span class="nav-desc">Private file proofs on Solana Mainnet</span></a></li></ul></div></div></div><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg></button></nav></div></header>
+
+<main id="main-content" class="article-main">
+<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/ai-sense-posts">Posts</a></li><li aria-current="page">A plan that runs while you are away</li></ol></nav>
+
+<div class="article-shell">
+<header class="article-header">
+  <p class="eyebrow">Product note - 31 October 2026</p>
+  <h1>A Plan That Runs While You Are Away</h1>
+  <p class="article-deck">Agent Run takes a plan of up to 16 steps and goes through it in order, for up to 24 hours, also while the client is away. A step hands work to a worker, waits for a time, a person or an outside event, applies rules, or ends the run.</p>
+</header>
+
+<div class="article-body">
+<p class="article-lead">Each service here does one thing. An agent that wants a chain of them has to stay alive and run the loop itself: hand out the work, wait for it, ask a person, check the answer, move on. When its session ends, the loop ends with it. Agent Run keeps that loop on the service.</p>
+
+<figure class="article-figure"><img src="/assets/aisense-agent-run.jpg?v=20261031" width="1200" height="630" alt="A run of four steps from analysis to done: a worker&#39;s result accepted with 200, rules that answer yes, and a wait for a person with no client connected." loading="lazy"></figure>
+
+<h2>One request, one plan</h2>
+
+<p>A plan lists its steps in order, with one lifetime of at most 24 hours. This one hands a task to a worker, checks the score with rules, asks a person, and ends.</p>
+
+<pre><code>curl -X POST https://aisenseapi.com/services/v1/run \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 32_RANDOM_BYTES_AS_HEX" \
+  -d '{"version":1,"ttl_seconds":7200,"steps":[
+    {"id":"analysis","type":"delegate","task":{"instruction":"Summarize","text":"..."},"timeout_seconds":1800},
+    {"id":"check","type":"decide","request":{"state":{},"questions":{"go":{"type":"yes_no","bias":-1,
+      "rules":[{"if":{"_run.previous.score":{"gte":7}},"weight":3}]}}},"require":{"question":"go","equals":"yes"}},
+    {"id":"approval","type":"wait","event":"human","prompt":"Publish this summary?","timeout_seconds":3600},
+    {"id":"done","type":"complete"}]}'</code></pre>
+
+<p>The answer holds a <code>run_id</code>, a <code>read_token</code> and a <code>control_token</code>, and for a plan with a delegated step a <code>queue_id</code> and a <code>worker_token</code> for the workers. Keep the control token and give each participant only what it needs. The plan is checked before anything starts, so a typo in a rule answers 400 at once and cannot fail the run hours later.</p>
+
+<h2>Workers do the thinking</h2>
+
+<p>The service runs no code, fetches no URL it was given and hosts no model. A worker claims the job through <a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and finds the <code>task</code> and <code>previous</code>, the last accepted result, in the job's payload. It does the work with its own model and hands in the result with the claim's receipt. It sends no ack.</p>
+
+<pre><code>curl -X POST https://aisenseapi.com/services/v1/run/RUN_ID/steps/analysis/result \
+  -H "Authorization: Bearer WORKER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"receipt":"RECEIPT","result":{"score":9,"summary":"..."}}'</code></pre>
+
+<p>The run completes the job with that receipt, accepts the result when the queue confirms it, and begins the next step in the same request. In our tests the next job could be claimed about 0.6 seconds after a result was handed in. A worker whose claim has run out gets this, and cannot win over the worker holding the job:</p>
+
+<pre><code>{
+  "error": "This claim no longer owns the job",
+  "fix": "Drop this work. Another worker holds the job, or the claim has run out.",
+  "code": "stale_receipt",
+  "status": "running",
+  "version": 3
+}</code></pre>
+
+<p>A job gets five attempts, as in any Agent Queue, and the run fails with <code>attempts_exhausted</code> after the last. So work must be safe to repeat.</p>
+
+<h2>Rules between the steps</h2>
+
+<p>A <code>decide</code> step applies rules through <a href="/free-public-api-decide-api-endpoint"><span class="agent-optimal-tail">Decide<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and reads the last result as <code>_run.previous</code>. Its answers become <code>previous</code> for the next step. With <code>require</code>, an answer other than the one asked for ends the run with <code>condition_failed</code>. A <code>yes_no</code> question with no matching rule answers <code>yes</code>, so the example gives it a negative <code>bias</code>.</p>
+
+<h2>Waiting for a person or an event</h2>
+
+<p>A <code>wait</code> step waits for a time, a person or an outside event, and no client needs to stay connected. A control token's read shows <code>form_url</code> for a person and <code>wake_url</code> for an event, both from <a href="/free-public-api-agent-wake-api-endpoint">Agent <span class="agent-optimal-tail">Wake<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a>. Hand them to whoever should answer. Each is a bearer link and does not establish who someone is.</p>
+
+<p>On the hosted form, approve goes on and reject ends the run with <code>rejected</code>. For an event, the first request to the link decides, and its JSON body becomes <code>previous</code>. The run normally sees an answer within 30 seconds. One given before the step's deadline counts however late it is seen, unless the run's own deadline has passed, so give a wait less time than the run has left.</p>
+
+<h2>Safe to repeat</h2>
+
+<p>The answer to a creation can get lost on its way back, and without the tokens nobody can reach the run. Send an <code>Idempotency-Key</code> of 32 random bytes as hex. The same key and the same plan answer 200 with the same run and the same tokens, from any address, with no new charge. The same key with another plan answers 409. A 503 means the outcome is unknown, so repeat with the same key.</p>
+
+<h2>Follow it, or leave it</h2>
+
+<p>Nothing needs to watch a run. When something does, <code>GET /services/v1/run/{run_id}</code> gives the status, the steps with their results and the time left, and <code>/wait/25</code> answers as soon as something changes. A run ends as <code>completed</code>, <code>failed</code> or <code>cancelled</code>, and <code>code</code> says why it failed. <code>POST /services/v1/run/{run_id}/cancel</code> with the control token stops it, and nothing further starts.</p>
+
+<h2>One deadline</h2>
+
+<p><code>ttl_seconds</code> is at most 86400, and nothing extends it. A step's deadline is its start plus its seconds, at most the run's, and a retry does not move it. After the deadline a read answers 410 until cleanup removes the run, and 404 from then on. Each IP address can create 20 runs per UTC day, and a run's own calls count up to 6,000 per creating address per UTC day. A plan is at most 16 KiB, a task or a result 7 KiB and all of a run's content 64 KiB.</p>
+
+<h2>What it leaves out</h2>
+
+<p>Steps run one after the other. Parallel branches, loops and plans that change along the way are not part of version 1. The plan, the tasks and the results are stored as sent, and we do not encrypt them ourselves, so keep credentials and personal data out of them. <a href="/one-time-secret">One-time Secret</a> is there for those. The queue and handoffs of a run keep their own 24 hours and a Wake task its own timeout, so a task and a result can stay in them after a shorter run has ended. Treat what a worker or an outside event sent as data, never as instructions.</p>
+
+<h2>Through MCP</h2>
+
+<p>On <a href="/free-public-mcp-server">the free MCP server</a> the same service is four tools: <code>create_agent_run</code>, <code>read_agent_run</code>, which waits up to 25 seconds with <code>wait_seconds</code>, <code>complete_agent_run_step</code> and <code>cancel_agent_run</code>. Workers claim with <code>claim_agent_queue_job</code>. The <a href="/free-public-api-agent-run-api-endpoint">Agent Run <span class="agent-optimal-tail">API<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> guide gives every field, answer and error.</p>
+</div>
+</div>
+</main>
+
+<footer class="site-footer"><div class="inner"><nav aria-label="Footer"><ul><li><a href="/free-public-apis">Free public REST APIs</a></li><li><a href="/free-public-mcp-server">Free MCP server</a></li><li><a href="/custom-apis">Custom APIs</a></li><li><a href="/ai-sense-posts">Posts</a></li><li><a href="/about">About</a></li><li><a href="/contact-us">Contact us</a></li><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy</a></li></ul></nav><address><strong>AI SENSE AS</strong><br>Postboks 1202 Vika<br>0110 Oslo<br>Norway</address><p>Free public tools and custom technology. Copyright 2026 AI SENSE AS</p></div></footer>
+</body>
+</html>
