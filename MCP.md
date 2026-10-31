@@ -133,7 +133,7 @@ proxy these tools either.
 | `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |
 | `decide` | Rules by default, optional Clef, Nimble or Tev1 model with its own usage limits |
 | `simulate_failure` | Gives a chosen status, delay or broken answer on purpose |
-| `schedule_webhook` | Schedules a POST to a public URL, once or repeatedly |
+| `schedule_webhook` | Schedules a POST to a public URL with a host name, not an IP address, once or repeatedly |
 | `read_webhook_schedule` | Reads a scheduled webhook or waits for a change |
 | `cancel_webhook_schedule` | Cancels a scheduled webhook that has not finished |
 | `service_health` | Checks that the service answers |
@@ -287,8 +287,9 @@ tally. The server stores only hashes of group form tokens.
 
 Add `notify_url` when another public HTTP service should receive a small signal
 after the final answer. The signal contains the action ID, status, result URL
-and group counts. It does not contain the answers. The target is checked for
-private and reserved addresses before it is queued and again before delivery.
+and group counts. It does not contain the answers. The target must use a host
+name, and a URL with an IP address is refused. It is checked for private and
+reserved addresses before it is queued and again before delivery.
 
 `read_human_approval` accepts `wait_seconds` from 0 to 25. It returns when the
 state changes, the action finishes or the wait ends.
@@ -300,8 +301,8 @@ that emits the webhook. Then call `read_webhook_capture` with the returned
 `capture_id`. The read tool accepts `wait_seconds` from 0 to 25.
 
 `create_webhook_capture` accepts an optional `notify_url`. After the first
-request is captured, that public URL receives a small signal with the capture
-ID and result URL. The captured method, headers and body are not copied into
+request is captured, that public URL, which must use a host name and not an IP
+address, receives a small signal with the capture ID and result URL. The captured method, headers and body are not copied into
 the signal. Delivery has one transport retry.
 
 The result includes the HTTP method, request URI, headers, client IP and body.
@@ -313,7 +314,8 @@ cannot replace it or create a second notification.
 
 Heartbeat is a short-lived dead-man switch. `create_heartbeat` sets the
 expected check-in interval, a grace period and one on-miss action. The action
-can call a public webhook or wake an active Agent Wake webhook task. Each
+can call a public webhook with a host name, not an IP address, or wake an active
+Agent Wake webhook task. Each
 `ping_heartbeat` moves the next deadline. It never extends the absolute
 24-hour lifetime. A missed action is attempted once.
 

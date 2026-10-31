@@ -29,7 +29,7 @@
   "wait_url": "https://aisenseapi.com/services/v1/webhook_capture/3cdadccf-9ea9-47b3-a221-6e62f63a198d/wait/25",
   "expire_timestamp": 1787266344,
   "expire_datetime": "2026-08-20T22:52:24+00:00"
-}</code></pre><p>The body may be empty. You can also send <code>{"notify_url":"https://example.com/done"}</code>. That public URL receives one small signal after the first request is captured. The signal contains the capture ID, status, result URL and timestamp. It does not contain the captured request.</p><p>Give the <code>update_url</code> to the sender. Use <code>read_url</code> for an immediate read or <code>wait_url</code> to wait for a result. Save the ID because the service has no listing call.</p></section>
+}</code></pre><p>The body may be empty. You can also send <code>{"notify_url":"https://example.com/done"}</code>. That public URL, which must use a host name and not an IP address, receives one small signal after the first request is captured. The signal contains the capture ID, status, result URL and timestamp. It does not contain the captured request.</p><p>Give the <code>update_url</code> to the sender. Use <code>read_url</code> for an immediate read or <code>wait_url</code> to wait for a result. Save the ID because the service has no listing call.</p></section>
 <section id="send"><h2>Send anything to the update URL</h2><p>Point a sender at the update URL and trigger it. Stripe posts JSON. GitHub posts JSON with a signature header alongside. An older system might send form data or plain text. Everything lands in the same place.</p><pre><code>curl -X POST "https://aisenseapi.com/services/v1/webhook_capture/3cdadccf-9ea9-47b3-a221-6e62f63a198d/update" \
   -H "Content-Type: application/json" \
   -H "X-Example-Signature: test-123" \
