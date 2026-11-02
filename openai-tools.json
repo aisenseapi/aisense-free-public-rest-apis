@@ -2385,7 +2385,7 @@
     "type": "function",
     "function": {
       "name": "image_convert",
-      "description": "Convert an image to JPEG, PNG or WebP; HEIC from an iPhone is read too. The image is turned upright, EXIF, XMP, IPTC and comments are removed and the color profile is kept. The answer adds operation, format, width, height, input_format and input_bytes. The REST call is multipart/form-data: send the decoded bytes of image_base64 as the field file and the other arguments as form fields. Takes a JPEG, PNG or WebP of at most 10 MB. Returns the Storage fields {storage_id, storage_url, sha256_hash, bytes, expire_timestamp, expire_datetime} plus content_type, filename and operation; a GET on storage_url returns the result, which is kept for 24 hours. POST /image_convert",
+      "description": "Convert JPEG, PNG, WebP, HEIC or static SVG to JPEG, PNG or WebP. Raster uploads may be up to 10 MB. Supply SVG as UTF-8 paths or basic shapes with solid fills or strokes, up to 1 MiB, 4096 pixels per side and 4 megapixels. Scripts, stylesheets, links, images, use and filters are rejected. Send the decoded bytes of image_base64 as the multipart field file and the other arguments as form fields. The response includes 24-hour Storage fields, content_type, filename, operation, format, width, height, input_format and input_bytes. GET storage_url to retrieve the image. POST /image_convert",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2417,6 +2417,33 @@
         "required": [
           "image_base64",
           "format"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "image_vectorize",
+      "description": "Trace a PNG or JPEG into black SVG paths on a transparent background. The image is flattened onto white and fitted within 1024 by 1024 without cropping or enlarging it. Decode image_base64 into the multipart field file and pass threshold as an optional form field. Retrieve result.svg from the returned 24-hour storage_url. The response includes standard Storage fields, content_type, filename, operation, format, width, height, input_format, input_bytes and threshold. POST /image_vectorize",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "description": "Base64-encoded PNG or JPEG. The decoded file may be up to 10 MB and 25 megapixels."
+          },
+          "threshold": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99,
+            "default": 50,
+            "description": "Raise the threshold to include lighter pixels in the black foreground."
+          }
+        },
+        "required": [
+          "image_base64"
         ],
         "additionalProperties": false
       }

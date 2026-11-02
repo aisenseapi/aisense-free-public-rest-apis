@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.9
+Resource version 1.8.10
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -89,7 +89,7 @@ Catalog size: 77 MCP tools.
 - `html_markdown_convert` - Convert HTML to Markdown, leaving out scripts, styles and forms, or Markdown to HTML that is safe to put in a page.
 - `json_check` - Format or validate JSON text.
 - `match_tables` - Match the rows of two tables on key columns.
-- `process_image` - Convert, compress, resize, inspect or strip an image, or make favicons from it.
+- `process_image` - Rasterize a static SVG, trace a PNG or JPEG into SVG paths, convert or resize an image, compress it, inspect or strip metadata, find its colors or make favicons.
 - `decide` - Rules by default. Optional `model` `"clef"`, `"nimble"` or `"tev1"` uses instructions and criteria with `noul`, `choice` or `score` questions. A model request may hold 8 KiB, 3 KiB for `tev1`, the smallest and fastest, which its maker tested in English only and which suits short, direct questions. It returns no automatic action, and model calls have their own per-IP usage limit.
 - `simulate_failure` - Get a chosen status, delay or broken answer on purpose.
 - `schedule_webhook` - Schedule a POST to a public URL, once or repeatedly.
@@ -379,5 +379,9 @@ REST uses `Authorization: Bearer` with the read or write token. MCP uses the nam
 The tools from `encode_data` to `delete_semantic_search_note` run the same code as the REST endpoints, so they give the same answers, limits and error texts. An error keeps the REST status in `status_code`. REST and MCP share one budget of 5000 requests per client address per day.
 
 Files go in as base64, up to about 190 KB through MCP, or as a `storage_id`. Store a larger file with REST POST https://aisenseapi.com/services/v1/storage first, or pass the `storage_id` an earlier tool returned, which lets image calls be chained. Tools that make a file store it for 24 hours and answer with its `storage_id` and `storage_url`, and `read_stored_file` returns it. Anyone holding a storage link can read the object, so never store secrets or personal data.
+
+Use `process_image` with `operation` set to `convert` to rasterize a supported static SVG. Give `image_base64` or `storage_id` and set `format` to `png`, `jpeg` or `webp`. Use paths or basic geometric shapes with solid fills or strokes. Scripts, stylesheets and linked or embedded images are rejected. SVG input is limited to 1 MiB, 4096 pixels per side and 4 million pixels in total. On REST, POST a multipart `file` and `format` to /services/v1/image_convert.
+
+To trace a PNG or JPEG logo, use `operation` set to `vectorize` with the same input fields. The result is an SVG of black paths on a transparent background. The trace preserves the aspect ratio and fits within 1024 by 1024 pixels without enlarging the source. The optional integer `threshold` ranges from 1 to 99 and defaults to 50. Raise it to include lighter pixels. On REST, POST a multipart `file` and optional `threshold` to /services/v1/image_vectorize.
 
 `crypto_wallet` key pairs pass through this service. Use them for tests and small amounts only. `schedule_webhook` answers with a `schedule_id` that reads and cancels the job, so keep it private. `simulate_failure` returns an error result for statuses of 400 and above, which is the point of the tool.

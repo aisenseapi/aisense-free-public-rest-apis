@@ -1286,20 +1286,23 @@ class AISenseAPI:
 
     # ── Images ────────────────────────────────────────────────────────────────
 
-    # Each takes one JPEG, PNG or WebP of at most 10 MB as ``file``, and
-    # image_metadata and image_strip take a GIF too: the bytes, or a path to
-    # read them from. It is sent as multipart/form-data. The
+    # Supply the image as bytes or a local path. Each operation accepts its
+    # own set of formats. It is sent as multipart/form-data. The
     # result is stored for 24 hours, and the answer has the Storage fields
     # plus operation and what the result is.
 
     def image_convert(
         self, file: Union[bytes, str], format: str, quality: Optional[int] = None, lossless: Optional[bool] = None
     ) -> dict:
-        """Convert to ``format`` ``"jpeg"``, ``"png"`` or ``"webp"``; reads
-        HEIC too. ``quality`` is 40 to 95, and ``lossless`` is for WebP. Adds
+        """Convert JPEG, PNG, WebP, HEIC or static SVG to JPEG, PNG or WebP.
+        ``quality`` is 40 to 95, and ``lossless`` is for WebP. Adds
         ``format``, ``width``, ``height``, ``input_format`` and
         ``input_bytes``."""
         return self._upload("/image_convert", file, {"format": format, "quality": quality, "lossless": lossless})
+
+    def image_vectorize(self, file: Union[bytes, str], threshold: Optional[int] = None) -> dict:
+        """Trace PNG or JPEG to black SVG paths. Optional threshold is 1 to 99, default 50."""
+        return self._upload("/image_vectorize", file, {"threshold": threshold})
 
     def image_compress(self, file: Union[bytes, str], quality: Optional[int] = None) -> dict:
         """Save again in its own format: JPEG and WebP at ``quality`` 40 to

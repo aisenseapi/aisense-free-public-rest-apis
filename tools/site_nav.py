@@ -130,6 +130,7 @@ API_GROUPS = [
     ]),
     ('images', 'Images', '/free-public-apis#images', [
         ('/free-image-converter-api', 'Image converter'),
+        ('/free-image-vectorizer-api', 'PNG or JPEG to SVG'),
         ('/free-heic-to-jpg-converter', 'HEIC to JPG'),
         ('/free-image-resizer-api', 'Image resizer'),
         ('/free-image-compression-api', 'Image compression'),

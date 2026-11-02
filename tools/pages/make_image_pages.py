@@ -1,4 +1,4 @@
-"""Write the seven image tool pages into web/.
+"""Write the image tool pages into web/.
 
 The example answers come from the JSON files in data/, recorded by running
 each request through the service's real handler with ImageMagick on test
@@ -40,6 +40,7 @@ RELATED = '''<h2 id="related">Related tools</h2>
 <ul>
   <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
   <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li><a href="/free-image-vectorizer-api">PNG or JPEG to SVG</a> for tracing a logo, signature or scan into paths</li>
   <li>Guide: <a href="/convert-heic-webp-png-and-jpg-images">how to convert HEIC, WebP, PNG and JPG, and make images smaller</a></li>
   <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
   <li><a href="/free-image-color-palette-api">Color palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
@@ -132,16 +133,16 @@ ACCEPT_HEIC = ACCEPT + ',image/heic,image/heif,.heic,.heif'
 ACCEPT_READ = ACCEPT + ',image/gif,.gif'
 
 
-def drop(kinds, accept):
+def drop(kinds, accept, limit='up to 10 MB'):
     return '''    <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
       <strong>Drop an image here</strong>
-      <small>or click to choose one, or paste it with Ctrl+V. %s, up to 10 MB.</small>
+      <small>or click to choose one, or paste it with Ctrl+V. %s, %s.</small>
     </div>
     <input type="file" id="tool-file" accept="%s" hidden>
     <div class="tool-chosen" id="tool-chosen" hidden>
       <img id="tool-thumb" alt="The image you chose">
       <p class="tool-meta" id="tool-chosen-text"></p>
-    </div>''' % (kinds, accept)
+    </div>''' % (kinds, limit, accept)
 
 
 DROP = drop('JPEG, PNG or WebP', ACCEPT)
@@ -167,7 +168,7 @@ def script_start(accepts, accepts_text, extra=''):
 # The chosen image and its format, read from the first bytes. A HEIC is known
 # by an HEVC brand in its ftyp box; most browsers cannot show it, so its
 # preview is hidden.
-SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF' };
+SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF', svg: 'SVG' };
   var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
   var file = null;
   var chosenFormat = null;
@@ -187,19 +188,31 @@ SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic
         for (var at = 16; at + 4 <= end; at += 4) { brands.push(text(at, at + 4)); }
         if (brands[0] !== 'avif' && brands[0] !== 'avis' && brands.some(function (brand) { return hevc.indexOf(brand) !== -1; })) { return 'heic'; }
       }
+      // SVG validation belongs to the renderer. Use the name or MIME type as
+      // a picker hint, including for XML with a long prolog. Never preview it locally.
+      if (/\.svg$/i.test(picked.name) || picked.type === 'image/svg+xml'
+          || /^\s*(?:<\?xml\s|<svg[\s/>])/.test(new TextDecoder().decode(b))) { return 'svg'; }
       return null;
     });
   }
 
   function choose(picked, done) {
     file = picked;
+    submit.disabled = true;
     T.clear(result);
-    Promise.all([T.imageSize(picked), formatOf(picked)]).then(function (read) {
+    formatOf(picked).then(function (kind) {
+      var preview = accepts.indexOf(kind) !== -1 && kind !== 'svg' ? T.imageSize(picked) : null;
+      return Promise.all([preview, kind]);
+    }).then(function (read) {
       var size = read[0];
+      if (file !== picked) {
+        if (size) { URL.revokeObjectURL(size.url); }
+        return;
+      }
       chosenFormat = read[1];
       if (thumbUrl) { URL.revokeObjectURL(thumbUrl); }
       thumbUrl = size ? size.url : null;
-      thumb.src = thumbUrl || '';
+      if (thumbUrl) { thumb.src = thumbUrl; } else { thumb.removeAttribute('src'); }
       thumb.hidden = !thumbUrl;
       chosen.hidden = false;
       chosenText.textContent = picked.name + ', ' + (chosenFormat ? names[chosenFormat] + ', ' : '') + T.bytes(picked.size)
@@ -209,6 +222,9 @@ SCRIPT_CHOOSE = r'''  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic
         var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
         error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
         T.showError(result, error);
+      } else if (chosenFormat === 'svg' && picked.size > 1048576) {
+        taken = false;
+        T.showError(result, new Error('The SVG exceeds the 1 MiB upload limit.'));
       }
       submit.disabled = !taken;
       done();
@@ -253,7 +269,7 @@ def stored_json(operation):
     return json.loads(RESULTS[operation]['stored'], object_pairs_hook=OrderedDict)
 
 
-def page(slug, title, description, h1, lede, badges, operation, tool_html, body_html, script, faq, api_name, example_key=None):
+def page(slug, title, description, h1, lede, badges, operation, tool_html, body_html, script, faq, api_name, example_key=None, command=None):
     ld = OrderedDict([
         ('@context', 'https://schema.org'),
         ('@graph', [
@@ -387,7 +403,7 @@ def page(slug, title, description, h1, lede, badges, operation, tool_html, body_
         'slug': slug,
         'h1': h1,
         'lede': lede,
-        'example': example(example_key or operation),
+        'example': html.escape(command, quote=False) if command else example(example_key or operation),
         'badges': badge_html,
         'tool': tool_html,
         'body': wrap_tables(body_html),
@@ -423,7 +439,7 @@ def answer_table(rows):
 
 
 # The converter script, shared by the image converter and the HEIC page.
-CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP or HEIC', r'''  var format = document.getElementById('tool-format');
+CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic', 'svg'], 'JPEG, PNG, WebP, HEIC or static SVG', r'''  var format = document.getElementById('tool-format');
   var quality = document.getElementById('tool-quality');
   var qualityValue = document.getElementById('tool-quality-value');
   var qualityField = document.getElementById('tool-quality-field');
@@ -447,7 +463,8 @@ CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP 
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-    if (!file) { return; }
+    if (!file || submit.disabled) { return; }
+    var source = file;
     var fields = { format: format.value };
     if (format.value === 'webp' && lossless.checked) {
       fields.lossless = 'true';
@@ -457,11 +474,11 @@ CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP 
     T.busy(result, 'Converting...');
     submit.disabled = true;
     T.postFile('image_convert', file, fields).then(function (answer) {
-      T.showStored(result, answer, { image: true, summary: summary(answer) });
+      if (file === source) { T.showStored(result, answer, { image: true, summary: summary(answer) }); }
     }).catch(function (error) {
-      T.showError(result, error);
+      if (file === source) { T.showError(result, error); }
     }).then(function () {
-      submit.disabled = false;
+      if (file === source) { submit.disabled = false; }
     });
   });
 
@@ -472,14 +489,14 @@ CONVERT_SCRIPT = script_start(['jpeg', 'png', 'webp', 'heic'], 'JPEG, PNG, WebP 
 
 page(
     'free-image-converter-api',
-    'Free image converter API: HEIC, WebP, PNG and JPEG | AI SENSE',
-    'Convert images between WebP, PNG and JPEG, and HEIC from an iPhone to any of them, in your browser or with one API call. EXIF and GPS data are removed, the color profile is kept, and the result is a link that lasts 24 hours. No API key.',
-    'Free image converter: HEIC, WebP, PNG and JPEG',
-    'Drop an image and choose WebP, PNG or JPEG. HEIC photos from an iPhone work too. The form calls the same free API your code can call: one POST, no API key and no account. The converted image waits in Storage for 24 hours, with the camera and GPS data removed.',
-    ['No API key', 'No account', 'HEIC, WebP, PNG and JPEG', 'EXIF removed', '5000 req / IP / day'],
+    'Free image converter API for SVG, HEIC, WebP, PNG and JPEG | AI SENSE',
+    'Render a static SVG or convert a HEIC, JPEG, PNG or WebP image. Choose PNG or WebP for transparency, or JPEG for a white background. Download the result for 24 hours.',
+    'Convert SVG, HEIC, WebP, PNG and JPEG images',
+    'Drop a static SVG drawing or a HEIC, WebP, PNG or JPEG image and choose an output format. PNG and WebP preserve transparency. JPEG fills transparent areas with white. You can download the result from Storage for 24 hours.',
+    ['No API key', 'SVG and HEIC input', 'JPEG, PNG or WebP output', '24-hour Storage'],
     'image_convert',
     '''  <form id="tool-form">
-''' + drop('JPEG, PNG, WebP or HEIC', ACCEPT_HEIC) + '''
+''' + drop('JPEG, PNG, WebP or HEIC up to 10 MB', ACCEPT_HEIC + ',image/svg+xml,.svg', 'or static SVG up to 1 MiB') + '''
     <div class="tool-options">
       <div class="tool-field">
         <label for="tool-format">Convert to</label>
@@ -502,7 +519,7 @@ page(
   <div class="tool-result" id="tool-result" aria-live="polite"></div>''',
     '''<h2 id="how">How the conversion works</h2>
 <ul>
-  <li><strong>JPEG, PNG, WebP and HEIC in, JPEG, PNG or WebP out.</strong> The format is read from the file itself, not from its name. An animated image is converted from its first frame.</li>
+  <li><strong>JPEG, PNG, WebP, HEIC and static SVG in, JPEG, PNG or WebP out.</strong> The service reads the format from the file. An animated raster image is converted from its first frame.</li>
   <li><strong>HEIC from an iPhone</strong> is turned the way the phone stored it, once, and keeps its color profile, so the colors of a Display P3 photo stay right. HEIC can be read but not written.</li>
   <li><strong>Quality</strong> goes from 40 to 95 for JPEG and WebP, and is 82 when you send none. PNG is lossless and takes no quality.</li>
   <li><strong>Lossless WebP</strong> keeps every pixel. For screenshots and graphics it is usually far smaller than PNG.</li>
@@ -516,7 +533,7 @@ page(
 <table>
   <thead><tr><th>Field</th><th>Required</th><th>Meaning</th></tr></thead>
   <tbody>
-    <tr><td><code>file</code></td><td>yes</td><td>The image: JPEG, PNG, WebP or HEIC.</td></tr>
+    <tr><td><code>file</code></td><td>yes</td><td>JPEG, PNG, WebP, HEIC or static SVG.</td></tr>
     <tr><td><code>format</code></td><td>yes</td><td><code>jpeg</code>, <code>png</code> or <code>webp</code>. <code>jpg</code> is read as <code>jpeg</code>.</td></tr>
     <tr><td><code>quality</code></td><td>no</td><td>40 to 95, for JPEG and WebP. 82 when left out.</td></tr>
     <tr><td><code>lossless</code></td><td>no</td><td><code>true</code> or <code>false</code>, for WebP only. Lossless takes no quality.</td></tr>
@@ -524,11 +541,20 @@ page(
 </table>
 <p>A GET on <code>storage_url</code> returns the image with its own image type, so the link also works in an <code>&lt;img&gt;</code> tag.</p>
 
+<h2 id="svg">Render an SVG as PNG, JPEG or WebP</h2>
+<p>Upload a UTF-8 SVG with positive dimensions in pixels or a <code>viewBox</code>. Paths, basic shapes and groups can use solid fills, strokes and transforms. Convert lettering to paths and expand reused shapes in your editor. The renderer rejects scripts, animation, stylesheets, links, embedded images, gradients, filters, <code>use</code>, DTDs and entities. Keep the source within 1 MiB, 4096 pixels per side and 4 megapixels. It may contain up to 2048 elements nested at most 32 levels deep.</p>
+<p>Run these commands in a shell with curl and jq to draw a circle and save the rendered PNG. Set <code>format</code> to <code>jpeg</code> or <code>webp</code> and change the output filename to try either format.</p>
+<pre><code>printf '%s' '&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"&gt;&lt;circle cx="32" cy="32" r="24" fill="#2367ae"/&gt;&lt;/svg&gt;' &gt; mark.svg
+curl -fsS https://aisenseapi.com/services/v1/image_convert ''' + B + '''
+  -F 'file=@mark.svg;type=image/svg+xml' -F 'format=png' -o converted.json &amp;&amp;
+curl -fsS "$(jq -er .storage_url converted.json)" -o mark.png</code></pre>
+<p>To go the other direction, <a href="/free-image-vectorizer-api">trace a PNG or JPEG into SVG paths</a>.</p>
+
 ''' + STORAGE_SECTION + '''
 
 ''' + LIMITS + '''
 
-''' + ERRORS_CONVERT,
+''' + errors('JPEG, PNG, WebP, HEIC or supported static SVG', 'A field is missing or invalid, or the image cannot be read or rendered.', 'The renderer is busy, timed out or unavailable.'),
     CONVERT_SCRIPT,
     [
         ('Is the image converter API free?', FAQ_FREE),
@@ -537,6 +563,79 @@ page(
         ('Can it convert HEIC or GIF?', 'HEIC, yes: a photo from an iPhone becomes a JPEG, PNG or WebP, turned the right way and with its color profile. GIF, no.')
     ],
     'Free image converter API'
+)
+
+# -- PNG or JPEG to SVG -----------------------------------------------------------
+
+VECTORIZE_COMMAND = curl('image_vectorize', {'threshold': 65}, 'mark.png').replace('curl -s -X POST', 'curl -fsS')
+VECTORIZE_COMMAND += ' -o traced.json &&\ncurl -fsS "$(jq -er .storage_url traced.json)" -o traced.svg'
+
+page(
+    'free-image-vectorizer-api',
+    'PNG or JPEG to SVG path vectorizer | AI SENSE',
+    'Trace a PNG or JPEG logo, signature or scan into black SVG paths on a transparent background. Adjust the threshold and download the SVG from 24-hour Storage.',
+    'Trace PNG or JPEG to SVG',
+    'Upload a dark logo, signature or line drawing on a light background. The vectorizer follows the outlines and writes black SVG paths that you can scale or edit. Choose a higher threshold to pick up faint pencil lines or a lower one to leave out a gray paper background.',
+    ['PNG or JPEG input', 'Black SVG paths', 'No API key', '24-hour Storage'],
+    'image_vectorize',
+    '''  <form id="tool-form">
+''' + drop('JPEG or PNG', 'image/jpeg,image/png,.jpg,.jpeg,.png') + '''
+    <div class="tool-field">
+      <label for="tool-threshold">Threshold (%)</label>
+      <input type="number" id="tool-threshold" min="1" max="99" step="1" value="50" required>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Trace SVG</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>''',
+    '''<h2 id="how">What gets traced</h2>
+<p>The service places transparent pixels on white and fits the whole image inside 1024 × 1024, preserving its proportions. Smaller images keep their size. Pixels darker than the threshold form the black foreground. The remaining area is transparent. This works best for silhouettes and line art. In a photograph, color and shading collapse into a single foreground shape or a set of outlines.</p>
+
+<h2 id="api">Trace and download</h2>
+<p>Send <code>POST /services/v1/image_vectorize</code> as <code>multipart/form-data</code>.</p>
+<table>
+  <thead><tr><th>Field</th><th>Required</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td><code>file</code></td><td>yes</td><td>A JPEG or PNG up to 10 MB and 25 megapixels.</td></tr>
+    <tr><td><code>threshold</code></td><td>no</td><td>An integer from 1 to 99. The default is 50.</td></tr>
+  </tbody>
+</table>
+<p>The command at the top uses curl and jq. Give it a local <code>mark.png</code>, use <code>file=@scan.jpg</code> for a JPEG, or create a sample PNG with the <a href="/free-image-converter-api#svg">SVG-to-PNG example</a>. The POST saves a JSON receipt to <code>traced.json</code>. The GET downloads the SVG into <code>traced.svg</code>.</p>
+
+<h2 id="storage">Result fields</h2>
+''' + answer_table('''    <tr><td><code>content_type</code>, <code>format</code>, <code>filename</code></td><td><code>image/svg+xml</code>, <code>svg</code>, and the suggested download name.</td></tr>
+    <tr><td><code>operation</code>, <code>threshold</code></td><td><code>image_vectorize</code> and the threshold used for the trace.</td></tr>
+    <tr><td><code>width</code>, <code>height</code></td><td>Dimensions of the traced image.</td></tr>
+    <tr><td><code>input_format</code>, <code>input_bytes</code></td><td>Format and size of the uploaded image.</td></tr>''') + '''
+<p>The receipt identifies the file as <code>image/svg+xml</code>. Storage serves the bytes as <code>application/octet-stream</code>, so use the download button or save the file as <code>result.svg</code>. The link expires after 24 hours. A white image produces a transparent SVG. If a detailed trace returns HTTP 413, simplify or downsize the source and try again.</p>
+
+''' + errors('JPEG or PNG', 'The threshold is outside 1 to 99, a field is invalid or the image cannot be decoded.', 'The image service is busy, timed out or unavailable.'),
+    script_start(['jpeg', 'png'], 'JPEG or PNG') + SCRIPT_CHOOSE + r'''
+  T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
+    choose(picked, function () {});
+  });
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!file || submit.disabled || !form.reportValidity()) { return; }
+    var source = file;
+    submit.disabled = true;
+    T.busy(result, 'Tracing outlines...');
+    T.postFile('image_vectorize', file, { threshold: document.getElementById('tool-threshold').value }).then(function (answer) {
+      if (file === source) {
+        T.showStored(result, answer, { summary: answer.width + ' × ' + answer.height + ' SVG at threshold ' + answer.threshold + '%.' });
+      }
+    }).catch(function (error) {
+      if (file === source) { T.showError(result, error); }
+    }).then(function () {
+      if (file === source) { submit.disabled = false; }
+    });
+  });
+})();''',
+    [('Will the SVG keep my colors?', 'The SVG uses black paths on transparent space. Use the image converter for a full-color raster result.'),
+     ('How do I keep more of a faint drawing?', 'Raise the threshold to include lighter pixels. Lower it if shadows or paper texture start to appear.')],
+    'PNG or JPEG to SVG vectorizer API',
+    command=VECTORIZE_COMMAND
 )
 
 # -- HEIC to JPG ------------------------------------------------------------------

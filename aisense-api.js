@@ -1302,19 +1302,23 @@ export class AISenseAPI {
 
   // ── Images ────────────────────────────────────────────────────────────────
 
-  // Each takes one JPEG, PNG or WebP of at most 10 MB as `file`, and
-  // imageMetadata and imageStrip take a GIF too: a Blob or File, or the
-  // bytes as an ArrayBuffer or Uint8Array (a Node Buffer is one).
+  // Supply the image as a Blob, File, ArrayBuffer or Uint8Array (including a
+  // Node Buffer). The accepted formats depend on the operation.
   // It is sent as multipart/form-data. The result is stored for 24 hours, and
   // the answer has the Storage fields plus `operation` and what the result is.
 
   /**
-   * Convert to `format` 'jpeg', 'png' or 'webp'; reads HEIC too. `options`:
+   * Convert JPEG, PNG, WebP, HEIC or static SVG to 'jpeg', 'png' or 'webp'. Options:
    * `quality` 40 to 95 and, for WebP, `lossless`. Adds `format`, `width`,
    * `height`, `input_format` and `input_bytes`.
    */
   imageConvert(file, format, options = {}) {
     return this.#upload('/image_convert', file, { format, quality: options.quality, lossless: options.lossless })
+  }
+
+  /** Trace PNG or JPEG to black SVG paths. Optional threshold is 1 to 99, default 50. */
+  imageVectorize(file, threshold) {
+    return this.#upload('/image_vectorize', file, { threshold })
   }
 
   /** Save again in its own format: JPEG and WebP at `quality` 40 to 95, PNG losslessly. Compare `bytes` with `input_bytes`. */

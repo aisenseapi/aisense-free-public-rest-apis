@@ -1,6 +1,6 @@
 # Page generators
 
-The eight image tool pages, the three image guides, the `/decide` and `/mock_response`
+The nine image tool pages, the three image guides, the `/decide` and `/mock_response`
 endpoint pages and the eight encoding endpoint pages in `web/` are generated.
 Change the generator or its data here, not the HTML, or the next build undoes
 the change. The Try boxes of the endpoint pages are written by
@@ -8,7 +8,7 @@ the change. The Try boxes of the endpoint pages are written by
 
 | Script | Writes in `web/` |
 |--------|------------------|
-| `make_image_pages.py` | `free-image-converter-api.html`, `free-heic-to-jpg-converter.html`, `free-image-resizer-api.html`, `free-image-compression-api.html`, `free-image-metadata-viewer-api.html`, `free-exif-remover-api.html`, `free-image-color-palette-api.html`, `free-favicon-generator-api.html` |
+| `make_image_pages.py` | `free-image-converter-api.html`, `free-image-vectorizer-api.html`, `free-heic-to-jpg-converter.html`, `free-image-resizer-api.html`, `free-image-compression-api.html`, `free-image-metadata-viewer-api.html`, `free-exif-remover-api.html`, `free-image-color-palette-api.html`, `free-favicon-generator-api.html` |
 | `make_post_photo_location.py` | `remove-gps-location-and-exif-data-from-photos.html`, plus its card in `ai-sense-posts.html` and its line in `sitemap.xml` |
 | `make_post_favicon.py` | `favicon-sizes-and-the-files-a-website-needs.html`, plus its card and sitemap line |
 | `make_post_convert.py` | `convert-heic-webp-png-and-jpg-images.html`, plus its card and sitemap line; the sizes in it come from `data/` |

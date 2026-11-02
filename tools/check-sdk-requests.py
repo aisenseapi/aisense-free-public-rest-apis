@@ -70,6 +70,8 @@ EXPECTED += [
     ("POST", "/json_format", "json", {"data": "{\"a\":1}", "mode": "compact", "indent": 4}, None, None),
     ("POST", "/json_validate", "json", {"data": "{"}, None, None),
     ("POST", "/image_convert", "form", {"format": "webp", "quality": "80", "lossless": "true"}, "image", None),
+    ("POST", "/image_vectorize", "form", {}, "image", None),
+    ("POST", "/image_vectorize", "form", {"threshold": "65"}, "image", None),
     ("POST", "/image_compress", "form", {"quality": "70"}, "image", None),
     ("POST", "/image_resize", "form", {"width": "800", "height": "600", "fit": "cover", "upscale": "false"}, "image", None),
     ("POST", "/image_metadata", "form", {}, "photo.png", None),
@@ -134,6 +136,8 @@ await api.tableMatch([{ id: '1' }], [{ id: '1' }], [{ left: 'id', right: 'id' }]
 await api.jsonFormat('{"a":1}', 'compact', 4)
 await api.jsonValidate('{')
 await api.imageConvert(image, 'webp', { quality: 80, lossless: true })
+await api.imageVectorize(image)
+await api.imageVectorize(image, 65)
 await api.imageCompress(image, 70)
 await api.imageResize(image, { width: 800, height: 600, fit: 'cover', upscale: false })
 await api.imageMetadata(new File([image], 'photo.png'))
@@ -286,6 +290,8 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.json_format('{"a":1}', "compact", 4)
     api.json_validate("{")
     api.image_convert(IMAGE, "webp", quality=80, lossless=True)
+    api.image_vectorize(IMAGE)
+    api.image_vectorize(IMAGE, threshold=65)
     api.image_compress(IMAGE, 70)
     api.image_resize(IMAGE, width=800, height=600, fit="cover", upscale=False)
     api.image_metadata(str(photo))

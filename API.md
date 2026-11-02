@@ -797,20 +797,20 @@ more level. The report does not contain the JSON itself.
 
 ## Images
 
-The seven image endpoints take one image as `multipart/form-data`, in a field
-named `file`: a JPEG, PNG or WebP of at most 10 MB. `image_convert` and
-`image_resize` also read HEIC, and `image_metadata` and `image_strip` also
-read GIF. The format is read from the first bytes of the file, and an
-animated image is converted from its first frame. Like the Convert endpoints,
+The eight image endpoints take one file as `multipart/form-data` in the
+`file` field. All read JPEG and PNG, and all except `image_vectorize` read
+WebP. `image_convert` and `image_resize` also read HEIC. `image_convert`
+alone accepts static SVG, and `image_metadata` and `image_strip` also read
+GIF. The upload limit is 10 MB for raster images and 1 MiB for SVG. Like the Convert endpoints,
 they store the result in [Storage](#storage---24h-ttl) for 24 hours and answer
 with the Storage fields plus `operation` and what the result is. A GET on
-`storage_url` returns the result with its own type.
+`storage_url` downloads the result.
 
-`image_convert`, `image_compress`, `image_resize`, `image_colors` and
-`image_favicon` decode the image, which may then be at most 25 megapixels. Every converted image is
+`image_convert`, `image_compress`, `image_resize`, `image_vectorize`, `image_colors` and
+`image_favicon` take raster images of at most 25 megapixels. Raster conversions use the first frame of an animated image. Each converted raster image is
 turned upright from its EXIF orientation, and EXIF, XMP, IPTC and comments are
-removed. The ICC color profile is kept, and a CMYK JPEG becomes RGB. Only
-`image_resize` changes the size. ImageMagick runs in a sandbox without network access, at most two
+removed. Raster-to-raster conversions keep the ICC color profile, and a CMYK JPEG becomes RGB.
+ImageMagick runs in a sandbox without network access, at most two
 images at a time; a third waits up to ten seconds and is then answered 503
 with `Retry-After`. A request may take 45 seconds, and a result may be 8 MB.
 
@@ -844,12 +844,13 @@ pixel.
 | 400 | A field is missing, unknown or out of range, the upload is not one whole file, or ImageMagick cannot read the image |
 | 405 | The method is not `POST` |
 | 413 | The upload, its number of pixels or the result is over a limit |
-| 415 | The body is not `multipart/form-data`, or the file is not a JPEG, PNG or WebP (or HEIC for `image_convert` and `image_resize`, GIF for `image_metadata` and `image_strip`) |
+| 415 | The body is not `multipart/form-data`, or this endpoint does not accept the uploaded format |
 | 429 | The request budget or the day's Storage budget is used up |
 | 503 | Two images are being converted already, the conversion took more than 45 seconds, or the service cannot convert right now |
 
 Each endpoint has a guide with a browser tool:
 [image converter](https://aisense.no/free-image-converter-api),
+[PNG or JPEG to SVG](https://aisense.no/free-image-vectorizer-api),
 [image compression](https://aisense.no/free-image-compression-api),
 [image metadata](https://aisense.no/free-image-metadata-viewer-api),
 [EXIF remover](https://aisense.no/free-exif-remover-api),
@@ -859,7 +860,7 @@ Each endpoint has a guide with a browser tool:
 ---
 
 ### `POST /image_convert`
-Converts between JPEG, PNG and WebP, and reads HEIC.
+Converts JPEG, PNG, WebP, HEIC or static SVG to JPEG, PNG or WebP.
 
 ```bash
 curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
@@ -869,7 +870,7 @@ curl -s -X POST https://aisenseapi.com/services/v1/image_convert \
 
 | Field | Required | Meaning |
 |-------|----------|---------|
-| `file` | yes | The image: JPEG, PNG, WebP or HEIC |
+| `file` | yes | JPEG, PNG, WebP, HEIC or static SVG |
 | `format` | yes | `jpeg`, `png` or `webp`; `jpg` is read as `jpeg` |
 | `quality` | no | 40 to 95, for JPEG and WebP; 82 when left out |
 | `lossless` | no | `true` or `false`, for WebP only; lossless takes no quality |
@@ -878,6 +879,54 @@ Transparency is kept in PNG and WebP and becomes white in a JPEG. PNG is
 lossless and takes no quality. WebP allows at most 16383 pixels per side.
 A HEIC from an iPhone is turned once, the way its irot box says, and keeps
 its color profile. HEIC cannot be written.
+
+For SVG, send UTF-8 XML with a positive width and height in pixels (unitless
+or `px`) or a `viewBox`. The renderer accepts basic shapes, paths and groups
+with solid fills, strokes and transforms. Convert lettering to paths and
+expand reusable shapes before uploading. Stylesheets, links, embedded images,
+gradients, filters, `use`, animation, scripts, DTDs and entities are rejected.
+The SVG must fit within 1 MiB, 4096 pixels per side and 4 megapixels,
+with at most 2048 elements and 32 levels of nesting.
+The response identifies the source as `input_format: "svg"`.
+
+Run this in a shell with curl and jq to render a transparent PNG and save it.
+
+```bash
+printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="24" fill="#2367ae"/></svg>' > mark.svg
+curl -fsS https://aisenseapi.com/services/v1/image_convert \
+  -F 'file=@mark.svg;type=image/svg+xml' -F 'format=png' -o converted.json &&
+curl -fsS "$(jq -er .storage_url converted.json)" -o mark.png
+```
+
+---
+
+### `POST /image_vectorize`
+
+Trace a PNG or JPEG logo, signature or scan into black SVG paths on a
+transparent background. The service flattens transparent input onto white,
+fits the whole image within 1024 × 1024 without cropping or enlarging it,
+and traces the dark pixels. The resulting SVG can be scaled or edited in a
+vector editor. Photographs lose their colors and shading.
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `file` | yes | PNG or JPEG, up to 10 MB and 25 megapixels |
+| `threshold` | no | Integer from 1 to 99, default 50. Higher values include lighter pixels in the foreground. |
+
+Use the PNG from the example above, or supply your own `mark.png`.
+
+```bash
+curl -fsS https://aisenseapi.com/services/v1/image_vectorize \
+  -F 'file=@mark.png' -F 'threshold=65' -o traced.json &&
+curl -fsS "$(jq -er .storage_url traced.json)" -o traced.svg
+```
+
+The POST returns the standard Storage fields and `content_type` of
+`image/svg+xml`, plus `filename`, `operation`, `format`, `width`, `height`,
+`input_format`, `input_bytes` and `threshold`. Storage serves the download as
+`application/octet-stream`. Save it with the `.svg` extension. An all-white
+image gives a transparent SVG. A trace with too much detail returns HTTP 413.
+The download link expires after 24 hours.
 
 ---
 
@@ -3332,7 +3381,7 @@ it keeps working. `fix` is there for a caller that cannot read the reference
 at the moment it fails, which is most of them: a script, an agent, or a
 program on someone else's schedule.
 
-The sweep is staged. Storage, the five Convert endpoints, the seven Images
+The sweep is staged. Storage, the five Convert endpoints, the eight Images
 endpoints, qrcode_decode, Agent Queue, Heartbeat, Lease, Agent Wake and Agent Inbox carry a
 fix on every refusal today. The rest of the catalog
 still answers with `error` alone, and is being converted family by family.
@@ -3381,6 +3430,7 @@ operations use JSON with the fields documented in their own sections.
 | `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
 | `/json_validate` | the same fields, plus `valid` |
 | `/image_convert`, `/image_compress` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| `/image_vectorize` | the same image result fields with `format` set to `svg`, plus `threshold` |
 | `/image_resize` | the same, and `input_width`, `input_height`, `fit`, `upscaled` |
 | `/image_metadata` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `gps`, `findings` |
 | `/image_strip` | the Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_bytes`, `removed`, `kept` |

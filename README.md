@@ -998,6 +998,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Convert | `/json_format` | POST | Storage fields, `content_type`, `filename`, `operation` |
 | Convert | `/json_validate` | POST | Storage fields, `content_type`, `filename`, `operation`, `valid` |
 | Images | `/image_convert` | POST | Storage fields, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| Images | [`/image_vectorize`](API.md#post-image_vectorize) | POST | PNG or JPEG to SVG paths. Storage fields, `format`, `width`, `height`, `input_format`, `input_bytes`, `threshold` |
 | Images | `/image_compress` | POST | Storage fields, `format`, `width`, `height`, `input_format`, `input_bytes` |
 | Images | `/image_resize` | POST | Storage fields, `format`, `width`, `height`, `input_width`, `input_height`, `fit`, `upscaled` |
 | Images | `/image_metadata` | POST | Storage fields, `format`, `width`, `height`, `gps`, `findings` |
