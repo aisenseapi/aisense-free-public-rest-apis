@@ -16,7 +16,7 @@ retry decisions.
 The server reports version `1.16.0` and offers 77 tools. The official MCP
 Registry lists `com.aisenseapi/free-public-tools` version `1.16.0` as active
 and latest, published 31 October 2026 at 16:00 UTC. Both are server release
-versions, separate from the agent guide resource version, which is 1.8.9.
+versions. The agent guide in this repository is resource version 1.8.10.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -130,7 +130,7 @@ proxy these tools either.
 | `html_markdown_convert` | Converts HTML to Markdown without scripts, styles or forms, or Markdown to HTML that is safe to put in a page |
 | `json_check` | Formats or validates JSON text, stored for 24 hours |
 | `match_tables` | Matches the rows of two tables on key columns, stored for 24 hours |
-| `process_image` | Converts, compresses, resizes, inspects or strips an image, or makes favicons |
+| `process_image` | Converts, compresses, resizes, inspects or strips an image, extracts colors, makes favicons or traces PNG/JPEG to SVG |
 | `decide` | Rules by default, optional Clef, Nimble or Tev1 model with its own usage limits |
 | `simulate_failure` | Gives a chosen status, delay or broken answer on purpose |
 | `schedule_webhook` | Schedules a POST to a public URL with a host name, not an IP address, once or repeatedly |
@@ -154,7 +154,10 @@ The tools from `encode_data` to `delete_semantic_search_note` run the same endpo
 code as REST, in the same process, so they give the same answers, limits and
 error texts. An error result keeps the REST status in `status_code`. Related
 endpoints share one tool with a parameter, such as `hash_data` with
-`algorithm`, and `process_image` covers all seven image endpoints.
+`algorithm`, and `process_image` covers all eight image endpoints. Use
+`operation: "convert"` and `format: "png"` (or `"jpeg"` or `"webp"`) to
+render a static SVG. Use `operation: "vectorize"` on PNG or JPEG to trace black SVG
+paths. Its optional top-level `threshold` is an integer from 1 to 99 (default 50).
 
 Files go in as base64, up to about 190 KB because an MCP request is at most
 256 KB, or as a `storage_id`: store a larger file with REST

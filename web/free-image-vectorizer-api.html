@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>PNG or JPEG to SVG path vectorizer | AI SENSE</title>
+<meta name="description" content="Trace a PNG or JPEG logo, signature or scan into black SVG paths on a transparent background. Adjust the threshold and download the SVG from 24-hour Storage.">
+<link rel="canonical" href="https://aisense.no/free-image-vectorizer-api">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AI SENSE">
+<meta property="og:title" content="Trace PNG or JPEG to SVG - AI SENSE">
+<meta property="og:description" content="Trace a PNG or JPEG logo, signature or scan into black SVG paths on a transparent background. Adjust the threshold and download the SVG from 24-hour Storage.">
+<meta property="og:url" content="https://aisense.no/free-image-vectorizer-api">
+<meta name="twitter:card" content="summary">
+
+<link rel="stylesheet" href="/assets/aisense.css?v=20261010a">
+<script src="/assets/aisense-theme.js?v=20261010a"></script>
+<link rel="stylesheet" href="/assets/aisense-tools.css?v=20261010a">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "PNG or JPEG to SVG vectorizer API",
+      "url": "https://aisense.no/free-image-vectorizer-api",
+      "documentation": "https://aisense.no/free-image-vectorizer-api",
+      "termsOfService": "https://aisense.no/terms",
+      "description": "Trace a PNG or JPEG logo, signature or scan into black SVG paths on a transparent background. Adjust the threshold and download the SVG from 24-hour Storage.",
+      "inLanguage": "en",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI SENSE AS",
+        "url": "https://aisense.no",
+        "address": {
+          "@type": "PostalAddress",
+          "postOfficeBoxNumber": "Postboks 1202 Vika",
+          "postalCode": "0110",
+          "addressLocality": "Oslo",
+          "addressCountry": "NO"
+        }
+      },
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://aisenseapi.com/services/v1/image_vectorize",
+          "httpMethod": "POST",
+          "contentType": "multipart/form-data",
+          "encodingType": "application/json"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Will the SVG keep my colors?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The SVG uses black paths on transparent space. Use the image converter for a full-color raster result."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I keep more of a faint drawing?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Raise the threshold to include lighter pixels. Lower it if shadows or paper texture start to appear."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://aisense.no/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free public REST APIs",
+          "item": "https://aisense.no/free-public-apis"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Trace PNG or JPEG to SVG"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header"><div class="inner"><a class="wordmark" href="/">AISENSE</a><nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle"><label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label><div class="site-menu-links"><div class="nav-item nav-has-panel nav-item-wide"><a class="nav-top" href="/free-public-apis">Free public REST APIs</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-apis"><label class="nav-sub-button" for="nav-sub-apis"><span class="visually-hidden">Show the API categories</span></label><div class="nav-panel"><div class="nav-groups"><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Agents and webhooks</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-agents"><label class="nav-sub-button" for="nav-sub-agents"><span class="visually-hidden">Show the agents and webhooks endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-agent-wake-api-endpoint">Agent <span class="agent-optimal-tail">Wake<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-handoff-api-endpoint">Agent <span class="agent-optimal-tail">Handoff<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-run-api-endpoint">Agent <span class="agent-optimal-tail">Run<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-agent-inbox-api-endpoint">Agent <span class="agent-optimal-tail">Inbox<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-lease-api-endpoint"><span class="agent-optimal-tail">Lease<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a></li><li><a href="/free-public-api-webhook-action-api-endpoint">Webhook <span class="agent-optimal-tail">action<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-webhook-schedule-api-endpoint">Webhook schedule</a></li><li><a href="/free-public-api-dns-name-api-endpoint">Temporary DNS names</a></li><li><a href="/free-public-api-semantic-search-api-endpoint">Semantic <span class="agent-optimal-tail">search<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-decide-api-endpoint"><span class="agent-optimal-tail">Decide<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a></li><li><a href="/free-public-api-mock-response-api-endpoint">Mock response</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/aisense-aiq">AIQ agent <span class="agent-optimal-tail">tests<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-aiq"><label class="nav-sub-button" for="nav-sub-aiq"><span class="visually-hidden">Show the aiq agent tests endpoints</span></label><ul class="nav-list"><li><a href="/aisense-aiq-versions#ard">ard, 100 tasks</a></li><li><a href="/aisense-aiq-versions#bri">bri, 100 scenarios</a></li><li><a href="/aisense-aiq-versions#cen">cen, twenty criteria</a></li><li><a href="/aisense-aiq-versions#dar">dar, team work over Aamio</a></li><li><a href="/aisense-aiq-versions#emi">emi, a factory and its panel</a></li><li><a href="/aisense-aiq-versions#fup">fup, judgment under pressure</a></li><li><a href="/aisense-aiq-versions#gol">gol, its own language</a></li><li><a href="/aisense-aiq-versions#hal">hal, a colony to keep</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/time-apis">Time</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-time"><label class="nav-sub-button" for="nav-sub-time"><span class="visually-hidden">Show the time endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-datetime-api-endpoint">Datetime</a></li><li><a href="/free-public-api-ip-datetime-api-endpoint">IP datetime</a></li><li><a href="/free-public-api-timestamp-api-endpoint">Timestamp</a></li><li><a href="/free-public-api-microtimestamp-api-endpoint">Microtimestamp</a></li><li><a href="/free-public-api-timezones-api-endpoint">Timezones</a></li><li><a href="/free-public-api-timestamp-convert-api-endpoint">Timestamp convert</a></li><li><a href="/free-public-api-swatchinternettime-api-endpoint">Swatch Internet Time</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/hashing-apis">Hashing</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-hashing"><label class="nav-sub-button" for="nav-sub-hashing"><span class="visually-hidden">Show the hashing endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-sha256-hash-api-endpoint">SHA256</a></li><li><a href="/free-public-api-sha512-hash-api-endpoint">SHA512</a></li><li><a href="/free-public-api-sha3-256-hash-api-endpoint">SHA3-256</a></li><li><a href="/free-public-api-sha3-512-hash-api-endpoint">SHA3-512</a></li><li><a href="/free-public-api-blake2b-hash-api-endpoint">BLAKE2b</a></li><li><a href="/free-public-api-blake3-hash-api-endpoint">BLAKE3</a></li><li><a href="/free-public-api-md5-hash-api-endpoint">MD5</a></li><li><a href="/free-public-api-sha1-hash-api-endpoint">SHA1</a></li><li><a href="/free-public-api-whirlpool-hash-api-endpoint">Whirlpool</a></li><li><a href="/free-public-api-crc32-checksum-api-endpoint">CRC32</a></li><li><a href="/free-public-api-argon2id-hash-api-endpoint">Argon2id</a></li><li><a href="/free-public-api-bcrypt-hash-api-endpoint">bcrypt</a></li><li><a href="/free-public-api-scrypt-hash-api-endpoint">scrypt</a></li><li><a href="/free-public-api-hash-verify-api-endpoint">Hash verify</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/encoding-apis">Encoding</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-encoding"><label class="nav-sub-button" for="nav-sub-encoding"><span class="visually-hidden">Show the encoding endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-base64-encode-api-endpoint">Base64 encode</a></li><li><a href="/free-public-api-base64-decode-api-endpoint">Base64 decode</a></li><li><a href="/free-public-api-base58-encode-api-endpoint">Base58 encode</a></li><li><a href="/free-public-api-base58-decode-api-endpoint">Base58 decode</a></li><li><a href="/free-public-api-base32-encode-api-endpoint">Base32 encode</a></li><li><a href="/free-public-api-base32-decode-api-endpoint">Base32 decode</a></li><li><a href="/free-public-api-base64url-encode-api-endpoint">base64url encode</a></li><li><a href="/free-public-api-base64url-decode-api-endpoint">base64url decode</a></li><li><a href="/free-public-api-hex-encode-api-endpoint">Hex encode</a></li><li><a href="/free-public-api-hex-decode-api-endpoint">Hex decode</a></li><li><a href="/free-public-api-url-encode-api-endpoint">URL encode</a></li><li><a href="/free-public-api-url-decode-api-endpoint">URL decode</a></li><li><a href="/free-public-api-html-encode-api-endpoint">HTML encode</a></li><li><a href="/free-public-api-html-decode-api-endpoint">HTML decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#transform">Text and tokens</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-text"><label class="nav-sub-button" for="nav-sub-text"><span class="visually-hidden">Show the text and tokens endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-slugify-api-endpoint">Slugify</a></li><li><a href="/free-public-api-html-to-markdown-api-endpoint">HTML to Markdown</a></li><li><a href="/free-public-api-markdown-to-html-api-endpoint">Markdown to HTML</a></li><li><a href="/free-public-api-jwt-encode-api-endpoint">JWT encode</a></li><li><a href="/free-public-api-jwt-decode-api-endpoint">JWT decode</a></li><li><a href="/free-public-api-qr-code-encode-api-endpoint">QR code encode</a></li><li><a href="/free-public-api-qr-code-decode-api-endpoint">QR code decode</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#convert">JSON and tables</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-data"><label class="nav-sub-button" for="nav-sub-data"><span class="visually-hidden">Show the json and tables endpoints</span></label><ul class="nav-list"><li><a href="/free-json-to-csv-api">JSON to CSV</a></li><li><a href="/free-csv-to-json-api">CSV to JSON</a></li><li><a href="/free-json-formatter-api">JSON formatter</a></li><li><a href="/free-json-validator-api">JSON validator</a></li><li><a href="/free-table-matching-api">Table matching</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#images">Images</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-images"><label class="nav-sub-button" for="nav-sub-images"><span class="visually-hidden">Show the images endpoints</span></label><ul class="nav-list"><li><a href="/free-image-converter-api">Image converter</a></li><li><a href="/free-image-vectorizer-api">PNG or JPEG to SVG</a></li><li><a href="/free-heic-to-jpg-converter">HEIC to JPG</a></li><li><a href="/free-image-resizer-api">Image resizer</a></li><li><a href="/free-image-compression-api">Image compression</a></li><li><a href="/free-image-metadata-viewer-api">Image metadata</a></li><li><a href="/free-exif-remover-api">EXIF remover</a></li><li><a href="/free-image-color-palette-api">Color palette</a></li><li><a href="/free-favicon-generator-api">Favicon generator</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#web">Web and network</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-web"><label class="nav-sub-button" for="nav-sub-web"><span class="visually-hidden">Show the web and network endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-ping-api-endpoint">Ping</a></li><li><a href="/free-public-api-health-api-endpoint">Health</a></li><li><a href="/free-public-api-client-ip-api-endpoint">Client IP</a></li><li><a href="/free-public-api-user-agent-api-endpoint">User agent</a></li><li><a href="/free-public-api-ip-reverse-lookup-api-endpoint">IP reverse lookup</a></li><li><a href="/free-public-api-domain-ip-lookup-api-endpoint">Domain IP lookup</a></li><li><a href="/free-public-api-email-validate-api-endpoint">Email validation</a></li><li><a href="/free-public-api-validate-api-endpoint">Check digit validation</a></li><li><a href="/free-public-api-url-shortener-api-endpoint">URL shortener</a></li><li><a href="/free-public-api-html-to-pdf-api-endpoint">HTML to PDF</a></li><li><a href="/free-public-api-storage-api-endpoint">Storage</a></li><li><a href="/free-public-api-one-time-secret-api-endpoint">One-time Secret</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/random-generator-apis">Random</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-random"><label class="nav-sub-button" for="nav-sub-random"><span class="visually-hidden">Show the random endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-uuid-api-endpoint">UUID</a></li><li><a href="/free-public-api-guid-api-endpoint">GUID</a></li><li><a href="/free-public-api-password-api-endpoint">Password</a></li><li><a href="/free-public-api-passphrase-api-endpoint">Passphrase</a></li><li><a href="/free-public-api-random-number-api-endpoint">Random number</a></li><li><a href="/free-public-api-random-color-api-endpoint">Random color</a></li></ul></div><div class="nav-group"><a class="nav-group-title" href="/free-public-apis#crypto">Crypto</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-crypto"><label class="nav-sub-button" for="nav-sub-crypto"><span class="visually-hidden">Show the crypto endpoints</span></label><ul class="nav-list"><li><a href="/free-public-api-bitcoin-balance-api-endpoint">Bitcoin balance</a></li><li><a href="/free-public-api-bitcoin-generate-new-wallet-api-endpoint">Bitcoin wallet</a></li><li><a href="/free-public-api-ethereum-balance-api-endpoint">Ethereum balance</a></li><li><a href="/free-public-api-ethereum-generate-new-wallet-api-endpoint">Ethereum wallet</a></li><li><a href="/free-public-api-solana-balance-api-endpoint">Solana balance</a></li><li><a href="/free-public-api-solana-generate-new-wallet-api-endpoint">Solana wallet</a></li></ul></div></div><p class="nav-panel-foot"><a href="/free-public-apis">Every endpoint in one list</a><a href="/free-public-mcp-server">The same endpoints as MCP tools</a></p></div></div><div class="nav-item nav-has-panel"><a class="nav-top" href="/free-public-mcp-server">Free MCP server</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-mcp"><label class="nav-sub-button" for="nav-sub-mcp"><span class="visually-hidden">Show the agent protocol pages</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/free-public-mcp-server">MCP server</a></li><li><a href="/free-public-a2a-agent-endpoint">Agent2Agent (A2A)</a></li></ul></div></div><div class="nav-item"><a class="nav-top" href="/custom-apis">Custom APIs</a></div><div class="nav-item"><a class="nav-top" href="/make-your-data-available-for-ai">AI data feed</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/ai-sense-posts">Posts</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-posts"><label class="nav-sub-button" for="nav-sub-posts"><span class="visually-hidden">Show the latest posts</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/an-agent-that-outlives-its-run">An Agent That Outlives Its Run</a></li><li><a href="/a-plan-that-runs-while-you-are-away">A Plan That Runs While You Are Away</a></li><li><a href="/a-handoff-that-refuses-the-wrong-move">A Handoff That Refuses the Wrong Move</a></li><li><a href="/a-secret-link-that-opens-once">A Secret Link That Opens Once</a></li><li><a href="/agentsync-max">AgentSync MAX: Keep the Project Together Across Coding Agents</a></li></ul><p class="nav-panel-foot"><a href="/ai-sense-posts">All posts</a></p></div></div><div class="nav-item"><a class="nav-top" href="/contact-us">Contact us</a></div><div class="nav-item nav-has-panel nav-item-end"><a class="nav-top" href="/about">About</a><input class="nav-sub-toggle" type="checkbox" id="nav-sub-about"><label class="nav-sub-button" for="nav-sub-about"><span class="visually-hidden">Show the company and its services</span></label><div class="nav-panel"><ul class="nav-list"><li><a href="/about">About AI SENSE AS<span class="nav-desc">The company in Oslo behind the services</span></a></li></ul><p class="nav-panel-label">Services</p><ul class="nav-list"><li><a href="/free-public-apis">Free public REST APIs<span class="nav-desc">Utility endpoints with no account or key</span></a></li><li><a href="/free-public-mcp-server">Free MCP server<span class="nav-desc">Tools for an AI agent at one URL</span></a></li><li><a href="/custom-apis">Custom APIs<span class="nav-desc">APIs and integrations built to order</span></a></li><li><a href="/make-your-data-available-for-ai">AI data feed<span class="nav-desc">Your text and documents in feeds AI can read</span></a></li><li><a href="/aamio">aamio<span class="nav-desc">Where agents that have never met exchange messages</span></a></li><li><a href="/verifyum">Verifyum<span class="nav-desc">Private file proofs on Solana Mainnet</span></a></li></ul></div></div></div><button class="theme-toggle" type="button" aria-pressed="false" aria-label="Dark theme" title="Dark theme"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg></button></nav></div></header>
+
+<main>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a> / <a href="/free-public-apis">Free public REST APIs</a> / Trace PNG or JPEG to SVG
+</nav>
+
+<div class="hero">
+  <h1>Trace PNG or JPEG to SVG</h1>
+  <p class="lede">Upload a dark logo, signature or line drawing on a light background. The vectorizer follows the outlines and writes black SVG paths that you can scale or edit. Choose a higher threshold to pick up faint pencil lines or a lower one to leave out a gray paper background.</p>
+
+  <div class="tool-lead-api">
+    <div class="api-window">
+      <div class="api-window-bar">The whole API</div>
+      <div class="api-window-body"><pre><code>curl -fsS https://aisenseapi.com/services/v1/image_vectorize \
+  -F "file=@mark.png" \
+  -F "threshold=65" -o traced.json &amp;&amp;
+curl -fsS "$(jq -er .storage_url traced.json)" -o traced.svg</code></pre></div>
+    </div>
+    <div class="tool-badges">
+      <span>PNG or JPEG input</span>
+      <span>Black SVG paths</span>
+      <span>No API key</span>
+      <span>24-hour Storage</span>
+    </div>
+  </div>
+</div>
+
+<h2 id="try">Try it in the browser</h2>
+<p>This form posts your image to the same endpoint and shows the stored result. The image is sent to aisenseapi.com, and the result is kept for 24 hours at a link that anyone with the link can open.</p>
+
+<div class="tool-card">
+  <noscript>
+    <p class="tool-noscript"><strong>The form needs JavaScript.</strong> The endpoint itself is plain HTTP and works from curl, a script or an agent. The request is at the top of the page.</p>
+  </noscript>
+  <form id="tool-form">
+    <div class="tool-drop tool-drop-large" id="tool-drop" role="button" tabindex="0">
+      <strong>Drop an image here</strong>
+      <small>or click to choose one, or paste it with Ctrl+V. JPEG or PNG, up to 10 MB.</small>
+    </div>
+    <input type="file" id="tool-file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" hidden>
+    <div class="tool-chosen" id="tool-chosen" hidden>
+      <img id="tool-thumb" alt="The image you chose">
+      <p class="tool-meta" id="tool-chosen-text"></p>
+    </div>
+    <div class="tool-field">
+      <label for="tool-threshold">Threshold (%)</label>
+      <input type="number" id="tool-threshold" min="1" max="99" step="1" value="50" required>
+    </div>
+    <div class="tool-actions">
+      <button type="submit" class="button button-primary" id="tool-submit" disabled>Trace SVG</button>
+    </div>
+  </form>
+  <div class="tool-result" id="tool-result" aria-live="polite"></div>
+</div>
+
+<h2 id="how">What gets traced</h2>
+<p>The service places transparent pixels on white and fits the whole image inside 1024 × 1024, preserving its proportions. Smaller images keep their size. Pixels darker than the threshold form the black foreground. The remaining area is transparent. This works best for silhouettes and line art. In a photograph, color and shading collapse into a single foreground shape or a set of outlines.</p>
+
+<h2 id="api">Trace and download</h2>
+<p>Send <code>POST /services/v1/image_vectorize</code> as <code>multipart/form-data</code>.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Field</th><th>Required</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td><code>file</code></td><td>yes</td><td>A JPEG or PNG up to 10 MB and 25 megapixels.</td></tr>
+    <tr><td><code>threshold</code></td><td>no</td><td>An integer from 1 to 99. The default is 50.</td></tr>
+  </tbody>
+</table></div>
+<p>The command at the top uses curl and jq. Give it a local <code>mark.png</code>, use <code>file=@scan.jpg</code> for a JPEG, or create a sample PNG with the <a href="/free-image-converter-api#svg">SVG-to-PNG example</a>. The POST saves a JSON receipt to <code>traced.json</code>. The GET downloads the SVG into <code>traced.svg</code>.</p>
+
+<h2 id="storage">Result fields</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>storage_id</code>, <code>storage_url</code></td><td>Where the result is. A GET on the URL returns it.</td></tr>
+    <tr><td><code>sha256_hash</code>, <code>bytes</code></td><td>The digest and size of the stored result.</td></tr>
+    <tr><td><code>expire_timestamp</code>, <code>expire_datetime</code></td><td>When the result is removed, 24 hours after it was stored.</td></tr>
+    <tr><td><code>content_type</code>, <code>format</code>, <code>filename</code></td><td><code>image/svg+xml</code>, <code>svg</code>, and the suggested download name.</td></tr>
+    <tr><td><code>operation</code>, <code>threshold</code></td><td><code>image_vectorize</code> and the threshold used for the trace.</td></tr>
+    <tr><td><code>width</code>, <code>height</code></td><td>Dimensions of the traced image.</td></tr>
+    <tr><td><code>input_format</code>, <code>input_bytes</code></td><td>Format and size of the uploaded image.</td></tr>
+  </tbody>
+</table></div>
+<p>The receipt identifies the file as <code>image/svg+xml</code>. Storage serves the bytes as <code>application/octet-stream</code>, so use the download button or save the file as <code>result.svg</code>. The link expires after 24 hours. A white image produces a transparent SVG. If a detailed trace returns HTTP 413, simplify or downsize the source and try again.</p>
+
+<h2 id="errors">Errors</h2>
+<p>A refused request stores nothing and answers with <code>error</code>. The endpoint's own refusals also carry <code>fix</code>, a sentence saying what to send instead.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>400</code></td><td>The threshold is outside 1 to 99, a field is invalid or the image cannot be decoded.</td></tr>
+    <tr><td><code>405</code></td><td>The method is not <code>POST</code>.</td></tr>
+    <tr><td><code>413</code></td><td>The upload, its number of pixels or the result is over a limit.</td></tr>
+    <tr><td><code>415</code></td><td>The body is not <code>multipart/form-data</code>, or the file is not a JPEG or PNG.</td></tr>
+    <tr><td><code>429</code></td><td>More than 5000 requests from one IP address per day, or the day's Storage budget is used up.</td></tr>
+    <tr><td><code>503</code></td><td>The image service is busy, timed out or unavailable.</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="faq">Questions</h2>
+
+<h3>Will the SVG keep my colors?</h3>
+<p>The SVG uses black paths on transparent space. Use the image converter for a full-color raster result.</p>
+
+<h3>How do I keep more of a faint drawing?</h3>
+<p>Raise the threshold to include lighter pixels. Lower it if shadows or paper texture start to appear.</p>
+
+<h2 id="related">Related tools</h2>
+<ul>
+  <li><a href="/free-image-converter-api">Image converter</a>, <a href="/free-image-resizer-api">image resizer</a> and <a href="/free-image-compression-api">image compression</a>, and the <a href="/free-heic-to-jpg-converter">HEIC to JPG converter</a> for iPhone photos</li>
+  <li><a href="/free-image-metadata-viewer-api">Image metadata viewer</a> and <a href="/free-exif-remover-api">EXIF remover</a></li>
+  <li><a href="/free-image-vectorizer-api">PNG or JPEG to SVG</a> for tracing a logo, signature or scan into paths</li>
+  <li>Guide: <a href="/convert-heic-webp-png-and-jpg-images">how to convert HEIC, WebP, PNG and JPG, and make images smaller</a></li>
+  <li>Guide: <a href="/remove-gps-location-and-exif-data-from-photos">how to see and remove the location hidden in your photos</a></li>
+  <li><a href="/free-image-color-palette-api">Color palette</a> and <a href="/free-favicon-generator-api">favicon generator</a></li>
+  <li>Guide: <a href="/favicon-sizes-and-the-files-a-website-needs">favicon sizes and the files a website needs</a></li>
+  <li><a href="/free-json-to-csv-api">JSON to CSV</a>, <a href="/free-csv-to-json-api">CSV to JSON</a> and <a href="/free-table-matching-api">table matching</a></li>
+  <li><a href="/free-json-formatter-api">JSON formatter</a> and <a href="/free-json-validator-api">JSON validator</a></li>
+  <li><a href="/upload">File uploader</a> and the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a>, where every result is kept for 24 hours</li>
+</ul>
+
+<p class="button-row"><a class="button button-secondary" href="/free-public-apis#images">All image endpoints</a> <a class="button button-light" href="/free-public-apis">All free public APIs</a></p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="inner">
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/free-public-apis">Free public REST APIs</a></li>
+        <li><a href="/free-public-mcp-server">Free MCP server</a></li>
+        <li><a href="/custom-apis">Custom APIs</a></li>
+        <li><a href="/ai-sense-posts">Posts</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact-us">Contact us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </nav>
+    <address>
+      <strong>AI SENSE AS</strong><br>
+      Postboks 1202 Vika<br>
+      0110 Oslo<br>
+      Norway
+    </address>
+    <p>Free public and custom REST APIs. Copyright 2026 AI SENSE AS</p>
+  </div>
+</footer>
+
+<script src="/assets/aisense-tools.js"></script>
+<script>
+(function () {
+  var T = window.AisenseTools;
+  var form = document.getElementById('tool-form');
+  var submit = document.getElementById('tool-submit');
+  var chosen = document.getElementById('tool-chosen');
+  var thumb = document.getElementById('tool-thumb');
+  var chosenText = document.getElementById('tool-chosen-text');
+  var result = document.getElementById('tool-result');
+  var accepts = ['jpeg', 'png'];
+  var acceptsText = 'JPEG or PNG';
+  if (!T || !form) { return; }
+  var names = { jpeg: 'JPEG', png: 'PNG', webp: 'WebP', heic: 'HEIC', gif: 'GIF', svg: 'SVG' };
+  var hevc = ['heic', 'heix', 'heim', 'heis', 'hevc', 'hevx'];
+  var file = null;
+  var chosenFormat = null;
+  var thumbUrl = null;
+
+  function formatOf(picked) {
+    return picked.slice(0, 64).arrayBuffer().then(function (buffer) {
+      var b = new Uint8Array(buffer);
+      var text = function (from, to) { return String.fromCharCode.apply(null, b.subarray(from, to)); };
+      if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) { return 'jpeg'; }
+      if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) { return 'png'; }
+      if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP') { return 'webp'; }
+      if (text(0, 6) === 'GIF87a' || text(0, 6) === 'GIF89a') { return 'gif'; }
+      if (b.length >= 16 && text(4, 8) === 'ftyp') {
+        var end = Math.min(b.length, ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0);
+        var brands = [text(8, 12)];
+        for (var at = 16; at + 4 <= end; at += 4) { brands.push(text(at, at + 4)); }
+        if (brands[0] !== 'avif' && brands[0] !== 'avis' && brands.some(function (brand) { return hevc.indexOf(brand) !== -1; })) { return 'heic'; }
+      }
+      // SVG validation belongs to the renderer. Use the name or MIME type as
+      // a picker hint, including for XML with a long prolog. Never preview it locally.
+      if (/\.svg$/i.test(picked.name) || picked.type === 'image/svg+xml'
+          || /^\s*(?:<\?xml\s|<svg[\s/>])/.test(new TextDecoder().decode(b))) { return 'svg'; }
+      return null;
+    });
+  }
+
+  function choose(picked, done) {
+    file = picked;
+    submit.disabled = true;
+    T.clear(result);
+    formatOf(picked).then(function (kind) {
+      var preview = accepts.indexOf(kind) !== -1 && kind !== 'svg' ? T.imageSize(picked) : null;
+      return Promise.all([preview, kind]);
+    }).then(function (read) {
+      var size = read[0];
+      if (file !== picked) {
+        if (size) { URL.revokeObjectURL(size.url); }
+        return;
+      }
+      chosenFormat = read[1];
+      if (thumbUrl) { URL.revokeObjectURL(thumbUrl); }
+      thumbUrl = size ? size.url : null;
+      if (thumbUrl) { thumb.src = thumbUrl; } else { thumb.removeAttribute('src'); }
+      thumb.hidden = !thumbUrl;
+      chosen.hidden = false;
+      chosenText.textContent = picked.name + ', ' + (chosenFormat ? names[chosenFormat] + ', ' : '') + T.bytes(picked.size)
+        + (size ? ', ' + size.width + ' x ' + size.height + ' pixels' : '');
+      var taken = !!chosenFormat && accepts.indexOf(chosenFormat) !== -1;
+      if (!taken) {
+        var error = new Error(chosenFormat === 'heic' ? 'HEIC is read by the image converter and the image resizer only.' : 'This is not a ' + acceptsText + ' image.');
+        error.fix = chosenFormat === 'heic' ? 'Convert it to JPEG on the image converter page first.' : 'Choose a ' + acceptsText + ' file.';
+        T.showError(result, error);
+      } else if (chosenFormat === 'svg' && picked.size > 1048576) {
+        taken = false;
+        T.showError(result, new Error('The SVG exceeds the 1 MiB upload limit.'));
+      }
+      submit.disabled = !taken;
+      done();
+    });
+  }
+  T.imageDrop(document.getElementById('tool-drop'), document.getElementById('tool-file'), function (picked) {
+    choose(picked, function () {});
+  });
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!file || submit.disabled || !form.reportValidity()) { return; }
+    var source = file;
+    submit.disabled = true;
+    T.busy(result, 'Tracing outlines...');
+    T.postFile('image_vectorize', file, { threshold: document.getElementById('tool-threshold').value }).then(function (answer) {
+      if (file === source) {
+        T.showStored(result, answer, { summary: answer.width + ' × ' + answer.height + ' SVG at threshold ' + answer.threshold + '%.' });
+      }
+    }).catch(function (error) {
+      if (file === source) { T.showError(result, error); }
+    }).then(function () {
+      if (file === source) { submit.disabled = false; }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

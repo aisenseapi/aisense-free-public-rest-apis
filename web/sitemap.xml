@@ -2,8 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aisense.no/</loc><lastmod>2026-10-10</lastmod></url>
   <url><loc>https://aisense.no/llms.txt</loc><lastmod>2026-10-31</lastmod></url>
-  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-10-31</lastmod></url>
-  <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-10-31</lastmod></url>
+  <url><loc>https://aisense.no/free-public-apis</loc><lastmod>2026-11-02</lastmod></url>
+  <url><loc>https://aisense.no/free-public-mcp-server</loc><lastmod>2026-11-02</lastmod></url>
   <url><loc>https://aisense.no/free-public-a2a-agent-endpoint</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-agent-wake-api-endpoint</loc><lastmod>2026-09-01</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-heartbeat-api-endpoint</loc><lastmod>2026-09-05</lastmod></url>
@@ -58,7 +58,8 @@
   <url><loc>https://aisense.no/free-table-matching-api</loc><lastmod>2026-09-30</lastmod></url>
   <url><loc>https://aisense.no/free-json-formatter-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-json-validator-api</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://aisense.no/free-image-converter-api</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://aisense.no/free-image-converter-api</loc><lastmod>2026-11-02</lastmod></url>
+  <url><loc>https://aisense.no/free-image-vectorizer-api</loc><lastmod>2026-11-02</lastmod></url>
   <url><loc>https://aisense.no/free-image-compression-api</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-heic-to-jpg-converter</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://aisense.no/free-image-metadata-viewer-api</loc><lastmod>2026-10-10</lastmod></url>

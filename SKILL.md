@@ -229,6 +229,22 @@ to about 190 KB.
 
 ---
 
+## SVG image conversion
+
+Use `POST /image_convert` to render a static UTF-8 SVG. Supply its bytes in
+the multipart field `file` and set `format` to `png`, `jpeg` or `webp`.
+Supported drawings use paths or basic shapes with solid fills and strokes.
+The SVG limit is 1 MiB, 4096 pixels per side and 4 megapixels.
+
+Use `POST /image_vectorize` to trace a PNG or JPEG logo, signature or scan
+into black SVG paths on transparent space. Send `file` as multipart data.
+The optional integer `threshold` runs from 1 to 99 and defaults to 50.
+Larger values include lighter pixels. Both endpoints return JSON with a
+24-hour `storage_url`. Save the vector result as `result.svg`. See the
+[request and download examples](API.md#post-image_vectorize).
+
+---
+
 ## Hash
 
 All POST. Accept JSON, plain text, or file upload. **Each returns a key named
@@ -811,6 +827,8 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/jwt_encode` | POST | `jwt` |
 | `/jwt_decode` | POST | `decoded_payload` |
 | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
+| `/image_convert` | POST | Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
+| `/image_vectorize` | POST | The same image result fields, plus `threshold` |
 | `/qrcode_decode` | POST | `qrcode_content` |
 | `/md5_hash` | POST | `md5_hash` |
 | `/sha1_hash` | POST | `sha1_hash` |
