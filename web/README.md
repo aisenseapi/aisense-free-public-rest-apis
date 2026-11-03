@@ -74,6 +74,7 @@ single row here. Each one is listed in `sitemap.xml`.
 | `aisense-aiq.html` | `/aisense-aiq` - with its card, `assets/aisense-aiq.png`, and `assets/copy-text.js` for the button that copies the agent instructions |
 | `aisense-aiq-versions.html` | `/aisense-aiq-versions` - every AIQ version in a box that opens and closes, with `assets/aisense-aiq-versions.css`, and `assets/copy-text.js` for the button that copies the bri instructions |
 | `can-your-ai-agent-run-a-factory.html` | `/can-your-ai-agent-run-a-factory` - emi as a test: the five phases, the panel, the points, the signature, the Verifyum anchor and the zip, with the emi part of the AIQ start block; its card, `assets/aisense-aiq-emi-factory.jpg`, shows a run at the finish |
+| `can-your-ai-agent-manage-thirteen-funds.html` | `/can-your-ai-agent-manage-thirteen-funds` - the inv post: thirteen funds, their documents, the Risk Engine and its fees, the scale and the observer page, with the inv instructions and their copy button; its card, `assets/aisense-aiq-inv-funds.jpg`, shows an invented case |
 | `watch-an-ai-agent-take-a-test-live.html` | `/watch-an-ai-agent-take-a-test-live` - the emi post, with its card, `assets/aisense-aiq-emi-live.jpg`, an animated GIF of a whole run on the observer page, `assets/aisense-aiq-emi-observer.gif`, and `assets/copy-text.js` for the button that copies the agent instructions |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
