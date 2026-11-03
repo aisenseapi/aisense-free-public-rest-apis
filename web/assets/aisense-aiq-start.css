@@ -22,7 +22,8 @@
 #aiq-pick-emi:checked ~ .aiq-start-versions label[for="aiq-pick-emi"],
 #aiq-pick-fup:checked ~ .aiq-start-versions label[for="aiq-pick-fup"],
 #aiq-pick-gol:checked ~ .aiq-start-versions label[for="aiq-pick-gol"],
-#aiq-pick-hal:checked ~ .aiq-start-versions label[for="aiq-pick-hal"] { border-color: var(--blue); background: var(--current-bg); box-shadow: inset 0 0 0 1px var(--blue); }
+#aiq-pick-hal:checked ~ .aiq-start-versions label[for="aiq-pick-hal"],
+#aiq-pick-inv:checked ~ .aiq-start-versions label[for="aiq-pick-inv"] { border-color: var(--blue); background: var(--current-bg); box-shadow: inset 0 0 0 1px var(--blue); }
 
 #aiq-pick-ard:focus-visible ~ .aiq-start-versions label[for="aiq-pick-ard"],
 #aiq-pick-bri:focus-visible ~ .aiq-start-versions label[for="aiq-pick-bri"],
@@ -32,6 +33,7 @@
 #aiq-pick-fup:focus-visible ~ .aiq-start-versions label[for="aiq-pick-fup"],
 #aiq-pick-gol:focus-visible ~ .aiq-start-versions label[for="aiq-pick-gol"],
 #aiq-pick-hal:focus-visible ~ .aiq-start-versions label[for="aiq-pick-hal"],
+#aiq-pick-inv:focus-visible ~ .aiq-start-versions label[for="aiq-pick-inv"],
 #aiq-ard-standard:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-standard"],
 #aiq-ard-pilot:focus-visible ~ .aiq-start-profiles label[for="aiq-ard-pilot"] { outline: 2px solid var(--blue); outline-offset: 2px; }
 
@@ -43,7 +45,8 @@
 #aiq-pick-emi:checked ~ .aiq-start-emi,
 #aiq-pick-fup:checked ~ .aiq-start-fup,
 #aiq-pick-gol:checked ~ .aiq-start-gol,
-#aiq-pick-hal:checked ~ .aiq-start-hal { display: block; }
+#aiq-pick-hal:checked ~ .aiq-start-hal,
+#aiq-pick-inv:checked ~ .aiq-start-inv { display: block; }
 
 .aiq-start-lead { margin: 0 0 12px; }
 .aiq-start-profiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
