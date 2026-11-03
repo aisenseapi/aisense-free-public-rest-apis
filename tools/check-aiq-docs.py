@@ -37,7 +37,7 @@ versions = text("web/aisense-aiq-versions.html")
 api = text("API.md")
 llms = text("web/llms.txt")
 nav = text("tools/site_nav.py")
-for version in ("bri", "cen", "dar", "emi", "fup", "gol", "hal"):
+for version in ("bri", "cen", "dar", "emi", "fup", "gol", "hal", "inv"):
     left = instructions(post, "aiq-" + version + "-instructions")
     right = instructions(versions, version + "-agent-instructions")
     check(left == right, version + " copy buttons must give identical instructions")
@@ -157,6 +157,24 @@ for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llm
     check("seven versions" not in normalized, label + " still counts seven versions")
     check("no score" in normalized, label + " must say that hal gives no score")
     check("maximum score of 100" not in normalized and "hal score" not in normalized, label + " must not give hal a score")
+inv = instructions(post, "aiq-inv-instructions")
+for required in ("POST https://aisenseapi.com/services/v1/aiq/start/inv", "observer.message", "Never show the write_token", "/begin",
+                 "observer_link_shown", "/cases", "/price", "/answer", "/finish", "request_id", "naming every Instrument of the case",
+                 "copied without retyping"):
+    check(required in inv, "INV instructions missing " + required)
+inv_section = re.search(r'<details class="aiq-version" id="inv">([\s\S]*?)</details>', versions)
+check(inv_section is not None and '<time datetime="2026-11-03">3 November 2026</time>' in inv_section.group(1),
+      "INV release date must be 3 November 2026")
+check("Since 3 November 2026, experimental" in post, "INV information panel has another date")
+check("inv, thirteen funds to allocate" in nav and "inv, thirteen funds to allocate under their documents" in llms, "Navigation and llms.txt must list INV")
+inv_post = text("web/can-your-ai-agent-manage-thirteen-funds.html")
+check(instructions(inv_post, "post-inv-instructions") == inv, "The INV post must give the same instructions as the AIQ page")
+for source, label in ((post, "post"), (versions, "versions"), (api, "API"), (llms, "llms.txt"), (inv_post, "INV post")):
+    normalized = " ".join(source.split()).lower()
+    check("eight versions" not in normalized, label + " still counts eight versions")
+    if label in ("post", "versions", "INV post"):
+        check("not calibrated" in normalized or "not been calibrated" in normalized, label + " must say that the inv scale is not calibrated")
+        check("(env - analysis fees - envref) / (envbest - envref)" in normalized, label + " must give the inv formula with the analysis fees deducted")
 tools = json.loads(text("openai-tools.json"))
 profiles = [
     tool.get("function", {}).get("parameters", {}).get("properties", {}).get("profile", {}).get("enum", [])
