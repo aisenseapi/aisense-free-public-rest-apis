@@ -38,6 +38,7 @@ single row here. Each one is listed in `sitemap.xml`.
 | `encoding-apis.html` | `/encoding-apis` |
 | `random-generator-apis.html` | `/random-generator-apis` |
 | `time-apis.html` | `/time-apis` |
+| `webhook-site-alternative.html` | `/webhook-site-alternative` - Webhook capture set against webhook.site step by step: the translation table, what differs, a script that waits for the callback, the recorded fields, errors and limits |
 | `worldtimeapi-alternative.html` | `/worldtimeapi-alternative` |
 | `free-public-api-ip-datetime-api-endpoint.html` | `/free-public-api-ip-datetime-api-endpoint` |
 | `custom-apis.html` | `/custom-apis` |
