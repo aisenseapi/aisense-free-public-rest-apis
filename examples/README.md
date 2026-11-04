@@ -62,3 +62,13 @@ Run the fault-injection checks without contacting the API:
 ```sh
 python3 -B tools/check-agent-queue-example.py
 ```
+
+# ComfyUI render farm
+
+`comfyui/` holds three scripts that run image jobs through ComfyUI from any
+number of machines: `producer.py` puts jobs on an Agent Queue with one Webhook
+capture per job, `worker.py` claims a job, renders it (or fakes it with
+`--fake`), uploads the PNG to Storage and posts the result to the capture, and
+`collector.py` waits for each result and downloads the image once with a
+SHA-256 check. Standard library only. See [comfyui/README.md](comfyui/README.md)
+for the flow, the quota arithmetic and what it does not do.
