@@ -272,8 +272,8 @@
    call at all. The Solana balance is a read from the chain with a limit per
    address; when it is refused the window shows the refusal and goes on.
    Nothing runs while the tab is hidden or the window is scrolled out of
-   view, a click takes over and calls live, two seconds apart at most,
-   and the first refusal or failure stops every further call.
+   view, a click takes over and calls live every time, one call in flight
+   at a time, and the first refusal or failure stops every further call.
    With reduced motion there is no typing and no pass, only the first frame
    and the buttons. The active button pulses while the pass drives the window
    and stops when the visitor takes over or the pass ends. */
@@ -290,7 +290,6 @@
 
   var BASE = 'https://aisenseapi.com/services/v1/';
   var FRESH_MS = 30000;
-  var CLICK_MS = 2000;
   var STEP_MS = 4800;
   var FRAMES = [
     { id: 'client_ip', path: 'client_ip' },
@@ -421,13 +420,13 @@
   }
   /* Shows a frame from the visit's store when the mode allows it and calls the endpoint otherwise. The first lap reuses
      an answer unless the frame refreshes and it is over 30 seconds old; a replay lap never calls and skips a frame that
-     has nothing stored; a click calls unless the answer is under two seconds old. Returns false when a call is in flight. */
+     has nothing stored; a click always calls. Returns false when a call is in flight. */
   function run( frame, mode ){
     if ( busy ) return false;
     var kept = store[frame.id];
     if ( kept && kept.sig !== signature( frame ) ) kept = null;
     var age = kept ? now() - kept.at : Infinity;
-    var reuse = kept && ( mode === 'replay' || ( mode === 'lap' && ( !frame.refresh || age < FRESH_MS ) ) || ( mode === 'click' && age < CLICK_MS ) );
+    var reuse = kept && ( mode === 'replay' || ( mode === 'lap' && ( !frame.refresh || age < FRESH_MS ) ) );
     if ( reuse ){ head( frame ); present( frame, kept, false ); return true; }
     if ( mode === 'replay' ) return true;
     if ( stopped ){ if ( kept ){ head( frame ); present( frame, kept, false ); } return true; }
