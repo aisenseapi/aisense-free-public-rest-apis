@@ -132,6 +132,14 @@ shows it.
 `toolFilter` takes `include` and `exclude` lists of exact tool names or
 simple `*` globs.
 
+**Any Agent Plugins client.** The directory [`agent-plugin/`](agent-plugin/README.md)
+in this repository is a portable [Agent Plugins](https://agent-plugins.org)
+1.0.0 package: `plugin.json`, `mcp.json` with this server, and a skill that
+tells the agent which tool fits which need. VS Code, Cursor, GitHub Copilot,
+ChatGPT and Codex, Kiro, Hermes Agent and OpenClaw load such packages; the
+[compatible clients](https://agent-plugins.org/compatible-clients) page links
+each client's setup instructions.
+
 **A first task that proves the connection**, the same in every client. Ask
 the agent:
 

@@ -35,6 +35,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 - REST API catalog: https://aisense.no/free-public-apis
 - MCP guide: https://aisense.no/free-public-mcp-server
 - Connecting an MCP client: one entry with the URL https://aisenseapi.com/mcp, Streamable HTTP, no key, no session ID; the entries for Claude Code, Hermes Agent and OpenClaw as their own documentation gives them, with a first task whose answer is known in advance: https://aisense.no/free-public-mcp-server#clients
+- Agent Plugins package for the MCP server, loadable by VS Code, Cursor, GitHub Copilot, ChatGPT and Codex, Kiro, Hermes Agent and OpenClaw: plugin.json, mcp.json with https://aisenseapi.com/mcp, and one skill that picks the tool for a need: https://github.com/aisenseapi/aisense-free-public-rest-apis/tree/main/agent-plugin
 - Source and documentation: https://github.com/aisenseapi/aisense-free-public-rest-apis
 
 ## Limits
