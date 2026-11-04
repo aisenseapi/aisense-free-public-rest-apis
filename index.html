@@ -15,8 +15,8 @@
 <meta property="og:url" content="https://aisense.no/">
 <meta name="twitter:card" content="summary">
 
-<link rel="stylesheet" href="/assets/aisense.css?v=20261104b">
-<script src="/assets/aisense-theme.js?v=20261104b"></script>
+<link rel="stylesheet" href="/assets/aisense.css?v=20261104c">
+<script src="/assets/aisense-theme.js?v=20261104c"></script>
 
 <script type="application/ld+json">
 {
@@ -82,8 +82,7 @@
       </div>
       <div class="api-window-body">
         <div class="api-tabs" id="api-tabs" role="group" aria-label="Choose an endpoint" hidden>
-          <button type="button" data-frame="decide" aria-pressed="true">decide</button>
-          <button type="button" data-frame="client_ip" aria-pressed="false">client_ip</button>
+          <button type="button" data-frame="client_ip" aria-pressed="true">client_ip</button>
           <button type="button" data-frame="user_agent" aria-pressed="false">user_agent</button>
           <button type="button" data-frame="datetime" aria-pressed="false">datetime</button>
           <button type="button" data-frame="solana" aria-pressed="false">solana/generate_new_wallet</button>
@@ -260,9 +259,9 @@
 /* The window beside the headline makes real calls to the public API: one
    endpoint at a time, typed in as the answer arrives, with the round trip
    measured in this browser. A visitor's requests count against their own
-   5000 per day, so the window is frugal. One pass through the ten frames per
-   page load, four seconds apart; datetime, the Solana wallet and uuid are
-   fetched when their last answer is over 30 seconds old, the other seven are
+   5000 per day, so the window is frugal. One pass through the nine frames per
+   page load, 4.8 seconds apart; datetime, the Solana wallet and uuid are
+   fetched when their last answer is over 30 seconds old, the other six are
    kept in sessionStorage for the rest of the visit. The wallet is never
    written to storage: the window shows its public address only. Nothing runs while the tab is hidden or the
    window is scrolled out of view, nothing after the pass except what the
@@ -283,10 +282,8 @@
 
   var BASE = 'https://aisenseapi.com/services/v1/';
   var FRESH_MS = 30000;
-  var STEP_MS = 4000;
+  var STEP_MS = 4800;
   var FRAMES = [
-    { id: 'decide', path: 'decide', deep: 2,
-      body: { state: { ok: true }, questions: { go: { type: 'yes_no', rules: [ { 'if': { ok: { eq: true } }, weight: 3 } ] } } } },
     { id: 'client_ip', path: 'client_ip' },
     { id: 'user_agent', path: 'user_agent' },
     { id: 'datetime', path: 'datetime', refresh: true },
