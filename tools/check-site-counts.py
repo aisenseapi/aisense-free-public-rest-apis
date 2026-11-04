@@ -75,6 +75,7 @@ for path in PUBLIC:
         check(said == word or said == str(count), path.name + " counts " + said + " versions; the menu lists " + str(count))
 check("in " + str(word) + " versions" in plain(text(ROOT / "web/free-public-apis.html")), "catalog grid must state the version count")
 check(str(word).capitalize() + " versions:" in plain(text(ROOT / "web/index.html")), "home page must state the version count")
+check(str(word).capitalize() + " AIQ tests" in plain(text(ROOT / "web/index.html")), "home page hero must state the AIQ test count")
 
 # MCP tools: the tool tables of the MCP page, outside the sections whose heading says Separate
 # (the endpoints of other servers), repeated name for name by MCP.md and AGENT-GUIDE.md.
