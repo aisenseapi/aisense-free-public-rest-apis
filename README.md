@@ -28,7 +28,9 @@ the same way.
 
 Start with [AGENT-GUIDE.md](AGENT-GUIDE.md) to choose tools, then
 [AGENT-QUICKSTART.md](AGENT-QUICKSTART.md) for a complete Queue workflow and
-retry decisions.
+retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs through
+ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
+with a fake renderer so the flow runs without ComfyUI.
 
 The server reports version `1.16.0` and offers 77 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
