@@ -85,12 +85,13 @@
           <button type="button" data-frame="client_ip" aria-pressed="true">client_ip</button>
           <button type="button" data-frame="user_agent" aria-pressed="false">user_agent</button>
           <button type="button" data-frame="datetime" aria-pressed="false">datetime</button>
-          <button type="button" data-frame="solana" aria-pressed="false">solana/generate_new_wallet</button>
+          <button type="button" data-frame="uuid" aria-pressed="false">uuid</button>
+          <button type="button" data-frame="solana" aria-pressed="false">solana/balance</button>
           <button type="button" data-frame="sha512_hash" aria-pressed="false">sha512_hash</button>
           <button type="button" data-frame="slugify" aria-pressed="false">slugify</button>
           <button type="button" data-frame="random_number" aria-pressed="false">random_number</button>
           <button type="button" data-frame="aiq" aria-pressed="false">aiq/versions</button>
-          <button type="button" data-frame="uuid" aria-pressed="false">uuid</button>
+          <button type="button" data-frame="base64_encode" aria-pressed="false">base64_encode</button>
         </div>
         <p class="api-label" id="api-method">GET</p>
         <code id="api-url">https://aisenseapi.com/services/v1/uuid</code>
@@ -259,13 +260,16 @@
 /* The window beside the headline makes real calls to the public API: one
    endpoint at a time, typed in as the answer arrives, with the round trip
    measured in this browser. A visitor's requests count against their own
-   5000 per day, so the window is frugal. One pass through the nine frames per
-   page load, 4.8 seconds apart; datetime, the Solana wallet and uuid are
-   fetched when their last answer is over 30 seconds old, the other six are
-   kept in sessionStorage for the rest of the visit. The wallet is never
-   written to storage: the window shows its public address only. Nothing runs while the tab is hidden or the
-   window is scrolled out of view, nothing after the pass except what the
-   visitor clicks, and the first refusal or failure stops every further call.
+   5000 per day, so the window is frugal. It turns through the ten frames
+   4.8 seconds apart, round and round. The first lap calls each endpoint,
+   except that datetime and uuid are fetched only when their last answer is
+   over 30 seconds old and the other eight are kept in sessionStorage for the
+   rest of the visit; every later lap replays the stored answers and makes no
+   call at all. The Solana balance is a read from the chain with a limit per
+   address; when it is refused the window shows the refusal and goes on.
+   Nothing runs while the tab is hidden or the window is scrolled out of
+   view, a click takes over and calls live with a 30 second floor per frame,
+   and the first refusal or failure stops every further call.
    With reduced motion there is no typing and no pass, only the first frame
    and the buttons. The active button pulses while the pass drives the window
    and stops when the visitor takes over or the pass ends. */
@@ -287,19 +291,19 @@
     { id: 'client_ip', path: 'client_ip' },
     { id: 'user_agent', path: 'user_agent' },
     { id: 'datetime', path: 'datetime', refresh: true },
-    { id: 'solana', path: 'solana/generate_new_wallet', refresh: true, keep: false, view: walletView,
-      note: 'The answer also carries private_key and private_key_base58. The window leaves them out and keeps nothing.' },
+    { id: 'uuid', path: 'uuid', refresh: true },
+    { id: 'solana', path: 'solana/balance/9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', soft: true,
+      note: 'A read from the Solana chain, the example address of the reference page, so slower than the rest.' },
     { id: 'sha512_hash', path: 'sha512_hash', body: { data: 'AI SENSE' } },
     { id: 'slugify', path: 'slugify', body: { data: 'Can your AI agent manage thirteen funds?' } },
     { id: 'random_number', path: 'random_number/1/100' },
     { id: 'aiq', path: 'aiq/versions', view: aiqView,
       note: 'test_versions shortened to the version names. Each entry also carries its date, status and start route.' },
-    { id: 'uuid', path: 'uuid', refresh: true }
+    { id: 'base64_encode', path: 'base64_encode', body: { data: 'AI SENSE' } }
   ];
   var reduced = !!( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
   var store = read();
-  var passing = {};
-  var queue = FRAMES.slice( 1 );
+  var at = 0, lap = 0;
   var timer = null, typing = null, busy = false, stopped = false, taken = reduced, began = false, inView = true;
 
   function read(){ try { return JSON.parse( window.sessionStorage.getItem( 'aisense-hero-2' ) || '{}' ) || {}; } catch ( e ){ return {}; } }
@@ -313,7 +317,6 @@
   function isArray( v ){ return Object.prototype.toString.call( v ) === '[object Array]'; }
   function keysOf( v ){ var k = []; for ( var n in v ) if ( Object.prototype.hasOwnProperty.call( v, n ) ) k.push( n ); return k; }
 
-  function walletView( body ){ return { public_address: body && body.public_address }; }
   function aiqView( body ){
     var names = [], list = ( body && isArray( body.test_versions ) ) ? body.test_versions : [];
     for ( var i = 0; i < list.length; i++ ) names.push( list[i] && list[i].version );
@@ -398,26 +401,32 @@
     return fetch( BASE + frame.path, options ).then( function( reply ){
       if ( giveUp ) clearTimeout( giveUp );
       var ms = Math.max( 1, Math.round( clock() - started ) );
+      if ( frame.soft && ( reply.status === 429 || reply.status === 503 ) ){
+        return reply.json().then( function( body ){ return { refused: reply.status, body: body, ms: ms }; },
+                                  function(){ return { refused: reply.status, body: { error: 'refused' }, ms: ms }; } );
+      }
       if ( reply.status === 429 ) return { limited: true };
       if ( !reply.ok ) throw new Error( String( reply.status ) );
       return reply.json().then( function( body ){ return { body: body, ms: ms }; } );
     } );
   }
-  /* Shows a frame from the visit's store when that is allowed, calls the endpoint otherwise. Returns false when a call is in flight. */
-  function run( frame ){
+  /* Shows a frame from the visit's store when that is allowed and calls the endpoint otherwise; with fresh false it never
+     calls and skips a frame that has nothing stored. Returns false when a call is in flight. */
+  function run( frame, fresh ){
     if ( busy ) return false;
-    head( frame );
-    var kept = frame.keep === false ? passing[frame.id] : store[frame.id];
+    var kept = store[frame.id];
     if ( kept && kept.sig !== signature( frame ) ) kept = null;
-    if ( kept && ( !frame.refresh || now() - kept.at < FRESH_MS ) ){ present( frame, kept, false ); return true; }
-    if ( stopped ){ if ( kept ) present( frame, kept, false ); return true; }
+    if ( kept && ( !fresh || !frame.refresh || now() - kept.at < FRESH_MS ) ){ head( frame ); present( frame, kept, false ); return true; }
+    if ( !fresh ) return true;
+    if ( stopped ){ if ( kept ){ head( frame ); present( frame, kept, false ); } return true; }
+    head( frame );
     busy = true;
     call( frame ).then( function( got ){
       busy = false;
+      if ( got.refused ){ show( tokens( got.body, 2 ), frame.note ); status( 'limited', 'Answered ' + got.refused + ' after ' + got.ms + ' ms; the pass goes on' ); return; }
       if ( got.limited ){ stopped = true; auto( false ); status( 'limited', 'Rate limit reached from your network' ); return; }
       var answer = { sig: signature( frame ), body: got.body, ms: got.ms, at: now() };
-      if ( frame.keep === false ){ passing[frame.id] = answer; }
-      else { store[frame.id] = answer; save(); }
+      store[frame.id] = answer; save();
       present( frame, answer, true );
     } ).catch( function(){
       busy = false; stopped = true; auto( false );
@@ -427,19 +436,18 @@
   }
 
   function schedule(){
-    if ( timer || taken || paused() || !queue.length ) return;
+    if ( timer || taken || paused() ) return;
     timer = setTimeout( function(){
       timer = null;
       if ( taken || paused() ) return;
-      if ( run( queue[0] ) ) queue.shift();
-      if ( queue.length ) schedule();
-      else timer = setTimeout( function(){ timer = null; auto( false ); }, STEP_MS );
+      var next = ( at + 1 ) % FRAMES.length;
+      if ( run( FRAMES[next], lap === 0 ) ){ at = next; if ( next === FRAMES.length - 1 ) lap++; }
+      schedule();
     }, STEP_MS );
   }
   function wake(){
     if ( paused() ){ if ( timer ){ clearTimeout( timer ); timer = null; } return; }
-    if ( !began ){ began = true; auto( !taken ); run( FRAMES[0] ); }
-    if ( !queue.length ){ auto( false ); return; }
+    if ( !began ){ began = true; auto( !taken ); run( FRAMES[0], true ); }
     schedule();
   }
 
@@ -450,7 +458,7 @@
     if ( !target || target === tabs ) return;
     taken = true; auto( false );
     if ( timer ){ clearTimeout( timer ); timer = null; }
-    for ( var i = 0; i < FRAMES.length; i++ ) if ( FRAMES[i].id === target.getAttribute( 'data-frame' ) ) run( FRAMES[i] );
+    for ( var i = 0; i < FRAMES.length; i++ ) if ( FRAMES[i].id === target.getAttribute( 'data-frame' ) ) run( FRAMES[i], true );
   } );
   document.addEventListener( 'visibilitychange', wake );
   if ( window.IntersectionObserver ){
