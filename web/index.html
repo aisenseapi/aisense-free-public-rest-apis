@@ -95,6 +95,7 @@
           <button type="button" data-frame="timestamp" aria-pressed="false">timestamp</button>
           <button type="button" data-frame="aiq" aria-pressed="false">aiq/versions</button>
           <button type="button" data-frame="base64_encode" aria-pressed="false">base64_encode</button>
+          <button type="button" data-frame="email_validate" aria-pressed="false">email_validate</button>
         </div>
         <p class="api-label" id="api-method">GET</p>
         <code id="api-url">https://aisenseapi.com/services/v1/uuid</code>
@@ -263,10 +264,10 @@
 /* The window beside the headline makes real calls to the public API: one
    endpoint at a time, typed in as the answer arrives, with the round trip
    measured in this browser. A visitor's requests count against their own
-   5000 per day, so the window is frugal. It turns through the thirteen
+   5000 per day, so the window is frugal. It turns through the fourteen
    frames 4.8 seconds apart, round and round. The first lap calls each
    endpoint, except that datetime, uuid and timestamp are fetched only when
-   their last answer is over 30 seconds old and the other ten are kept in
+   their last answer is over 30 seconds old and the other eleven are kept in
    sessionStorage for the rest of the visit; every later lap replays the stored answers and makes no
    call at all. The Solana balance is a read from the chain with a limit per
    address; when it is refused the window shows the refusal and goes on.
@@ -306,7 +307,8 @@
     { id: 'timestamp', path: 'timestamp', refresh: true },
     { id: 'aiq', path: 'aiq/versions', view: aiqView,
       note: 'test_versions shortened to the version names. Each entry also carries its date, status and start route.' },
-    { id: 'base64_encode', path: 'base64_encode', body: { data: 'AI SENSE' } }
+    { id: 'base64_encode', path: 'base64_encode', body: { data: 'AI SENSE' } },
+    { id: 'email_validate', path: 'email_validate', body: { data: 'support@aisense.no' } }
   ];
   var reduced = !!( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
   var store = read();
@@ -457,7 +459,7 @@
   }
   function wake(){
     if ( paused() ){ if ( timer ){ clearTimeout( timer ); timer = null; } return; }
-    if ( !began ){ began = true; auto( !taken ); run( FRAMES[0], 'lap' ); }
+    if ( !began ){ began = true; if ( taken ) return; auto( true ); run( FRAMES[0], 'lap' ); }
     schedule();
   }
 
