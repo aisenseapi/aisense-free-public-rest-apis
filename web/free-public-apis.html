@@ -868,7 +868,7 @@ Response: {"result": 42}</code></pre>
 <article class="endpoint">
 <h3><a href="/free-public-api-webhook-capture-api-endpoint">Webhook Capture REST API Endpoint</a></h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/webhook_capture</span> - <span class="method">GET</span> <span class="path">/webhook_capture/{capture_id}</span></p>
-<p>Create a capture session, point a sender at its unique URL and read back the first inbound request. The result includes method, headers, client IP and parsed body. Wait for up to 25 seconds or ask for one completion signal. No tunnel or server is needed. Expires after 24 hours.</p>
+<p>Create a capture session, point a sender at its unique URL and read back the first inbound request. The result includes method, headers, client IP and parsed body. Wait for up to 25 seconds or ask for one completion signal. No tunnel or server is needed. Expires after 24 hours. Users of webhook.site find each of its steps set against this endpoint on the <a href="/webhook-site-alternative">Webhook.site alternative</a> page.</p>
 <pre><code># 1. create
 curl -X POST https://aisenseapi.com/services/v1/webhook_capture
 { "ok": true, "capture_id": "6f8c9e52-...", "update_url": ".../update", "read_url": "...", "expire_timestamp": ... }
