@@ -15,8 +15,8 @@
 <meta property="og:url" content="https://aisense.no/">
 <meta name="twitter:card" content="summary">
 
-<link rel="stylesheet" href="/assets/aisense.css?v=20261104a">
-<script src="/assets/aisense-theme.js?v=20261104a"></script>
+<link rel="stylesheet" href="/assets/aisense.css?v=20261104b">
+<script src="/assets/aisense-theme.js?v=20261104b"></script>
 
 <script type="application/ld+json">
 {
@@ -86,7 +86,10 @@
           <button type="button" data-frame="client_ip" aria-pressed="false">client_ip</button>
           <button type="button" data-frame="user_agent" aria-pressed="false">user_agent</button>
           <button type="button" data-frame="datetime" aria-pressed="false">datetime</button>
-          <button type="button" data-frame="decide" aria-pressed="false">decide</button>
+          <button type="button" data-frame="random_color" aria-pressed="false">random_color</button>
+          <button type="button" data-frame="sha256_hash" aria-pressed="false">sha256_hash</button>
+          <button type="button" data-frame="slugify" aria-pressed="false">slugify</button>
+          <button type="button" data-frame="random_number" aria-pressed="false">random_number</button>
           <button type="button" data-frame="aiq" aria-pressed="false">aiq/versions</button>
         </div>
         <p class="api-label" id="api-method">GET</p>
@@ -256,14 +259,15 @@
 /* The window beside the headline makes real calls to the public API: one
    endpoint at a time, typed in as the answer arrives, with the round trip
    measured in this browser. A visitor's requests count against their own
-   5000 per day, so the window is frugal. One pass through the six frames per
-   page load, six seconds apart; uuid and datetime are fetched when their last
-   answer is over 30 seconds old, the other four are kept in sessionStorage
+   5000 per day, so the window is frugal. One pass through the nine frames per
+   page load, four seconds apart; uuid and datetime are fetched when their last
+   answer is over 30 seconds old, the other seven are kept in sessionStorage
    for the rest of the visit. Nothing runs while the tab is hidden or the
    window is scrolled out of view, nothing after the pass except what the
    visitor clicks, and the first refusal or failure stops every further call.
    With reduced motion there is no typing and no pass, only the first frame
-   and the buttons. */
+   and the buttons. The active button pulses while the pass drives the window
+   and stops when the visitor takes over or the pass ends. */
 (function(){
   var tabs = document.getElementById('api-tabs');
   var method = document.getElementById('api-method');
@@ -277,19 +281,16 @@
 
   var BASE = 'https://aisenseapi.com/services/v1/';
   var FRESH_MS = 30000;
-  var STEP_MS = 6000;
-  var DECIDE = { state: { amount: 30, tier: 'gold', days: 3, photo: true },
-    questions: { refund_now: { type: 'yes_no', bias: -2, rules: [
-      { 'if': { amount: { lte: 50 } }, weight: 2 },
-      { 'if': { tier: { eq: 'gold' } }, weight: 1 },
-      { 'if': { days: { lte: 14 } }, weight: 1 },
-      { 'if': { photo: { eq: true } }, weight: 1 } ] } } };
+  var STEP_MS = 4000;
   var FRAMES = [
     { id: 'uuid', path: 'uuid', refresh: true },
     { id: 'client_ip', path: 'client_ip' },
     { id: 'user_agent', path: 'user_agent' },
     { id: 'datetime', path: 'datetime', refresh: true },
-    { id: 'decide', path: 'decide', body: DECIDE },
+    { id: 'random_color', path: 'random_color' },
+    { id: 'sha256_hash', path: 'sha256_hash', body: { data: 'AI SENSE' } },
+    { id: 'slugify', path: 'slugify', body: { data: 'Can your AI agent manage thirteen funds?' } },
+    { id: 'random_number', path: 'random_number/1/100' },
     { id: 'aiq', path: 'aiq/versions', view: aiqView,
       note: 'test_versions shortened to the version names. Each entry also carries its date, status and start route.' }
   ];
@@ -359,13 +360,14 @@
     var foot = note ? '<span class="api-note">' + escape( note ) + '</span>' : '';
     if ( reduced ){ response.innerHTML = html( list, -1 ) + foot; return; }
     ( function tick(){
-      shown = Math.min( total, shown + 3 );
+      shown = Math.min( total, shown + 5 );
       response.innerHTML = html( list, shown ) + ( shown < total ? '<span class="api-caret" aria-hidden="true"></span>' : foot );
       typing = shown < total ? setTimeout( tick, 16 ) : null;
     } )();
   }
 
   function status( state, message ){ box.setAttribute( 'data-state', state ); text.textContent = message; }
+  function auto( on ){ tabs.className = on ? 'api-tabs is-auto' : 'api-tabs'; }
   function head( frame ){
     var buttons = tabs.getElementsByTagName( 'button' );
     for ( var i = 0; i < buttons.length; i++ ){
@@ -405,12 +407,12 @@
     busy = true;
     call( frame ).then( function( got ){
       busy = false;
-      if ( got.limited ){ stopped = true; status( 'limited', 'Rate limit reached from your network' ); return; }
+      if ( got.limited ){ stopped = true; auto( false ); status( 'limited', 'Rate limit reached from your network' ); return; }
       store[frame.id] = { body: got.body, ms: got.ms, at: now() };
       save();
       present( frame, store[frame.id], true );
     } ).catch( function(){
-      busy = false; stopped = true;
+      busy = false; stopped = true; auto( false );
       status( 'down', 'Endpoint not responding' );
     } );
     return true;
@@ -422,12 +424,14 @@
       timer = null;
       if ( taken || paused() ) return;
       if ( run( queue[0] ) ) queue.shift();
-      schedule();
+      if ( queue.length ) schedule();
+      else timer = setTimeout( function(){ timer = null; auto( false ); }, STEP_MS );
     }, STEP_MS );
   }
   function wake(){
     if ( paused() ){ if ( timer ){ clearTimeout( timer ); timer = null; } return; }
-    if ( !began ){ began = true; run( FRAMES[0] ); }
+    if ( !began ){ began = true; auto( !taken ); run( FRAMES[0] ); }
+    if ( !queue.length ){ auto( false ); return; }
     schedule();
   }
 
@@ -436,7 +440,7 @@
     var target = event.target;
     while ( target && target !== tabs && !( target.tagName === 'BUTTON' && target.getAttribute( 'data-frame' ) ) ) target = target.parentNode;
     if ( !target || target === tabs ) return;
-    taken = true;
+    taken = true; auto( false );
     if ( timer ){ clearTimeout( timer ); timer = null; }
     for ( var i = 0; i < FRAMES.length; i++ ) if ( FRAMES[i].id === target.getAttribute( 'data-frame' ) ) run( FRAMES[i] );
   } );
