@@ -38,6 +38,9 @@ single row here. Each one is listed in `sitemap.xml`.
 | `encoding-apis.html` | `/encoding-apis` |
 | `random-generator-apis.html` | `/random-generator-apis` |
 | `time-apis.html` | `/time-apis` |
+| `ipify-alternative.html` | `/ipify-alternative` - Client IP set against ipify: the calls, formats, IPv6, limits and logging side by side, a shell, browser and ESP32 example, the field, errors and limits |
+| `goqr-api-alternative.html` | `/goqr-api-alternative` - the QR code endpoints set against goQR's api.qrserver.com: the calls, the parameters each side has, size limits, response shapes, a script, errors and limits |
+| `transfer-sh-alternative.html` | `/transfer-sh-alternative` - Storage set against transfer.sh and file.io for curl uploads: the commands, download limit, lifetime, size budget, a hand-off script, fields, errors and limits |
 | `webhook-site-alternative.html` | `/webhook-site-alternative` - Webhook capture set against webhook.site step by step: the translation table, what differs, a script that waits for the callback, the recorded fields, errors and limits |
 | `worldtimeapi-alternative.html` | `/worldtimeapi-alternative` |
 | `free-public-api-ip-datetime-api-endpoint.html` | `/free-public-api-ip-datetime-api-endpoint` |
