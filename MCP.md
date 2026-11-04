@@ -102,9 +102,18 @@ picks the change up with `/reload-mcp`. One task from a script:
 `hermes chat --oneshot -q "<prompt>"`, or `hermes -z "<prompt>"` for the
 final text alone.
 
-**OpenClaw.** In `~/.openclaw/openclaw.json` (JSON5), under `mcp.servers`;
-the Gateway applies the edit by itself, `openclaw mcp list` shows it and
-`openclaw mcp probe` lists the tools the server advertises.
+**OpenClaw.** One command saves the entry and probes the server first; its
+documentation runs saved-server edits with the local Gateway stopped, and
+offers Settings, MCP, Add server while it runs.
+
+```bash
+openclaw mcp add aisense --url https://aisenseapi.com/mcp --transport streamable-http
+openclaw mcp doctor aisense --probe
+```
+
+The same entry by hand in `~/.openclaw/openclaw.json` (JSON5), under
+`mcp.servers`; the Gateway applies the edit by itself and `openclaw mcp list`
+shows it.
 
 ```json5
 {
