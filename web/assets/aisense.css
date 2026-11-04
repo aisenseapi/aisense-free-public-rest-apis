@@ -464,8 +464,8 @@ p { margin: 0 0 16px; max-width: 74ch; }
 .api-status[data-state="up"] .api-status-dot { background: #34d399; box-shadow: 0 0 0 4px rgba(52,211,153,0.12); }
 .api-status[data-state="down"] .api-status-dot { background: #f87171; box-shadow: 0 0 0 4px rgba(248,113,113,0.12); }
 .api-status[data-state="limited"] .api-status-dot { background: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,0.12); }
-.api-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 22px; }
-.api-tabs button { margin: 0; padding: 3px 9px; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; background: transparent; color: #94a3b8; font-family: var(--mono); font-size: 11px; line-height: 1.5; cursor: pointer; }
+.api-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 22px; }
+.api-tabs button { margin: 0; padding: 3px 7px; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; background: transparent; color: #94a3b8; font-family: var(--mono); font-size: 10.5px; line-height: 1.5; cursor: pointer; }
 .api-tabs button:hover, .api-tabs button:focus-visible { color: #fff; }
 .api-tabs button[aria-pressed="true"] { border-color: #7dd3fc; background: rgba(125,211,252,0.12); color: #fff; }
 .api-tabs.is-auto button[aria-pressed="true"] { animation: api-pulse 1.5s ease-out infinite; }
