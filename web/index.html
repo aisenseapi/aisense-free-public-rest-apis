@@ -82,15 +82,16 @@
       </div>
       <div class="api-window-body">
         <div class="api-tabs" id="api-tabs" role="group" aria-label="Choose an endpoint" hidden>
-          <button type="button" data-frame="uuid" aria-pressed="true">uuid</button>
+          <button type="button" data-frame="decide" aria-pressed="true">decide</button>
           <button type="button" data-frame="client_ip" aria-pressed="false">client_ip</button>
           <button type="button" data-frame="user_agent" aria-pressed="false">user_agent</button>
           <button type="button" data-frame="datetime" aria-pressed="false">datetime</button>
-          <button type="button" data-frame="random_color" aria-pressed="false">random_color</button>
-          <button type="button" data-frame="sha256_hash" aria-pressed="false">sha256_hash</button>
+          <button type="button" data-frame="solana" aria-pressed="false">solana/generate_new_wallet</button>
+          <button type="button" data-frame="sha512_hash" aria-pressed="false">sha512_hash</button>
           <button type="button" data-frame="slugify" aria-pressed="false">slugify</button>
           <button type="button" data-frame="random_number" aria-pressed="false">random_number</button>
           <button type="button" data-frame="aiq" aria-pressed="false">aiq/versions</button>
+          <button type="button" data-frame="uuid" aria-pressed="false">uuid</button>
         </div>
         <p class="api-label" id="api-method">GET</p>
         <code id="api-url">https://aisenseapi.com/services/v1/uuid</code>
@@ -259,10 +260,11 @@
 /* The window beside the headline makes real calls to the public API: one
    endpoint at a time, typed in as the answer arrives, with the round trip
    measured in this browser. A visitor's requests count against their own
-   5000 per day, so the window is frugal. One pass through the nine frames per
-   page load, four seconds apart; uuid and datetime are fetched when their last
-   answer is over 30 seconds old, the other seven are kept in sessionStorage
-   for the rest of the visit. Nothing runs while the tab is hidden or the
+   5000 per day, so the window is frugal. One pass through the ten frames per
+   page load, four seconds apart; datetime, the Solana wallet and uuid are
+   fetched when their last answer is over 30 seconds old, the other seven are
+   kept in sessionStorage for the rest of the visit. The wallet is never
+   written to storage: the window shows its public address only. Nothing runs while the tab is hidden or the
    window is scrolled out of view, nothing after the pass except what the
    visitor clicks, and the first refusal or failure stops every further call.
    With reduced motion there is no typing and no pass, only the first frame
@@ -283,24 +285,30 @@
   var FRESH_MS = 30000;
   var STEP_MS = 4000;
   var FRAMES = [
-    { id: 'uuid', path: 'uuid', refresh: true },
+    { id: 'decide', path: 'decide', deep: 2,
+      body: { state: { ok: true }, questions: { go: { type: 'yes_no', rules: [ { 'if': { ok: { eq: true } }, weight: 3 } ] } } } },
     { id: 'client_ip', path: 'client_ip' },
     { id: 'user_agent', path: 'user_agent' },
     { id: 'datetime', path: 'datetime', refresh: true },
-    { id: 'random_color', path: 'random_color' },
-    { id: 'sha256_hash', path: 'sha256_hash', body: { data: 'AI SENSE' } },
+    { id: 'solana', path: 'solana/generate_new_wallet', refresh: true, keep: false, view: walletView,
+      note: 'The answer also carries private_key and private_key_base58. The window leaves them out and keeps nothing.' },
+    { id: 'sha512_hash', path: 'sha512_hash', body: { data: 'AI SENSE' } },
     { id: 'slugify', path: 'slugify', body: { data: 'Can your AI agent manage thirteen funds?' } },
     { id: 'random_number', path: 'random_number/1/100' },
     { id: 'aiq', path: 'aiq/versions', view: aiqView,
-      note: 'test_versions shortened to the version names. Each entry also carries its date, status and start route.' }
+      note: 'test_versions shortened to the version names. Each entry also carries its date, status and start route.' },
+    { id: 'uuid', path: 'uuid', refresh: true }
   ];
   var reduced = !!( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
   var store = read();
+  var passing = {};
   var queue = FRAMES.slice( 1 );
   var timer = null, typing = null, busy = false, stopped = false, taken = reduced, began = false, inView = true;
 
-  function read(){ try { return JSON.parse( window.sessionStorage.getItem( 'aisense-hero' ) || '{}' ) || {}; } catch ( e ){ return {}; } }
-  function save(){ try { window.sessionStorage.setItem( 'aisense-hero', JSON.stringify( store ) ); } catch ( e ){} }
+  function read(){ try { return JSON.parse( window.sessionStorage.getItem( 'aisense-hero-2' ) || '{}' ) || {}; } catch ( e ){ return {}; } }
+  function save(){ try { window.sessionStorage.setItem( 'aisense-hero-2', JSON.stringify( store ) ); } catch ( e ){} }
+  /* A stored answer is reused only for the same request: the path and the body it was given. */
+  function signature( frame ){ return frame.path + '|' + ( frame.body ? JSON.stringify( frame.body ) : '' ); }
   function now(){ return new Date().getTime(); }
   function clock(){ return ( window.performance && performance.now ) ? performance.now() : now(); }
   function paused(){ return stopped || ( document.visibilityState || 'visible' ) !== 'visible' || !inView; }
@@ -308,6 +316,7 @@
   function isArray( v ){ return Object.prototype.toString.call( v ) === '[object Array]'; }
   function keysOf( v ){ var k = []; for ( var n in v ) if ( Object.prototype.hasOwnProperty.call( v, n ) ) k.push( n ); return k; }
 
+  function walletView( body ){ return { public_address: body && body.public_address }; }
   function aiqView( body ){
     var names = [], list = ( body && isArray( body.test_versions ) ) ? body.test_versions : [];
     for ( var i = 0; i < list.length; i++ ) names.push( list[i] && list[i].version );
@@ -379,7 +388,7 @@
     else { request.hidden = true; request.innerHTML = ''; }
   }
   function present( frame, kept, live ){
-    show( tokens( frame.view ? frame.view( kept.body ) : kept.body, 3 ), frame.note );
+    show( tokens( frame.view ? frame.view( kept.body ) : kept.body, frame.deep || 3 ), frame.note );
     status( 'up', live ? 'Live public endpoint, answered in ' + kept.ms + ' ms' : 'Answered in ' + kept.ms + ' ms earlier in this visit' );
   }
   function call( frame ){
@@ -401,16 +410,18 @@
   function run( frame ){
     if ( busy ) return false;
     head( frame );
-    var kept = store[frame.id];
+    var kept = frame.keep === false ? passing[frame.id] : store[frame.id];
+    if ( kept && kept.sig !== signature( frame ) ) kept = null;
     if ( kept && ( !frame.refresh || now() - kept.at < FRESH_MS ) ){ present( frame, kept, false ); return true; }
     if ( stopped ){ if ( kept ) present( frame, kept, false ); return true; }
     busy = true;
     call( frame ).then( function( got ){
       busy = false;
       if ( got.limited ){ stopped = true; auto( false ); status( 'limited', 'Rate limit reached from your network' ); return; }
-      store[frame.id] = { body: got.body, ms: got.ms, at: now() };
-      save();
-      present( frame, store[frame.id], true );
+      var answer = { sig: signature( frame ), body: got.body, ms: got.ms, at: now() };
+      if ( frame.keep === false ){ passing[frame.id] = answer; }
+      else { store[frame.id] = answer; save(); }
+      present( frame, answer, true );
     } ).catch( function(){
       busy = false; stopped = true; auto( false );
       status( 'down', 'Endpoint not responding' );
