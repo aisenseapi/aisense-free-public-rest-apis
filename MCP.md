@@ -63,6 +63,83 @@ account and no API key.
 The registry lists it as `at.aamio/aamio`, and the AI SENSE endpoint does not
 proxy these tools either.
 
+## Connect from a client
+
+The server speaks Streamable HTTP at one URL, needs no key and issues no
+session ID, so any MCP client that takes a remote URL connects with one entry.
+The entries below are as each client's own documentation gives them, read on
+4 November 2026; the server name `aisense` is a free choice. Every tool call,
+and the `initialize` and `tools/list` a client sends on its own, counts
+against the 5000 requests per address per day.
+
+**Claude Code**
+
+```bash
+claude mcp add --transport http aisense https://aisenseapi.com/mcp
+```
+
+**Hermes Agent** (Nous Research). One command writes the entry to
+`~/.hermes/config.yaml` and discovers the tools; the second tests the
+connection and reports what the server answered.
+
+```bash
+hermes mcp add aisense --url https://aisenseapi.com/mcp
+hermes mcp test aisense
+```
+
+The same entry by hand:
+
+```yaml
+mcp_servers:
+  aisense:
+    url: "https://aisenseapi.com/mcp"
+```
+
+Tools register as `mcp_aisense_<tool>`, for example `mcp_aisense_decide`.
+Under the entry, `tools: {include: [...]}` limits the set and
+`trust: untrusted` makes write-capable calls ask first. A running session
+picks the change up with `/reload-mcp`. One task from a script:
+`hermes chat --oneshot -q "<prompt>"`, or `hermes -z "<prompt>"` for the
+final text alone.
+
+**OpenClaw.** In `~/.openclaw/openclaw.json` (JSON5), under `mcp.servers`;
+the Gateway applies the edit by itself, `openclaw mcp list` shows it and
+`openclaw mcp probe` lists the tools the server advertises.
+
+```json5
+{
+  mcp: {
+    servers: {
+      aisense: {
+        url: "https://aisenseapi.com/mcp",
+        transport: "streamable-http",
+        // toolFilter: { include: ["decide", "create_*", "read_*"] },
+      },
+    },
+  },
+}
+```
+
+`toolFilter` takes `include` and `exclude` lists of exact tool names or
+simple `*` globs.
+
+**A first task that proves the connection**, the same in every client. Ask
+the agent:
+
+```text
+Use the aisense decide tool with state {"amount": 30, "tier": "gold"} and one
+yes_no question named refund_now with bias -2 and the rules: amount lte 50
+weight 2, tier eq "gold" weight 1. Tell me the answer, the probability and the
+action.
+```
+
+The rules give -2 + 2 + 1 = 1, so the tool answers `yes` with probability
+0.7311, confidence 0.4621 and action `hold`; an agent that reports those three
+has made a real call. A second task shows the inbox side: ask the agent to
+create a webhook capture and give you its update URL, send one request to that
+URL with curl, then ask the agent to read the capture and tell you the method
+and the body it received.
+
 ## Available tools
 
 | Tool | What it does |
