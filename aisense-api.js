@@ -536,6 +536,17 @@ export class AISenseAPI {
     return this.#post('/qrcode_encode', { payload })
   }
 
+  /** Encode 1..128 bytes. Returns audio_base64 (PCM16 WAV) and metadata. */
+  audioEncode(data, { inputEncoding = 'utf8', mode = 'audible' } = {}) {
+    return this.#request('/audio_encode', 'POST', { data, input_encoding: inputEncoding, mode }, undefined,
+      { Accept: 'application/json' })
+  }
+
+  /** Decode PCM16 WAV bytes, a Blob or File. Returns data_base64 and text or null. */
+  audioDecode(file, mode = 'auto') {
+    return this.#upload('/audio_decode', file, { mode })
+  }
+
   /**
    * Decode a Base64-encoded QR code image. Response key: `qrcode_content`.
    * The request field is `payload`, and `data` is accepted as well. The image

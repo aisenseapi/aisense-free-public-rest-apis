@@ -10,7 +10,7 @@ metadata:
 
 # AI SENSE free tools
 
-A remote MCP server at `https://aisenseapi.com/mcp` with 77 tools, run by AI
+A remote MCP server at `https://aisenseapi.com/mcp` with 79 tools, run by AI
 SENSE AS in Oslo. No account, no key, no session ID. Every address has 5000
 requests a day across all tools, so call when there is a need and do not poll.
 

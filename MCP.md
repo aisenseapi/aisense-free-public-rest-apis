@@ -13,11 +13,9 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.16.0` and offers 77 tools. The official MCP
-Registry lists `com.aisenseapi/free-public-tools` version `1.16.1` as active
-and latest, published 5 November 2026 at 07:53 UTC. Registry 1.16.1 is the
-1.16.0 server with a website link added to the registry entry. The agent
-guide in this repository is resource version 1.8.10.
+This release reports version `1.17.0` and offers 79 tools. Registry publication
+is a separate release step under `com.aisenseapi/free-public-tools`. The agent
+guide in this repository is resource version 1.8.11.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -223,6 +221,8 @@ and the body it received.
 | `update_dns_name` | Moves a name to another address without moving its expiry |
 | `delete_dns_name` | Removes a name before it expires |
 | `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding or HTML entities, or decodes it back to text or base64 bytes |
+| `encode_audio` | Turns 1 to 128 bytes into a WAV audio block, audible or experimental high-frequency tones |
+| `decode_audio` | Recovers checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds |
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
 | `generate_random` | Makes a random number, color, GUID, password or passphrase |

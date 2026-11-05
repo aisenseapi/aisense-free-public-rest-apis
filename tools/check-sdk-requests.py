@@ -31,6 +31,7 @@ SECRET_ENVELOPE = {"version": 1, "algorithm": "AES-256-GCM", "nonce": "AAAAAAAAA
 
 DECIDE_QUESTIONS = {"urgent": {"type": "noul", "instructions": "Is this urgent?", "criteria": {"true": "Yes.", "false": "No."}}}
 JSON_POSTS = [
+    ("/audio_encode", {"data": "Hello", "input_encoding": "utf8", "mode": "audible"}),
     ("/timestamp_convert", {"data": "now", "offset": "+0200"}),
     ("/slugify", {"data": "Blåbær på Ås"}),
     ("/hash_verify", {"data": "Hello", "hash": 4157704578, "algorithm": "crc32"}),
@@ -41,6 +42,7 @@ JSON_POSTS = [
 EXPECTED = [("GET", "/passphrase/5", None, None, None, None)]
 EXPECTED += [("POST", path, "json", body, None, None) for path, body in JSON_POSTS]
 EXPECTED += [
+    ("POST", "/audio_decode", "form", {"mode": "ultrasound"}, "image", None),
     ("GET", "/dns/198.51.100.7", None, None, None, None),
     ("GET", "/dns/abcdefg", None, None, None, None),
     ("POST", "/dns/abcdefg/update/198.51.100.8", "json", {}, None, "dns-token-1"),
@@ -102,11 +104,13 @@ const api = new AISenseAPI(process.argv[2])
 const image = Uint8Array.from(Buffer.from(process.argv[3], 'hex'))
 const questions = JSON.parse(process.argv[4])
 await api.getPassphrase(5)
+await api.audioEncode('Hello')
 await api.timestampConvert('now', '+0200')
 await api.slugify('Blåbær på Ås')
 await api.hashVerify('Hello', 4157704578, 'crc32')
 await api.emailValidate('post@example.com')
 await api.validate('iban', 'NO9386011117947')
+await api.audioDecode(image, 'ultrasound')
 await api.dnsCreate('198.51.100.7')
 await api.dnsRead('abcdefg')
 await api.dnsUpdate('abcdefg', '198.51.100.8', 'dns-token-1')
@@ -182,6 +186,7 @@ class Stub(BaseHTTPRequestHandler):
         RECORDED.append({
             "method": self.command, "path": self.path, "type": self.headers.get("Content-Type") or "",
             "auth": self.headers.get("Authorization"), "key": self.headers.get("Idempotency-Key"), "body": self._body(),
+            "accept": self.headers.get("Accept"),
         })
         status, payload, extra = 200, b'{"ok":true}', {}
         if self.path.startswith("/services/v1/mock_response/"):
@@ -223,6 +228,8 @@ def compare(client: str, records: list, failure: dict) -> list:
         return [f"{client}: {len(records)} requests, expected {len(EXPECTED)}"]
     for record, (method, path, kind, body, filename, token) in zip(records, EXPECTED):
         where = f"{client} {method} {path}"
+        if path == "/audio_encode" and record["accept"] != "application/json":
+            problems.append(f"{where}: must request the JSON audio envelope")
         if (record["method"], record["path"]) != (method, "/services/v1" + path):
             problems.append(f"{where}: sent {record['method']} {record['path']}")
             continue
@@ -256,11 +263,13 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     photo = folder / "photo.png"
     photo.write_bytes(IMAGE)
     api.get_passphrase(5)
+    api.audio_encode("Hello")
     api.timestamp_convert("now", "+0200")
     api.slugify("Blåbær på Ås")
     api.hash_verify("Hello", 4157704578, "crc32")
     api.email_validate("post@example.com")
     api.validate("iban", "NO9386011117947")
+    api.audio_decode(IMAGE, "ultrasound")
     api.dns_create("198.51.100.7")
     api.dns_read("abcdefg")
     api.dns_update("abcdefg", "198.51.100.8", "dns-token-1")

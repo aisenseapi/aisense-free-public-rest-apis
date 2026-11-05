@@ -6,8 +6,8 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 
 ## What AI SENSE offers
 
-- Free public REST API: more than 90 utility endpoints for time, encoding, hashing, random values, JSON, CSV, images, QR codes, PDF, Markdown, lookups, crypto wallets, storage, webhooks and mock responses, at https://aisenseapi.com/services/v1. Catalog: https://aisense.no/free-public-apis
-- Free public MCP server: the workflow tools, the REST utility endpoints as tools and three read-only resources, 77 tools at one URL, https://aisenseapi.com/mcp
+- Free public REST API: more than 100 utility endpoints for time, encoding, hashing, random values, JSON, CSV, images, QR codes, PDF, Markdown, lookups, crypto wallets, storage, webhooks and mock responses, at https://aisenseapi.com/services/v1. Catalog: https://aisense.no/free-public-apis
+- Free public MCP server: the workflow tools, the REST utility endpoints as tools and three read-only resources, 79 tools at one URL, https://aisenseapi.com/mcp
 - Agent workflow tools: Agent Queue, Agent Handoff, Agent Run, Lease, Heartbeat, Agent Inbox, Agent Wake, Webhook action with human approval, semantic search and temporary DNS names, most with a fixed 24-hour lifetime that activity never extends. On REST and MCP, with five task-shaped skills on A2A.
 - One-time Secret: encrypt up to 16 KiB of UTF-8 text locally with AES-256-GCM, then share an encrypted envelope for at-most-once delivery and fixed 24-hour expiry. Browser tool: https://aisense.no/one-time-secret. REST POST /secret, POST /secret/{secret_id}/reveal with a read token, GET /secret/{secret_id}/receipt and POST /secret/{secret_id}/burn with a separate receipt token. REST and MCP accept ciphertext only: never send plaintext, encryption keys or complete share links to an MCP tool or AI conversation. A lost reveal response may lose the message. Delivered does not prove human reading or recipient identity. Guide: https://aisense.no/free-public-api-one-time-secret-api-endpoint
 - Agent Handoff: one piece of work passed between agents as a small state machine for 24 hours. POST /handoff creates it with a JSON payload and the states; POST /handoff/{handoff_id}/{state} moves it, naming in from the state it expects to leave, and any other move is refused with the real state; GET /handoff/{handoff_id} reads the state, payload and history, and /wait/{seconds} waits for a change. Owner and receiver tokens are returned once. Guide: https://aisense.no/free-public-api-agent-handoff-api-endpoint
@@ -47,7 +47,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.16.0. Official MCP Registry: com.aisenseapi/free-public-tools version 1.16.1, the 1.16.0 server with a website link in the registry entry, published 5 November 2026 at 07:53 UTC
+- MCP source release 1.17.0, with 79 tools. Registry publication is separate, under com.aisenseapi/free-public-tools.
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -157,3 +157,9 @@ The aamio board at https://board.aamio.at/ is an open list of needs and offers f
 Try aamio in a browser, with nothing to install: https://aisense.no/try-aamio runs proof of work with and without WebAssembly, a round trip that aamio.at checks, and a channel to another device. Keys are made in the visitor's tab and never leave it.
 
 AgentSync MAX keeps the work of several coding agents together around the project it belongs to: a Windows desktop workspace and a project-aware history sync engine for Claude Code, Codex, Antigravity, OpenCode, Cline and Junie, with missions, live output, file changes and review findings in one place. It is a source preview under the MIT license, built and run locally. Product note, added 26 October 2026: https://aisense.no/agentsync-max
+
+## Data over sound
+
+- Audio encode: POST /services/v1/audio_encode, JSON data plus optional input_encoding (utf8 or base64) and mode (audible or ultrasound). Accepts 1 to 128 bytes and returns PCM16 WAV, or an audio_base64 JSON envelope with Accept: application/json. Try: https://aisense.no/free-public-api-audio-encode-api-endpoint
+- Audio decode: POST /services/v1/audio_decode, optionally followed by /auto, /audible or /ultrasound. Upload PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. Returns checksum-verified data_base64 and text or null. Try with a microphone: https://aisense.no/free-public-api-audio-decode-api-endpoint
+- The acoustic format is aisense-audio-v1. It transfers unencrypted data, not speech. The high-frequency mode uses 18.5 to 19.7 kHz and may be audible or filtered by devices. Recordings go to the API for decoding and are not retained by these endpoints. MCP encode_audio returns a native audio block. MCP decode_audio takes an ordinary Storage file by storage_id, up to 4 MiB, without a download limit.

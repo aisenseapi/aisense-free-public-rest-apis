@@ -2,7 +2,7 @@
 
 A portable [Agent Plugins](https://agent-plugins.org) 1.0.0 package that
 connects an agent to the free AI SENSE MCP server and bundles one skill that
-tells the agent which of its 77 tools fits which need.
+tells the agent which of its 79 tools fits which need.
 
 | File | What it is |
 | --- | --- |

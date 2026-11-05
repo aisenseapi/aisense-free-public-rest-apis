@@ -113,6 +113,10 @@ API_GROUPS = [
         ('/free-public-api-html-encode-api-endpoint', 'HTML encode'),
         ('/free-public-api-html-decode-api-endpoint', 'HTML decode'),
     ]),
+    ('audio', 'Data over sound', '/free-public-apis#audio', [
+        ('/free-public-api-audio-encode-api-endpoint', 'Audio encode'),
+        ('/free-public-api-audio-decode-api-endpoint', 'Audio decode'),
+    ]),
     ('text', 'Text and tokens', '/free-public-apis#transform', [
         ('/free-public-api-slugify-api-endpoint', 'Slugify'),
         ('/free-public-api-html-to-markdown-api-endpoint', 'HTML to Markdown'),

@@ -32,12 +32,10 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.16.0` and offers 77 tools: the workflow tools
+This release reports version `1.17.0` and offers 79 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
-and `ping`, which stay on REST. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.16.1` as active and latest,
-published 5 November 2026 at 07:53 UTC: the 1.16.0 server with a website link
-added to the registry entry.
+and `ping`, which stay on REST. Registry publication is a separate release
+step. The registry name is `com.aisenseapi/free-public-tools`.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
@@ -786,6 +784,25 @@ can be about 190 KB.
 
 ---
 
+### Data over sound
+
+`POST /audio_encode` turns 1 to 128 bytes into a PCM16 WAV. Send JSON with
+`data`, optional `input_encoding` (`utf8` or `base64`) and `mode` (`audible`
+or experimental `ultrasound`). `POST /audio_decode[/{mode}]` recovers the
+bytes from a raw or multipart WAV, with `mode` set to `auto`, `audible` or
+`ultrasound`. Recordings can be up to 40 seconds and 8 MiB, at 44.1 or 48 kHz.
+
+The sound carries data, not speech. A checksum rejects damaged frames, but
+does not encrypt or authenticate them. Neither endpoint stores the audio or
+payload. High-frequency sound depends on the speakers and microphone.
+
+Read the [API contract](API.md#audio-data), or try the
+[sender](https://aisense.no/free-public-api-audio-encode-api-endpoint) and
+[receiver](https://aisense.no/free-public-api-audio-decode-api-endpoint)
+on two devices.
+
+---
+
 ### Random - UUID, GUID, number, color, password
 
 ```bash
@@ -995,6 +1012,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Transform | `/jwt_decode` | POST | `decoded_payload` |
 | Transform | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
 | Transform | `/qrcode_decode` | POST | `qrcode_content` |
+| Audio | `/audio_encode` | POST | PCM16 WAV, or `audio_base64`, `mime_type`, `byte_length`, `mode`, `protocol` with JSON Accept |
+| Audio | `/audio_decode[/{mode}]` | POST | `data_base64`, `byte_length`, `text`, `mode`, `protocol`, `corrected_bits`, `sample_rate`, `duration_seconds` |
 | Convert | `/json_to_csv` | POST | Storage fields, `content_type`, `filename`, `operation` |
 | Convert | `/csv_to_json` | POST | Storage fields, `content_type`, `filename`, `operation` |
 | Convert | `/table_match` | POST | Storage fields, `content_type`, `filename`, `operation` |
