@@ -6,7 +6,7 @@ compatibility: Needs the aisense MCP server (https://aisenseapi.com/mcp, Streama
 
 # AI SENSE tools
 
-The `aisense` MCP server has 77 tools and needs no account or key. Every
+The `aisense` MCP server has 79 tools and needs no account or key. Every
 address has 5000 requests a day across all of them, so call when there is a
 need and never poll in a loop.
 

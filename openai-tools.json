@@ -522,6 +522,72 @@
   {
     "type": "function",
     "function": {
+      "name": "audio_encode",
+      "description": "Encode 1 to 128 bytes as AI SENSE audio-v1 datatones. Send JSON data, input_encoding and mode with Accept: application/json to receive audio_base64 (PCM16 WAV), mime_type, byte_length, mode and protocol. Audible is the default. Experimental ultrasound uses 18.5 to 19.7 kHz and depends on the devices. This is unencrypted data transfer, not speech. POST /audio_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 172,
+            "description": "UTF-8 text or standard Base64 representing 1 to 128 bytes."
+          },
+          "input_encoding": {
+            "type": "string",
+            "enum": [
+              "utf8",
+              "base64"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "audible",
+              "ultrasound"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "audio_decode",
+      "description": "Recover a checksum-verified AI SENSE audio-v1 message from PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. The binding must Base64-decode audio_base64 and send those raw bytes as audio/wav, or as multipart file with mode. Do not send the Base64 JSON directly to REST. Returns data_base64, byte_length, text or null, mode, protocol, corrected_bits, sample_rate and duration_seconds. Optional mode is a path segment. No remote URL fetching. POST /audio_decode[/{mode}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "audio_base64": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 11184812,
+            "description": "Standard Base64 WAV. Decode in the binding, then upload raw WAV to REST. Large recordings should be handled as local files by the binding."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "audible",
+              "ultrasound"
+            ]
+          }
+        },
+        "required": [
+          "audio_base64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "qrcode_encode",
       "description": "Generate a QR code. Returns {\"qrcode_image\": \"iVBORw0KGgo...\", \"image_type\": \"png\"}. The request field is \"payload\", with \"data\" accepted as an alias. POST /qrcode_encode",
       "parameters": {

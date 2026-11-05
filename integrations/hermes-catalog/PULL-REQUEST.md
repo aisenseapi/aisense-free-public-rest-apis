@@ -28,7 +28,7 @@ feat(plugin-catalog): add aisense
 ```text
 What it does: connects Hermes to AI SENSE Free Public Tools, a hosted MCP
 server at https://aisenseapi.com/mcp (Streamable HTTP, no authentication) with
-77 tools: time and time zones, hashing and encoding, QR codes, HTML to PDF,
+79 tools: time and time zones, hashing and encoding, QR codes, HTML to PDF,
 JSON and CSV, images, and workflow tools (temporary storage, webhook capture,
 human approval, Agent Queue, Lease, Heartbeat, Agent Inbox, typed decisions
 from weighted rules, semantic search, one-time secrets). It also bundles one

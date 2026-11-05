@@ -435,6 +435,15 @@ class AISenseAPI:
         """Decode a JWT. Response key: ``decoded_payload``."""
         return self._post("/jwt_decode", {"data": token, "secret": secret})
 
+    def audio_encode(self, data: str, input_encoding: str = "utf8", mode: str = "audible") -> dict:
+        """Encode 1..128 bytes. Returns audio_base64 (PCM16 WAV) and metadata."""
+        return self._request("/audio_encode", "POST", {"data": data, "input_encoding": input_encoding, "mode": mode},
+                             extra_headers={"Accept": "application/json"})
+
+    def audio_decode(self, file: Union[bytes, bytearray, str], mode: str = "auto") -> dict:
+        """Decode a PCM16 WAV file or bytes. Returns data_base64 and text or null."""
+        return self._upload("/audio_decode", file, {"mode": mode})
+
     def qrcode_encode(self, payload: str) -> dict:
         """Generate a QR code. Response keys: ``qrcode_image`` (Base64 PNG) and ``image_type``.
 

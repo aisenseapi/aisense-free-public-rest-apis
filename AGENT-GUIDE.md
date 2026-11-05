@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.10
+Resource version 1.8.11
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -25,6 +25,7 @@ This public server needs no account, API key or authentication header. Its tools
 | Hand off a value or short link | Temporary Data or URL | Readable by anyone holding the ID or link |
 | A public name for an address, for a day | Temporary DNS Name | A DNS record only: no tunnel, no hosting, no certificate |
 | Encode, hash, a random value, a time format, HTML to Markdown and back | Utility tools | Computed on request, nothing stored |
+| Send a short message as datatones, or recover it from a WAV recording | encode_audio / decode_audio | 128 bytes maximum. Unencrypted, hardware-dependent acoustic transfer |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
@@ -34,7 +35,7 @@ This public server needs no account, API key or authentication header. Its tools
 
 ## Tool catalog
 
-Catalog size: 77 MCP tools.
+Catalog size: 79 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -70,6 +71,8 @@ Catalog size: 77 MCP tools.
 - `update_dns_name` - Move a name to another address without moving its expiry.
 - `delete_dns_name` - Remove a name before it expires.
 - `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding or as HTML entities, or decode it.
+- `encode_audio` - Encode up to 128 bytes as audible or experimental high-frequency datatones in a WAV audio block.
+- `decode_audio` - Recover a checksum-verified message from a PCM16 WAV recording.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, color, GUID, password or passphrase.
@@ -385,3 +388,40 @@ Use `process_image` with `operation` set to `convert` to rasterize a supported s
 To trace a PNG or JPEG logo, use `operation` set to `vectorize` with the same input fields. The result is an SVG of black paths on a transparent background. The trace preserves the aspect ratio and fits within 1024 by 1024 pixels without enlarging the source. The optional integer `threshold` ranges from 1 to 99 and defaults to 50. Raise it to include lighter pixels. On REST, POST a multipart `file` and optional `threshold` to /services/v1/image_vectorize.
 
 `crypto_wallet` key pairs pass through this service. Use them for tests and small amounts only. `schedule_webhook` answers with a `schedule_id` that reads and cancels the job, so keep it private. `simulate_failure` returns an error result for statuses of 400 and above, which is the point of the tool.
+
+
+## Data over sound
+
+`encode_audio` takes `data`, optional `input_encoding` (`utf8` by default, or
+`base64` for binary bytes), and optional `mode` (`audible` by default, or
+`ultrasound`). The input is 1 to 128 bytes after decoding Base64. It returns a
+PCM16 WAV as an MCP audio block, with small structured metadata. It does not
+store a file or play sound without the client's action.
+
+`decode_audio` takes `storage_id`, with optional `mode` (`auto`, `audible` or
+`ultrasound`). Upload a WAV through REST Storage and pass its `storage_id`.
+Even a short recording exceeds the MCP inline request limit. This input is
+limited to 4 MiB and must be an ordinary 24-hour object without a download
+limit. No storage lifetime is extended. The decoder reads PCM16 WAV at 44100
+or 48000 Hz, mono or stereo, at most 40 seconds. It returns `data_base64`,
+`byte_length`, `text` when the bytes are valid UTF-8 (otherwise null), `mode`,
+`protocol`, `corrected_bits`, `sample_rate` and `duration_seconds`. A failed
+checksum yields an error rather than a guessed message.
+
+REST uses `POST /services/v1/audio_encode` with the same encode JSON and returns
+`audio/wav`. `Accept: application/json` requests `audio_base64` and metadata
+instead. Send a WAV body to `POST /services/v1/audio_decode` to detect either
+mode, or append `/audible` or `/ultrasound`. Raw and multipart recordings are
+limited to 8 MiB. `Accept: application/octet-stream` returns the recovered
+bytes. This reads the AI SENSE audio-v1 format, not speech, arbitrary audio
+files or other modem protocols.
+
+On the website, start the receiver's microphone, then play the sender's audio
+on the other device. Stop the recording and decode it. Both pages need internet
+access to the API. Their message crosses between the devices as sound. The
+API processes the submitted text or recording without keeping its payload.
+The sound is unencrypted, so a nearby listener may recover the message.
+
+The high-frequency option uses 18.5 to 19.7 kHz. Some people can hear these
+tones, and speakers, microphones or audio processing may remove them. Use the
+audible mode if a device cannot receive the high-frequency signal.

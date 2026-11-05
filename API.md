@@ -24,6 +24,7 @@ guess it.
 - [Time](#time)
 - [Random](#random)
 - [Transform](#transform)
+- [Audio data](#audio-data)
 - [Convert](#convert)
 - [Images](#images)
 - [Logic](#logic)
@@ -608,6 +609,99 @@ Several codes in one image come back one per line in the same string.
 | 503 | Two images are being worked on already (with `Retry-After`), or the decoding took more than 45 seconds |
 
 Every refusal carries `error` and `fix`.
+
+---
+
+## Audio data
+
+Two stateless endpoints carry short messages as datatones in the
+`aisense-audio-v1` format. They do not transcribe speech. Their browser pages
+include a sender and a microphone receiver for PC and mobile.
+
+### `POST /audio_encode`
+
+Send `Content-Type: application/json` with:
+
+```json
+{"data":"Hello","input_encoding":"utf8","mode":"audible"}
+```
+
+`data` is required. `input_encoding` defaults to `utf8`, or accepts `base64`
+for arbitrary binary bytes. The decoded input must contain 1 to 128 bytes,
+including the UTF-8 bytes of non-ASCII characters. `mode` is `audible` by
+default, or `ultrasound`. Unknown fields are refused.
+
+The default response is a mono, 48000 Hz, 16-bit PCM WAV with
+`Content-Type: audio/wav`. It contains a framed message, error-correcting bits
+and a checksum. Use `Accept: application/json` for this envelope instead:
+
+```json
+{"audio_base64":"UklGR...","mime_type":"audio/wav","byte_length":5,"mode":"audible","protocol":"aisense-audio-v1"}
+```
+
+`byte_length` is the original payload length, not the WAV size. The Base64
+above is abbreviated. The Python SDK's `audio_encode()` and JavaScript
+SDK's `audioEncode()` request this JSON representation.
+
+```bash
+curl -fsS https://aisenseapi.com/services/v1/audio_encode \
+  -H 'Content-Type: application/json' \
+  --data '{"data":"Hello","mode":"audible"}' --output message.wav
+```
+
+### `POST /audio_decode[/{mode}]`
+
+Send a raw WAV with `Content-Type: audio/wav`, or multipart form data with
+one `file` and an optional `mode` field. JSON audio uploads are not supported.
+The optional path segment is `auto`, `audible` or `ultrasound`. Without it,
+the decoder detects either mode. A body mode that conflicts with the path
+is rejected. Query-string arguments are not accepted.
+
+Recordings must be uncompressed PCM16 WAV, mono or stereo, at 44100 or
+48000 Hz, no more than 40 seconds and 8 MiB. Compressed WAV, WebM, MP3 and
+AAC are not accepted. A browser should capture PCM directly and write a
+WAV header, as the Try page does, rather than rename a MediaRecorder file.
+
+```bash
+curl -fsS https://aisenseapi.com/services/v1/audio_decode \
+  -H 'Content-Type: audio/wav' --data-binary @recording.wav
+```
+
+The first intact message is returned as JSON:
+
+```json
+{"data_base64":"SGVsbG8=","byte_length":5,"text":"Hello","protocol":"aisense-audio-v1","mode":"audible","corrected_bits":0,"sample_rate":48000,"duration_seconds":3.08}
+```
+
+`data_base64` preserves the exact decoded bytes. `text` is null if they are
+not valid UTF-8. `corrected_bits` counts repaired codeword bits, not a quality
+or authentication score. `sample_rate` and `duration_seconds` describe the
+submitted recording. `Accept: application/octet-stream` requests the recovered
+bytes directly. The Python SDK's `audio_decode()` and JavaScript SDK's
+`audioDecode()` submit a multipart WAV and return the JSON result.
+
+Errors contain `error` and `fix`. Malformed input is 400, too much data is
+413, unsupported content types are 415, and a recording without an intact
+checksum-verified message is 422. A busy decoder or exhausted decoding work
+budget answers 503 with `Retry-After` where available. The shared request
+limit may answer 429. Both endpoints are POST only.
+
+The audible mode uses 1400, 1800, 2200 and 2600 Hz. The experimental
+high-frequency mode uses 18500, 18900, 19300 and 19700 Hz. Some people can
+hear it. Ordinary speakers and microphones vary, and audio processing can
+filter it out. Start listening before playing the sound, keep the devices
+near each other and use audible mode when the high-frequency mode fails.
+
+Both Try pages need internet access to the API. The message crosses between
+the devices as sound. Submitted payloads are processed without being stored
+by these endpoints. Sound carries unencrypted data, and a checksum does not
+authenticate the sender.
+
+MCP provides `encode_audio` as a native WAV audio block and `decode_audio`
+with `storage_id`, referring to a WAV uploaded through REST Storage first.
+The MCP input is at most 4 MiB and must be an ordinary 24-hour object without
+a download limit. Its existing lifetime is unchanged. Inline WAV recordings
+exceed the MCP request size limit.
 
 ---
 
