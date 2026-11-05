@@ -140,6 +140,23 @@ ChatGPT and Codex, Kiro, Hermes Agent and OpenClaw load such packages; the
 [compatible clients](https://agent-plugins.org/compatible-clients) page links
 each client's setup instructions.
 
+**Claude Code, Codex and Gemini CLI as a plugin.** The same package, with each
+client's own manifest beside it, sits at the root of
+[aisenseapi/aisense-agent-plugin](https://github.com/aisenseapi/aisense-agent-plugin).
+In Claude Code:
+
+```text
+/plugin marketplace add aisenseapi/aisense-agent-plugin
+/plugin install aisense@aisense
+```
+
+Codex and Gemini CLI:
+
+```bash
+codex plugin marketplace add aisenseapi/aisense-agent-plugin
+gemini extensions install https://github.com/aisenseapi/aisense-agent-plugin
+```
+
 **A first task that proves the connection**, the same in every client. Ask
 the agent:
 

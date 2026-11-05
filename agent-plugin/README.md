@@ -16,8 +16,11 @@ There is no local code: the package declares a hosted server and a skill.
 
 Any client that loads Agent Plugins can load this directory; the
 [compatible clients](https://agent-plugins.org/compatible-clients) page links
-each client's own setup instructions. Without the plugin, the server alone is
-one entry in any MCP client:
+each client's own setup instructions. The same package with manifests for
+Claude Code, Codex, Gemini CLI and Antigravity sits at the root of
+[aisenseapi/aisense-agent-plugin](https://github.com/aisenseapi/aisense-agent-plugin),
+which takes each client's one-command install. Without the plugin, the server
+alone is one entry in any MCP client:
 
 ```bash
 hermes mcp add aisense --url https://aisenseapi.com/mcp
