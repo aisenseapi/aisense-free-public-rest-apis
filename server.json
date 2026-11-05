@@ -3,11 +3,12 @@
   "name": "com.aisenseapi/free-public-tools",
   "title": "AI SENSE Free Public Tools",
   "description": "77 public tools: agent runs, handoffs, one-time secrets, semantic search, queues and webhooks.",
+  "websiteUrl": "https://aisense.no/free-public-mcp-server",
   "repository": {
     "url": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
     "source": "github"
   },
-  "version": "1.16.0",
+  "version": "1.16.1",
   "remotes": [
     {
       "type": "streamable-http",
