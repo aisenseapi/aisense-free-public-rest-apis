@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "aisense": {
+      "type": "http",
+      "url": "https://aisenseapi.com/mcp"
+    }
+  }
+}
