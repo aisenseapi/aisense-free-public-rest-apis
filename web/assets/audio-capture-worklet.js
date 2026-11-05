@@ -11,6 +11,8 @@ class AudioDataCapture extends AudioWorkletProcessor {
     this.toneSamples = 0;
     this.lastToneSample = 0;
     this.coefficients = [1400, 1800, 2200, 2600, 18500, 18900, 19300, 19700].map(frequency => 2 * Math.cos(2 * Math.PI * frequency / sampleRate));
+    this.history = new Float64Array(4); // The last four input samples, for the high-pass filter.
+    this.highpassed = new Float32Array(128);
     this.port.onmessage = event => {
       if (event.data === 'stop') {
         this.running = false;
@@ -28,6 +30,22 @@ class AudioDataCapture extends AudioWorkletProcessor {
     this.level = 0;
   }
 
+  // True when one of four tones carries most of this block's energy.
+  hasTone(samples, length, energy, first) {
+    if (energy / length <= 0.000009) return false;
+    for (let k = first; k < first + 4; k++) {
+      const coefficient = this.coefficients[k];
+      let previous = 0, before = 0;
+      for (let i = 0; i < length; i++) {
+        const next = samples[i] + coefficient * previous - before;
+        before = previous; previous = next;
+      }
+      const power = previous * previous + before * before - coefficient * previous * before;
+      if (power / (energy * length) > 0.22) return true;
+    }
+    return false;
+  }
+
   process(inputs) {
     if (!this.running) return false;
     const channels = inputs[0];
@@ -42,22 +60,25 @@ class AudioDataCapture extends AudioWorkletProcessor {
       if (candidateEnergy > energy) { channel = candidate; energy = candidateEnergy; }
     }
     const frames = Math.min(channel.length, this.maxSamples - this.samples);
+    // High tones are judged after a fourth-order difference, (1 - z^-1)^4, as
+    // on the server, so room noise and hum cannot hide a weak 19 kHz tone.
+    if (this.highpassed.length < channel.length) this.highpassed = new Float32Array(channel.length);
+    const history = this.history;
+    let x1 = history[0], x2 = history[1], x3 = history[2], x4 = history[3];
+    let highEnergy = 0;
+    for (let i = 0; i < channel.length; i++) {
+      const value = channel[i];
+      const filtered = value - 4 * x1 + 6 * x2 - 4 * x3 + x4;
+      x4 = x3; x3 = x2; x2 = x1; x1 = value;
+      this.highpassed[i] = filtered;
+      highEnergy += filtered * filtered;
+    }
+    history[0] = x1; history[1] = x2; history[2] = x3; history[3] = x4;
     // This only recognizes tone activity to end capture after a quiet gap.
     // It does not decode a message or replace the server's integrity check.
-    if (energy / channel.length > 0.000009) {
-      for (const coefficient of this.coefficients) {
-        let previous = 0, before = 0;
-        for (const value of channel) {
-          const next = value + coefficient * previous - before;
-          before = previous; previous = next;
-        }
-        const power = previous * previous + before * before - coefficient * previous * before;
-        if (power / (energy * channel.length) > 0.22) {
-          this.toneSamples += frames;
-          this.lastToneSample = this.samples + frames;
-          break;
-        }
-      }
+    if (this.hasTone(channel, channel.length, energy, 0) || this.hasTone(this.highpassed, channel.length, highEnergy, 4)) {
+      this.toneSamples += frames;
+      this.lastToneSample = this.samples + frames;
     }
     for (let i = 0; i < frames; i++) {
       const sample = Math.max(-1, Math.min(1, channel[i]));
