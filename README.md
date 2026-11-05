@@ -35,8 +35,9 @@ with a fake renderer so the flow runs without ComfyUI.
 The server reports version `1.16.0` and offers 77 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.16.0` as active and latest,
-published 31 October 2026 at 16:00 UTC.
+`com.aisenseapi/free-public-tools` version `1.16.1` as active and latest,
+published 5 November 2026 at 07:53 UTC: the 1.16.0 server with a website link
+added to the registry entry.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
