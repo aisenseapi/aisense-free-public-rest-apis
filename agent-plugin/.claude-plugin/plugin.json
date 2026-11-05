@@ -1,0 +1,29 @@
+{
+  "name": "aisense",
+  "displayName": "AI SENSE Free Public Tools",
+  "version": "1.1.0",
+  "description": "77 free tools for agents with no account or key: time, hashing, encoding, QR codes, HTML to PDF, JSON and CSV, images, temporary storage, webhook capture, queues, leases, decisions and semantic search.",
+  "author": {
+    "name": "AI SENSE AS",
+    "email": "support@aisense.no",
+    "url": "https://aisense.no"
+  },
+  "homepage": "https://aisense.no/free-public-mcp-server",
+  "repository": "https://github.com/aisenseapi/aisense-free-public-rest-apis",
+  "license": "MIT",
+  "keywords": [
+    "utilities",
+    "webhooks",
+    "queue",
+    "qr-code",
+    "pdf",
+    "decide",
+    "no-auth",
+    "mcp"
+  ],
+  "icon": "./assets/icon.png",
+  "documentationUrl": "https://aisense.no/free-public-mcp-server",
+  "supportUrl": "https://github.com/aisenseapi/aisense-free-public-rest-apis/issues",
+  "privacyPolicyUrl": "https://aisense.no/privacy",
+  "termsOfServiceUrl": "https://aisense.no/terms"
+}
