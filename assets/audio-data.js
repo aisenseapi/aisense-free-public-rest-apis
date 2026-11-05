@@ -253,7 +253,7 @@
         catch (_) { capture.context = new AudioContextClass(); }
         await capture.context.resume();
         if (!capture.context.audioWorklet) throw new Error('AudioWorklet is unavailable. Use a current browser or upload a WAV file.');
-        await capture.context.audioWorklet.addModule('/assets/audio-capture-worklet.js?v=20261105a');
+        await capture.context.audioWorklet.addModule('/assets/audio-capture-worklet.js?v=20261105b');
         if (disposed || epoch !== cancelEpoch) { await closeCapture(capture); return; }
         capture.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
         if (disposed || epoch !== cancelEpoch) { await closeCapture(capture); return; }
