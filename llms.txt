@@ -40,7 +40,8 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 
 ## Limits
 
-- 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day.
+- Free allowance: 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day.
+- Optional Pro plans: https://aisense.no/custom-apis. Shared customer quotas of 10,000, 50,000, 100,000 or 1,000,000 requests per day, selected by source IP without an API key. Endpoint-specific limits and temporary data expiry stay the same.
 - Both reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). A 429 answer carries Retry-After with the seconds until then.
 - Stored results and files expire after 24 hours.
 
