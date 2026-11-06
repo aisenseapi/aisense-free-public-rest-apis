@@ -42,7 +42,7 @@ JSON_POSTS = [
 EXPECTED = [("GET", "/passphrase/5", None, None, None, None)]
 EXPECTED += [("POST", path, "json", body, None, None) for path, body in JSON_POSTS]
 EXPECTED += [
-    ("POST", "/audio_decode", "form", {"mode": "ultrasound"}, "image", None),
+    ("POST", "/audio_decode", "form", {"mode": "high"}, "image", None),
     ("GET", "/dns/198.51.100.7", None, None, None, None),
     ("GET", "/dns/abcdefg", None, None, None, None),
     ("POST", "/dns/abcdefg/update/198.51.100.8", "json", {}, None, "dns-token-1"),
@@ -110,7 +110,7 @@ await api.slugify('Blåbær på Ås')
 await api.hashVerify('Hello', 4157704578, 'crc32')
 await api.emailValidate('post@example.com')
 await api.validate('iban', 'NO9386011117947')
-await api.audioDecode(image, 'ultrasound')
+await api.audioDecode(image, 'high')
 await api.dnsCreate('198.51.100.7')
 await api.dnsRead('abcdefg')
 await api.dnsUpdate('abcdefg', '198.51.100.8', 'dns-token-1')
@@ -269,7 +269,7 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.hash_verify("Hello", 4157704578, "crc32")
     api.email_validate("post@example.com")
     api.validate("iban", "NO9386011117947")
-    api.audio_decode(IMAGE, "ultrasound")
+    api.audio_decode(IMAGE, "high")
     api.dns_create("198.51.100.7")
     api.dns_read("abcdefg")
     api.dns_update("abcdefg", "198.51.100.8", "dns-token-1")

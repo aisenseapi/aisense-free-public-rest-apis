@@ -98,8 +98,8 @@
   }
 
   function updateModeNote() {
-    byId('audio-mode-note').textContent = mode.value === 'ultrasound'
-      ? '18.5-19.7 kHz. This experimental band may still be audible, and many microphones filter it out. Try audible mode first.'
+    byId('audio-mode-note').textContent = mode.value === 'high'
+      ? '14.8-16.0 kHz. Many people can still hear this experimental band, and some microphones filter it out. Try audible mode first.'
       : mode.value === 'auto'
         ? 'Detect either mode. Start with audible tones for the first test on a new pair of devices.'
         : 'A short sequence of digital tones. Start at moderate volume with the devices close together.';
@@ -146,7 +146,7 @@
         const url = blobUrl(blob);
         player.src = url;
         byId('audio-download').href = url;
-        byId('audio-result-meta').textContent = length + ' bytes encoded. ' + (mode.value === 'ultrasound' ? 'High-frequency mode.' : 'Audible mode.');
+        byId('audio-result-meta').textContent = length + ' bytes encoded. ' + (mode.value === 'high' ? 'High-frequency mode.' : 'Audible mode.');
         output.hidden = false;
         say('Sound ready. Start listening on the receiving device, then press Play below.');
       } catch (error) { if (!disposed) say(errorText(error), true); }
@@ -253,7 +253,7 @@
         catch (_) { capture.context = new AudioContextClass(); }
         await capture.context.resume();
         if (!capture.context.audioWorklet) throw new Error('AudioWorklet is unavailable. Use a current browser or upload a WAV file.');
-        await capture.context.audioWorklet.addModule('/assets/audio-capture-worklet.js?v=20261105b');
+        await capture.context.audioWorklet.addModule('/assets/audio-capture-worklet.js?v=20261106a');
         if (disposed || epoch !== cancelEpoch) { await closeCapture(capture); return; }
         capture.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
         if (disposed || epoch !== cancelEpoch) { await closeCapture(capture); return; }

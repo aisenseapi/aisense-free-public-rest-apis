@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.11
+Resource version 1.8.12
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -394,12 +394,12 @@ To trace a PNG or JPEG logo, use `operation` set to `vectorize` with the same in
 
 `encode_audio` takes `data`, optional `input_encoding` (`utf8` by default, or
 `base64` for binary bytes), and optional `mode` (`audible` by default, or
-`ultrasound`). The input is 1 to 128 bytes after decoding Base64. It returns a
+`high`). The input is 1 to 128 bytes after decoding Base64. It returns a
 PCM16 WAV as an MCP audio block, with small structured metadata. It does not
 store a file or play sound without the client's action.
 
 `decode_audio` takes `storage_id`, with optional `mode` (`auto`, `audible` or
-`ultrasound`). Upload a WAV through REST Storage and pass its `storage_id`.
+`high`). Upload a WAV through REST Storage and pass its `storage_id`.
 Even a short recording exceeds the MCP inline request limit. This input is
 limited to 4 MiB and must be an ordinary 24-hour object without a download
 limit. No storage lifetime is extended. The decoder reads PCM16 WAV at 44100
@@ -411,7 +411,7 @@ checksum yields an error rather than a guessed message.
 REST uses `POST /services/v1/audio_encode` with the same encode JSON and returns
 `audio/wav`. `Accept: application/json` requests `audio_base64` and metadata
 instead. Send a WAV body to `POST /services/v1/audio_decode` to detect either
-mode, or append `/audible` or `/ultrasound`. Raw and multipart recordings are
+mode, or append `/audible` or `/high`. Raw and multipart recordings are
 limited to 8 MiB. `Accept: application/octet-stream` returns the recovered
 bytes. This reads the AI SENSE audio-v1 format, not speech, arbitrary audio
 files or other modem protocols.
@@ -422,6 +422,7 @@ access to the API. Their message crosses between the devices as sound. The
 API processes the submitted text or recording without keeping its payload.
 The sound is unencrypted, so a nearby listener may recover the message.
 
-The high-frequency option uses 18.5 to 19.7 kHz. Some people can hear these
-tones, and speakers, microphones or audio processing may remove them. Use the
+The high-frequency option uses four tones from 14.8 to 16.0 kHz. Many people
+can hear them as a faint high tone, and speakers, microphones or audio
+processing may remove them. Use the
 audible mode if a device cannot receive the high-frequency signal.

@@ -47,7 +47,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.17.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.17.0, published 5 November 2026 at 16:12 UTC
+- MCP server version 1.18.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.17.0, published 5 November 2026 at 16:12 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -160,6 +160,6 @@ AgentSync MAX keeps the work of several coding agents together around the projec
 
 ## Data over sound
 
-- Audio encode: POST /services/v1/audio_encode, JSON data plus optional input_encoding (utf8 or base64) and mode (audible or ultrasound). Accepts 1 to 128 bytes and returns PCM16 WAV, or an audio_base64 JSON envelope with Accept: application/json. Try: https://aisense.no/free-public-api-audio-encode-api-endpoint
-- Audio decode: POST /services/v1/audio_decode, optionally followed by /auto, /audible or /ultrasound. Upload PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. Returns checksum-verified data_base64 and text or null. Try with a microphone: https://aisense.no/free-public-api-audio-decode-api-endpoint
-- The acoustic format is aisense-audio-v1. It transfers unencrypted data, not speech. The high-frequency mode uses 18.5 to 19.7 kHz and may be audible or filtered by devices. Recordings go to the API for decoding and are not retained by these endpoints. MCP encode_audio returns a native audio block. MCP decode_audio takes an ordinary Storage file by storage_id, up to 4 MiB, without a download limit.
+- Audio encode: POST /services/v1/audio_encode, JSON data plus optional input_encoding (utf8 or base64) and mode (audible or high). Accepts 1 to 128 bytes and returns PCM16 WAV, or an audio_base64 JSON envelope with Accept: application/json. Try: https://aisense.no/free-public-api-audio-encode-api-endpoint
+- Audio decode: POST /services/v1/audio_decode, optionally followed by /auto, /audible or /high. Upload PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. Returns checksum-verified data_base64 and text or null. Try with a microphone: https://aisense.no/free-public-api-audio-decode-api-endpoint
+- The acoustic format is aisense-audio-v1. It transfers unencrypted data, not speech. The high mode uses four tones from 14.8 to 16.0 kHz; many people can hear it, and devices may filter it. Recordings go to the API for decoding and are not retained by these endpoints. MCP encode_audio returns a native audio block. MCP decode_audio takes an ordinary Storage file by storage_id, up to 4 MiB, without a download limit.
