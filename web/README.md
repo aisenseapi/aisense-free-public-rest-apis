@@ -82,7 +82,7 @@ single row here. Each one is listed in `sitemap.xml`.
 | `watch-an-ai-agent-take-a-test-live.html` | `/watch-an-ai-agent-take-a-test-live` - the emi post, with its card, `assets/aisense-aiq-emi-live.jpg`, an animated GIF of a whole run on the observer page, `assets/aisense-aiq-emi-observer.gif`, and `assets/copy-text.js` for the button that copies the agent instructions |
 | `about.html` | `/about` |
 | `contact-us.html` | `/contact-us` |
-| `login.html` | `/login` - client login with no accounts behind it yet, excluded from search indexing; it posts only the email address to `login-attempt.php` |
+| `login.html` | `/login` - sign-in and registration links to the real customer portal on aisenseapi.com; no credentials are entered on www |
 | `privacy.html` | `/privacy` - **needs legal review, see below** |
 | `terms.html` | `/terms` - **needs legal review, see below** |
 | `assets/aisense.css` | shared stylesheet |
@@ -102,7 +102,7 @@ single row here. Each one is listed in `sitemap.xml`.
 | `llms.txt` | `/llms.txt` - what the site offers, for language models |
 | `m2m-logs.php` | token-protected read access to this box's Apache logs for the operator dashboard; its header says what it may do |
 | `m2m-content-stats.php` | content counts included by `m2m-logs.php`; a direct request gets 404 |
-| `login-attempt.php` | tells Admin on Slack when someone uses the client login: the email address and the time, never the password. Hands the line to `/usr/local/bin/slack_alert` on the web box, with no shell and a 5 second limit; 3 per address and 20 in total an hour |
+| `login-attempt.php` | retired shadow handler, returns 410 and the real customer login address; reads no credentials and sends no notifications |
 | `robots.txt` | crawler directives and sitemap location |
 | `ab943e942b573e2b848e95e7ef80b550.txt` | the IndexNow key, which lets Bing and the other IndexNow search engines take URL submissions for aisense.no; public on purpose |
 | `sitemap.xml` | canonical URLs for search engines |

@@ -39,7 +39,7 @@ LATEST_POSTS = 5
 # no Cache-Control, so a browser may keep an old copy for hours; a new header
 # with the old CSS would show every menu open. Change this whenever the CSS
 # changes in a way the pages depend on, and run the script.
-CSS_VERSION = '20261104d'
+CSS_VERSION = '20261106pro'
 
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.
@@ -215,6 +215,10 @@ THEME_BUTTON = (
     '</button>'
 )
 
+LOGIN_LINK = ('<a class="account-login" href="/login" aria-label="Sign in or register" title="Sign in or register">'
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">'
+    '<circle cx="12" cy="8" r="4"></circle><path d="M4 21v-2a8 8 0 0 1 16 0v2"></path></svg></a>')
+
 
 def esc(text):
     return html.escape(text, quote=True)
@@ -295,7 +299,7 @@ def render(current, home=False):
     return ('<header class="site-header"><div class="inner">' + wordmark +
             '<nav class="site-nav" aria-label="Primary"><input class="site-menu-toggle" type="checkbox" id="site-menu-toggle">'
             '<label class="site-menu-button" for="site-menu-toggle"><span class="site-menu-bars"></span>Menu</label>'
-            '<div class="site-menu-links">' + ''.join(items) + '</div>' + THEME_BUTTON + '</nav></div></header>')
+            '<div class="site-menu-links">' + ''.join(items) + '</div><div class="site-account-controls">' + THEME_BUTTON + LOGIN_LINK + '</div></nav></div></header>')
 
 
 def check_links(header):
