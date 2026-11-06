@@ -75,7 +75,7 @@ test('worklet detects actual data tones for automatic stop, not silence', () => 
     AudioWorkletProcessor: class { constructor() { this.port = { postMessage() {} }; } },
     registerProcessor(name, value) { Processor = value; }, Int16Array, Math, sampleRate: 48000
   });
-  for (const frequency of [1400, 1800, 2200, 2600, 18500, 18900, 19300, 19700]) {
+  for (const frequency of [1400, 1800, 2200, 2600, 14800, 15200, 15600, 16000]) {
     const processor = new Processor();
     for (let block = 0; block < 400; block++) processor.process([[Float32Array.from({ length: 128 }, (_, i) => .25 * Math.sin(2 * Math.PI * frequency * (block * 128 + i) / 48000))]]);
     assert.ok(processor.toneSamples >= 48000);
@@ -91,7 +91,7 @@ test('worklet hears a weak high tone under louder low room noise, and the noise 
     AudioWorkletProcessor: class { constructor() { this.port = { postMessage() {} }; } },
     registerProcessor(name, value) { Processor = value; }, Int16Array, Math, sampleRate: 48000
   });
-  // Speakers reproduce 19 kHz far weaker than 2 kHz, so the tone sits 23 dB
+  // Speakers reproduce 15 kHz far weaker than 2 kHz, so the tone sits 23 dB
   // under brown noise and 50 Hz hum, as a microphone hears a room.
   let seed = 7919, walk = 0;
   const room = n => {
@@ -99,7 +99,7 @@ test('worklet hears a weak high tone under louder low room noise, and the noise 
     walk = 0.995 * walk + (seed / 1073741823.5 - 1);
     return 0.1 * (walk / 5.78 + 0.5 * Math.sin(2 * Math.PI * 50 * n / 48000));
   };
-  for (const frequency of [18500, 18900, 19300, 19700]) {
+  for (const frequency of [14800, 15200, 15600, 16000]) {
     const processor = new Processor();
     for (let block = 0; block < 400; block++) processor.process([[Float32Array.from({ length: 128 }, (_, i) => {
       const n = block * 128 + i;

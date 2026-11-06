@@ -523,7 +523,7 @@
     "type": "function",
     "function": {
       "name": "audio_encode",
-      "description": "Encode 1 to 128 bytes as AI SENSE audio-v1 datatones. Send JSON data, input_encoding and mode with Accept: application/json to receive audio_base64 (PCM16 WAV), mime_type, byte_length, mode and protocol. Audible is the default. Experimental ultrasound uses 18.5 to 19.7 kHz and depends on the devices. This is unencrypted data transfer, not speech. POST /audio_encode",
+      "description": "Encode 1 to 128 bytes as AI SENSE audio-v1 datatones. Send JSON data, input_encoding and mode with Accept: application/json to receive audio_base64 (PCM16 WAV), mime_type, byte_length, mode and protocol. Audible is the default. The experimental high mode uses 14.8 to 16.0 kHz and depends on the devices. This is unencrypted data transfer, not speech. POST /audio_encode",
       "parameters": {
         "type": "object",
         "properties": {
@@ -544,7 +544,7 @@
             "type": "string",
             "enum": [
               "audible",
-              "ultrasound"
+              "high"
             ]
           }
         },
@@ -574,7 +574,7 @@
             "enum": [
               "auto",
               "audible",
-              "ultrasound"
+              "high"
             ]
           }
         },

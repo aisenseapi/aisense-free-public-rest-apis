@@ -80,12 +80,12 @@ async function run(mode) {
 (async () => {
   try {
     await run('audible');
-    await run('ultrasound');
+    await run('high');
     assert.deepEqual(failures, []);
     console.log('Audio browser integration: 2 modes passed. Physical devices remain untested.');
   } finally {
     // Delete only files created by this test in its own new temporary directory.
-    for (const name of ['audible.wav', 'ultrasound.wav']) {
+    for (const name of ['audible.wav', 'high.wav']) {
       const file = path.join(directory, name);
       if (fs.existsSync(file)) fs.unlinkSync(file);
     }
