@@ -393,28 +393,30 @@ To trace a PNG or JPEG logo, use `operation` set to `vectorize` with the same in
 ## Data over sound
 
 `encode_audio` takes `data`, optional `input_encoding` (`utf8` by default, or
-`base64` for binary bytes), and optional `mode` (`audible` by default, or
-`high`). The input is 1 to 128 bytes after decoding Base64. It returns a
-PCM16 WAV as an MCP audio block, with small structured metadata. It does not
-store a file or play sound without the client's action.
+`base64` for binary bytes), and optional `mode` (`audible` by default, or the
+experimental `high` or `ultrasound`). The input is 1 to 128 bytes after
+decoding Base64. It returns a PCM16 WAV as an MCP audio block, with small
+structured metadata. It does not store a file or play sound without the
+client's action.
 
-`decode_audio` takes `storage_id`, with optional `mode` (`auto`, `audible` or
-`high`). Upload a WAV through REST Storage and pass its `storage_id`.
-Even a short recording exceeds the MCP inline request limit. This input is
-limited to 4 MiB and must be an ordinary 24-hour object without a download
-limit. No storage lifetime is extended. The decoder reads PCM16 WAV at 44100
-or 48000 Hz, mono or stereo, at most 40 seconds. It returns `data_base64`,
-`byte_length`, `text` when the bytes are valid UTF-8 (otherwise null), `mode`,
-`protocol`, `corrected_bits`, `sample_rate` and `duration_seconds`. A failed
-checksum yields an error rather than a guessed message.
+`decode_audio` takes `storage_id`, with optional `mode` (`auto`, `audible`,
+`high` or `ultrasound`). Upload a WAV through REST Storage and pass its
+`storage_id`. Even a short recording exceeds the MCP inline request limit.
+This input is limited to 4 MiB and must be an ordinary 24-hour object without
+a download limit. No storage lifetime is extended. The decoder reads PCM16 WAV
+at 44100 or 48000 Hz, mono or stereo, at most 40 seconds. It returns
+`data_base64`, `byte_length`, `text` when the bytes are valid UTF-8 (otherwise
+null), `mode`, `protocol`, `corrected_bits`, `sample_rate` and
+`duration_seconds`. A failed checksum yields an error rather than a guessed
+message.
 
 REST uses `POST /services/v1/audio_encode` with the same encode JSON and returns
 `audio/wav`. `Accept: application/json` requests `audio_base64` and metadata
-instead. Send a WAV body to `POST /services/v1/audio_decode` to detect either
-mode, or append `/audible` or `/high`. Raw and multipart recordings are
-limited to 8 MiB. `Accept: application/octet-stream` returns the recovered
-bytes. This reads the AI SENSE audio-v1 format, not speech, arbitrary audio
-files or other modem protocols.
+instead. Send a WAV body to `POST /services/v1/audio_decode` to detect any of
+the three modes, or append `/audible`, `/high` or `/ultrasound`. Raw and
+multipart recordings are limited to 8 MiB. `Accept: application/octet-stream`
+returns the recovered bytes. This reads the AI SENSE audio-v1 format, not
+speech, arbitrary audio files or other modem protocols.
 
 On the website, start the receiver's microphone, then play the sender's audio
 on the other device. Stop the recording and decode it. Both pages need internet
@@ -422,7 +424,8 @@ access to the API. Their message crosses between the devices as sound. The
 API processes the submitted text or recording without keeping its payload.
 The sound is unencrypted, so a nearby listener may recover the message.
 
-The high-frequency option uses four tones from 14.8 to 16.0 kHz. Many people
-can hear them as a faint high tone, and speakers, microphones or audio
-processing may remove them. Use the
-audible mode if a device cannot receive the high-frequency signal.
+The experimental `high` mode uses 14800, 15200, 15600 and 16000 Hz, and the
+experimental `ultrasound` mode uses 18500, 18900, 19300 and 19700 Hz. Both
+depend on the speakers and microphone and can still be audible. Use `audible`
+first. `auto` tries all three bands within one shared time limit, so choose
+the known mode to avoid unnecessary scanning.

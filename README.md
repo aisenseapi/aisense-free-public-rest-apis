@@ -788,10 +788,11 @@ can be about 190 KB.
 ### Data over sound
 
 `POST /audio_encode` turns 1 to 128 bytes into a PCM16 WAV. Send JSON with
-`data`, optional `input_encoding` (`utf8` or `base64`) and `mode` (`audible`
-or experimental `high`). `POST /audio_decode[/{mode}]` recovers the
-bytes from a raw or multipart WAV, with `mode` set to `auto`, `audible` or
-`high`. Recordings can be up to 40 seconds and 8 MiB, at 44.1 or 48 kHz.
+`data`, optional `input_encoding` (`utf8` or `base64`) and `mode` (`audible`,
+or the experimental `high` or `ultrasound`). `POST /audio_decode[/{mode}]`
+recovers the bytes from a raw or multipart WAV, with `mode` set to `auto`,
+`audible`, `high` or `ultrasound`. Recordings can be up to 40 seconds and
+8 MiB, at 44.1 or 48 kHz.
 
 The sound carries data, not speech. A checksum rejects damaged frames, but
 does not encrypt or authenticate them. Neither endpoint stores the audio or
