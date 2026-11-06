@@ -166,7 +166,7 @@ non-2xx statuses, including 409 for conflicts and 410 for an expired record
 that has not yet been removed. Once removed, the same ID returns 404. Unknown
 routes also return 404. Consult each endpoint for its additional errors.
 
-**There is a rate limit: 5000 requests per IP per day.** Exceeding it
+**The free allowance is 5000 requests per IP per day.** Exceeding it
 returns HTTP 429 in the same flat error shape as everything else. The count
 resets at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year
 (midnight in Norway, time zone Europe/Oslo), and the 429 carries `Retry-After` with the seconds until then.
@@ -1095,7 +1095,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 - Webhook Schedule keeps its final result for up to another 24 hours
 - Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
-- Rate limit: 5000 requests per IP per day
+- Free allowance: 5000 requests per IP per day. [Pro plans](https://aisense.no/custom-apis) offer a larger shared customer quota without an API key.
 
 ---
 

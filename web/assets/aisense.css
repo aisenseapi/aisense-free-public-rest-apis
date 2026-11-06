@@ -1642,3 +1642,21 @@ td code { white-space: nowrap; }
 }
 :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 :root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+
+/* Theme and account controls remain together, including on small screens. */
+.site-account-controls { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.account-login { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); }
+.account-login svg { width:17px; height:17px; }
+.account-login:hover { border-color:var(--blue); color:var(--blue); }
+.account-login:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
+@media (pointer:coarse) { .site-account-controls .theme-toggle,.account-login { min-width:44px; min-height:44px; } }
+.pro-plans { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin:24px 0; }
+.pro-plan { padding:24px 18px; border:1px solid var(--border); border-radius:14px; background:var(--surface); min-width:0; }
+.pro-plan h3 { margin:0 0 12px; }
+.pro-plan .pro-price { font-size:32px; font-weight:750; margin:10px 0; }
+.pro-plan .pro-price span { font-size:14px; font-weight:400; }
+.pro-plan p { margin:10px 0; }
+@media (max-width:800px) { .pro-plans { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:420px) { .pro-plans { grid-template-columns:1fr; } }
+
+#pro-heading ~ .button-row { margin-bottom:18px; }
