@@ -10,7 +10,7 @@ class AudioDataCapture extends AudioWorkletProcessor {
     this.maxSamples = Math.floor(sampleRate * 40);
     this.toneSamples = 0;
     this.lastToneSample = 0;
-    this.coefficients = [1400, 1800, 2200, 2600, 18500, 18900, 19300, 19700].map(frequency => 2 * Math.cos(2 * Math.PI * frequency / sampleRate));
+    this.coefficients = [1400, 1800, 2200, 2600, 14800, 15200, 15600, 16000].map(frequency => 2 * Math.cos(2 * Math.PI * frequency / sampleRate));
     this.history = new Float64Array(4); // The last four input samples, for the high-pass filter.
     this.highpassed = new Float32Array(128);
     this.port.onmessage = event => {
@@ -61,7 +61,7 @@ class AudioDataCapture extends AudioWorkletProcessor {
     }
     const frames = Math.min(channel.length, this.maxSamples - this.samples);
     // High tones are judged after a fourth-order difference, (1 - z^-1)^4, as
-    // on the server, so room noise and hum cannot hide a weak 19 kHz tone.
+    // on the server, so room noise and hum cannot hide a weak 15 kHz tone.
     if (this.highpassed.length < channel.length) this.highpassed = new Float32Array(channel.length);
     const history = this.history;
     let x1 = history[0], x2 = history[1], x3 = history[2], x4 = history[3];
