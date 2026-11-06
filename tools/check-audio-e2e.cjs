@@ -69,11 +69,16 @@ async function run(mode) {
     await page.getByRole('button', { name: 'Start listening', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('#audio-status').textContent.startsWith('Listening.'));
     await page.locator('#audio-output').waitFor({ state: 'visible', timeout: 60000 });
+    // Auto-stop needs 1.2 s without tones, so it must end the recording inside
+    // the first 2 s gap, before the loop plays the sound again. A recording that
+    // ran to the 40 s limit also decodes, and must not pass as an automatic stop.
+    const stoppedAt = parseFloat(await page.locator('#audio-elapsed').textContent());
+    assert.ok(stoppedAt < duration + 2, mode + ': the recording stopped at ' + stoppedAt + ' s, after the first quiet gap of a ' + duration.toFixed(2) + ' s sound');
     assert.equal(await page.locator('#audio-result-text').textContent(), text);
     assert.equal(await page.locator('#audio-result-base64').textContent(), Buffer.from(text, 'utf8').toString('base64'));
     assert.equal(await page.locator('#audio-result-text b').count(), 0, 'Decoded HTML is text, never markup');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    console.log('ok ' + mode + ': sender WAV -> browser microphone/worklet -> automatic stop -> decoder -> exact UTF-8, ' + duration.toFixed(2) + ' s audio');
+    console.log('ok ' + mode + ': sender WAV -> browser microphone/worklet -> automatic stop at ' + stoppedAt.toFixed(1) + ' s -> decoder -> exact UTF-8, ' + duration.toFixed(2) + ' s audio');
   } finally { await receiver.close(); }
 }
 
