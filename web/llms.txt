@@ -47,7 +47,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.18.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.17.0, published 5 November 2026 at 16:12 UTC
+- MCP server version 1.18.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.18.0, published 6 November 2026 at 14:07 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
