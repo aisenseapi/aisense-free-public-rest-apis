@@ -629,7 +629,8 @@ Send `Content-Type: application/json` with:
 `data` is required. `input_encoding` defaults to `utf8`, or accepts `base64`
 for arbitrary binary bytes. The decoded input must contain 1 to 128 bytes,
 including the UTF-8 bytes of non-ASCII characters. `mode` is `audible` by
-default, or `high`. Unknown fields are refused.
+default, or the experimental `high` or `ultrasound`. Unknown fields are
+refused.
 
 The default response is a mono, 48000 Hz, 16-bit PCM WAV with
 `Content-Type: audio/wav`. It contains a framed message, error-correcting bits
@@ -653,9 +654,10 @@ curl -fsS https://aisenseapi.com/services/v1/audio_encode \
 
 Send a raw WAV with `Content-Type: audio/wav`, or multipart form data with
 one `file` and an optional `mode` field. JSON audio uploads are not supported.
-The optional path segment is `auto`, `audible` or `high`. Without it,
-the decoder detects either mode. A body mode that conflicts with the path
-is rejected. Query-string arguments are not accepted.
+The optional path segment is `auto`, `audible`, `high` or `ultrasound`.
+Without it, the decoder tries all three modes within one shared time limit, so
+pick the explicit mode when it is known. A body mode that conflicts with the
+path is rejected. Query-string arguments are not accepted.
 
 Recordings must be uncompressed PCM16 WAV, mono or stereo, at 44100 or
 48000 Hz, no more than 40 seconds and 8 MiB. Compressed WAV, WebM, MP3 and
@@ -687,10 +689,12 @@ budget answers 503 with `Retry-After` where available. The shared request
 limit may answer 429. Both endpoints are POST only.
 
 The audible mode uses 1400, 1800, 2200 and 2600 Hz. The experimental
-high mode uses 14800, 15200, 15600 and 16000 Hz. Many people can hear it
-as a faint high tone. Ordinary speakers and microphones vary, and audio processing can
-filter it out. Start listening before playing the sound, keep the devices
-near each other and use audible mode when the high-frequency mode fails.
+high mode uses 14800, 15200, 15600 and 16000 Hz, and the experimental
+ultrasound mode uses 18500, 18900, 19300 and 19700 Hz. Both can still be
+audible. Ordinary speakers and microphones vary, and audio processing can
+filter the higher tones out. Start listening before playing the sound, keep
+the devices near each other and use audible mode when a high-frequency mode
+fails.
 
 Both Try pages need internet access to the API. The message crosses between
 the devices as sound. Submitted payloads are processed without being stored
