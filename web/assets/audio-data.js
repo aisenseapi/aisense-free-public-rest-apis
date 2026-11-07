@@ -37,9 +37,16 @@
     if (file.size > MAX_WAV_BYTES) throw new Error('The WAV file must be 8 MiB or smaller.');
   }
 
+  // The level meter shows the peak in decibels from -60 to 0 dBFS. On a linear scale a high tone that a
+  // phone speaker plays at -35 dBFS barely moves the meter, although the decoder reads it well.
+  function meterValue(peak) {
+    if (!(peak > 0)) return 0;
+    return Math.min(1, Math.max(0, 1 + Math.log10(Math.min(1, peak)) / 3));
+  }
+
   // Export the byte and WAV contract for offline tests without touching a browser.
   if (typeof module === 'object' && module.exports) {
-    module.exports = { inputBytes, wavFromChunks, validateFile, MAX_BYTES, MAX_SECONDS, MAX_WAV_BYTES };
+    module.exports = { inputBytes, wavFromChunks, validateFile, meterValue, MAX_BYTES, MAX_SECONDS, MAX_WAV_BYTES };
     return;
   }
 
@@ -269,7 +276,7 @@
           const chunk = event.data.pcm.subarray(0, Math.max(0, available));
           if (chunk.length) { capture.chunks.push(chunk); capture.samples += chunk.length; }
           const seconds = capture.samples / capture.context.sampleRate;
-          meter.value = Math.min(1, Math.max(0, event.data.level || 0));
+          meter.value = meterValue(event.data.level || 0);
           progress.value = seconds;
           elapsed.textContent = seconds.toFixed(1) + ' / 40 s';
           if (seconds >= MAX_SECONDS) finishCapture();
