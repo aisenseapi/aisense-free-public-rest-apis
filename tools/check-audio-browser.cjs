@@ -75,7 +75,9 @@ test('worklet detects actual data tones for automatic stop, not silence', () => 
     AudioWorkletProcessor: class { constructor() { this.port = { postMessage() {} }; } },
     registerProcessor(name, value) { Processor = value; }, Int16Array, Math, sampleRate: 48000
   });
-  for (const frequency of [1400, 1800, 2200, 2600, 14800, 15200, 15600, 16000, 18500, 18900, 19300, 19700]) {
+  // The v2 tones of all three bands, and the v1 ultrasound tones that are not on the v2 grid.
+  for (const frequency of [...Array.from({ length: 12 }, (_, k) => 800 + 200 * k), ...Array.from({ length: 12 }, (_, k) => 14000 + 200 * k),
+    ...Array.from({ length: 12 }, (_, k) => 18000 + 200 * k), 18500, 18900, 19300, 19700]) {
     const processor = new Processor();
     for (let block = 0; block < 400; block++) processor.process([[Float32Array.from({ length: 128 }, (_, i) => .25 * Math.sin(2 * Math.PI * frequency * (block * 128 + i) / 48000))]]);
     assert.ok(processor.toneSamples >= 48000);
@@ -99,13 +101,23 @@ test('worklet hears a weak high tone under louder low room noise, and the noise 
     walk = 0.995 * walk + (seed / 1073741823.5 - 1);
     return 0.1 * (walk / 5.78 + 0.5 * Math.sin(2 * Math.PI * 50 * n / 48000));
   };
-  for (const frequency of [14800, 15200, 15600, 16000, 18500, 18900, 19300, 19700]) {
+  // Auto-stop needs a second of tone over a message of at least 4.3 s, and no 1.2 s without one. A weak tone at
+  // the low edge of the high band (14 kHz) is heard in about nine blocks of ten here, which is plenty, so ask
+  // for three of four and no gap longer than 0.1 s.
+  for (const frequency of [14000, 14600, 15200, 16200, 18000, 18800, 19600, 20200]) {
     const processor = new Processor();
-    for (let block = 0; block < 400; block++) processor.process([[Float32Array.from({ length: 128 }, (_, i) => {
-      const n = block * 128 + i;
-      return room(n) + .01 * Math.sin(2 * Math.PI * frequency * n / 48000);
-    })]]);
-    assert.ok(processor.toneSamples >= 48000);
+    let gap = 0, longest = 0;
+    for (let block = 0; block < 400; block++) {
+      const before = processor.toneSamples;
+      processor.process([[Float32Array.from({ length: 128 }, (_, i) => {
+        const n = block * 128 + i;
+        return room(n) + .01 * Math.sin(2 * Math.PI * frequency * n / 48000);
+      })]]);
+      gap = processor.toneSamples > before ? 0 : gap + 128;
+      longest = Math.max(longest, gap);
+    }
+    assert.ok(processor.toneSamples >= 0.75 * 400 * 128, frequency + ' Hz heard in ' + processor.toneSamples + ' of 51200 samples');
+    assert.ok(longest < 4800, frequency + ' Hz left a gap of ' + longest + ' samples');
   }
   const quiet = new Processor();
   for (let block = 0; block < 400; block++) quiet.process([[Float32Array.from({ length: 128 }, (_, i) => room(block * 128 + i))]]);

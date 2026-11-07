@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.12
+Resource version 1.8.13
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -395,9 +395,9 @@ To trace a PNG or JPEG logo, use `operation` set to `vectorize` with the same in
 `encode_audio` takes `data`, optional `input_encoding` (`utf8` by default, or
 `base64` for binary bytes), and optional `mode` (`audible` by default, or the
 experimental `high` or `ultrasound`). The input is 1 to 128 bytes after
-decoding Base64. It returns a PCM16 WAV as an MCP audio block, with small
-structured metadata. It does not store a file or play sound without the
-client's action.
+decoding Base64. It returns a PCM16 WAV in the aisense-audio-v2 format as an
+MCP audio block, with small structured metadata. It does not store a file or
+play sound without the client's action.
 
 `decode_audio` takes `storage_id`, with optional `mode` (`auto`, `audible`,
 `high` or `ultrasound`). Upload a WAV through REST Storage and pass its
@@ -415,8 +415,8 @@ REST uses `POST /services/v1/audio_encode` with the same encode JSON and returns
 instead. Send a WAV body to `POST /services/v1/audio_decode` to detect any of
 the three modes, or append `/audible`, `/high` or `/ultrasound`. Raw and
 multipart recordings are limited to 8 MiB. `Accept: application/octet-stream`
-returns the recovered bytes. This reads the AI SENSE audio-v1 format, not
-speech, arbitrary audio files or other modem protocols.
+returns the recovered bytes. This reads the AI SENSE audio-v2 format and the
+earlier v1, not speech, arbitrary audio files or other modem protocols.
 
 On the website, start the receiver's microphone, then play the sender's audio
 on the other device. Stop the recording and decode it. Both pages need internet
@@ -424,8 +424,11 @@ access to the API. Their message crosses between the devices as sound. The
 API processes the submitted text or recording without keeping its payload.
 The sound is unencrypted, so a nearby listener may recover the message.
 
-The experimental `high` mode uses 14800, 15200, 15600 and 16000 Hz, and the
-experimental `ultrasound` mode uses 18500, 18900, 19300 and 19700 Hz. Both
-depend on the speakers and microphone and can still be audible. Use `audible`
-first. `auto` tries all three bands within one shared time limit, so choose
-the known mode to avoid unnecessary scanning.
+Audible tones lie between 800 and 3000 Hz. The experimental `high` mode uses
+twelve tones from 14.0 to 16.2 kHz and the experimental `ultrasound` mode
+twelve tones from 18.0 to 20.2 kHz. Every symbol hops between three sets of
+four tones, so room echo of the previous symbols is ignored, and Reed-Solomon
+repairs damaged bytes before the CRC check. The high modes depend on the
+speakers and microphone and can still be audible. Use `audible` first. `auto`
+tries all three bands within one shared time limit, and reads the earlier v1
+format only in audible, so choose the known mode to avoid unnecessary scanning.

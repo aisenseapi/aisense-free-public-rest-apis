@@ -523,7 +523,7 @@
     "type": "function",
     "function": {
       "name": "audio_encode",
-      "description": "Encode 1 to 128 bytes as AI SENSE audio-v1 datatones. Send JSON data, input_encoding and mode with Accept: application/json to receive audio_base64 (PCM16 WAV), mime_type, byte_length, mode and protocol. Audible is the default. The experimental high mode uses 14.8 to 16.0 kHz. The experimental ultrasound mode uses 18.5 to 19.7 kHz. Both depend on the devices and may be audible. This is unencrypted data transfer, not speech. POST /audio_encode",
+      "description": "Encode 1 to 128 bytes as AI SENSE audio-v2 datatones: four-tone symbols hopping between three tone sets, with Reed-Solomon error correction. Send JSON data, input_encoding and mode with Accept: application/json to receive audio_base64 (PCM16 WAV), mime_type, byte_length, mode and protocol. Audible tones from 800 to 3000 Hz are the default. The experimental high mode uses 14.0 to 16.2 kHz. The experimental ultrasound mode uses 18.0 to 20.2 kHz. Both depend on the devices and may be audible. This is unencrypted data transfer, not speech. POST /audio_encode",
       "parameters": {
         "type": "object",
         "properties": {
@@ -560,7 +560,7 @@
     "type": "function",
     "function": {
       "name": "audio_decode",
-      "description": "Recover a checksum-verified AI SENSE audio-v1 message from PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. The binding must Base64-decode audio_base64 and send those raw bytes as audio/wav, or as multipart file with mode. Do not send the Base64 JSON directly to REST. Returns data_base64, byte_length, text or null, mode, protocol, corrected_bits, sample_rate and duration_seconds. Optional mode is a path segment. No remote URL fetching. POST /audio_decode[/{mode}]",
+      "description": "Recover a checksum-verified AI SENSE audio message (audio-v2, or the earlier v1) from PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. The binding must Base64-decode audio_base64 and send those raw bytes as audio/wav, or as multipart file with mode. Do not send the Base64 JSON directly to REST. Returns data_base64, byte_length, text or null, mode, protocol, corrected_bits, sample_rate and duration_seconds. Optional mode is a path segment. No remote URL fetching. POST /audio_decode[/{mode}]",
       "parameters": {
         "type": "object",
         "properties": {
