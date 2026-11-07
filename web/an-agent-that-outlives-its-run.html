@@ -81,8 +81,9 @@
 <figure class="article-figure"><img src="/assets/aisense-agent-chain.jpg?v=20261031" width="1200" height="630" alt="Three loops. The daily cycle goes from Agent Run through Agent Queue, a model call and Decide to a wait. Renewal goes from a Webhook Schedule through your worker to the next schedule and new objects. Recovery goes from a missed Heartbeat to a recovery call and your own alert." loading="lazy"></figure>
 
 <h2>What you bring</h2>
+<p>For a single morning briefing, there is also a <a href="/free-public-api-agent-run-api-endpoint#managed">managed Agent Run example</a>. It uses your hosted text model and sends a voting link to Telegram, Slack or Discord. You can also supply a task and a public source of your choice. Your PC can disconnect after setup. The run ends within 24 hours. The multi-day design below uses an external worker.</p>
 
-<p>The service runs no code and hosts no model. You bring two things: an HTTP address that does its work when it is called, which this note calls the worker, and your own model. Neither has to stay up between calls. The worker needs nothing of ours but what each call hands it.</p>
+<p>For the multi-day example, you bring an HTTP address that does its work when it is called, which this note calls the worker, and your own model. Neither has to stay up between calls. The worker needs nothing of ours but what each call hands it.</p>
 
 <h2>Three loops</h2>
 

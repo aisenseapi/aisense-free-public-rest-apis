@@ -312,8 +312,7 @@ and the [MCP guide](MCP.md#agent-handoff).
 Send a plan of up to 16 steps in order and the service goes through it by itself
 for up to 24 hours, also while you are away. A step hands a task to a worker through
 Agent Queue, waits for a time, a person or an outside event, applies Decide rules, or
-completes the run. It runs no code and hosts no model, so workers do the thinking
-with their own. Read and control tokens follow the run, and a worker's result moves
+completes the run. Version 1 uses your external worker. With [managed execution](https://www.aisense.no/free-public-api-agent-run-api-endpoint#managed), version 2 calls your OpenAI or Ollama Cloud model and runs the tools you grant. Read and control tokens follow the run, and a worker's result moves
 it on in the same request.
 
 Every deadline is fixed when it is set, and an `Idempotency-Key` makes creation safe
@@ -624,9 +623,7 @@ curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-44665544
 
 Expires after 24 hours. Executable files (Windows, Linux and Mac programs,
 judged on their first bytes) are refused with `415`. Each IP may store 80 MB
-per day; past that a POST answers `429`. A stored file is returned inline
-only as an image, audio, video or PDF; anything else, SVG included, comes back
-as a download.
+per day; past that a POST answers `429`. Storage can display detected plain text, supported images, audio, video and PDF inline. SVG, HTML and unrecognized binary files are served as downloads.
 
 ---
 

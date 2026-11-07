@@ -992,9 +992,9 @@ to advance, with the token only in `Authorization: Bearer TOKEN`.
 
 ## Agent Run
 
-A plan of up to 16 steps in order, which the service keeps and goes through by
-itself for up to 24 hours, also while the client is away. It runs no code, fetches
-no URL it was given and hosts no model: workers do the thinking with their own.
+Version 2 can run a delegated task with the caller's OpenAI or Ollama Cloud model. Install credentials directly over HTTPS with the control token. [Managed execution and permissions](https://www.aisense.no/free-public-api-agent-run-api-endpoint#managed).
+
+The version 1 example below uses an external worker. The service follows up to 16 steps in order for up to 24 hours, even while the caller is away.
 `create_agent_run` takes `steps` and `ttl_seconds`, from 60 to 86400 seconds, and
 returns `run_id`, a `read_token` and a `control_token` once. A plan with a delegated
 step also returns `queue_id` and `worker_token` for the workers. Keep the control

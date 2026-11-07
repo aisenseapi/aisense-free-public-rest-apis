@@ -1834,7 +1834,7 @@ its 24 hours. `max_downloads/0`, or no segment at all, is the plain 24 hour
 object. Any other value outside 1 to 100 is `400`.
 
 **Retrieve:** `GET /storage/{storage_id}` - returns the stored bytes with
-`application/json` if they parse as JSON, otherwise `application/octet-stream`.
+`application/json` for a JSON record. For stored files, the server detects the media type from the bytes. Detected plain text is served as `text/plain`.
 The answer carries `ETag`, which is `sha256_hash` in quotes, so a repeat fetch
 sending `If-None-Match` with that value is answered `304 Not Modified` with no
 body. An unknown or expired id returns `{"error": "Storage id unknown"}`, and
@@ -1881,8 +1881,7 @@ content removed on notice stops being served at once.
 **Limits:** executable files (Windows, Linux and Mac programs, judged on their
 first bytes) are refused with `415` and never stored. Each IP may store 80 MB
 per day; past that a POST answers `429` until the counter resets at
-22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). A stored file is returned inline only as an image, audio, video
-or PDF; anything else, SVG included, comes back as `application/octet-stream`.
+22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). Detected plain text, supported images, audio, video and PDF can open inline. HTML, SVG and unrecognized binary files are served as downloads with `application/octet-stream`.
 Content reported to abuse@aisense.no as unlawful or abusive is removed on
 notice.
 
@@ -2846,11 +2845,12 @@ MCP.
 
 ### Agent Run - a plan of steps the service goes through
 
+The examples in this section use version 1 with external workers. An optional version 2 on the same endpoint accepts a managed execution plan, an OpenAI or Ollama Cloud model ID, tool permissions and budgets. Supply the task in a delegate step. Declare up to four public HTTPS source URLs for web reading. A managed run allows up to 12 source reads. Custom source attempts share a limit of 60 per creator IP per UTC day, including failed reads. The built-in Slashdot feed is separate. The run returns the answer and can also create an optional 24-hour Storage result or deliver to one configured Telegram, Slack or Discord destination. Create the run, then install the provider and any destination credentials directly by HTTPS with the control token at `POST /run/{id}/credentials`. Keep secrets and incoming webhook URLs out of the plan and MCP arguments. [Managed example and limits](https://www.aisense.no/free-public-api-agent-run-api-endpoint#managed).
+
 Send a plan of up to 16 steps in order and the service keeps it and goes through it
 by itself toward one fixed deadline of at most 24 hours, also while you are away.
 A step hands a task to a worker, waits for a time, a person or an outside event,
-applies Decide rules, or completes the run. It runs no code, fetches no URL it was
-given and hosts no model: workers do the thinking with their own. A task may hold
+applies Decide rules, or completes the run. In version 1, external workers handle the task. A task may hold
 URLs or code as data, and the service never acts on them. Parallel branches, loops
 and plans that change are not part of version 1.
 
