@@ -95,6 +95,10 @@
 
 <p>Validation is optional, and its switch is off each time the app starts. When you turn it on, a completed mission that changed files can be checked by another configured agent or model. A blind check runs in a temporary copy without the selected history, Git metadata, dependency folders and recognized secret files, and its findings go to a register where a person decides what holds. A reported fix stays a claim until someone has checked it.</p>
 
+<h2>A check before data reaches a model</h2>
+
+<p>Before the desktop app hands a model a prepared prompt, selected attachments, a diff for review or text for intent resolution, it checks that data locally. It looks for private keys, common provider tokens, URLs with credentials in them, password and token assignments, and files such as <code>.env</code>. A finding stops the transfer and shows its source, category and recipient, never the value it found. You then edit the source, or allow that one transfer: the exception lasts five minutes, is used once, and holds only for the content and recipient that were checked. The check needs no model or network service and changes no project files. It is on by default. The switch is called Hemmelighetsvern, under Brytere, and the app shows when it is off.</p>
+
 <h2>Reports and project memory</h2>
 
 <p>Status, recovery-audit and session-metadata reports can be opened without the desktop app. An optional, bounded local index of recent project sources is kept on disk, with a RAM cache in the process. With context sharing on, a mission that writes can start from a short entry that links recent missions, findings and session metadata to their sources. The entry points to the records and does not summarize decisions, and agents started outside AgentSync MAX do not find it by themselves.</p>
@@ -102,11 +106,12 @@
 <h2>Boundaries</h2>
 
 <ul>
-<li>AgentSync MAX is a source preview: desktop 4.26.2 and sync engine 4.25.1. It comes as source, with no signed installer or binary release. Some of its interface text is still Norwegian, and it has been used in one owner's workflow, which does not validate it across other machines, teams or provider versions.</li>
+<li>AgentSync MAX is a source preview: desktop 4.27.0 and sync engine 4.25.1. It comes as source, with no signed installer or binary release. Some of its interface text is still Norwegian, and it has been used in one owner's workflow, which does not validate it across other machines, teams or provider versions.</li>
 <li>Native history can contain prompts, source code, terminal output and secrets. Keep <code>.agent-state/</code>, missions, checkpoints, local settings and generated reports out of public Git.</li>
 <li>A synchronized copy is not a tested backup, and a checkpoint is rollback data with a retention limit. Keep an independent backup and test restoring it. AgentSync MAX supplies no encryption, cloud sync or guarantee of recovery.</li>
 <li>A blind check reduces the context an agent is given. It is not an operating-system sandbox: each agent CLI keeps its own permissions, authentication and network access.</li>
-<li>The optional external watch uses the AI SENSE <a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and <a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a> APIs to record when a process stops sending heartbeats. It is on by default in a new profile and is switched off in the desktop settings, separately from the sync adapters. Local sync, memory and missions do not depend on it.</li>
+<li>The secret check works from patterns and file rules, so it can stop harmless text and can miss unknown, encoded or split secrets. It does not cover an agent's own file reads, native history, checkpoints, Git pushes or filesystem sync.</li>
+<li>The optional external watch uses the AI SENSE <a href="/free-public-api-heartbeat-api-endpoint"><span class="agent-optimal-tail">Heartbeat<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and <a href="/free-public-api-webhook-capture-api-endpoint">Webhook capture</a> APIs to record when the app has sent no sign of life for about seven minutes. It is one window of 24 hours, which ends at the first such absence or at its expiry, and a new window starts only when you ask for it in the app. It is on by default in a new profile and is switched off in the desktop settings, separately from the sync adapters. Local sync, memory and missions do not depend on it.</li>
 </ul>
 
 <h2>Build and start it</h2>
