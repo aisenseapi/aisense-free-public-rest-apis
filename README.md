@@ -785,7 +785,7 @@ can be about 190 KB.
 
 ---
 
-### Data over sound
+### Audio
 
 `POST /audio_encode` turns 1 to 128 bytes into a PCM16 WAV in the
 `aisense-audio-v2` format. Send JSON with
