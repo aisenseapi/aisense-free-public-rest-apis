@@ -615,7 +615,9 @@ Every refusal carries `error` and `fix`.
 ## Audio data
 
 Two stateless endpoints carry short messages as datatones in the
-`aisense-audio-v1` format. They do not transcribe speech. Their browser pages
+`aisense-audio-v2` format: four-tone symbols that hop between three tone sets,
+with Reed-Solomon error correction and a CRC32. The decoder also reads the
+earlier `aisense-audio-v1`. They do not transcribe speech. Their browser pages
 include a sender and a microphone receiver for PC and mobile.
 
 ### `POST /audio_encode`
@@ -637,7 +639,7 @@ The default response is a mono, 48000 Hz, 16-bit PCM WAV with
 and a checksum. Use `Accept: application/json` for this envelope instead:
 
 ```json
-{"audio_base64":"UklGR...","mime_type":"audio/wav","byte_length":5,"mode":"audible","protocol":"aisense-audio-v1"}
+{"audio_base64":"UklGR...","mime_type":"audio/wav","byte_length":5,"mode":"audible","protocol":"aisense-audio-v2"}
 ```
 
 `byte_length` is the original payload length, not the WAV size. The Base64
@@ -672,7 +674,7 @@ curl -fsS https://aisenseapi.com/services/v1/audio_decode \
 The first intact message is returned as JSON:
 
 ```json
-{"data_base64":"SGVsbG8=","byte_length":5,"text":"Hello","protocol":"aisense-audio-v1","mode":"audible","corrected_bits":0,"sample_rate":48000,"duration_seconds":3.08}
+{"data_base64":"SGVsbG8=","byte_length":5,"text":"Hello","protocol":"aisense-audio-v2","mode":"audible","corrected_bits":0,"sample_rate":48000,"duration_seconds":5.4}
 ```
 
 `data_base64` preserves the exact decoded bytes. `text` is null if they are
@@ -688,13 +690,16 @@ checksum-verified message is 422. A busy decoder or exhausted decoding work
 budget answers 503 with `Retry-After` where available. The shared request
 limit may answer 429. Both endpoints are POST only.
 
-The audible mode uses 1400, 1800, 2200 and 2600 Hz. The experimental
-high mode uses 14800, 15200, 15600 and 16000 Hz, and the experimental
-ultrasound mode uses 18500, 18900, 19300 and 19700 Hz. Both can still be
-audible. Ordinary speakers and microphones vary, and audio processing can
-filter the higher tones out. Start listening before playing the sound, keep
-the devices near each other and use audible mode when a high-frequency mode
-fails.
+The audible mode uses twelve tones from 800 to 3000 Hz, the experimental
+high mode twelve tones from 14.0 to 16.2 kHz and the experimental ultrasound
+mode twelve tones from 18.0 to 20.2 kHz. Symbol k sounds in tone set k mod 3,
+so the room's echo of the two previous symbols lies on tones the decoder does
+not consider. Both high modes can still be audible. Ordinary speakers and
+microphones vary, and audio processing can filter the higher tones out. Start
+listening before playing the sound, keep the devices near each other and use
+audible mode when a high-frequency mode fails. `auto` reads the earlier v1
+format only in audible; give the mode in the path for an older high or
+ultrasound recording.
 
 Both Try pages need internet access to the API. The message crosses between
 the devices as sound. Submitted payloads are processed without being stored

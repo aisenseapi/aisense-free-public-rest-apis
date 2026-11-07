@@ -32,7 +32,7 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.18.0` and offers 79 tools: the workflow tools
+The server reports version `1.19.0` and offers 79 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.18.0` as active and latest,
@@ -787,7 +787,8 @@ can be about 190 KB.
 
 ### Data over sound
 
-`POST /audio_encode` turns 1 to 128 bytes into a PCM16 WAV. Send JSON with
+`POST /audio_encode` turns 1 to 128 bytes into a PCM16 WAV in the
+`aisense-audio-v2` format. Send JSON with
 `data`, optional `input_encoding` (`utf8` or `base64`) and `mode` (`audible`,
 or the experimental `high` or `ultrasound`). `POST /audio_decode[/{mode}]`
 recovers the bytes from a raw or multipart WAV, with `mode` set to `auto`,

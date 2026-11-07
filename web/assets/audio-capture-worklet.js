@@ -10,7 +10,9 @@ class AudioDataCapture extends AudioWorkletProcessor {
     this.maxSamples = Math.floor(sampleRate * 40);
     this.toneSamples = 0;
     this.lastToneSample = 0;
-    this.coefficients = [1400, 1800, 2200, 2600, 14800, 15200, 15600, 16000, 18500, 18900, 19300, 19700].map(frequency => 2 * Math.cos(2 * Math.PI * frequency / sampleRate));
+    // The twelve aisense-audio-v2 tones of each band: audible, high, ultrasound. A 128-sample block cannot tell
+    // tones 200 Hz apart, but one of them still carries most of the energy, and so does a v1 tone.
+    this.coefficients = [800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 14000, 14200, 14400, 14600, 14800, 15000, 15200, 15400, 15600, 15800, 16000, 16200, 18000, 18200, 18400, 18600, 18800, 19000, 19200, 19400, 19600, 19800, 20000, 20200].map(frequency => 2 * Math.cos(2 * Math.PI * frequency / sampleRate));
     this.history = new Float64Array(4); // The last four input samples, for the high-pass filter.
     this.highpassed = new Float32Array(128);
     this.port.onmessage = event => {
@@ -30,10 +32,10 @@ class AudioDataCapture extends AudioWorkletProcessor {
     this.level = 0;
   }
 
-  // True when one of four tones carries most of this block's energy.
+  // True when one of a band's twelve tones carries most of this block's energy.
   hasTone(samples, length, energy, first) {
     if (energy / length <= 0.000009) return false;
-    for (let k = first; k < first + 4; k++) {
+    for (let k = first; k < first + 12; k++) {
       const coefficient = this.coefficients[k];
       let previous = 0, before = 0;
       for (let i = 0; i < length; i++) {
@@ -76,7 +78,7 @@ class AudioDataCapture extends AudioWorkletProcessor {
     history[0] = x1; history[1] = x2; history[2] = x3; history[3] = x4;
     // This only recognizes tone activity to end capture after a quiet gap.
     // It does not decode a message or replace the server's integrity check.
-    if (this.hasTone(channel, channel.length, energy, 0) || this.hasTone(this.highpassed, channel.length, highEnergy, 4) || this.hasTone(this.highpassed, channel.length, highEnergy, 8)) {
+    if (this.hasTone(channel, channel.length, energy, 0) || this.hasTone(this.highpassed, channel.length, highEnergy, 12) || this.hasTone(this.highpassed, channel.length, highEnergy, 24)) {
       this.toneSamples += frames;
       this.lastToneSample = this.samples + frames;
     }
