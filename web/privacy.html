@@ -63,7 +63,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 5 November 2026.</small></p>
+  <p><small>Last updated 7 November 2026.</small></p>
 </div>
 
 <h2 id="controller">Who operates this service</h2>
@@ -190,7 +190,7 @@
 </div>
 <p>Creating a short link stores the destination mapping within this service and returns a <code>307.fi</code> URL. Creation does not contact the destination or send it to a separate redirect provider.</p>
 <p>For the hash endpoints above this includes the password you send, so use test data with them and hash production passwords inside your own application. Apart from those, <code>/run</code> and the calls to a URL you supplied, no free REST endpoint sends your supplied content to a fixed third party, and an Agent Wake heartbeat action stays inside AI SENSE.</p>
-<p>When someone uses the client login on <a href="/login">aisense.no/login</a>, the email address typed into it and the time are sent to the internal messaging service our team uses, so that we can follow up. The password is cleared in the browser and never sent anywhere.</p>
+<p>The <a href="/login">sign-in page</a> links to the Pro customer portal on aisenseapi.com. Credentials are submitted there over HTTPS. Passwords are verified against a stored hash and are not forwarded to our internal messaging service.</p>
 
 <h2 id="cors">Calls from other websites</h2>
 <p>Our API responses permit cross-origin requests from any website, which is what makes the endpoints usable directly from browser JavaScript. A consequence worth stating plainly: if a site you visit calls our API from your browser, your IP address reaches us and is logged, even though you never visited us. We have no way to know which site that was, and we do not receive a referrer for it.</p>
@@ -201,7 +201,7 @@
 <p>You may complain to the Norwegian Data Protection Authority, Datatilsynet, at <a href="https://www.datatilsynet.no">datatilsynet.no</a>.</p>
 
 <h2 id="basis">Why we are allowed to do this</h2>
-<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. The same applies to the address typed into the client login: someone asking for access may want to be contacted about it. The data is limited to what those purposes need and is not used for anything else. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
+<p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. Pro account information is used to provide the account and manage the agreement you request. The data is limited to what those purposes need. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
 
 <h2 id="security">Security</h2>
 <p>All traffic is served over HTTPS. The optional Pro service stores password hashes and hashed session tokens in private customer storage. Temporary data is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Treat these values as secrets. Anyone holding the right value can read the associated public state or result.</p>
@@ -211,7 +211,7 @@
 
 <section id="pro-accounts"><h2>Pro customer accounts</h2>
 <p>The optional Pro service stores your name or company name, email address, password hash, selected IP networks, plan, orders, discounts and daily usage counts. It uses secure, essential cookies for sign-in and form protection. The public API still works without an account.</p>
-<p>Customer records persist beyond the 24-hour lifetime of temporary API data. They are kept to manage access and billing. Email addresses are not verified automatically. Contact support for account recovery or deletion. No payment card details are collected by the current customer portal.</p></section>
+<p>Customer records persist beyond the 24-hour lifetime of temporary API data. They are kept to manage access and billing. Email addresses are not verified automatically. Contact support for account recovery or deletion. When Stripe checkout is enabled and you choose it, we send Stripe your account name, email, order reference, plan and discount. Stripe collects payment and billing details on its own pages. We store Stripe customer, checkout, subscription and invoice references, payment status and the paid-through date to manage your allowance. AI SENSE does not collect full card numbers or card security codes. Stripe describes its handling of personal data in its <a href="https://stripe.com/privacy">privacy policy</a>.</p></section>
 </main>
 
 <footer class="site-footer">
