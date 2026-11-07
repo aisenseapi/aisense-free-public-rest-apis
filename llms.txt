@@ -48,7 +48,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.18.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.18.0, published 6 November 2026 at 14:07 UTC
+- MCP server version 1.19.0, with 79 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.18.0, published 6 November 2026 at 14:07 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md
@@ -163,4 +163,4 @@ AgentSync MAX keeps the work of several coding agents together around the projec
 
 - Audio encode: POST /services/v1/audio_encode, JSON data plus optional input_encoding (utf8 or base64) and mode (audible, high or ultrasound). Accepts 1 to 128 bytes and returns PCM16 WAV, or an audio_base64 JSON envelope with Accept: application/json. Try: https://aisense.no/free-public-api-audio-encode-api-endpoint
 - Audio decode: POST /services/v1/audio_decode, optionally followed by /auto, /audible, /high or /ultrasound. Upload PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. Returns checksum-verified data_base64 and text or null. Try with a microphone: https://aisense.no/free-public-api-audio-decode-api-endpoint
-- The acoustic format is aisense-audio-v1. It transfers unencrypted data, not speech. Experimental high uses four tones from 14.8 to 16.0 kHz and experimental ultrasound four tones from 18.5 to 19.7 kHz. Both may be audible or filtered by devices. Auto tries all three modes within one shared time limit. Recordings go to the API for decoding and are not retained by these endpoints. MCP encode_audio returns a native audio block. MCP decode_audio takes an ordinary Storage file by storage_id, up to 4 MiB, without a download limit.
+- The acoustic format is aisense-audio-v2: four-tone symbols that hop between three tone sets, so room echo is ignored, with Reed-Solomon error correction; the decoder also reads the earlier v1. It transfers unencrypted data, not speech. Audible uses twelve tones from 800 to 3000 Hz, experimental high twelve tones from 14.0 to 16.2 kHz and experimental ultrasound twelve tones from 18.0 to 20.2 kHz. Both high modes may be audible or filtered by devices. Auto tries all three modes within one shared time limit. Recordings go to the API for decoding and are not retained by these endpoints. MCP encode_audio returns a native audio block. MCP decode_audio takes an ordinary Storage file by storage_id, up to 4 MiB, without a download limit.
