@@ -179,6 +179,19 @@ function browser(direction, fetcher, options = {}) {
     emit(samples) { nodes[0].port.onmessage({ data: { pcm: samples, level: .25 } }); }
   };
 }
+test('the level meter reads the peak in decibels from -60 to 0 dBFS', () => {
+  assert.equal(core.meterValue(0), 0);
+  assert.equal(core.meterValue(-1), 0);
+  assert.equal(core.meterValue(Number.NaN), 0);
+  assert.equal(core.meterValue(0.0001), 0);
+  assert.equal(core.meterValue(0.001), 0);
+  assert.equal(core.meterValue(1), 1);
+  assert.equal(core.meterValue(2), 1);
+  assert.ok(Math.abs(core.meterValue(10 ** -1.5) - 0.5) < 1e-12);
+  // A high tone at -35 dBFS, which a linear meter shows as 2 %.
+  assert.ok(Math.abs(core.meterValue(10 ** -1.75) - 25 / 60) < 1e-12);
+});
+
 const json = body => ({ ok: true, json: async () => body });
 const wav = () => ({ ok: true, headers: { get: () => 'audio/wav' }, blob: async () => new Blob([core.wavFromChunks([new Int16Array(16)], 48000)], { type: 'audio/wav' }) });
 
