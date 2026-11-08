@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261108a'
+TRY_VERSION = '20261108b'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -62,6 +62,13 @@ def hasher(endpoint, verb='Hash', busy='Hashing'):
              'and a file as a multipart upload.' % verb)
     return {'endpoint': endpoint, 'label': 'Text', 'sample': 'Hello world', 'button': verb, 'busy': busy,
             'file': 'multipart', 'limit': MIB, 'intro': intro + ' ' + LEAVE_OUT}
+
+
+def password_hasher(endpoint, limit):
+    intro = ('Hash a test password here, up to %s. Your browser sends it in a JSON body, as the quick start does. '
+             'Every run answers a new string, because the salt is new each time.' % limit_text(limit))
+    return text(endpoint, 'Hash', 'Hashing', 'Test password', 'correct horse battery staple', limit=limit,
+                intro=intro + ' ' + LEAVE_OUT)
 
 
 def decoder(endpoint, label, sample, accept=THREE, limit=MIB):
@@ -166,6 +173,11 @@ TRY = {
     'free-public-api-blake3-hash-api-endpoint.html': hasher('blake3_hash'),
     'free-public-api-whirlpool-hash-api-endpoint.html': hasher('whirlpool_hash'),
     'free-public-api-crc32-checksum-api-endpoint.html': hasher('crc32_checksum', 'Checksum', 'Computing'),
+    # The password hashes take text only, 1 to 1024 bytes and at most 72 for bcrypt (API.md: a file is not a
+    # password), and every call spends from the 200 password operations an address may make per day.
+    'free-public-api-argon2id-hash-api-endpoint.html': password_hasher('argon2id_hash', 1024),
+    'free-public-api-bcrypt-hash-api-endpoint.html': password_hasher('bcrypt_hash', 72),
+    'free-public-api-scrypt-hash-api-endpoint.html': password_hasher('scrypt_hash', 1024),
     # Text and values. Every JSON body stops at 256 KiB, HTML to Markdown at 1 MiB.
     'free-public-api-slugify-api-endpoint.html': text('slugify', 'Slugify', 'Slugifying', 'Text', 'Blåbærsyltetøy på Ås!', limit=256 * 1024),
     'free-public-api-html-to-markdown-api-endpoint.html': text(

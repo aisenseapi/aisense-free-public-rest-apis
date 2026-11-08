@@ -40,6 +40,12 @@
     return n % 1024 === 0 ? (n / 1024) + ' KiB' : n + ' bytes';
   }
 
+  // The limit for a message: 72 bytes, or 1 MiB, 1048576 bytes.
+  function sizeText(n) {
+    var short = limitText(n);
+    return short === n + ' bytes' ? short : short + ', ' + n + ' bytes';
+  }
+
   // The first 64 bytes as hex, 16 to a line after their offset.
   function hex(bytes) {
     var lines = [];
@@ -260,7 +266,7 @@
         var length = new TextEncoder().encode(input.value).length;
         if (length > limit) {
           clear();
-          show('The text is ' + length + ' bytes. The box sends at most ' + limitText(limit) + ', ' + limit + ' bytes.', 'bad');
+          show('The text is ' + length + ' bytes. The box sends at most ' + sizeText(limit) + '.', 'bad');
           return;
         }
         var body = {};
@@ -312,7 +318,7 @@
       if (!file) { return; }
       if (file.size > limit) {
         drop.classList.add('is-bad');
-        note.textContent = file.name + ' is ' + file.size + ' bytes. The box takes files up to ' + limitText(limit) + ', ' + limit + ' bytes.';
+        note.textContent = file.name + ' is ' + file.size + ' bytes. The box takes files up to ' + sizeText(limit) + '.';
         return;
       }
       chosen = file;
