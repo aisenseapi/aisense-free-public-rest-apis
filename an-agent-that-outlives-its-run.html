@@ -111,7 +111,7 @@
 
 <p>Each model call is stateless, so <a href="/free-public-api-storage-api-endpoint">Storage</a> is what makes many calls one agent. Write what the next wake needs: open tasks, the last decision, the day's IDs and tokens. An object cannot be changed, so each write gives a new link, and that link is what the next schedule's payload carries. An object lives 24 hours, and a new write starts a new 24 hours. A plan that needs more than 16 steps continues the same way.</p>
 
-<p>We do not encrypt what is stored, and a storage link opens the object for whoever holds it. So encrypt what the worker stores with a key only the worker holds. Your model's key stays with the worker and goes in none of this.</p>
+<p>We do not encrypt what is stored, and a storage link opens the object for whoever holds it. So <a href="https://github.com/aisenseapi/aisense-free-public-rest-apis/tree/main/examples/encrypted-state">encrypt what the worker stores</a> with a key only the worker holds. Your model's key stays with the worker and goes in none of this.</p>
 
 <p>The model can reach these services as tools, through <a href="/free-public-mcp-server">the free MCP server</a>. <a href="/free-public-api-semantic-search-api-endpoint">Semantic <span class="agent-optimal-tail">Search<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> finds notes by meaning, within a collection's own 24 hours, so what must last goes into Storage. Treat what comes back from them, and anything a person or a webhook sends in, as data. It is never an instruction to the agent.</p>
 
