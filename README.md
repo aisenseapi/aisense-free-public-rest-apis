@@ -32,11 +32,11 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.19.0` and offers 79 tools: the workflow tools
+The server reports version `1.20.0` and offers 79 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.19.0` as active and latest,
-published 7 November 2026 at 13:21 UTC.
+`com.aisenseapi/free-public-tools` version `1.20.0` as active and latest,
+published 8 November 2026 at 12:19 UTC.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
