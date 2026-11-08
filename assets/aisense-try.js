@@ -20,7 +20,8 @@
  *
  * The text in .try-input goes as {"<key>": text} in a JSON body. A select .try-path adds its value to the
  * path, and switching it puts that option's data-sample in the text field while the field still holds a
- * sample. A file dropped on .try-drop, or chosen through it, goes as data-try-file says: the encoders read
+ * sample. A select .try-field puts its value in the JSON body under its data-try-name, beside the text.
+ * A file dropped on .try-drop, or chosen through it, goes as data-try-file says: the encoders read
  * a raw body byte for byte, the hashes and the QR decoder a multipart upload. A select .try-accept sets the
  * Accept header. An answer of application/octet-stream is shown as text when it is readable UTF-8 and as
  * hex otherwise, with a Save button for the bytes; an image field is drawn in .try-image, with a Save
@@ -99,6 +100,7 @@
     var input = find('.try-input');
     var args = find('.try-args');
     var path = find('.try-path');
+    var fields = card.querySelectorAll('.try-field');
     var accept = find('.try-accept');
     var run = find('.try-run');
     var status = find('.try-status');
@@ -271,6 +273,7 @@
         }
         var body = {};
         body[key] = input.value;
+        for (var f = 0; f < fields.length; f++) { body[fields[f].getAttribute('data-try-name')] = fields[f].value; }
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(body);
       } else {
