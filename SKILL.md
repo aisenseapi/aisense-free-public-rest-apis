@@ -222,7 +222,8 @@ HS256 only.
 -> { "qrcode_content": "https://example.com" }
 ```
 
-`qrcode_decode` also accepts a file upload in a `qrcode_image` field. The image
+`qrcode_decode` reads barcodes too, Code 128 and EAN-13 among them, and also
+accepts a file upload in a `qrcode_image` field. The image
 is a PNG, JPEG, GIF or WebP of at most 10 MB and 25 megapixels as a file
 upload. A JSON body is at most 256 KiB, so base64 in `payload` suits images up
 to about 190 KB.

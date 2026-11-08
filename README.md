@@ -779,7 +779,7 @@ curl -X POST https://aisenseapi.com/services/v1/qrcode_encode \
 ```
 
 `qrcode_decode` takes the same `payload` field (or a file upload) and returns
-`qrcode_content`. The image is a PNG, JPEG, GIF or WebP of at most 10 MB as a
+`qrcode_content`. It reads barcodes too, Code 128 and EAN-13 among them. The image is a PNG, JPEG, GIF or WebP of at most 10 MB as a
 file upload. A JSON body is at most 256 KiB, so through `payload` the image
 can be about 190 KB.
 

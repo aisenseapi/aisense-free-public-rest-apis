@@ -668,6 +668,8 @@ refused with 415 before it is opened.
 ```
 
 Several codes in one image come back one per line in the same string.
+Barcodes are read as well: a Code 128 or EAN-13, such as `/barcode` makes, comes
+back in `qrcode_content`, an EAN-13 with its check digit.
 
 | Status | When |
 |--------|------|

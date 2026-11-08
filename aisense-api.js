@@ -630,7 +630,8 @@ export class AISenseAPI {
   }
 
   /**
-   * Decode a Base64-encoded QR code image. Response key: `qrcode_content`.
+   * Decode a Base64-encoded QR code or barcode image, Code 128 and EAN-13
+   * included. Response key: `qrcode_content`.
    * The request field is `payload`, and `data` is accepted as well. The image
    * is a PNG, JPEG, GIF or WebP of at most 10 MB; anything else answers 415.
    * An image with no readable code answers 400.
