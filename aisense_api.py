@@ -262,6 +262,23 @@ class AISenseAPI:
         """Swatch Internet Time. Response keys: ``beat`` (e.g. ``"@444"``) and ``date``."""
         return self._get("/swatchinternettime")
 
+    def cron_next(self, expression: str, count: Optional[int] = None, zone: Optional[str] = None,
+                  from_: Union[str, int, None] = None) -> dict:
+        """The next times a five-field cron expression fires. Response keys:
+        ``expression``, ``zone``, ``from``, ``count`` and ``next``, each time with
+        ``timestamp``, ``datetime`` in the zone, ``utc_datetime`` and ``weekday``.
+        ``count`` is 1 to 100 (default 5), ``zone`` an IANA name (default UTC) and
+        ``from_`` unix seconds or a date text (default now). It computes only;
+        ``schedule_webhook`` is what calls a URL on a schedule."""
+        body: dict = {"expression": expression}
+        if count is not None:
+            body["count"] = count
+        if zone is not None:
+            body["zone"] = zone
+        if from_ is not None:
+            body["from"] = from_
+        return self._post("/cron", body)
+
     def timestamp_convert(self, data: Union[str, int], offset: Optional[str] = None) -> dict:
         """One time value in every form: unix seconds or milliseconds, ISO 8601,
         RFC 2822 or ``"now"``. Response keys: ``input``, ``detected``,
@@ -299,6 +316,12 @@ class AISenseAPI:
     def get_guid(self) -> dict:
         """Generate a GUID. Response key: ``guid``."""
         return self._get("/guid")
+
+    def get_ulid(self) -> dict:
+        """Generate a ULID: 26 characters that sort by their millisecond time, with
+        80 random bits behind. Response keys: ``ulid``, ``timestamp`` (milliseconds)
+        and ``datetime`` (UTC)."""
+        return self._get("/ulid")
 
     def get_password(self, length: Optional[int] = None) -> dict:
         """Random password, 12 characters by default.
@@ -443,6 +466,36 @@ class AISenseAPI:
     def audio_decode(self, file: Union[bytes, bytearray, str], mode: str = "auto") -> dict:
         """Decode a PCM16 WAV file or bytes. Returns data_base64 and text or null."""
         return self._upload("/audio_decode", file, {"mode": mode})
+
+    def spell(self, text: str, voice: Optional[str] = None, case: Optional[str] = None,
+              space: Optional[str] = None) -> dict:
+        """Spell text letter by letter as sound: letters, digits, dash and underscore
+        spoken, a pause (or the spoken word space) for a run of whitespace, the case
+        marked with upper and lower when the text mixes cases. Response keys:
+        ``audio_base64`` (PCM16 WAV, 22050 Hz), ``mime_type``, ``voice``,
+        ``characters``, ``case``, ``space``, ``skipped``, ``duration_seconds``,
+        ``sample_rate`` and ``voices``. Up to 256 characters; ``voice`` is
+        ``"kristin"`` (default) or ``"cori"``; ``case`` is ``"auto"``
+        (default), ``"on"`` or ``"off"``; ``space`` is ``"pause"`` (default) or ``"word"``."""
+        body: dict = {"data": text}
+        if voice is not None:
+            body["voice"] = voice
+        if case is not None:
+            body["case"] = case
+        if space is not None:
+            body["space"] = space
+        return self._request("/spell", "POST", body, extra_headers={"Accept": "application/json"})
+
+    def barcode_encode(self, type: str, data: str, format: Optional[str] = None) -> dict:
+        """A Code 128 or EAN-13 barcode. Response keys: ``barcode_image`` (Base64 PNG)
+        or, with ``format="svg"``, ``barcode_svg``; then ``image_type``, ``type``,
+        ``data``, ``modules``, ``width`` and ``height``. ``type`` is ``"code128"``
+        (1 to 80 printable ASCII characters) or ``"ean13"`` (12 digits, or 13 with
+        the check digit)."""
+        body: dict = {"type": type, "data": data}
+        if format is not None:
+            body["format"] = format
+        return self._post("/barcode", body)
 
     def qrcode_encode(self, payload: str) -> dict:
         """Generate a QR code. Response keys: ``qrcode_image`` (Base64 PNG) and ``image_type``.

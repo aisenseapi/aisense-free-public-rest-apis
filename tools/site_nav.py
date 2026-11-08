@@ -79,6 +79,7 @@ API_GROUPS = [
         ('/free-public-api-microtimestamp-api-endpoint', 'Microtimestamp'),
         ('/free-public-api-timezones-api-endpoint', 'Timezones'),
         ('/free-public-api-timestamp-convert-api-endpoint', 'Timestamp convert'),
+        ('/free-public-api-cron-api-endpoint', 'Cron'),
         ('/free-public-api-swatchinternettime-api-endpoint', 'Swatch Internet Time'),
     ]),
     ('hashing', 'Hashing', '/hashing-apis', [
@@ -116,6 +117,7 @@ API_GROUPS = [
     ('audio', 'Audio', '/free-public-apis#audio', [
         ('/free-public-api-audio-encode-api-endpoint', 'Audio encode'),
         ('/free-public-api-audio-decode-api-endpoint', 'Audio decode'),
+        ('/free-public-api-spell-api-endpoint', 'Spell'),
     ]),
     ('text', 'Text and tokens', '/free-public-apis#transform', [
         ('/free-public-api-slugify-api-endpoint', 'Slugify'),
@@ -125,6 +127,7 @@ API_GROUPS = [
         ('/free-public-api-jwt-decode-api-endpoint', 'JWT decode'),
         ('/free-public-api-qr-code-encode-api-endpoint', 'QR code encode'),
         ('/free-public-api-qr-code-decode-api-endpoint', 'QR code decode'),
+        ('/free-public-api-barcode-api-endpoint', 'Barcode'),
     ]),
     ('data', 'JSON and tables', '/free-public-apis#convert', [
         ('/free-json-to-csv-api', 'JSON to CSV'),
@@ -161,6 +164,7 @@ API_GROUPS = [
     ('random', 'Random', '/random-generator-apis', [
         ('/free-public-api-uuid-api-endpoint', 'UUID'),
         ('/free-public-api-guid-api-endpoint', 'GUID'),
+        ('/free-public-api-ulid-api-endpoint', 'ULID'),
         ('/free-public-api-password-api-endpoint', 'Password'),
         ('/free-public-api-passphrase-api-endpoint', 'Passphrase'),
         ('/free-public-api-random-number-api-endpoint', 'Random number'),

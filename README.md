@@ -32,11 +32,11 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.20.0` and offers 79 tools: the workflow tools
+The server reports version `1.21.0` and offers 82 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.20.0` as active and latest,
-published 8 November 2026 at 12:19 UTC.
+`com.aisenseapi/free-public-tools` version `1.21.0` as active and latest,
+published 8 November 2026 at 16:51 UTC.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
@@ -986,12 +986,14 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Time | `/timestamp` | GET | `timestamp` |
 | Time | `/microtimestamp` | GET | `microtimestamp` |
 | Time | `/timezones[/{offset}]` | GET | `timezones` |
+| Time | `/cron/{expression}[/{count}[/{zone}]]` | GET, POST | `expression`, `zone`, `from`, `count`, `next` |
 | Time | `/swatchinternettime` | GET | `beat`, `date` |
 | Time | `/timestamp_convert` | POST | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | Random | `/random_number[/{from}[/{to}]]` | GET | `random_number`, `range` |
 | Random | `/random_color` | GET | `random_color` |
 | Random | `/uuid` | GET | `uuid` |
 | Random | `/guid` | GET | `guid` |
+| Random | `/ulid` | GET | `ulid`, `timestamp`, `datetime` |
 | Random | `/password[/{length}]` | GET | `password`, `password_length` |
 | Random | `/passphrase[/{groups}]` | GET | `passphrase`, `groups`, `length`, `entropy_bits` |
 | Transform | `/base64_encode` | POST | `base64_encoded_data` |
@@ -1014,9 +1016,11 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Transform | `/jwt_encode` | POST | `jwt` |
 | Transform | `/jwt_decode` | POST | `decoded_payload` |
 | Transform | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
+| Transform | `/barcode/{type}/{data}[/{format}]` | GET, POST | `barcode_image` or `barcode_svg`, `image_type`, `type`, `data`, `modules`, `width`, `height` |
 | Transform | `/qrcode_decode` | POST | `qrcode_content` |
 | Audio | `/audio_encode` | POST | PCM16 WAV, or `audio_base64`, `mime_type`, `byte_length`, `mode`, `protocol` with JSON Accept |
 | Audio | `/audio_decode[/{mode}]` | POST | `data_base64`, `byte_length`, `text`, `mode`, `protocol`, `corrected_bits`, `sample_rate`, `duration_seconds` |
+| Audio | `/spell/{text}[/{voice}[/{case}[/{space}]]]` | GET, POST | PCM16 WAV, or `audio_base64`, `mime_type`, `voice`, `characters`, `case`, `space`, `skipped`, `duration_seconds`, `sample_rate`, `voices` with JSON Accept |
 | Convert | `/json_to_csv` | POST | Storage fields, `content_type`, `filename`, `operation` |
 | Convert | `/csv_to_json` | POST | Storage fields, `content_type`, `filename`, `operation` |
 | Convert | `/table_match` | POST | Storage fields, `content_type`, `filename`, `operation` |

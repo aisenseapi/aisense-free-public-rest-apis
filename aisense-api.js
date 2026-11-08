@@ -372,6 +372,21 @@ export class AISenseAPI {
     return this.#post('/timestamp_convert', body)
   }
 
+  /**
+   * The next times a five-field cron expression fires. Response keys: `expression`,
+   * `zone`, `from`, `count` and `next`, each time with `timestamp`, `datetime` in the
+   * zone, `utc_datetime` and `weekday`. Options: `count` 1 to 100 (default 5), `zone`
+   * (IANA name, default UTC) and `from` (unix seconds or a date text, default now).
+   * It computes only; scheduleWebhook is what calls a URL on a schedule.
+   */
+  cronNext(expression, { count, zone, from } = {}) {
+    const body = { expression }
+    if (count !== undefined) body.count = count
+    if (zone !== undefined) body.zone = zone
+    if (from !== undefined) body.from = from
+    return this.#post('/cron', body)
+  }
+
   // ── Random ────────────────────────────────────────────────────────────────
 
   /**
@@ -399,6 +414,14 @@ export class AISenseAPI {
   /** Generate a GUID. Response key: `guid`. */
   getGUID() {
     return this.#get('/guid')
+  }
+
+  /**
+   * Generate a ULID: 26 characters that sort by their millisecond time, with 80
+   * random bits behind. Response keys: `ulid`, `timestamp` (milliseconds), `datetime` (UTC).
+   */
+  getULID() {
+    return this.#get('/ulid')
   }
 
   /** Random password, 12 characters by default. Response keys: `password`, `password_length`. */
@@ -567,6 +590,18 @@ export class AISenseAPI {
     return this.#post('/qrcode_encode', { payload })
   }
 
+  /**
+   * A Code 128 or EAN-13 barcode. Response keys: `barcode_image` (base64 PNG) or,
+   * with format `'svg'`, `barcode_svg`; then `image_type`, `type`, `data`, `modules`,
+   * `width` and `height`. `type` is `'code128'` (1 to 80 printable ASCII characters)
+   * or `'ean13'` (12 digits, or 13 with the check digit).
+   */
+  barcodeEncode(type, data, format) {
+    const body = { type, data }
+    if (format !== undefined) body.format = format
+    return this.#post('/barcode', body)
+  }
+
   /** Encode 1..128 bytes. Returns audio_base64 (PCM16 WAV) and metadata. */
   audioEncode(data, { inputEncoding = 'utf8', mode = 'audible' } = {}) {
     return this.#request('/audio_encode', 'POST', { data, input_encoding: inputEncoding, mode }, undefined,
@@ -576,6 +611,22 @@ export class AISenseAPI {
   /** Decode PCM16 WAV bytes, a Blob or File. Returns data_base64 and text or null. */
   audioDecode(file, mode = 'auto') {
     return this.#upload('/audio_decode', file, { mode })
+  }
+
+  /**
+   * Spell text letter by letter as sound: letters, digits, dash and underscore spoken, a pause
+   * for a space, the case marked with upper and lower when the text mixes cases. Response keys:
+   * `audio_base64` (PCM16 WAV, 22050 Hz), `mime_type`, `voice`, `characters`, `case`, `space`,
+   * `skipped`, `duration_seconds`, `sample_rate` and `voices`. Up to 256 characters; `voice` is
+   * `'kristin'` (default) or `'cori'`; `caseMode` is `'auto'` (default), `'on'` or
+   * `'off'`; `space` is `'pause'` (default) or `'word'`, the spoken word for a run of whitespace.
+   */
+  spell(text, voice, caseMode, space) {
+    const body = { data: text }
+    if (voice !== undefined) body.voice = voice
+    if (caseMode !== undefined) body.case = caseMode
+    if (space !== undefined) body.space = space
+    return this.#request('/spell', 'POST', body, undefined, { Accept: 'application/json' })
   }
 
   /**

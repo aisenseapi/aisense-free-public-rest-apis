@@ -83,6 +83,37 @@
   {
     "type": "function",
     "function": {
+      "name": "cron_next_times",
+      "description": "The next times a five-field cron expression fires, in an IANA time zone (default UTC) after from (default now). Returns {\"expression\", \"zone\", \"from\", \"count\", \"next\": [{\"timestamp\", \"datetime\", \"utc_datetime\", \"weekday\"}]}. Computes only; nothing is scheduled. POST /cron (also GET /cron/{expression}[/{count}[/{zone}]])",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "description": "Five fields such as \"0 9 * * 1-5\", or a macro such as \"@daily\"."
+          },
+          "count": {
+            "type": "integer",
+            "description": "How many times, 1 to 100, default 5."
+          },
+          "zone": {
+            "type": "string",
+            "description": "IANA zone such as \"Europe/Oslo\", default UTC."
+          },
+          "from": {
+            "type": "string",
+            "description": "Unix seconds or a date and time such as \"2026-11-08T12:00:00Z\"; default now."
+          }
+        },
+        "required": [
+          "expression"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "get_swatch_internet_time",
       "description": "Swatch Internet Time. Returns {\"beat\": \"@444\", \"date\": \"2026-08-16\"}. Note beat is a string with a leading @, not a number. GET /swatchinternettime",
       "parameters": {
@@ -142,6 +173,18 @@
     "function": {
       "name": "get_guid",
       "description": "Generate a GUID. Returns {\"guid\": \"...\"}. GET /guid",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "get_ulid",
+      "description": "Generate a ULID: 26 characters that sort by their millisecond time, with 80 random bits behind. Returns {\"ulid\": \"01M6X73HM8FRP9MKRGTEW6WPH1\", \"timestamp\": 1794129381000, \"datetime\": \"2026-11-08T09:16:21.000Z\"}. GET /ulid",
       "parameters": {
         "type": "object",
         "properties": {},
@@ -559,6 +602,50 @@
   {
     "type": "function",
     "function": {
+      "name": "spell_text",
+      "description": "Spell text letter by letter as a spoken WAV: one recorded clip per letter a to z and digit 0 to 9, the words dash and underscore for those characters, a pause for a run of whitespace (or the spoken word space with space \"word\"), other characters skipped and listed; letter case is marked with upper and lower at each change when the text mixes cases (case auto), always (on) or never (off). Returns {\"audio_base64\": \"<WAV>\", \"mime_type\": \"audio/wav\", \"voice\", \"characters\", \"case\", \"space\", \"skipped\", \"duration_seconds\", \"sample_rate\", \"voices\"} with Accept application/json. Up to 256 characters. POST /spell (also GET /spell/{text}[/{voice}[/{case}[/{space}]]])",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "The text to spell, 1 to 256 characters."
+          },
+          "voice": {
+            "type": "string",
+            "enum": [
+              "kristin",
+              "cori"
+            ],
+            "description": "kristin by default."
+          },
+          "case": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "on",
+              "off"
+            ],
+            "description": "auto by default."
+          },
+          "space": {
+            "type": "string",
+            "enum": [
+              "pause",
+              "word"
+            ],
+            "description": "pause by default; word speaks the word space for a run of whitespace."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "audio_decode",
       "description": "Recover a checksum-verified AI SENSE audio message (audio-v2, or the earlier v1) from PCM16 WAV at 44100 or 48000 Hz, mono or stereo, up to 40 seconds and 8 MiB. The binding must Base64-decode audio_base64 and send those raw bytes as audio/wav, or as multipart file with mode. Do not send the Base64 JSON directly to REST. Returns data_base64, byte_length, text or null, mode, protocol, corrected_bits, sample_rate and duration_seconds. Optional mode is a path segment. No remote URL fetching. POST /audio_decode[/{mode}]",
       "parameters": {
@@ -602,6 +689,42 @@
         },
         "required": [
           "payload"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "barcode_encode",
+      "description": "Make a Code 128 or EAN-13 barcode. Returns {\"barcode_image\": \"<base64 PNG>\", \"image_type\": \"png\", \"type\", \"data\", \"modules\", \"width\", \"height\"}, or with format \"svg\" the SVG text in \"barcode_svg\". code128 takes 1 to 80 printable ASCII characters; ean13 takes 12 digits, or 13 with the check digit. POST /barcode (also GET /barcode/{type}/{data}[/{format}])",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "code128",
+              "ean13"
+            ],
+            "description": "code128 for text, ean13 for an article number."
+          },
+          "data": {
+            "type": "string",
+            "description": "The text or digits to encode."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "png",
+              "svg"
+            ],
+            "description": "png (default) or svg."
+          }
+        },
+        "required": [
+          "type",
+          "data"
         ]
       }
     }

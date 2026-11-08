@@ -183,6 +183,41 @@ All timezones, optionally filtered by a four-digit offset. The list contains
 
 ---
 
+### `GET /cron/{expression}[/{count}[/{zone}]]` and `POST /cron`
+The next times a standard five-field cron expression fires, in an IANA time
+zone (default UTC), strictly after `from` (default now). It computes only:
+nothing is scheduled and no URL is called; `/webhook_schedule` does that.
+
+In the path the expression is one percent-encoded segment (a space as `%20`,
+the slash of a step as `%2F`); `count` is 1 to 100 (default 5) and the zone may
+hold a slash of its own. The JSON body takes `expression`, `count`, `zone` and
+`from` as Unix seconds or a date and time such as `2026-11-08T12:00:00Z`.
+
+Lists (`1,15`), ranges (`1-5`), steps (`*/15`, `1-30/5`, `5/10`), month and
+weekday names (`JAN`, `MON`, `FRI-SUN`) and the macros `@hourly`, `@daily`,
+`@midnight`, `@weekly`, `@monthly`, `@yearly` and `@annually` are accepted;
+`@reboot` and six fields are **400**. When both day fields are restricted a
+day that matches either fires; when one begins with `*`, a day must match both,
+as cron does. A local time that does not exist (the spring-forward hour) is
+skipped and a repeated one fires once. An expression that never fires within
+five years is **400**.
+
+```json
+// GET /cron/0%209%20*%20*%201-5/2/Europe/Oslo
+{
+  "expression": "0 9 * * 1-5",
+  "zone": "Europe/Oslo",
+  "from": { "timestamp": 1794135600, "datetime": "2026-11-08T12:00:00+01:00", "utc_datetime": "2026-11-08T11:00:00Z", "weekday": "Sunday" },
+  "count": 2,
+  "next": [
+    { "timestamp": 1794211200, "datetime": "2026-11-09T09:00:00+01:00", "utc_datetime": "2026-11-09T08:00:00Z", "weekday": "Monday" },
+    { "timestamp": 1794297600, "datetime": "2026-11-10T09:00:00+01:00", "utc_datetime": "2026-11-10T08:00:00Z", "weekday": "Tuesday" }
+  ]
+}
+```
+
+---
+
 ### `GET /swatchinternettime`
 Swatch Internet Time. `beat` is a string with a leading `@`, not a number.
 
@@ -277,6 +312,18 @@ GET /random_number/-57/-3   -> -57--3
 ### `GET /guid`
 ```json
 { "guid": "750dd9a6-a507-4a89-b4ec-8cd71fc115b7" }
+```
+
+---
+
+### `GET /ulid`
+One ULID: 26 Crockford base32 characters (digits and capitals without I, L, O
+and U) that hold 48 bits of millisecond time followed by 80 random bits, so
+identifiers sorted as text are sorted by creation. `timestamp` is that time in
+Unix milliseconds and `datetime` the same in UTC.
+
+```json
+{ "ulid": "01M6X73HM8FRP9MKRGTEW6WPH1", "timestamp": 1794129381000, "datetime": "2026-11-08T09:16:21.000Z" }
 ```
 
 ---
@@ -582,6 +629,27 @@ Generates a QR code. The request field is `payload`, with `data` accepted as an 
 
 ---
 
+### `GET /barcode/{type}/{data}[/{format}]` and `POST /barcode`
+A Code 128 or EAN-13 barcode, as a PNG in `barcode_image` (base64) or, with
+format `svg`, as SVG text in `barcode_svg`. `code128` takes 1 to 80 printable
+ASCII characters (32 to 126); `ean13` takes 12 digits, or 13 whose check digit
+must be right, and `data` in the answer carries the check digit. The image is
+the bars alone, three pixels a module, 80 pixels tall, with ten modules of
+quiet zone on each side; `modules`, `width` and `height` describe it. In the
+path the data is one percent-encoded segment; the JSON body takes `type`, `data`
+and `format`, and `POST /barcode/{type}` takes the type from the path. Nothing
+is stored. Bad data is **400** with `error` and `fix`.
+
+```json
+// GET /barcode/ean13/400638133393
+{ "barcode_image": "iVBORw0KGgoAAAFZ...", "image_type": "png", "type": "ean13", "data": "4006381333931", "modules": 95, "width": 345, "height": 80 }
+
+// POST /barcode  { "type": "code128", "data": "Hello 2026", "format": "svg" }
+{ "barcode_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"462\" height=\"80\" ...>", "image_type": "svg", "type": "code128", "data": "Hello 2026", "modules": 134, "width": 462, "height": 80 }
+```
+
+---
+
 ### `POST /qrcode_decode`
 Accepts a file upload (`qrcode_image` field, `multipart/form-data`) or a
 Base64 image in the **`payload`** field of a JSON body. The image is a PNG,
@@ -763,6 +831,46 @@ Each endpoint has a guide with a browser tool:
 [table matching](https://aisense.no/free-table-matching-api),
 [JSON formatter](https://aisense.no/free-json-formatter-api) and
 [JSON validator](https://aisense.no/free-json-validator-api).
+
+---
+
+### `GET /spell/{text}[/{voice}[/{case}[/{space}]]]` and `POST /spell`
+Text spoken letter by letter: one recorded clip per letter a to z and digit
+0 to 9, the words dash and underscore for those two characters, a pause of 0.4
+seconds for a run of whitespace (or the spoken word space, counted as a
+character, with `space` `word`), 0.16 seconds between characters, every other
+character skipped and listed. Letter case is marked with the words upper and
+lower before a letter at every change of case, the first letter included, when
+the text mixes cases (`case` `auto`, the default); `on` marks whatever the text,
+`off` never does. At most 256 characters.
+Voices: `kristin` (US English, female, the default) and `cori` (UK English,
+female). The clips
+were generated once with Piper from voices trained on public-domain speech and
+are joined per call; nothing is stored.
+
+`Accept: audio/wav`, or no Accept header, answers the WAV bytes (PCM16 mono
+22050 Hz). `Accept: application/json` answers the fields below. In the path the
+text is one percent-encoded segment and the voice an optional second one; the
+JSON body takes `data`, `voice`, `case` and `space`, and `POST /spell/{voice}` takes
+the voice from the path; the GET form takes the case mode as a third segment and
+the space mode as a fourth. Text with nothing to spell, more than 256 characters,
+an unknown voice or an unknown case or space mode is **400**; an Accept that allows neither form is **406**.
+
+```json
+// GET /spell/Gate%20B%2042  with Accept: application/json
+{
+  "audio_base64": "UklGRk5kAgBXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YSpkAgA...",
+  "mime_type": "audio/wav",
+  "voice": "kristin",
+  "characters": 7,
+  "case": "marked",
+  "space": "pause",
+  "skipped": [],
+  "duration_seconds": 7.0,
+  "sample_rate": 22050,
+  "voices": [ "kristin", "cori" ]
+}
+```
 
 ---
 
@@ -3540,12 +3648,14 @@ operations use JSON with the fields documented in their own sections.
 | `/timestamp` | `timestamp` |
 | `/microtimestamp` | `microtimestamp` |
 | `/timezones` | `timezones` (array of objects) |
+| `/cron` | `expression`, `zone`, `from`, `count`, `next` |
 | `/swatchinternettime` | `beat`, `date` |
 | `/timestamp_convert` | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | `/random_number` | `random_number`, `range` |
 | `/random_color` | `random_color` |
 | `/uuid` | `uuid` |
 | `/guid` | `guid` |
+| `/ulid` | `ulid`, `timestamp`, `datetime` |
 | `/password` | `password`, `password_length` |
 | `/base64_encode` | `base64_encoded_data` |
 | `/base58_encode` | `base58_encoded_data` |
@@ -3558,6 +3668,7 @@ operations use JSON with the fields documented in their own sections.
 | `/jwt_encode` | `jwt` |
 | `/jwt_decode` | `decoded_payload` |
 | `/qrcode_encode` | `qrcode_image`, `image_type` |
+| `/barcode` | `barcode_image` or `barcode_svg`, `image_type`, `type`, `data`, `modules`, `width`, `height` |
 | `/qrcode_decode` | `qrcode_content` |
 | `/json_to_csv`, `/csv_to_json`, `/table_match`, `/json_format` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp`, `expire_datetime`, `content_type`, `filename`, `operation` |
 | `/json_validate` | the same fields, plus `valid` |

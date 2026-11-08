@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.13
+Resource version 1.8.14
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -24,8 +24,10 @@ This public server needs no account, API key or authentication header. Its tools
 | Several steps in order that go on while you are away: workers, a time, a person, an outside event, rules | Agent Run | One fixed plan and deadline within 24 hours. Workers do the work |
 | Hand off a value or short link | Temporary Data or URL | Readable by anyone holding the ID or link |
 | A public name for an address, for a day | Temporary DNS Name | A DNS record only: no tunnel, no hosting, no certificate |
-| Encode, hash, a random value, a time format, HTML to Markdown and back | Utility tools | Computed on request, nothing stored |
+| Encode, hash, a random value, a time format, HTML to Markdown and back, a barcode | Utility tools | Computed on request, nothing stored |
+| The next times a cron expression fires | next_cron_times | Times only. schedule_webhook is what calls a URL on a schedule |
 | Send a short message as datatones, or recover it from a WAV recording | encode_audio / decode_audio | 128 bytes maximum. Unencrypted, hardware-dependent acoustic transfer |
+| Spell a code or a name out loud as a WAV | spell_audio | Letters, digits and spaces only. 64 characters through MCP, 256 through REST |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
@@ -35,7 +37,7 @@ This public server needs no account, API key or authentication header. Its tools
 
 ## Tool catalog
 
-Catalog size: 79 MCP tools.
+Catalog size: 82 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -72,12 +74,14 @@ Catalog size: 79 MCP tools.
 - `delete_dns_name` - Remove a name before it expires.
 - `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding or as HTML entities, or decode it.
 - `encode_audio` - Encode up to 128 bytes as audible or experimental high-frequency datatones in a WAV audio block.
+- `spell_audio` - Spell text as a spoken WAV, one recorded clip per letter and digit, in one of two voices.
 - `decode_audio` - Recover a checksum-verified message from a PCM16 WAV recording.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
-- `generate_random` - Make a random number, color, GUID, password or passphrase.
+- `generate_random` - Make a random number, color, GUID, ULID, password or passphrase.
 - `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
 - `convert_timestamp` - Convert a Unix time or a date text into other forms.
+- `next_cron_times` - Compute the next times a cron expression fires, in a time zone.
 - `list_timezones` - List timezones, optionally those at one UTC offset.
 - `lookup_network` - Read your address or User-Agent, locate an IPv4 address, or resolve a domain.
 - `validate_email` - Check the syntax and mail records of an email address.
@@ -85,6 +89,7 @@ Catalog size: 79 MCP tools.
 - `slugify_text` - Turn text into a URL slug.
 - `jwt_token` - Sign or verify an HS256 JSON Web Token.
 - `create_qr_code` - Make a QR code image.
+- `create_barcode` - Make a Code 128 or EAN-13 barcode image.
 - `read_qr_code` - Read the QR codes in an image.
 - `html_to_pdf` - Render HTML to a PDF stored for 24 hours.
 - `crypto_wallet` - Read a Bitcoin, Ethereum or Solana balance, or make a test key pair.
@@ -206,9 +211,9 @@ to advance, with the token only in `Authorization: Bearer TOKEN`.
 
 ## Agent Run
 
-For one hosted run without a customer-operated worker, see [managed execution](https://www.aisense.no/free-public-api-agent-run-api-endpoint#managed). Version 2 needs a privately installed OpenAI or Ollama Cloud API key and an exact hosted model ID. Set the delegate's task and declare any public source URLs and tools it can use. An authorized caller can read the answer with `read_agent_run`. Require a named Storage artifact if the caller also needs a shareable 24-hour result link. A delivery tool can send to one Telegram chat, Slack channel or Discord channel. Send private destination credentials only through the direct HTTPS credentials endpoint. The external-worker sequence below uses version 1.
-
-The version 1 example below uses an external worker. The service follows up to 16 steps in order for up to 24 hours, even while the caller is away.
+A plan of up to 16 steps in order, which the service keeps and goes through by
+itself for up to 24 hours, also while the client is away. It runs no code, fetches
+no URL it was given and hosts no model: workers do the thinking with their own.
 `create_agent_run` takes `steps` and `ttl_seconds`, from 60 to 86400 seconds, and
 returns `run_id`, a `read_token` and a `control_token` once. A plan with a delegated
 step also returns `queue_id` and `worker_token` for the workers. Keep the control

@@ -13,10 +13,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.20.0` and offers 79 tools. The official MCP
-Registry lists `com.aisenseapi/free-public-tools` version `1.20.0` as active
-and latest, published 8 November 2026 at 12:19 UTC. The agent guide in this
-repository is resource version 1.8.13.
+The server reports version `1.21.0` and offers 82 tools. The official MCP
+Registry lists `com.aisenseapi/free-public-tools` version `1.21.0` as active
+and latest, published 8 November 2026 at 16:51 UTC. The agent guide in this
+repository is resource version 1.8.14.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -223,12 +223,14 @@ and the body it received.
 | `delete_dns_name` | Removes a name before it expires |
 | `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding or HTML entities, or decodes it back to text or base64 bytes |
 | `encode_audio` | Turns 1 to 128 bytes into a WAV audio block, audible or experimental high-frequency tones |
+| `spell_audio` | Spells text as a spoken WAV, one recorded clip per letter and digit, in one of two voices |
 | `decode_audio` | Recovers checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds |
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
-| `generate_random` | Makes a random number, color, GUID, password or passphrase |
+| `generate_random` | Makes a random number, color, GUID, ULID, password or passphrase |
 | `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
 | `convert_timestamp` | Converts a Unix time or a date text into other forms |
+| `next_cron_times` | Computes the next times a cron expression fires, in a time zone |
 | `list_timezones` | Lists timezones, optionally those at one UTC offset |
 | `lookup_network` | Reads your address or User-Agent, locates an IPv4 address or resolves a domain |
 | `validate_email` | Checks the syntax and mail records of an email address |
@@ -236,6 +238,7 @@ and the body it received.
 | `slugify_text` | Turns text into a URL slug |
 | `jwt_token` | Signs or verifies an HS256 JSON Web Token |
 | `create_qr_code` | Makes a QR code and answers the image |
+| `create_barcode` | Makes a Code 128 or EAN-13 barcode and answers the image, or SVG text |
 | `read_qr_code` | Reads the QR codes in an image |
 | `html_to_pdf` | Renders HTML to a PDF stored for 24 hours |
 | `crypto_wallet` | Reads a Bitcoin, Ethereum or Solana balance, or makes a test key pair |

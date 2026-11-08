@@ -116,6 +116,9 @@
   <url><loc>https://aisense.no/free-public-api-crc32-checksum-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-hash-verify-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-uuid-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-ulid-api-endpoint</loc><lastmod>2026-11-08</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-cron-api-endpoint</loc><lastmod>2026-11-08</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-barcode-api-endpoint</loc><lastmod>2026-11-08</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-guid-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-password-api-endpoint</loc><lastmod>2026-08-20</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-passphrase-api-endpoint</loc><lastmod>2026-08-27</lastmod></url>
@@ -155,4 +158,5 @@
   <url><loc>https://aisense.no/free-public-api-agent-run-api-endpoint</loc><lastmod>2026-10-31</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-audio-encode-api-endpoint</loc><lastmod>2026-11-05</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-audio-decode-api-endpoint</loc><lastmod>2026-11-05</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-spell-api-endpoint</loc><lastmod>2026-11-08</lastmod></url>
 </urlset>

@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261015f'
+TRY_VERSION = '20261108a'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -102,6 +102,22 @@ def qr_encoder():
                      'payload, as the quick start does, and draws the PNG that comes back. ' + LEAVE_OUT}
 
 
+def barcode_encoder():
+    return {'endpoint': 'barcode', 'key': 'data', 'image': 'barcode_image', 'save': 'barcode.png',
+            'label': 'Data', 'sample': 'Hello 2026', 'button': 'Make the barcode', 'busy': 'Making the barcode', 'limit': 80,
+            'paths': [('code128', 'Code 128, text', 'Hello 2026'), ('ean13', 'EAN-13, 12 or 13 digits', '400638133393')],
+            'intro': 'Make a barcode here. Your browser posts the data in a JSON field named data to the type you choose, as the '
+                     'quick start does, and draws the PNG that comes back. ' + LEAVE_OUT}
+
+
+def speller():
+    voices = [('kristin', 'kristin, US English, female', 'Gate B 42'), ('cori', 'cori, UK English, female', 'Gate B 42')]
+    return {'endpoint': 'spell', 'key': 'data', 'audio': 'audio_base64', 'save': 'aisense-spell.wav',
+            'label': 'Text', 'sample': 'Gate B 42', 'button': 'Spell it', 'busy': 'Spelling', 'limit': 256, 'paths': voices,
+            'intro': 'Hear text spelled out here, letter by letter, in the voice you choose. Your browser posts the text in a JSON field '
+                     'named data and plays the WAV that comes back; up to 256 characters. ' + LEAVE_OUT}
+
+
 def getter(endpoint, args=None, label=None, button='Send', busy='Calling', intro=None):
     """A one-click GET: the request of the quick start, with the arguments that follow the endpoint editable."""
     spec = {'endpoint': endpoint, 'method': 'GET', 'button': button, 'busy': busy, 'limit': 1024}
@@ -170,10 +186,18 @@ TRY = {
               'JSON body, as the quick start does. Use a test address, or one you are free to share.'),
     'free-public-api-qr-code-encode-api-endpoint.html': qr_encoder(),
     'free-public-api-qr-code-decode-api-endpoint.html': qr_decoder(),
+    'free-public-api-barcode-api-endpoint.html': barcode_encoder(),
+    'free-public-api-spell-api-endpoint.html': speller(),
+    # The cron box posts the expression alone; count, zone and from keep their defaults.
+    'free-public-api-cron-api-endpoint.html': dict(text(
+        'cron', 'Compute', 'Computing', 'Cron expression', '0 9 * * 1-5', limit=128,
+        intro='Ask when an expression fires next, in UTC. Your browser posts it in a JSON field named expression, as the quick start does with POST.'),
+        key='expression'),
     # One-click GETs. Left out: what makes an object or a public link (inbox, DNS names, short links, PDF to
     # storage), what makes a secret others could use (the wallet generators), the crypto balances for now, and
     # mock_response, which has a box of its own.
     'free-public-api-uuid-api-endpoint.html': getter('uuid', button='Make a UUID', busy='Making'),
+    'free-public-api-ulid-api-endpoint.html': getter('ulid', button='Make a ULID', busy='Making'),
     'free-public-api-guid-api-endpoint.html': getter('guid', button='Make a GUID', busy='Making'),
     'free-public-api-password-api-endpoint.html': getter('password', '20', 'Length', button='Make a password', busy='Making'),
     'free-public-api-passphrase-api-endpoint.html': getter('passphrase', '4', 'Groups', button='Make a passphrase', busy='Making'),
@@ -208,7 +232,7 @@ def attr(value):
 def section(spec):
     data = [('data-try-endpoint', spec['endpoint']), ('data-try-limit', '%d' % spec['limit']), ('data-try-busy', spec['busy'])]
     for name, key in (('data-try-key', 'key'), ('data-try-file', 'file'), ('data-try-field', 'field'),
-                      ('data-try-image', 'image'), ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
+                      ('data-try-image', 'image'), ('data-try-audio', 'audio'), ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
         if spec.get(key):
             data.append((name, spec[key]))
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),
@@ -235,6 +259,8 @@ def section(spec):
     parts.append('<p class="try-status" aria-live="polite"></p>')
     if spec.get('image'):
         parts.append('<div class="try-image" hidden><img alt="The image the API answered with"></div>')
+    if spec.get('audio'):
+        parts.append('<div class="try-audio" hidden><audio controls preload="metadata" aria-label="The sound the API answered with"></audio></div>')
     parts.append('<pre class="try-result" hidden><code class="try-out"></code></pre>')
     if ACCEPT_BYTES in spec.get('accept', []) or spec.get('save'):
         name = spec.get('save', 'decoded_data.bin')

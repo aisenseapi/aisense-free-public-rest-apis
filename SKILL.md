@@ -803,12 +803,14 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/timestamp` | GET | `timestamp` |
 | `/microtimestamp` | GET | `microtimestamp` |
 | `/timezones[/{offset}]` | GET | `timezones` (array of objects) |
+| `/cron/{expression}[/{count}[/{zone}]]` | GET, POST | `expression`, `zone`, `from`, `count`, `next` |
 | `/swatchinternettime` | GET | `beat`, `date` |
 | `/timestamp_convert` | POST | `input`, `detected`, `timestamp`, `datetime`, `rfc2822`, `utc_datetime` |
 | `/random_number[/{from}[/{to}]]` | GET | `random_number`, `range` |
 | `/random_color` | GET | `random_color` |
 | `/uuid` | GET | `uuid` |
 | `/guid` | GET | `guid` |
+| `/ulid` | GET | `ulid`, `timestamp`, `datetime` |
 | `/password[/{length}]` | GET | `password`, `password_length` |
 | `/base64_encode` | POST | `base64_encoded_data` |
 | `/base58_encode` | POST | `base58_encoded_data` |
@@ -827,6 +829,7 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/jwt_encode` | POST | `jwt` |
 | `/jwt_decode` | POST | `decoded_payload` |
 | `/qrcode_encode` | POST | `qrcode_image`, `image_type` |
+| `/barcode/{type}/{data}[/{format}]` | GET, POST | `barcode_image` or `barcode_svg`, `image_type`, `type`, `data`, `modules`, `width`, `height` |
 | `/image_convert` | POST | Storage fields, `content_type`, `filename`, `operation`, `format`, `width`, `height`, `input_format`, `input_bytes` |
 | `/image_vectorize` | POST | The same image result fields, plus `threshold` |
 | `/qrcode_decode` | POST | `qrcode_content` |
