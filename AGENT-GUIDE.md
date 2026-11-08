@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.14
+Resource version 1.8.15
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -90,7 +90,7 @@ Catalog size: 82 MCP tools.
 - `jwt_token` - Sign or verify an HS256 JSON Web Token.
 - `create_qr_code` - Make a QR code image.
 - `create_barcode` - Make a Code 128 or EAN-13 barcode image.
-- `read_qr_code` - Read the QR codes in an image.
+- `read_qr_code` - Read the QR codes and barcodes in an image.
 - `html_to_pdf` - Render HTML to a PDF stored for 24 hours.
 - `crypto_wallet` - Read a Bitcoin, Ethereum or Solana balance, or make a test key pair.
 - `json_csv_convert` - Convert JSON rows to CSV or CSV to JSON rows.

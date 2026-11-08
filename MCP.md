@@ -13,10 +13,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.21.0` and offers 82 tools. The official MCP
-Registry lists `com.aisenseapi/free-public-tools` version `1.21.0` as active
-and latest, published 8 November 2026 at 16:51 UTC. The agent guide in this
-repository is resource version 1.8.14.
+The server reports version `1.21.1` and offers 82 tools. The official MCP
+Registry lists `com.aisenseapi/free-public-tools` version `1.21.1` as active
+and latest, published 8 November 2026 at 17:59 UTC. The agent guide in this
+repository is resource version 1.8.15.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -239,7 +239,7 @@ and the body it received.
 | `jwt_token` | Signs or verifies an HS256 JSON Web Token |
 | `create_qr_code` | Makes a QR code and answers the image |
 | `create_barcode` | Makes a Code 128 or EAN-13 barcode and answers the image, or SVG text |
-| `read_qr_code` | Reads the QR codes in an image |
+| `read_qr_code` | Reads the QR codes and barcodes in an image |
 | `html_to_pdf` | Renders HTML to a PDF stored for 24 hours |
 | `crypto_wallet` | Reads a Bitcoin, Ethereum or Solana balance, or makes a test key pair |
 | `json_csv_convert` | Converts JSON rows to CSV or CSV to JSON rows, stored for 24 hours |
