@@ -98,7 +98,7 @@
 
 <h2>Workers do the thinking</h2>
 
-<p>The service runs no code, fetches no URL it was given and hosts no model. A worker claims the job through <a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and finds the <code>task</code> and <code>previous</code>, the last accepted result, in the job's payload. It does the work with its own model and hands in the result with the claim's receipt. It sends no ack.</p>
+<p>This example uses an external worker and version 1 of Agent Run. A worker claims the job through <a href="/free-public-api-agent-queue-api-endpoint">Agent <span class="agent-optimal-tail">Queue<img class="agent-optimal-mark" src="/assets/agent-optimal.svg?v=20261003f" width="16" height="16" alt="Agent Optimal" title="Agent Optimal - Built for agent workflows. An AI SENSE label."></span></a> and finds the <code>task</code> and <code>previous</code>, the last accepted result, in the job's payload. It does the work with its own model and hands in the result with the claim's receipt. It sends no ack.</p>
 
 <pre><code>curl -X POST https://aisenseapi.com/services/v1/run/RUN_ID/steps/analysis/result \
   -H "Authorization: Bearer WORKER_TOKEN" \

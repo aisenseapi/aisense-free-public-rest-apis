@@ -232,7 +232,7 @@
     <tr><td><code>spreadsheet_safe</code></td><td>no</td><td><code>true</code> or <code>false</code> (default).</td></tr>
   </tbody>
 </table></div>
-<p>The result is stored as <code>result.csv</code>. Read it with a GET on <code>storage_url</code>; Storage serves it as <code>application/octet-stream</code>, so a browser saves it as a file.</p>
+<p>The result is stored as <code>result.csv</code>. A GET on <code>storage_url</code> returns the CSV bytes. Save the response as <code>result.csv</code> to keep a local copy.</p>
 
 <h2 id="storage">The answer is a Storage link</h2>
 <p>The endpoint never sends the converted file in its answer. It stores the result for 24 hours and answers with the same fields the <a href="/free-public-api-storage-api-endpoint">Temporary Storage API</a> answers with, plus what the result is:</p>
