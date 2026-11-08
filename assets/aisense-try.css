@@ -31,3 +31,5 @@
 .try-drop strong { font-weight: 600; }
 .try-drop.is-bad { border-color: var(--bad); }
 .try-drop.is-bad small { color: var(--bad); }
+.try-audio { margin-top: 0.75rem; }
+.try-audio audio { width: 100%; display: block; }

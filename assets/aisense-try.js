@@ -10,6 +10,7 @@
  *   data-try-file      how a file goes: raw, the request body itself, or multipart, a form field
  *   data-try-field     the name of that form field, file unless it says otherwise
  *   data-try-image     a JSON field of the answer that holds a base64 image, which the box shows
+ *   data-try-audio     a JSON field of the answer that holds a base64 WAV, which the box plays, asking for JSON
  *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
  *   data-try-method    GET for the endpoints whose quick start is a GET; POST otherwise
@@ -84,6 +85,7 @@
     var fileMode = card.getAttribute('data-try-file') || 'raw';
     var field = card.getAttribute('data-try-field') || 'file';
     var imageField = card.getAttribute('data-try-image');
+    var audioField = card.getAttribute('data-try-audio');
     var sampleFile = card.getAttribute('data-try-sample');
     var countChars = card.hasAttribute('data-try-chars');
     var method = (card.getAttribute('data-try-method') || 'POST').toUpperCase();
@@ -98,6 +100,8 @@
     var out = find('.try-out');
     var image = find('.try-image');
     var picture = image ? image.querySelector('img') : null;
+    var audio = find('.try-audio');
+    var player = audio ? audio.querySelector('audio') : null;
     var saveRow = find('.try-save');
     var save = find('.try-save-link');
     var drop = find('.try-drop');
@@ -116,6 +120,7 @@
       result.hidden = true;
       out.textContent = '';
       if (image) { image.hidden = true; }
+      if (audio) { audio.hidden = true; if (player) { player.removeAttribute('src'); } }
       if (saveRow) { saveRow.hidden = true; }
     }
 
@@ -160,6 +165,24 @@
       return shown;
     }
 
+    // Plays the base64 WAV of the answer and returns the answer with that field shortened for display.
+    function played(json) {
+      var base64 = json[audioField];
+      var binary = atob(base64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
+      player.src = offer(new Blob([bytes], { type: json.mime_type || 'audio/wav' }));
+      audio.hidden = false;
+      if (saveRow) {
+        save.setAttribute('download', 'aisense-spell.wav');
+        save.textContent = 'Save aisense-spell.wav';
+      }
+      var shown = {};
+      Object.keys(json).forEach(function (name) { shown[name] = json[name]; });
+      shown[audioField] = base64.slice(0, 24) + '... (' + base64.length + ' characters of base64, playable above)';
+      return shown;
+    }
+
     function textAnswer(response, line, file) {
       return response.text().then(function (text) {
         var type = response.headers.get('Content-Type') || '';
@@ -174,6 +197,9 @@
         }
         if (json && response.ok && imageField && image && typeof json[imageField] === 'string') {
           text = JSON.stringify(drawn(json), null, 2);
+        }
+        if (json && response.ok && audioField && player && typeof json[audioField] === 'string') {
+          text = JSON.stringify(played(json), null, 2);
         }
         if (file && response.ok) {
           line += ' - ' + file.name + ', ' + size(file.size) + (countChars ? ' in' : '');
@@ -245,6 +271,7 @@
         return;
       }
       if (accept) { options.headers.Accept = accept.value; }
+      if (audioField) { options.headers.Accept = 'application/json'; }
       run.disabled = true;
       clear();
       show(busy + (file ? ' ' + file.name : ''));
