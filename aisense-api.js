@@ -60,7 +60,9 @@ export class AISenseAPIError extends Error {
 }
 
 function secretBase64url(bytes) {
-  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192))
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 function secretBytes(value) {
@@ -70,12 +72,17 @@ function secretBytes(value) {
   return bytes
 }
 
-function secretEnvelope(envelope) {
+function envelopeShape(envelope) {
   if (!envelope || Object.keys(envelope).sort().join(',') !== 'algorithm,ciphertext,nonce,version' ||
       envelope.version !== 1 || envelope.algorithm !== 'AES-256-GCM' ||
-      secretBytes(envelope.nonce).length !== 12) throw new TypeError('Invalid encrypted secret envelope')
+      secretBytes(envelope.nonce).length !== 12) throw new TypeError('Invalid encrypted envelope')
   const size = secretBytes(envelope.ciphertext).length
-  if (size < 17 || size > 16400) throw new TypeError('Ciphertext must contain 1 byte to 16 KiB plus its 16-byte tag')
+  if (size < 17) throw new TypeError('Ciphertext must contain at least 1 byte plus its 16-byte tag')
+  return size
+}
+
+function secretEnvelope(envelope) {
+  if (envelopeShape(envelope) > 16400) throw new TypeError('Ciphertext must contain 1 byte to 16 KiB plus its 16-byte tag')
   return envelope
 }
 
@@ -90,11 +97,17 @@ async function secretCrypto() {
   throw new Error('Web Crypto requires HTTPS or localhost')
 }
 
-/** Encrypt UTF-8 locally. Keep returned key out of API/MCP/chat and logs. */
-export async function encryptOneTimeSecret(plaintext) {
+/**
+ * Encrypt a UTF-8 string locally with a fresh AES-256-GCM key. The envelope
+ * `{ version, algorithm, nonce, ciphertext }` can go anywhere, for example into
+ * Storage as the state one run leaves for the next. The returned key stays with
+ * the owner: keep it out of API calls, MCP arguments, chat and logs. Storage
+ * itself is unchanged by this, and storing plaintext remains the default.
+ */
+export async function encryptLocally(plaintext) {
   if (typeof plaintext !== 'string') throw new TypeError('Plaintext must be a string')
   const bytes = new TextEncoder().encode(plaintext)
-  if (bytes.length === 0 || bytes.length > 16384) throw new RangeError('Plaintext must be 1 byte to 16 KiB UTF-8')
+  if (bytes.length === 0) throw new RangeError('Plaintext must be at least 1 byte')
   const crypto = await secretCrypto()
   const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])
   const nonce = crypto.getRandomValues(new Uint8Array(12))
@@ -105,9 +118,27 @@ export async function encryptOneTimeSecret(plaintext) {
   }
 }
 
+/** Decrypt an envelope made by {@link encryptLocally} with its key; a wrong key or a changed byte rejects. */
+export async function decryptLocally(envelope, localKey) {
+  envelopeShape(envelope)
+  return decryptEnvelope(envelope, localKey)
+}
+
+/** Encrypt UTF-8 locally for One-time Secret, 1 byte to 16 KiB. Keep returned key out of API/MCP/chat and logs. */
+export async function encryptOneTimeSecret(plaintext) {
+  if (typeof plaintext !== 'string') throw new TypeError('Plaintext must be a string')
+  const bytes = new TextEncoder().encode(plaintext)
+  if (bytes.length === 0 || bytes.length > 16384) throw new RangeError('Plaintext must be 1 byte to 16 KiB UTF-8')
+  return encryptLocally(plaintext)
+}
+
 /** Decrypt locally after an explicit reveal. Authentication failure cannot undo consumption. */
 export async function decryptOneTimeSecret(envelope, localKey) {
   secretEnvelope(envelope)
+  return decryptEnvelope(envelope, localKey)
+}
+
+async function decryptEnvelope(envelope, localKey) {
   const keyBytes = secretBytes(localKey)
   if (keyBytes.length !== 32) throw new TypeError('AES-256 requires a 32-byte key')
   const crypto = await secretCrypto()

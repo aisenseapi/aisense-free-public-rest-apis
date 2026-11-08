@@ -338,6 +338,9 @@ never put plaintext or decryption keys in a chat or tool call.
 See the [REST contract](API.md#one-time-secret---client-encrypted-single-reveal),
 [MCP guide](MCP.md#one-time-secret), and local JavaScript encryption helpers
 `encryptOneTimeSecret` / `decryptOneTimeSecret` in [aisense-api.js](aisense-api.js).
+The general pair `encryptLocally` / `decryptLocally` encrypts state of any size
+with a key the owner keeps, and [examples/encrypted-state](examples/encrypted-state/README.md)
+passes such state from one run to the next through Storage.
 
 ### Semantic search - find earlier notes by meaning
 

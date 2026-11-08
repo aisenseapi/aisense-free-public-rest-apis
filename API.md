@@ -3074,7 +3074,13 @@ Replies use `Cache-Control: no-store`. Do not keep secrets as durable backups.
 #### Local JavaScript encryption
 
 The dependency-free browser/Node client exposes local encryption helpers and
-four encrypted transport methods. No helper transmits a key or plaintext:
+four encrypted transport methods. No helper transmits a key or plaintext.
+`encryptLocally` and `decryptLocally` are the general pair: a fresh AES-256-GCM
+key for every call, an envelope `{ version, algorithm, nonce, ciphertext }` that
+can go into Storage or anywhere else, and a key that stays with the owner.
+`encryptOneTimeSecret` and `decryptOneTimeSecret` are the same pair with the
+16 KiB limit that One-time Secret accepts. [examples/encrypted-state](examples/encrypted-state/README.md)
+hands encrypted state from one run to the next through Storage. The One-time Secret flow:
 
 ```javascript
 import { AISenseAPI, encryptOneTimeSecret, decryptOneTimeSecret } from './aisense-api.js'

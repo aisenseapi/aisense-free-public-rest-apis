@@ -72,3 +72,12 @@ capture per job, `worker.py` claims a job, renders it (or fakes it with
 `collector.py` waits for each result and downloads the image once with a
 SHA-256 check. Standard library only. See [comfyui/README.md](comfyui/README.md)
 for the flow, the quota arithmetic and what it does not do.
+
+# Encrypted state in Storage
+
+`encrypted-state/` passes private state from one run to the next through
+Storage: the writer encrypts it locally with a fresh key and keeps the key in a
+file, Storage holds only the envelope, and the reader decrypts with that key.
+Node.js 18 or newer, nothing beyond `aisense-api.js`. Storing plaintext remains
+the default; see [encrypted-state/README.md](encrypted-state/README.md) for the
+commands, what travels to the next run and the offline check.
