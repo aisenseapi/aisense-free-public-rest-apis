@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261108b'
+TRY_VERSION = '20261108c'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -119,10 +119,15 @@ def barcode_encoder():
 
 def speller():
     voices = [('kristin', 'kristin, US English, female', 'Gate B 42'), ('cori', 'cori, UK English, female', 'Gate B 42')]
+    speeds = [('%.1f' % (tenths / 10), '%.1f' % (tenths / 10) + (', normal' if tenths == 10 else '')) for tenths in range(5, 21)]
     return {'endpoint': 'spell', 'key': 'data', 'audio': 'audio_base64', 'save': 'aisense-spell.wav',
             'label': 'Text', 'sample': 'Gate B 42', 'button': 'Spell it', 'busy': 'Spelling', 'limit': 256, 'paths': voices,
-            'intro': 'Hear text spelled out here, letter by letter, in the voice you choose. Your browser posts the text in a JSON field '
-                     'named data and plays the WAV that comes back; up to 256 characters. ' + LEAVE_OUT}
+            'paths_label': 'Voice',
+            'fields': [('space', 'A space is', [('pause', 'a pause'), ('word', 'the spoken word space')], 'pause'),
+                       ('speed', 'Speed', speeds, '1.0')],
+            'intro': 'Hear text spelled out here, letter by letter, in the voice and at the speed you choose. Your browser posts '
+                     'the text in a JSON field named data, with space and speed beside it, and plays the WAV that comes back; '
+                     'up to 256 characters. ' + LEAVE_OUT}
 
 
 def getter(endpoint, args=None, label=None, button='Send', busy='Calling', intro=None):
@@ -251,9 +256,14 @@ def section(spec):
              '<div class="try-card try-api" %s%s>' % (' '.join('%s="%s"' % (name, attr(value)) for name, value in data),
                                                      ' data-try-chars' if spec.get('chars') else '')]
     if spec.get('paths'):
-        parts.append('<label for="try-path">Type</label><select id="try-path" class="try-path">'
+        parts.append('<label for="try-path">%s</label><select id="try-path" class="try-path">' % esc(spec.get('paths_label', 'Type'))
                      + ''.join('<option value="%s" data-sample="%s">%s</option>' % (attr(value), attr(sample), esc(label))
                                for value, label, sample in spec['paths']) + '</select>')
+    for name, label, options, default in spec.get('fields', []):
+        parts.append('<label for="try-field-%s">%s</label><select id="try-field-%s" class="try-field" data-try-name="%s">'
+                     % (attr(name), esc(label), attr(name), attr(name))
+                     + ''.join('<option value="%s"%s>%s</option>' % (attr(value), ' selected' if value == default else '', esc(text))
+                               for value, text in options) + '</select>')
     if 'sample' in spec:
         parts.append('<label for="try-input">%s</label><textarea id="try-input" class="try-input" rows="4" spellcheck="false">%s</textarea>'
                      % (esc(spec['label']), esc(spec['sample'])))

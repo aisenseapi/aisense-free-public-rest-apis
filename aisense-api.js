@@ -619,13 +619,15 @@ export class AISenseAPI {
    * `audio_base64` (PCM16 WAV, 22050 Hz), `mime_type`, `voice`, `characters`, `case`, `space`,
    * `skipped`, `duration_seconds`, `sample_rate` and `voices`. Up to 256 characters; `voice` is
    * `'kristin'` (default) or `'cori'`; `caseMode` is `'auto'` (default), `'on'` or
-   * `'off'`; `space` is `'pause'` (default) or `'word'`, the spoken word for a run of whitespace.
+   * `'off'`; `space` is `'pause'` (default) or `'word'`, the spoken word for a run of whitespace;
+   * `speed` is 0.5 to 2 in steps of 0.1 (default 1), the pitch kept. The answer carries `speed` too.
    */
-  spell(text, voice, caseMode, space) {
+  spell(text, voice, caseMode, space, speed) {
     const body = { data: text }
     if (voice !== undefined) body.voice = voice
     if (caseMode !== undefined) body.case = caseMode
     if (space !== undefined) body.space = space
+    if (speed !== undefined) body.speed = speed
     return this.#request('/spell', 'POST', body, undefined, { Accept: 'application/json' })
   }
 

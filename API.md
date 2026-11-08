@@ -836,7 +836,7 @@ Each endpoint has a guide with a browser tool:
 
 ---
 
-### `GET /spell/{text}[/{voice}[/{case}[/{space}]]]` and `POST /spell`
+### `GET /spell/{text}[/{voice}[/{case}[/{space}[/{speed}]]]]` and `POST /spell`
 Text spoken letter by letter: one recorded clip per letter a to z and digit
 0 to 9, the words dash and underscore for those two characters, a pause of 0.4
 seconds for a run of whitespace (or the spoken word space, counted as a
@@ -844,7 +844,10 @@ character, with `space` `word`), 0.16 seconds between characters, every other
 character skipped and listed. Letter case is marked with the words upper and
 lower before a letter at every change of case, the first letter included, when
 the text mixes cases (`case` `auto`, the default); `on` marks whatever the text,
-`off` never does. At most 256 characters.
+`off` never does. `speed` runs from 0.5 to 2.0 in steps of 0.1 (default 1): every
+letter is stretched in time with its pitch kept and the pauses scale with it; a
+sound may last at most eight minutes, the longest 256 characters make at speed 1.
+At most 256 characters.
 Voices: `kristin` (US English, female, the default) and `cori` (UK English,
 female). The clips
 were generated once with Piper from voices trained on public-domain speech and
@@ -853,10 +856,11 @@ are joined per call; nothing is stored.
 `Accept: audio/wav`, or no Accept header, answers the WAV bytes (PCM16 mono
 22050 Hz). `Accept: application/json` answers the fields below. In the path the
 text is one percent-encoded segment and the voice an optional second one; the
-JSON body takes `data`, `voice`, `case` and `space`, and `POST /spell/{voice}` takes
-the voice from the path; the GET form takes the case mode as a third segment and
-the space mode as a fourth. Text with nothing to spell, more than 256 characters,
-an unknown voice or an unknown case or space mode is **400**; an Accept that allows neither form is **406**.
+JSON body takes `data`, `voice`, `case`, `space` and `speed`, and `POST /spell/{voice}`
+takes the voice from the path; the GET form takes the case mode as a third segment,
+the space mode as a fourth and the speed as a fifth. Text with nothing to spell,
+more than 256 characters, an unknown voice, an unknown case or space mode, a speed
+outside its steps or a sound longer than eight minutes is **400**; an Accept that allows neither form is **406**.
 
 ```json
 // GET /spell/Gate%20B%2042  with Accept: application/json
@@ -867,6 +871,7 @@ an unknown voice or an unknown case or space mode is **400**; an Accept that all
   "characters": 7,
   "case": "marked",
   "space": "pause",
+  "speed": 1,
   "skipped": [],
   "duration_seconds": 7.0,
   "sample_rate": 22050,

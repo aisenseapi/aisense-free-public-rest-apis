@@ -603,7 +603,7 @@
     "type": "function",
     "function": {
       "name": "spell_text",
-      "description": "Spell text letter by letter as a spoken WAV: one recorded clip per letter a to z and digit 0 to 9, the words dash and underscore for those characters, a pause for a run of whitespace (or the spoken word space with space \"word\"), other characters skipped and listed; letter case is marked with upper and lower at each change when the text mixes cases (case auto), always (on) or never (off). Returns {\"audio_base64\": \"<WAV>\", \"mime_type\": \"audio/wav\", \"voice\", \"characters\", \"case\", \"space\", \"skipped\", \"duration_seconds\", \"sample_rate\", \"voices\"} with Accept application/json. Up to 256 characters. POST /spell (also GET /spell/{text}[/{voice}[/{case}[/{space}]]])",
+      "description": "Spell text letter by letter as a spoken WAV: one recorded clip per letter a to z and digit 0 to 9, the words dash and underscore for those characters, a pause for a run of whitespace (or the spoken word space with space \"word\"), other characters skipped and listed; letter case is marked with upper and lower at each change when the text mixes cases (case auto), always (on) or never (off). Returns {\"audio_base64\": \"<WAV>\", \"mime_type\": \"audio/wav\", \"voice\", \"characters\", \"case\", \"space\", \"speed\", \"skipped\", \"duration_seconds\", \"sample_rate\", \"voices\"} with Accept application/json. Up to 256 characters. POST /spell (also GET /spell/{text}[/{voice}[/{case}[/{space}[/{speed}]]]])",
       "parameters": {
         "type": "object",
         "properties": {
@@ -635,6 +635,12 @@
               "word"
             ],
             "description": "pause by default; word speaks the word space for a run of whitespace."
+          },
+          "speed": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 2,
+            "description": "1 by default: 0.5 is half speed and 2 double, in steps of 0.1; the pitch stays."
           }
         },
         "required": [

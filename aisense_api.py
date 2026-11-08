@@ -468,7 +468,7 @@ class AISenseAPI:
         return self._upload("/audio_decode", file, {"mode": mode})
 
     def spell(self, text: str, voice: Optional[str] = None, case: Optional[str] = None,
-              space: Optional[str] = None) -> dict:
+              space: Optional[str] = None, speed: Optional[float] = None) -> dict:
         """Spell text letter by letter as sound: letters, digits, dash and underscore
         spoken, a pause (or the spoken word space) for a run of whitespace, the case
         marked with upper and lower when the text mixes cases. Response keys:
@@ -476,7 +476,9 @@ class AISenseAPI:
         ``characters``, ``case``, ``space``, ``skipped``, ``duration_seconds``,
         ``sample_rate`` and ``voices``. Up to 256 characters; ``voice`` is
         ``"kristin"`` (default) or ``"cori"``; ``case`` is ``"auto"``
-        (default), ``"on"`` or ``"off"``; ``space`` is ``"pause"`` (default) or ``"word"``."""
+        (default), ``"on"`` or ``"off"``; ``space`` is ``"pause"`` (default) or ``"word"``;
+        ``speed`` is 0.5 to 2 in steps of 0.1 (default 1), the pitch kept, and comes back as
+        ``speed``."""
         body: dict = {"data": text}
         if voice is not None:
             body["voice"] = voice
@@ -484,6 +486,8 @@ class AISenseAPI:
             body["case"] = case
         if space is not None:
             body["space"] = space
+        if speed is not None:
+            body["speed"] = speed
         return self._request("/spell", "POST", body, extra_headers={"Accept": "application/json"})
 
     def barcode_encode(self, type: str, data: str, format: Optional[str] = None) -> dict:
