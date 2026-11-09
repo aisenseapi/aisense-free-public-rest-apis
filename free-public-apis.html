@@ -345,7 +345,7 @@ POST /services/v1/audio_decode
 Content-Type: audio/wav
 [PCM16 WAV bytes]</code></pre>
 <p>Recordings can be mono or stereo at 44100 or 48000 Hz, up to 40 seconds and 8 MiB. The API processes them without keeping their content. <code>data_base64</code> always preserves the decoded bytes. <code>text</code> is null when those bytes are not valid UTF-8.</p>
-<p>Music has three endpoints. MIDI encode turns notes written as text, such as <code>C4:4,E4:8,G4:8</code>, into a Standard MIDI File. MIDI decode reads a MIDI file back as JSON, every note with its start and length in seconds. Audio render plays notes, a MIDI file or an Amiga ProTracker module as a WAV of up to 60 seconds. None of them stores what it is sent.</p>
+<p>Music has three endpoints. MIDI encode turns notes written as text, such as <code>C4:4,E4:8,G4:8</code>, into a Standard MIDI File. MIDI decode reads a MIDI file back as JSON, every note with its start and length in seconds. Audio render plays notes, a MIDI file or an Amiga ProTracker module as a WAV of up to 180 seconds. None of them stores what it is sent.</p>
 <pre><code>GET /services/v1/audio_render/C4:4,E4:8,G4:8,R:4,C4+E4+G4:2</code></pre>
 </section>
 
