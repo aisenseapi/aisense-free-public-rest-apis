@@ -105,7 +105,7 @@
 <tbody>
 <tr><td><code>/storage</code></td><td>Your request body, byte for byte, unchanged</td></tr>
 <tr><td><code>/url_shortener</code></td><td>The address you asked us to shorten</td></tr>
-<tr><td><code>/webhook_capture</code></td><td>The complete inbound request, <strong>including all headers</strong> and the sender's IP</td></tr>
+<tr><td><code>/webhook_capture</code></td><td>The complete inbound request, <strong>including all headers</strong> except the value of X-AISENSE-Key, and the sender's IP</td></tr>
 <tr><td><code>/webhook_action</code></td><td>The form you defined and the answer someone submitted to it</td></tr>
 <tr><td><code>/webhook_schedule</code></td><td>The target URL, delivery time, JSON payload and delivery result</td></tr>
 <tr><td><code>/agent_wake</code></td><td>Task state and the webhook, human answer or time result. Standard credential headers on webhooks are redacted</td></tr>
@@ -117,7 +117,7 @@
 </tbody>
 </table>
 </div>
-<p><strong>Webhook Capture deserves particular attention.</strong> It records every header a caller sends, and services that post to webhooks routinely include authorisation tokens and signatures in those headers. If you point a third-party service at a capture URL, its credentials will sit in our storage for 24 hours. That is the endpoint working as intended, but you should know it before you use it.</p>
+<p><strong>Webhook Capture deserves particular attention.</strong> It records every header a caller sends, and services that post to webhooks routinely include authorisation tokens and signatures in those headers. Webhook Capture replaces the value of X-AISENSE-Key with [redacted] before storage. Other headers, including Authorization, are recorded as received. If you point a third-party service at a capture URL, its credentials will sit in our storage for 24 hours. That is the endpoint working as intended, but you should know it before you use it.</p>
 <p>Lease replaces values under secret-shaped field names such as <code>authorization</code>, <code>password</code>, <code>token</code> and <code>api_key</code> with <code>[redacted]</code> before storage. It cannot detect a secret placed under an ordinary field name. Keep credentials and personal data out of Lease results and Heartbeat payloads.</p>
 
 <p>The Queue service writes payload content to its JSON state files without encrypting it. It normalizes object-key ordering and JSON serialization. Authorized readers and claiming workers can read the content. Keep credentials and sensitive personal data out of them. Queue processing does not execute payloads, fetch URLs, make callbacks or send content to outside services. </p>
