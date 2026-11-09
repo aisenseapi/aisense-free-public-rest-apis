@@ -123,10 +123,12 @@ def speller():
     return {'endpoint': 'spell', 'key': 'data', 'audio': 'audio_base64', 'save': 'aisense-spell.wav',
             'label': 'Text', 'sample': 'Gate B 42', 'button': 'Spell it', 'busy': 'Spelling', 'limit': 256, 'paths': voices,
             'paths_label': 'Voice',
-            'fields': [('space', 'A space is', [('pause', 'a pause'), ('word', 'the spoken word space')], 'pause'),
+            'fields': [('case', 'Upper and lower case', [('off', 'off, not spoken'), ('auto', 'auto, spoken when the text mixes them'),
+                                                         ('on', 'on, always spoken')], 'off'),
+                       ('space', 'A space is', [('pause', 'a pause'), ('word', 'the spoken word space')], 'pause'),
                        ('speed', 'Speed', speeds, '1.0')],
             'intro': 'Hear text spelled out here, letter by letter, in the voice and at the speed you choose. Your browser posts '
-                     'the text in a JSON field named data, with space and speed beside it, and plays the WAV that comes back; '
+                     'the text in a JSON field named data, with case, space and speed beside it, and plays the WAV that comes back; '
                      'up to 256 characters. ' + LEAVE_OUT}
 
 
