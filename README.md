@@ -1123,7 +1123,7 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 - Webhook Schedule keeps its final result for up to another 24 hours
 - Heartbeat terminal state can remain readable for another 24 hours after it fires, misses or expires
 - `Access-Control-Allow-Origin: *` is set on every response, so these are callable from a browser
-- Free allowance: 5000 requests per IP per day. [Pro plans](https://aisense.no/custom-apis) offer a larger shared customer quota without an API key.
+- Free allowance: 5000 requests per IP per day. [Pro plans](https://aisense.no/custom-apis) offer a larger shared customer quota by source IP, with no API key, or by a token in the X-AISENSE-Key header.
 
 ---
 

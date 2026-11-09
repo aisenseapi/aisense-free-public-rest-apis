@@ -70,11 +70,11 @@
 
 <div class="hero">
   <h1>Custom APIs and Pro access</h1>
-  <p class="lede">Need more daily calls? Choose a Pro plan and add the public IP addresses or networks your applications use. No API key is needed.</p>
+  <p class="lede">Need more daily calls? Choose a Pro plan. Your account starts with the address you register from, and you add the public IP addresses or networks your applications use, with no API key. Servers without a fixed address, or on an address you share, can use a token instead.</p>
 </div>
 <section aria-labelledby="pro-heading">
 <h2 id="pro-heading">AI SENSE Pro</h2>
-<p>One daily allowance per customer, shared across your selected IP addresses and CIDR ranges. All prices are USD per month, plus applicable tax.</p>
+<p>One daily allowance per customer, shared across your selected IP addresses, CIDR ranges and tokens. All prices are USD per month, plus applicable tax.</p>
 <div class="pro-plans">
 <article class="pro-plan"><h3>Tier 1</h3><p class="pro-price">$5<span> / month</span></p><p><strong>10,000</strong> requests per day</p></article>
 <article class="pro-plan"><h3>Tier 2</h3><p class="pro-price">$15<span> / month</span></p><p><strong>50,000</strong> requests per day</p></article>
@@ -84,7 +84,7 @@
 <div class="button-row"><a class="button button-primary" href="https://aisenseapi.com/customer/register">Register and choose a plan</a><a class="button button-secondary" href="/login">Sign in</a></div>
 <p>Have a discount code? Enter it when ordering. A 100% discount activates your plan without payment. Orders that need payment stay pending until payment is confirmed. Your account shows whether Stripe checkout is available. You review the amount, including any applicable tax, before paying. Paid subscriptions renew monthly until cancelled.</p>
 <p>The daily allowance resets at midnight Europe/Oslo. Endpoint limits for file size, storage, model calls and concurrency still apply. Pro does not extend the lifetime of temporary data.</p>
-<p>Anyone making requests from a listed IP can use its allowance. If active customer networks overlap, those requests draw from a shared pool, weighted by plan size. Every call is charged once. Your total allowance remains shared across all your networks.</p>
+<p>Anyone making requests from a listed IP can use its allowance. If active customer networks overlap, those requests draw from a shared pool, weighted by plan size. Every call is charged once. Your total allowance remains shared across all your networks.</p><p>If you share an address with others, such as a building or office network, switch tokens on in your account, make one and send it in the <code>X-AISENSE-Key</code> header. A request with a token spends only your allowance, from any address. Your account lists each token by its last four characters, and a token expires after 1 to 365 days or never. Keep tokens on your servers. With the networks switched off only your tokens spend the plan; one of the two ways always stays on.</p>
 <p>The <a href="/free-public-apis">free public APIs</a> remain available without an account, with the standard free limits.</p>
 </section>
 <h2>Built for your requirements</h2>
@@ -116,7 +116,7 @@
 <h2 id="get-started">Getting started</h2>
 <p>Tell us what you need to connect and what the data has to do once it arrives. Reach us at <a href="/contact-us">Contact Us</a> or <a href="mailto:support@aisense.no">support@aisense.no</a>.</p>
 
-<p><a href="/login">Sign in</a> to manage your Pro plan and source networks.</p>
+<p><a href="/login">Sign in</a> to manage your Pro plan, source networks and tokens.</p>
 
 </main>
 

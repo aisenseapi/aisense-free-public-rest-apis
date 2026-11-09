@@ -208,13 +208,13 @@
 <p>We rely on legitimate interest for the technical logging and rate limiting described above: operating a public service, keeping it available, and investigating abuse and faults. Pro account information is used to provide the account and manage the agreement you request. The data is limited to what those purposes need. Where you send us content deliberately - anything you post to the storage or webhook endpoints - you are asking us to hold it, and we hold it only for as long as stated.</p>
 
 <h2 id="security">Security</h2>
-<p>All traffic is served over HTTPS. The optional Pro service stores password hashes and hashed session tokens in private customer storage. Temporary data is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Treat these values as secrets. Anyone holding the right value can read the associated public state or result.</p>
+<p>All traffic is served over HTTPS. The optional Pro service stores password hashes, hashed session tokens and hashed API tokens in private customer storage. Temporary data is addressed by an unguessable bearer identifier, or by a Lease namespace and key. Treat these values as secrets. Anyone holding the right value can read the associated public state or result.</p>
 
 <h2 id="changes">Changes</h2>
 <p>When the service changes, this page changes with it. The date at the top is the last time it was checked against what the code actually does.</p>
 
 <section id="pro-accounts"><h2>Pro customer accounts</h2>
-<p>The optional Pro service stores your name or company name, email address, password hash, selected IP networks, plan, orders, discounts and daily usage counts. It uses secure, essential cookies for sign-in and form protection. The public API still works without an account.</p>
+<p>The optional Pro service stores your name or company name, email address, password hash, selected IP networks, which start with the address you register from, the API tokens you make, as a hash of each with its label, last four characters and the times it was made and expires, plan, orders, discounts and daily usage counts. It uses secure, essential cookies for sign-in and form protection. The public API still works without an account.</p>
 <p>Customer records persist beyond the 24-hour lifetime of temporary API data. They are kept to manage access and billing. Email addresses are not verified automatically. Contact support for account recovery or deletion. When Stripe checkout is enabled and you choose it, we send Stripe your account name, email, order reference, plan and discount. Stripe collects payment and billing details on its own pages. We store Stripe customer, checkout, subscription and invoice references, payment status and the paid-through date to manage your allowance. AI SENSE does not collect full card numbers or card security codes. Stripe describes its handling of personal data in its <a href="https://stripe.com/privacy">privacy policy</a>.</p></section>
 </main>
 
