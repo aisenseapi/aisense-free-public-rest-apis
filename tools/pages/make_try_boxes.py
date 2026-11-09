@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261108c'
+TRY_VERSION = '20261109a'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -130,6 +130,43 @@ def speller():
                      'up to 256 characters. ' + LEAVE_OUT}
 
 
+# The music boxes offer seven tempos and a General MIDI program for each of the renderer's ten voices, with a
+# bass beside the guitar and an ensemble beside the violin. The sample is the start of Beethoven's Ode to Joy
+# over a bass line, in the notation of midi_encode; the decode box reads the phrase of the quick starts.
+TEMPOS = [(str(bpm), '%d beats a minute%s' % (bpm, ', the default' if bpm == 120 else '')) for bpm in (60, 80, 100, 120, 140, 160, 180)]
+PROGRAMS = [('0', 'Acoustic Grand Piano'), ('11', 'Vibraphone'), ('19', 'Church Organ'), ('24', 'Acoustic Guitar (nylon)'),
+            ('33', 'Electric Bass (finger)'), ('40', 'Violin'), ('48', 'String Ensemble 1'), ('56', 'Trumpet'), ('65', 'Alto Sax'),
+            ('73', 'Flute'), ('80', 'Lead 1 (square)'), ('89', 'Pad 2 (warm)')]
+MUSIC_FIELDS = [('tempo', 'Tempo', TEMPOS, '120'),
+                ('program', 'Instrument', [(number, number + ', ' + name) for number, name in PROGRAMS], '0')]
+TUNE = 'E4,E4,F4,G4,G4,F4,E4,D4,C4,C4,D4,E4,E4:4.,D4:8,D4:2 | C3:1,G2:1,C3:1,G2:1'
+
+
+def midi_encoder():
+    return {'endpoint': 'midi_encode', 'key': 'data', 'download': 'midi_base64', 'save': 'aisense-notes.mid',
+            'label': 'Notes', 'sample': TUNE, 'button': 'Make the MIDI file', 'busy': 'Making the file', 'limit': 4096,
+            'fields': MUSIC_FIELDS,
+            'intro': "Write notes here and make a MIDI file of them, up to 4096 characters; the sample is the start of Beethoven's "
+                     'Ode to Joy over a bass line. Your browser posts the notes in a JSON field named data, with tempo and program '
+                     'beside them, and offers the file that comes back for saving.'}
+
+
+def midi_decoder():
+    return {'endpoint': 'midi_decode', 'file': 'multipart', 'sample_file': '/assets/aisense-try-notes.mid',
+            'drop': 'Drop a MIDI file here', 'button': 'Read the sample file', 'busy': 'Reading', 'limit': MIB,
+            'intro': 'Read a MIDI file here: drop a .mid file, or read the sample, the phrase and chord of the quick start. '
+                     'Your browser uploads the file as a form field named file.'}
+
+
+def renderer():
+    return {'endpoint': 'audio_render', 'key': 'data', 'audio': 'audio_base64', 'save': 'aisense-render.wav',
+            'label': 'Notes', 'sample': TUNE, 'button': 'Play it', 'busy': 'Making the sound', 'limit': 4 * MIB,
+            'file': 'multipart', 'drop': 'Or drop a MIDI file or a MOD module here', 'fields': MUSIC_FIELDS,
+            'intro': "Hear notes here, or a MIDI file or an Amiga MOD module you drop on the box; the sample is the start of Beethoven's "
+                     'Ode to Joy over a bass line. Your browser posts the notes in a JSON field named data, with tempo and program '
+                     'beside them, or uploads the file as a form field named file, and plays the WAV that comes back, up to 60 seconds.'}
+
+
 def getter(endpoint, args=None, label=None, button='Send', busy='Calling', intro=None):
     """A one-click GET: the request of the quick start, with the arguments that follow the endpoint editable."""
     spec = {'endpoint': endpoint, 'method': 'GET', 'button': button, 'busy': busy, 'limit': 1024}
@@ -205,6 +242,9 @@ TRY = {
     'free-public-api-qr-code-decode-api-endpoint.html': qr_decoder(),
     'free-public-api-barcode-api-endpoint.html': barcode_encoder(),
     'free-public-api-spell-api-endpoint.html': speller(),
+    'free-public-api-midi-encode-api-endpoint.html': midi_encoder(),
+    'free-public-api-midi-decode-api-endpoint.html': midi_decoder(),
+    'free-public-api-audio-render-api-endpoint.html': renderer(),
     # The cron box posts the expression alone; count, zone and from keep their defaults.
     'free-public-api-cron-api-endpoint.html': dict(text(
         'cron', 'Compute', 'Computing', 'Cron expression', '0 9 * * 1-5', limit=128,
@@ -249,7 +289,8 @@ def attr(value):
 def section(spec):
     data = [('data-try-endpoint', spec['endpoint']), ('data-try-limit', '%d' % spec['limit']), ('data-try-busy', spec['busy'])]
     for name, key in (('data-try-key', 'key'), ('data-try-file', 'file'), ('data-try-field', 'field'),
-                      ('data-try-image', 'image'), ('data-try-audio', 'audio'), ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
+                      ('data-try-image', 'image'), ('data-try-audio', 'audio'), ('data-try-download', 'download'),
+                      ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
         if spec.get(key):
             data.append((name, spec[key]))
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),

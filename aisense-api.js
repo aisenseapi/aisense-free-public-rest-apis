@@ -293,14 +293,14 @@ export class AISenseAPI {
    * One image as the multipart field `file`, with the other fields as text.
    * Fields left undefined or null are not sent.
    */
-  #upload(path, file, fields = {}) {
+  #upload(path, file, fields = {}, headers) {
     const form = new FormData()
     const blob = file instanceof Blob ? file : new Blob([file])
     form.append('file', blob, typeof file.name === 'string' && file.name ? file.name : 'image')
     for (const [key, value] of Object.entries(fields)) {
       if (value !== undefined && value !== null) form.append(key, String(value))
     }
-    return this.#request(path, 'POST', form)
+    return this.#request(path, 'POST', form, undefined, headers)
   }
 
   // ── Time ──────────────────────────────────────────────────────────────────
@@ -629,6 +629,53 @@ export class AISenseAPI {
     if (space !== undefined) body.space = space
     if (speed !== undefined) body.speed = speed
     return this.#request('/spell', 'POST', body, undefined, { Accept: 'application/json' })
+  }
+
+  /**
+   * Notes written as text to a Standard MIDI File. `notes` is a string such as
+   * `'C4:4,E4:8,G4:8,R:4,C4+E4+G4:2'` (R a rest, + a chord, :4 a quarter note, | a new track), or an
+   * array of tracks, each `{ notes: [{ note, start, duration, velocity }], program, channel, name }` with
+   * start and duration in quarter notes. `tempo` is 20 to 300 beats a minute (120 by default) and
+   * `program` a General MIDI program 0 to 127 (0, the grand piano, by default). Response keys:
+   * `midi_base64`, `mime_type`, `bytes`, `tracks`, `notes`, `tempo`, `program`, `program_name`, `beats`
+   * and `duration_seconds`.
+   */
+  midiEncode(notes, tempo, program) {
+    const body = Array.isArray(notes) ? { tracks: notes } : { data: notes }
+    if (tempo !== undefined) body.tempo = tempo
+    if (program !== undefined) body.program = program
+    return this.#request('/midi_encode', 'POST', body, undefined, { Accept: 'application/json' })
+  }
+
+  /**
+   * Read a Standard MIDI File, as bytes, a Blob or a File of at most 1 MiB. Response keys: `format`,
+   * `tracks`, `timing`, `duration_seconds`, `tempos`, `time_signatures`, `key_signatures`, `track_names`,
+   * `programs`, `note_count`, `notes_listed`, `truncated` and `notes`, each note with `track`, `channel`,
+   * `note`, `name`, `start_seconds`, `duration_seconds` and `velocity`; at most 5000 notes are listed.
+   */
+  midiDecode(file) {
+    return this.#upload('/midi_decode', file)
+  }
+
+  /**
+   * Notes as sound: a PCM16 mono WAV at 22050 Hz of at most 60 seconds, from notes or tracks as for
+   * midiEncode. Response keys: `audio_base64`, `mime_type`, `input`, `title`, `notes`, `channels`,
+   * `duration_seconds`, `sample_rate` and `truncated`, true when a longer or denser song was cut.
+   */
+  audioRender(notes, tempo, program) {
+    const body = Array.isArray(notes) ? { tracks: notes } : { data: notes }
+    if (tempo !== undefined) body.tempo = tempo
+    if (program !== undefined) body.program = program
+    return this.#request('/audio_render', 'POST', body, undefined, { Accept: 'application/json' })
+  }
+
+  /**
+   * A MIDI file or a ProTracker module (MOD) as sound, from bytes, a Blob or a File of at most 4 MiB; the
+   * format is read from the first bytes. The response keys of audioRender: `title` is the module's title
+   * or the first track name of the MIDI file, and `channels` the module's channels.
+   */
+  audioRenderFile(file) {
+    return this.#upload('/audio_render', file, {}, { Accept: 'application/json' })
   }
 
   /**

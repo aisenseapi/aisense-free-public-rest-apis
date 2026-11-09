@@ -2,7 +2,7 @@
 
 python tools/check-sdk-requests.py
 
-Runs the methods for the Convert, Images and Logic endpoints, AIQ, PDF, DNS,
+Runs the methods for the Convert, Images, Logic and music endpoints, AIQ, PDF, DNS,
 semantic search, validation and the time, passphrase, slug, hash and email helpers through
 aisense_api.py and, when Node.js 18 or later is on the path, aisense-api.js,
 against a server on 127.0.0.1. Each request is compared with what API.md
@@ -48,6 +48,11 @@ EXPECTED += [
     ("POST", "/audio_decode", "form", {"mode": "audible"}, "image", None),
     ("POST", "/audio_decode", "form", {"mode": "ultrasound"}, "image", None),
     ("POST", "/audio_decode", "form", {"mode": "auto"}, "image", None),
+    ("POST", "/midi_encode", "json", {"data": "C4:4,E4:8", "tempo": 90, "program": 24}, None, None),
+    ("POST", "/midi_encode", "json", {"tracks": [{"notes": [{"note": "A4", "start": 0, "duration": 2}]}]}, None, None),
+    ("POST", "/midi_decode", "form", {}, "image", None),
+    ("POST", "/audio_render", "json", {"data": "C4:4,E4:8", "tempo": 90, "program": 24}, None, None),
+    ("POST", "/audio_render", "form", {}, "image", None),
     ("GET", "/dns/198.51.100.7", None, None, None, None),
     ("GET", "/dns/abcdefg", None, None, None, None),
     ("POST", "/dns/abcdefg/update/198.51.100.8", "json", {}, None, "dns-token-1"),
@@ -121,6 +126,11 @@ await api.audioDecode(image, 'high')
 await api.audioDecode(image, 'audible')
 await api.audioDecode(image, 'ultrasound')
 await api.audioDecode(image, 'auto')
+await api.midiEncode('C4:4,E4:8', 90, 24)
+await api.midiEncode([{ notes: [{ note: 'A4', start: 0, duration: 2 }] }])
+await api.midiDecode(image)
+await api.audioRender('C4:4,E4:8', 90, 24)
+await api.audioRenderFile(image)
 await api.dnsCreate('198.51.100.7')
 await api.dnsRead('abcdefg')
 await api.dnsUpdate('abcdefg', '198.51.100.8', 'dns-token-1')
@@ -238,8 +248,8 @@ def compare(client: str, records: list, failure: dict) -> list:
         return [f"{client}: {len(records)} requests, expected {len(EXPECTED)}"]
     for record, (method, path, kind, body, filename, token) in zip(records, EXPECTED):
         where = f"{client} {method} {path}"
-        if path == "/audio_encode" and record["accept"] != "application/json":
-            problems.append(f"{where}: must request the JSON audio envelope")
+        if path in ("/audio_encode", "/midi_encode", "/audio_render") and record["accept"] != "application/json":
+            problems.append(f"{where}: must request the JSON envelope")
         if (record["method"], record["path"]) != (method, "/services/v1" + path):
             problems.append(f"{where}: sent {record['method']} {record['path']}")
             continue
@@ -285,6 +295,11 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.audio_decode(IMAGE, "audible")
     api.audio_decode(IMAGE, "ultrasound")
     api.audio_decode(IMAGE, "auto")
+    api.midi_encode("C4:4,E4:8", 90, 24)
+    api.midi_encode([{"notes": [{"note": "A4", "start": 0, "duration": 2}]}])
+    api.midi_decode(IMAGE)
+    api.audio_render("C4:4,E4:8", 90, 24)
+    api.audio_render_file(IMAGE)
     api.dns_create("198.51.100.7")
     api.dns_read("abcdefg")
     api.dns_update("abcdefg", "198.51.100.8", "dns-token-1")

@@ -181,8 +181,9 @@ class AISenseAPI:
     def _delete(self, path: str) -> dict:
         return self._request(path, "DELETE")
 
-    def _upload(self, path: str, file: Union[bytes, bytearray, str], fields: Optional[dict] = None) -> dict:
-        """POST one image as the multipart field ``file``, with text fields.
+    def _upload(self, path: str, file: Union[bytes, bytearray, str], fields: Optional[dict] = None,
+                extra_headers: Optional[dict] = None) -> dict:
+        """POST one file as the multipart field ``file``, with text fields.
 
         ``file`` is the image bytes, or a path to read them from. Fields that
         are None are not sent, and booleans go as ``true`` or ``false``.
@@ -210,7 +211,8 @@ class AISenseAPI:
             + b"\r\n"
         )
         parts.append(f"--{boundary}--\r\n".encode())
-        return self._request(path, "POST", b"".join(parts), content_type=f"multipart/form-data; boundary={boundary}")
+        return self._request(path, "POST", b"".join(parts), content_type=f"multipart/form-data; boundary={boundary}",
+                             extra_headers=extra_headers)
 
     # ── Time ──────────────────────────────────────────────────────────────────
 
@@ -489,6 +491,50 @@ class AISenseAPI:
         if speed is not None:
             body["speed"] = speed
         return self._request("/spell", "POST", body, extra_headers={"Accept": "application/json"})
+
+    def midi_encode(self, notes: Union[str, list], tempo: Optional[float] = None, program: Optional[int] = None) -> dict:
+        """Notes written as text to a Standard MIDI File. ``notes`` is a string such as
+        ``"C4:4,E4:8,G4:8,R:4,C4+E4+G4:2"`` (R a rest, + a chord, :4 a quarter note, | a new
+        track), or a list of tracks, each ``{"notes": [{"note", "start", "duration",
+        "velocity"}], "program", "channel", "name"}`` with start and duration in quarter notes.
+        ``tempo`` is 20 to 300 beats a minute (120 by default) and ``program`` a General MIDI
+        program 0 to 127 (0, the grand piano, by default). Response keys: ``midi_base64``,
+        ``mime_type``, ``bytes``, ``tracks``, ``notes``, ``tempo``, ``program``,
+        ``program_name``, ``beats`` and ``duration_seconds``."""
+        body: dict = {"tracks": notes} if isinstance(notes, list) else {"data": notes}
+        if tempo is not None:
+            body["tempo"] = tempo
+        if program is not None:
+            body["program"] = program
+        return self._request("/midi_encode", "POST", body, extra_headers={"Accept": "application/json"})
+
+    def midi_decode(self, file: Union[bytes, bytearray, str]) -> dict:
+        """Read a Standard MIDI File, given as bytes or a path, of at most 1 MiB. Response keys:
+        ``format``, ``tracks``, ``timing``, ``duration_seconds``, ``tempos``,
+        ``time_signatures``, ``key_signatures``, ``track_names``, ``programs``, ``note_count``,
+        ``notes_listed``, ``truncated`` and ``notes``, each note with ``track``, ``channel``,
+        ``note``, ``name``, ``start_seconds``, ``duration_seconds`` and ``velocity``; at most
+        5000 notes are listed."""
+        return self._upload("/midi_decode", file)
+
+    def audio_render(self, notes: Union[str, list], tempo: Optional[float] = None, program: Optional[int] = None) -> dict:
+        """Notes as sound: a PCM16 mono WAV at 22050 Hz of at most 60 seconds, from notes or tracks
+        as for ``midi_encode``. Response keys: ``audio_base64``, ``mime_type``, ``input``,
+        ``title``, ``notes``, ``channels``, ``duration_seconds``, ``sample_rate`` and
+        ``truncated``, true when a longer or denser song was cut."""
+        body: dict = {"tracks": notes} if isinstance(notes, list) else {"data": notes}
+        if tempo is not None:
+            body["tempo"] = tempo
+        if program is not None:
+            body["program"] = program
+        return self._request("/audio_render", "POST", body, extra_headers={"Accept": "application/json"})
+
+    def audio_render_file(self, file: Union[bytes, bytearray, str]) -> dict:
+        """A MIDI file or a ProTracker module (MOD) as sound, given as bytes or a path of at most
+        4 MiB; the format is read from the first bytes. The response keys of ``audio_render``:
+        ``title`` is the module's title or the first track name of the MIDI file, and
+        ``channels`` the module's channels."""
+        return self._upload("/audio_render", file, extra_headers={"Accept": "application/json"})
 
     def barcode_encode(self, type: str, data: str, format: Optional[str] = None) -> dict:
         """A Code 128 or EAN-13 barcode. Response keys: ``barcode_image`` (Base64 PNG)

@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.15
+Resource version 1.8.16
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -28,6 +28,7 @@ This public server needs no account, API key or authentication header. Its tools
 | The next times a cron expression fires | next_cron_times | Times only. schedule_webhook is what calls a URL on a schedule |
 | Send a short message as datatones, or recover it from a WAV recording | encode_audio / decode_audio | 128 bytes maximum. Unencrypted, hardware-dependent acoustic transfer |
 | Spell a code or a name out loud as a WAV | spell_audio | Letters, digits and spaces only. 64 characters through MCP, 256 through REST |
+| Make or read a MIDI file, or hear notes, a MIDI file or a MOD module | create_midi / read_midi / render_audio | Notes as text such as C4:4,E4:8. At most 60 seconds of sound, a WAV of at most 2,646,044 bytes |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
@@ -37,7 +38,7 @@ This public server needs no account, API key or authentication header. Its tools
 
 ## Tool catalog
 
-Catalog size: 82 MCP tools.
+Catalog size: 85 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -76,6 +77,9 @@ Catalog size: 82 MCP tools.
 - `encode_audio` - Encode up to 128 bytes as audible or experimental high-frequency datatones in a WAV audio block.
 - `spell_audio` - Spell text as a spoken WAV, one recorded clip per letter and digit, in one of two voices.
 - `decode_audio` - Recover a checksum-verified message from a PCM16 WAV recording.
+- `create_midi` - Make a MIDI file from notes written as text, such as C4:4,E4:8,G4:8.
+- `read_midi` - Read a MIDI file: tempos, programs, and every note with its start and length in seconds.
+- `render_audio` - Render notes, a MIDI file or a MOD module as a WAV of at most 60 seconds.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, color, GUID, ULID, password or passphrase.

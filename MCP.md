@@ -13,10 +13,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.22.0` and offers 82 tools. The official MCP
-Registry lists `com.aisenseapi/free-public-tools` version `1.22.0` as active
-and latest, published 8 November 2026 at 19:12 UTC. The agent guide in this
-repository is resource version 1.8.15.
+The server reports version `1.23.0` and offers 85 tools. The official MCP
+Registry lists `com.aisenseapi/free-public-tools` version `1.23.0` as active
+and latest, published 9 November 2026 at 10:33 UTC. The agent guide in this
+repository is resource version 1.8.16.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -225,6 +225,9 @@ and the body it received.
 | `encode_audio` | Turns 1 to 128 bytes into a WAV audio block, audible or experimental high-frequency tones |
 | `spell_audio` | Spells text as a spoken WAV, one recorded clip per letter and digit, in one of two voices |
 | `decode_audio` | Recovers checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds |
+| `create_midi` | Makes a Standard MIDI File from notes written as text, such as C4:4,E4:8,G4:8 |
+| `read_midi` | Reads a MIDI file: tempos, programs, and every note with its start and length in seconds |
+| `render_audio` | Renders notes, a MIDI file or a MOD module as a WAV of at most 60 seconds |
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
 | `generate_random` | Makes a random number, color, GUID, ULID, password or passphrase |

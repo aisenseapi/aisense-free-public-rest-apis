@@ -159,4 +159,7 @@
   <url><loc>https://aisense.no/free-public-api-audio-encode-api-endpoint</loc><lastmod>2026-11-05</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-audio-decode-api-endpoint</loc><lastmod>2026-11-05</lastmod></url>
   <url><loc>https://aisense.no/free-public-api-spell-api-endpoint</loc><lastmod>2026-11-08</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-midi-encode-api-endpoint</loc><lastmod>2026-11-09</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-midi-decode-api-endpoint</loc><lastmod>2026-11-09</lastmod></url>
+  <url><loc>https://aisense.no/free-public-api-audio-render-api-endpoint</loc><lastmod>2026-11-09</lastmod></url>
 </urlset>

@@ -25,6 +25,7 @@ guess it.
 - [Random](#random)
 - [Transform](#transform)
 - [Audio data](#audio-data)
+- [Music](#music)
 - [Convert](#convert)
 - [Images](#images)
 - [Logic](#logic)
@@ -781,6 +782,148 @@ with `storage_id`, referring to a WAV uploaded through REST Storage first.
 The MCP input is at most 4 MiB and must be an ordinary 24-hour object without
 a download limit. Its existing lifetime is unchanged. Inline WAV recordings
 exceed the MCP request size limit.
+
+---
+
+## Music
+
+Three stateless endpoints write notes as a MIDI file, read a MIDI file back,
+and play notes, a MIDI file or a ProTracker module (MOD) as a WAV. Nothing is
+stored.
+
+Notes are written as text. Tokens are separated by spaces or commas, and `|`
+starts a track that plays at the same time. A token is `R`, a rest, or one or
+more notes joined by `+`, which sound together. A note is a letter A to G, then
+`#` or `s` for sharp or `b` for flat, then an octave from -1 to 9, 4 when left
+out: `C4` is middle C, MIDI note 60. A MIDI note number 0 to 127 works too.
+After the notes, `:n` gives the length as 1/n of a whole note, from `:1` to
+`:64`, and a dot after it, as in `:4.`, makes it half as long again. A token
+without a length keeps the length of the one before it, a quarter note at the
+start. At most 4096 characters, 4000 notes and 16 tracks. In a path the notes
+are one segment: write a space as `%20`, `|` as `%7C`, and `#` as `%23` or `s`.
+
+### `GET /midi_encode/{notes}[/{tempo}[/{program}]]` and `POST /midi_encode`
+A Standard MIDI File, format 1 at 480 ticks per quarter note. The first track
+holds the tempo and a 4/4 time signature; each track of notes follows on its
+own channel, 0, 1, 2 and on, passing over the drum channel 9. `tempo` is 20 to
+300 beats a minute, 120 by default, and `program` a General MIDI program 0 to
+127, 0 (the grand piano) by default. The JSON body takes `data`, the notes, or
+`tracks`: a list of tracks, each with `notes` of `{"note", "start",
+"duration", "velocity"}` in quarter notes and an optional `program`, `channel`
+and `name`. `tempo` and `program` go beside them.
+
+`Accept: audio/midi`, or no Accept header, answers the file, named
+`aisense-notes.mid`; `Accept: application/json` answers the fields below. Notes
+that cannot be read, a length outside `:1` to `:64`, a tempo or program out of
+range, both `data` and `tracks`, or more than the limits is **400**; an Accept
+that allows neither form is **406**.
+
+```json
+// GET /midi_encode/C4:4,E4:8,G4:8,R:4,C4+E4+G4:2  with Accept: application/json
+{
+  "midi_base64": "TVRoZAAAAAYAAQACAeBNVHJrAAAAEwD/UQMHoSAA/1gE...",
+  "mime_type": "audio/midi",
+  "bytes": 109,
+  "tracks": 1,
+  "notes": 6,
+  "tempo": 120,
+  "program": 0,
+  "program_name": "Acoustic Grand Piano",
+  "beats": 5,
+  "duration_seconds": 2.5
+}
+```
+
+---
+
+### `POST /midi_decode`
+Reads a Standard MIDI File of at most 1 MiB: formats 0, 1 and 2, quarter-note
+or SMPTE timing, running status, system exclusive and meta events. Send the
+file as a multipart field named `file`, as the raw body (`audio/midi` or
+`application/octet-stream`), or as Base64 in `{"data": "..."}`. A JSON body is
+at most 256 KiB, so through `data` the file can be about 190 KB. Seconds come
+from the tempo map. A note on with velocity 0 ends a note, and a note still
+sounding when its track ends stops there. At most 5000 notes are listed, in the
+order they start; `note_count` says how many there are.
+
+A file that is not MIDI or is cut short is **400**, over 1 MiB or 200000
+events **413**, and another content type **415**.
+
+```json
+// POST /midi_decode  with the file of the example above
+{
+  "format": 1,
+  "tracks": 2,
+  "timing": { "ticks_per_quarter": 480 },
+  "duration_seconds": 2.5,
+  "tempos": [ { "seconds": 0, "value": 120 } ],
+  "time_signatures": [ { "seconds": 0, "value": "4/4" } ],
+  "key_signatures": [],
+  "track_names": [],
+  "programs": [ { "channel": 0, "program": 0, "name": "Acoustic Grand Piano" } ],
+  "note_count": 6,
+  "notes_listed": 6,
+  "truncated": false,
+  "notes": [
+    { "track": 2, "channel": 0, "note": 60, "name": "C4", "start_seconds": 0, "duration_seconds": 0.5, "velocity": 96 },
+    { "track": 2, "channel": 0, "note": 64, "name": "E4", "start_seconds": 0.5, "duration_seconds": 0.25, "velocity": 96 },
+    { "track": 2, "channel": 0, "note": 67, "name": "G4", "start_seconds": 0.75, "duration_seconds": 0.25, "velocity": 96 },
+    { "track": 2, "channel": 0, "note": 60, "name": "C4", "start_seconds": 1.5, "duration_seconds": 1, "velocity": 96 },
+    { "track": 2, "channel": 0, "note": 64, "name": "E4", "start_seconds": 1.5, "duration_seconds": 1, "velocity": 96 },
+    { "track": 2, "channel": 0, "note": 67, "name": "G4", "start_seconds": 1.5, "duration_seconds": 1, "velocity": 96 }
+  ]
+}
+```
+
+---
+
+### `GET /audio_render/{notes}[/{tempo}[/{program}]]` and `POST /audio_render`
+Music as a PCM16 mono WAV at 22050 Hz: notes as for `midi_encode`, or a MIDI
+file or a ProTracker module. The JSON body takes `data` or `tracks`, with
+`tempo` and `program`, as `midi_encode` does, or `file_base64`. A file can also
+go as a multipart field named `file` or as the raw body (`audio/midi`,
+`audio/mod` or `application/octet-stream`), at most 4 MiB; through
+`file_base64` it can be about 190 KB, since a JSON body is at most 256 KiB.
+The format of a file is read from its first bytes.
+
+A small synthesizer plays notes and MIDI files: the sixteen groups of eight
+General MIDI programs play ten voices, from piano to pad, and MIDI channel 10,
+9 counted from 0, plays drums. A module plays its own samples: 31 samples and
+1 to 32 channels, with arpeggio, slides, tone portamento, vibrato, tremolo,
+volume, sample offset, position jumps, pattern breaks, loops, delays, and
+changes of speed and tempo. The same input always gives the same sound.
+
+At most 60 seconds of sound are made, and the notes' own lengths together at
+most 600 seconds; a longer or denser song is cut there and `truncated` is
+true. The WAV is therefore at most 2,646,044 bytes, 60 seconds and its
+header, whatever it was made from. A module plays at most 240 seconds of channels, so 60 seconds of four
+channels or 30 of eight, and stops where the song would start over. One sound
+is made at a time: a call meanwhile is **503** with `Retry-After: 2`.
+
+`Accept: audio/wav`, or no Accept header, answers the WAV; `Accept:
+application/json` answers the fields below. Notes that cannot be read, or more
+than one of `data`, `tracks` and `file_base64`, is **400**; a file over 4 MiB
+**413**; a file that is neither MIDI nor MOD **415**; an Accept that allows
+neither form **406**.
+
+```json
+// GET /audio_render/C4:4,E4:8,G4:8,R:4,C4+E4+G4:2/120/24  with Accept: application/json
+{
+  "audio_base64": "UklGRvAEAgBXQVZFZm10IBAAAAABAAEAIlYAAESsAAAC...",
+  "mime_type": "audio/wav",
+  "input": "notation",
+  "title": null,
+  "notes": 6,
+  "channels": null,
+  "duration_seconds": 3,
+  "sample_rate": 22050,
+  "truncated": false
+}
+```
+
+MCP has `create_midi`, `read_midi` and `render_audio`. `render_audio` returns
+the WAV as a native audio block, and `read_midi` and `render_audio` also take a
+file in Storage by `storage_id`.
 
 ---
 
