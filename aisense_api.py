@@ -518,7 +518,7 @@ class AISenseAPI:
         return self._upload("/midi_decode", file)
 
     def audio_render(self, notes: Union[str, list], tempo: Optional[float] = None, program: Optional[int] = None) -> dict:
-        """Notes as sound: a PCM16 mono WAV at 22050 Hz of at most 60 seconds, from notes or tracks
+        """Notes as sound: a PCM16 mono WAV at 22050 Hz of at most 180 seconds, from notes or tracks
         as for ``midi_encode``. Response keys: ``audio_base64``, ``mime_type``, ``input``,
         ``title``, ``notes``, ``channels``, ``duration_seconds``, ``sample_rate`` and
         ``truncated``, true when a longer or denser song was cut."""

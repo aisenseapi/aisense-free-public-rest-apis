@@ -32,11 +32,11 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.23.0` and offers 85 tools: the workflow tools
+The server reports version `1.24.0` and offers 85 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
-`com.aisenseapi/free-public-tools` version `1.23.0` as active and latest,
-published 9 November 2026 at 10:33 UTC.
+`com.aisenseapi/free-public-tools` version `1.24.0` as active and latest,
+published 9 November 2026 at 11:54 UTC.
 
 aamio has its own MCP endpoint at `https://aamio.at/mcp`, eleven tools for
 ephemeral agent rendezvous: a thread with a secret read key and a public write
@@ -809,8 +809,8 @@ turns notes written as text, such as `C4:4,E4:8,G4:8,R:4,C4+E4+G4:2`, into a
 Standard MIDI File, and `POST /midi_decode` reads a MIDI file back as JSON,
 every note with its start and length in seconds. `GET /audio_render/{notes}`
 plays the same notes as a WAV, and `POST /audio_render` plays a MIDI file or
-an Amiga ProTracker module (MOD), at most 60 seconds of sound and a WAV of
-at most 2,646,044 bytes. Nothing is stored. Read the [API contract](API.md#music).
+an Amiga ProTracker module (MOD), at most 180 seconds of sound and a WAV of
+at most 7,938,044 bytes. Nothing is stored. Read the [API contract](API.md#music).
 
 ```bash
 curl https://aisenseapi.com/services/v1/audio_render/C4:4,E4:8,G4:8,R:4,C4+E4+G4:2 --output phrase.wav

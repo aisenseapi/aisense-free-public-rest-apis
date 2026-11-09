@@ -709,7 +709,7 @@
     "type": "function",
     "function": {
       "name": "audio_render",
-      "description": "Render music as a PCM16 mono WAV at 22050 Hz: notes written as for midi_encode in data, or a MIDI file or a ProTracker module (MOD) in file_base64; give one of the two. A small synthesizer plays notes and MIDI, with drums on MIDI channel 10; a module plays its own samples. Returns {\"audio_base64\": \"<WAV>\", \"mime_type\": \"audio/wav\", \"input\", \"title\", \"notes\", \"channels\", \"duration_seconds\", \"sample_rate\", \"truncated\"} with Accept application/json. At most 60 seconds of sound, a WAV of at most 2646044 bytes; a longer or denser song is cut and truncated is true. A JSON body is at most 256 KiB, so the binding should send a larger file raw or as a multipart field named file, up to 4 MiB. POST /audio_render (also GET /audio_render/{notes}[/{tempo}[/{program}]])",
+      "description": "Render music as a PCM16 mono WAV at 22050 Hz: notes written as for midi_encode in data, or a MIDI file or a ProTracker module (MOD) in file_base64; give one of the two. A small synthesizer plays notes and MIDI, with drums on MIDI channel 10; a module plays its own samples. Returns {\"audio_base64\": \"<WAV>\", \"mime_type\": \"audio/wav\", \"input\", \"title\", \"notes\", \"channels\", \"duration_seconds\", \"sample_rate\", \"truncated\"} with Accept application/json. At most 180 seconds of sound, a WAV of at most 7938044 bytes; a longer or denser song is cut and truncated is true. A JSON body is at most 256 KiB, so the binding should send a larger file raw or as a multipart field named file, up to 4 MiB. POST /audio_render (also GET /audio_render/{notes}[/{tempo}[/{program}]])",
       "parameters": {
         "type": "object",
         "properties": {

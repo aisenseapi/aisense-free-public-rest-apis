@@ -114,7 +114,7 @@ print(response.output_text)</code></pre><p>The example asks for approval before 
 <tr><td>decode_audio</td><td>Reads checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds</td></tr>
 <tr><td>create_midi</td><td>Makes a Standard MIDI File from notes written as text, such as C4:4,E4:8,G4:8</td></tr>
 <tr><td>read_midi</td><td>Reads a MIDI file: tempos, programs, and every note with its start and length in seconds</td></tr>
-<tr><td>render_audio</td><td>Renders notes, a MIDI file or a MOD module as a WAV of at most 60 seconds</td></tr>
+<tr><td>render_audio</td><td>Renders notes, a MIDI file or a MOD module as a WAV of at most 180 seconds, or as a Storage link when the WAV is over 4 MiB</td></tr>
 <tr><td>hash_data</td><td>Hashes text with MD5, SHA-1, SHA-256, SHA-512 or CRC32</td></tr>
 <tr><td>verify_hash</td><td>Checks text against a hash, with the algorithm read from the hash</td></tr>
 <tr><td>generate_random</td><td>Makes a random number, color, GUID, ULID, password or passphrase</td></tr>

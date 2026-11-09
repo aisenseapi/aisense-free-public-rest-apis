@@ -893,12 +893,14 @@ General MIDI programs play ten voices, from piano to pad, and MIDI channel 10,
 volume, sample offset, position jumps, pattern breaks, loops, delays, and
 changes of speed and tempo. The same input always gives the same sound.
 
-At most 60 seconds of sound are made, and the notes' own lengths together at
-most 600 seconds; a longer or denser song is cut there and `truncated` is
-true. The WAV is therefore at most 2,646,044 bytes, 60 seconds and its
-header, whatever it was made from. A module plays at most 240 seconds of channels, so 60 seconds of four
-channels or 30 of eight, and stops where the song would start over. One sound
-is made at a time: a call meanwhile is **503** with `Retry-After: 2`.
+At most 180 seconds of sound are made, and the notes' own lengths together at
+most 1800 seconds; a longer or denser song is cut there and `truncated` is
+true. The WAV is therefore at most 7,938,044 bytes, 180 seconds and its
+header, whatever it was made from. A module plays at most 720 seconds of
+channels, so 180 seconds of four channels or 90 of eight, and stops where the
+song would start over. One sound is made at a time: a call meanwhile is
+**503** with `Retry-After: 2`, and a sound that takes too long to make is
+**503** with `Retry-After: 10`.
 
 `Accept: audio/wav`, or no Accept header, answers the WAV; `Accept:
 application/json` answers the fields below. Notes that cannot be read, or more
@@ -922,8 +924,10 @@ neither form **406**.
 ```
 
 MCP has `create_midi`, `read_midi` and `render_audio`. `render_audio` returns
-the WAV as a native audio block, and `read_midi` and `render_audio` also take a
-file in Storage by `storage_id`.
+the WAV as a native audio block up to 4 MiB, about 95 seconds. A longer WAV is
+kept in Storage for 24 hours and comes back as `storage_id` and `storage_url`,
+counted against the Storage budget like any upload. `read_midi` and
+`render_audio` also take a file in Storage by `storage_id`.
 
 ---
 

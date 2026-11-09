@@ -164,7 +164,7 @@ def renderer():
             'file': 'multipart', 'drop': 'Or drop a MIDI file or a MOD module here', 'fields': MUSIC_FIELDS,
             'intro': "Hear notes here, or a MIDI file or an Amiga MOD module you drop on the box; the sample is the start of Beethoven's "
                      'Ode to Joy over a bass line. Your browser posts the notes in a JSON field named data, with tempo and program '
-                     'beside them, or uploads the file as a form field named file, and plays the WAV that comes back, up to 60 seconds.'}
+                     'beside them, or uploads the file as a form field named file, and plays the WAV that comes back, up to 180 seconds.'}
 
 
 def getter(endpoint, args=None, label=None, button='Send', busy='Calling', intro=None):
