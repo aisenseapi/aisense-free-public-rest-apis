@@ -63,7 +63,7 @@
 <div class="hero">
   <h1>Privacy</h1>
   <p class="lede">What our free public REST APIs record, how long it stays, and who else sees it. Written from the service source rather than from a template, so it describes this system and not a generic one.</p>
-  <p><small>Last updated 7 November 2026.</small></p>
+  <p><small>Last updated 9 November 2026.</small></p>
 </div>
 
 <h2 id="controller">Who operates this service</h2>
@@ -186,6 +186,7 @@
 <tr><td><code>/inbox</code></td><td>The configured Gmail mailbox over IMAP</td><td>Incoming raw mail is received by the provider and read into cleaned API state. The default worker marks messages as seen without deleting them. Permanent deletion of imported mail is optional</td></tr>
 <tr><td><code>/heartbeat</code> with a webhook action</td><td>The public webhook URL you supplied</td><td>The heartbeat miss event and your optional JSON payload</td></tr>
 <tr><td><code>/blake3_hash</code>, <code>/hash_verify</code> with BLAKE3, <code>/argon2id_hash</code>, <code>/bcrypt_hash</code>, and <code>/password_verify</code> for Argon2id and bcrypt strings</td><td>Cloudflare, which computes these hashes for us</td><td>The bytes to hash, or the password and the hash to verify. Not your IP address or the headers of your request</td></tr>
+<tr><td><code>/audio_render</code></td><td>Cloudflare, which makes the sound for us</td><td>The notes, or the MIDI file or module. Not your IP address or the headers of your request</td></tr>
 <tr><td><code>/run</code></td><td>A cloud provider in the EU that runs this service for us</td><td>Your plan, the results and answers it receives, and your IP address</td></tr>
 <tr><td><code>/webhook_schedule</code>, a <code>notify_url</code> and a Heartbeat webhook</td><td>A cloud provider that makes these calls for us</td><td>The URL you supplied and what the call sends. Not your IP address</td></tr>
 </tbody>
