@@ -11,6 +11,7 @@
  *   data-try-field     the name of that form field, file unless it says otherwise
  *   data-try-image     a JSON field of the answer that holds a base64 image, which the box shows
  *   data-try-audio     a JSON field of the answer that holds a base64 WAV, which the box plays, asking for JSON
+ *   data-try-download  a JSON field of the answer that holds a base64 file, which the box offers to save, asking for JSON
  *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
  *   data-try-method    GET for the endpoints whose quick start is a GET; POST otherwise
@@ -25,7 +26,8 @@
  * a raw body byte for byte, the hashes and the QR decoder a multipart upload. A select .try-accept sets the
  * Accept header. An answer of application/octet-stream is shown as text when it is readable UTF-8 and as
  * hex otherwise, with a Save button for the bytes; an image field is drawn in .try-image, with a Save
- * button for the image. The answer area stays hidden until there is one.
+ * button for the image, and a download field gets a Save button of its own; the JSON shown shortens these
+ * base64 fields. The answer area stays hidden until there is one.
  */
 (function () {
   var API = 'https://aisenseapi.com/services/v1/';
@@ -93,6 +95,7 @@
     var field = card.getAttribute('data-try-field') || 'file';
     var imageField = card.getAttribute('data-try-image');
     var audioField = card.getAttribute('data-try-audio');
+    var downloadField = card.getAttribute('data-try-download');
     var sampleFile = card.getAttribute('data-try-sample');
     var countChars = card.hasAttribute('data-try-chars');
     var method = (card.getAttribute('data-try-method') || 'POST').toUpperCase();
@@ -112,6 +115,7 @@
     var player = audio ? audio.querySelector('audio') : null;
     var saveRow = find('.try-save');
     var save = find('.try-save-link');
+    var saveName = save ? save.getAttribute('download') : null;
     var drop = find('.try-drop');
     var picker = find('.try-file');
     var note = drop ? drop.querySelector('small') : null;
@@ -159,36 +163,49 @@
       });
     }
 
-    // Draws the base64 image of the answer and returns the answer with that field shortened for display.
-    function drawn(json) {
-      var base64 = json[imageField];
+    function decoded(base64) {
       var binary = atob(base64);
       var bytes = new Uint8Array(binary.length);
       for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
-      picture.src = offer(new Blob([bytes], { type: 'image/' + (json.image_type || 'png') }));
-      image.hidden = false;
+      return bytes;
+    }
+
+    // The answer with one base64 field shortened for display, saying where its bytes went.
+    function shortened(json, field, where) {
       var shown = {};
       Object.keys(json).forEach(function (name) { shown[name] = json[name]; });
-      shown[imageField] = base64.slice(0, 24) + '... (' + base64.length + ' characters of base64, drawn above)';
+      shown[field] = json[field].slice(0, 24) + '... (' + json[field].length + ' characters of base64, ' + where + ')';
       return shown;
     }
 
-    // Plays the base64 WAV of the answer and returns the answer with that field shortened for display.
-    function played(json) {
-      var base64 = json[audioField];
-      var binary = atob(base64);
-      var bytes = new Uint8Array(binary.length);
-      for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
-      player.src = offer(new Blob([bytes], { type: json.mime_type || 'audio/wav' }));
-      audio.hidden = false;
+    // The Save button under the answer, with the file name the page gives it.
+    function named() {
       if (saveRow) {
-        save.setAttribute('download', 'aisense-spell.wav');
-        save.textContent = 'Save aisense-spell.wav';
+        save.setAttribute('download', saveName);
+        save.textContent = 'Save ' + saveName;
       }
-      var shown = {};
-      Object.keys(json).forEach(function (name) { shown[name] = json[name]; });
-      shown[audioField] = base64.slice(0, 24) + '... (' + base64.length + ' characters of base64, playable above)';
-      return shown;
+    }
+
+    // Draws the base64 image of the answer.
+    function drawn(json) {
+      picture.src = offer(new Blob([decoded(json[imageField])], { type: 'image/' + (json.image_type || 'png') }));
+      image.hidden = false;
+      return shortened(json, imageField, 'drawn above');
+    }
+
+    // Plays the base64 WAV of the answer and offers it for saving.
+    function played(json) {
+      player.src = offer(new Blob([decoded(json[audioField])], { type: json.mime_type || 'audio/wav' }));
+      audio.hidden = false;
+      named();
+      return shortened(json, audioField, 'playable above');
+    }
+
+    // Offers the base64 file of the answer for saving.
+    function kept(json) {
+      offer(new Blob([decoded(json[downloadField])], { type: json.mime_type || 'application/octet-stream' }));
+      named();
+      return shortened(json, downloadField, 'saved with the button below');
     }
 
     function textAnswer(response, line, file) {
@@ -208,6 +225,9 @@
         }
         if (json && response.ok && audioField && player && typeof json[audioField] === 'string') {
           text = JSON.stringify(played(json), null, 2);
+        }
+        if (json && response.ok && downloadField && saveRow && typeof json[downloadField] === 'string') {
+          text = JSON.stringify(kept(json), null, 2);
         }
         if (file && response.ok) {
           line += ' - ' + file.name + ', ' + size(file.size) + (countChars ? ' in' : '');
@@ -280,7 +300,7 @@
         return;
       }
       if (accept) { options.headers.Accept = accept.value; }
-      if (audioField) { options.headers.Accept = 'application/json'; }
+      if (audioField || downloadField) { options.headers.Accept = 'application/json'; }
       run.disabled = true;
       clear();
       show(busy + (file ? ' ' + file.name : ''));
