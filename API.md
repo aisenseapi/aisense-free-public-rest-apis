@@ -804,8 +804,11 @@ are one segment: write a space as `%20`, `|` as `%7C`, and `#` as `%23` or `s`.
 
 ### `GET /midi_encode/{notes}[/{tempo}[/{program}]]` and `POST /midi_encode`
 A Standard MIDI File, format 1 at 480 ticks per quarter note. The first track
-holds the tempo and a 4/4 time signature; each track of notes follows on its
-own channel, 0, 1, 2 and on, passing over the drum channel 9. `tempo` is 20 to
+holds the tempo and a 4/4 time signature; each track of notes plays on the
+channel it names, or else on the next one no track names, 0, 1, 2 and on,
+passing over the drum channel 9. A file has 15 channels for programs: when
+they run out a track shares the channel of a track with its program, and a
+sixteenth program is **400**. `tempo` is 20 to
 300 beats a minute, 120 by default, and `program` a General MIDI program 0 to
 127, 0 (the grand piano) by default. The JSON body takes `data`, the notes, or
 `tracks`: a list of tracks, each with `notes` of `{"note", "start",
@@ -813,7 +816,9 @@ own channel, 0, 1, 2 and on, passing over the drum channel 9. `tempo` is 20 to
 and `name`. `tempo` and `program` go beside them.
 
 `Accept: audio/midi`, or no Accept header, answers the file, named
-`aisense-notes.mid`; `Accept: application/json` answers the fields below. Notes
+`aisense-notes.mid`; `Accept: application/json` answers the fields below, where
+`beats` counts quarter notes to where the last note ends, or to the end of the
+rests that close a line, and `duration_seconds` is the same at the tempo. Notes
 that cannot be read, a length outside `:1` to `:64`, a tempo or program out of
 range, both `data` and `tracks`, or more than the limits is **400**; an Accept
 that allows neither form is **406**.
@@ -842,11 +847,13 @@ or SMPTE timing, running status, system exclusive and meta events. Send the
 file as a multipart field named `file`, as the raw body (`audio/midi` or
 `application/octet-stream`), or as Base64 in `{"data": "..."}`. A JSON body is
 at most 256 KiB, so through `data` the file can be about 190 KB. Seconds come
-from the tempo map. A note on with velocity 0 ends a note, and a note still
+from the tempo map; in format 2 each track is a sequence with its own tempo and
+programs, and the sequences follow one another. A note on with velocity 0 ends a note, and a note still
 sounding when its track ends stops there. At most 5000 notes are listed, in the
 order they start; `note_count` says how many there are.
 
-A file that is not MIDI or is cut short is **400**, over 1 MiB or 200000
+A file that is not MIDI, is cut short or ends before the tracks its header
+names is **400**, over 1 MiB or 200000
 events **413**, and another content type **415**.
 
 ```json
@@ -882,8 +889,9 @@ Music as a PCM16 mono WAV at 22050 Hz: notes as for `midi_encode`, or a MIDI
 file or a ProTracker module. The JSON body takes `data` or `tracks`, with
 `tempo` and `program`, as `midi_encode` does, or `file_base64`. A file can also
 go as a multipart field named `file` or as the raw body (`audio/midi`,
-`audio/mod` or `application/octet-stream`), at most 4 MiB; through
-`file_base64` it can be about 190 KB, since a JSON body is at most 256 KiB.
+`audio/mod` or `application/octet-stream`): a MIDI file of at most 1 MiB or a
+module of at most 4 MiB. Through `file_base64` a file can be about 190 KB, since
+a JSON body is at most 256 KiB.
 The format of a file is read from its first bytes.
 
 A small synthesizer plays notes and MIDI files: the sixteen groups of eight
@@ -895,7 +903,7 @@ changes of speed and tempo. The same input always gives the same sound.
 
 At most 180 seconds of sound are made, and the notes' own lengths together at
 most 1800 seconds; a longer or denser song is cut there and `truncated` is
-true. The WAV is therefore at most 7,938,044 bytes, 180 seconds and its
+true, while `notes` still counts every note read. The WAV is therefore at most 7,938,044 bytes, 180 seconds and its
 header, whatever it was made from. A module plays at most 720 seconds of
 channels, so 180 seconds of four channels or 90 of eight, and stops where the
 song would start over. When the service is busy, a call is **503** with
@@ -904,8 +912,8 @@ song would start over. When the service is busy, a call is **503** with
 
 `Accept: audio/wav`, or no Accept header, answers the WAV; `Accept:
 application/json` answers the fields below. Notes that cannot be read, or more
-than one of `data`, `tracks` and `file_base64`, is **400**; a file over 4 MiB
-**413**; a file that is neither MIDI nor MOD **415**; an Accept that allows
+than one of `data`, `tracks` and `file_base64`, is **400**; a MIDI file over
+1 MiB or a module over 4 MiB **413**; a file that is neither MIDI nor MOD **415**; an Accept that allows
 neither form **406**.
 
 ```json

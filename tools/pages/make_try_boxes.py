@@ -163,7 +163,8 @@ def midi_decoder():
 def renderer():
     return {'endpoint': 'audio_render', 'key': 'data', 'audio': 'audio_base64', 'save': 'aisense-render.wav',
             'label': 'Notes', 'sample': TUNE, 'button': 'Play it', 'busy': 'Making the sound', 'limit': 4 * MIB,
-            'file': 'multipart', 'drop': 'Or drop a MIDI file or a MOD module here', 'fields': MUSIC_FIELDS,
+            'file': 'multipart', 'drop': 'Or drop a MIDI file or a MOD module here', 'drop_limit': 'MIDI up to 1 MiB, MOD up to 4 MiB',
+            'fields': MUSIC_FIELDS,
             'intro': "Hear notes here, or a MIDI file or an Amiga MOD module you drop on the box; the sample is the start of Beethoven's "
                      'Ode to Joy over a bass line. Your browser posts the notes in a JSON field named data, with tempo and program '
                      'beside them, or uploads the file as a form field named file, and plays the WAV that comes back, up to 180 seconds.'}
@@ -315,8 +316,9 @@ def section(spec):
                      '<input id="try-args" class="try-args" type="text" value="%s" spellcheck="false" autocomplete="off"></div>'
                      % (esc(spec['args_label']), esc(spec['endpoint']), attr(spec['args'])))
     if spec.get('file'):
-        parts.append('<div class="try-drop" role="button" tabindex="0"><strong>%s</strong> <small>or click to choose one, up to %s</small></div>'
-                     '<input type="file" class="try-file" hidden>' % (esc(spec.get('drop', 'Or drop a file here')), limit_text(spec['limit'])))
+        parts.append('<div class="try-drop" role="button" tabindex="0"><strong>%s</strong> <small>or click to choose one, %s</small></div>'
+                     '<input type="file" class="try-file" hidden>' % (esc(spec.get('drop', 'Or drop a file here')),
+                                                                 esc(spec.get('drop_limit', 'up to ' + limit_text(spec['limit'])))))
     if spec.get('accept'):
         parts.append('<label for="try-accept">Answer as</label><select id="try-accept" class="try-accept">'
                      + ''.join('<option value="%s">%s</option>' % option for option in spec['accept']) + '</select>')

@@ -530,8 +530,8 @@ class AISenseAPI:
         return self._request("/audio_render", "POST", body, extra_headers={"Accept": "application/json"})
 
     def audio_render_file(self, file: Union[bytes, bytearray, str]) -> dict:
-        """A MIDI file or a ProTracker module (MOD) as sound, given as bytes or a path of at most
-        4 MiB; the format is read from the first bytes. The response keys of ``audio_render``:
+        """A MIDI file of at most 1 MiB or a ProTracker module (MOD) of at most 4 MiB as sound,
+        given as bytes or a path; the format is read from the first bytes. The response keys of ``audio_render``:
         ``title`` is the module's title or the first track name of the MIDI file, and
         ``channels`` the module's channels."""
         return self._upload("/audio_render", file, extra_headers={"Accept": "application/json"})

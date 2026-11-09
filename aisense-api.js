@@ -670,7 +670,7 @@ export class AISenseAPI {
   }
 
   /**
-   * A MIDI file or a ProTracker module (MOD) as sound, from bytes, a Blob or a File of at most 4 MiB; the
+   * A MIDI file of at most 1 MiB or a ProTracker module (MOD) of at most 4 MiB as sound, from bytes, a Blob or a File; the
    * format is read from the first bytes. The response keys of audioRender: `title` is the module's title
    * or the first track name of the MIDI file, and `channels` the module's channels.
    */
