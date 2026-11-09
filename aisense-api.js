@@ -30,7 +30,9 @@
  * string when the payload is valid UTF-8 and to a Uint8Array otherwise.
  *
  * Failures arrive as `{"error": "message"}` with a real HTTP status, and this
- * client rejects with an AISenseAPIError carrying both.
+ * client rejects with an AISenseAPIError carrying both. Its retry_after is
+ * the Retry-After delay in whole seconds, and reason is the server's explicit
+ * top-level JSON reason. Each field is null when unavailable.
  *
  * Older deployments answered differently, and this client still handles two of
  * those shapes so that the same code works against either:
@@ -51,11 +53,25 @@ const BASE_URL = 'https://aisenseapi.com/services/v1'
 const DEBUG_ECHO = /^\[".*?",\d+\]\["/
 
 export class AISenseAPIError extends Error {
-  constructor(message, { status, body } = {}) {
+  constructor(message, { status, body, retry_after = null, reason = null } = {}) {
     super(message)
     this.name = 'AISenseAPIError'
     this.status = status
     this.body = body
+    this.retry_after = retry_after
+    this.reason = reason
+  }
+}
+
+function errorDetails(response, body, parsed) {
+  const header = response.headers.get('Retry-After')
+  const seconds = header !== null && /^[0-9]+$/.test(header) ? Number(header) : NaN
+  const reason = parsed && Object.hasOwn(parsed, 'reason') ? parsed.reason : null
+  return {
+    status: response.status,
+    body,
+    retry_after: Number.isSafeInteger(seconds) ? seconds : null,
+    reason: typeof reason === 'string' && reason.trim() !== '' ? reason : null,
   }
 }
 
@@ -201,7 +217,7 @@ export class AISenseAPI {
         `${method} ${path} is not a known endpoint. The API answered with the ` +
           `debug echo an older deployment sent instead of a 404. Check the ` +
           `path against API.md.`,
-        { status: res.status, body: text.slice(0, 200) }
+        errorDetails(res, text.slice(0, 200))
       )
     }
 
@@ -214,21 +230,15 @@ export class AISenseAPI {
     } catch (err) {
       throw new AISenseAPIError(
         `${method} ${path} returned a body that is not JSON: ${json.slice(0, 200)}`,
-        { status: res.status, body: text.slice(0, 500) }
+        errorDetails(res, text.slice(0, 500))
       )
     }
 
     if (parsed && typeof parsed === 'object' && 'error' in parsed) {
-      throw new AISenseAPIError(`${method} ${path} failed: ${parsed.error}`, {
-        status: res.status,
-        body: text.slice(0, 500),
-      })
+      throw new AISenseAPIError(`${method} ${path} failed: ${parsed.error}`, errorDetails(res, text.slice(0, 500), parsed))
     }
     if (!res.ok) {
-      throw new AISenseAPIError(`${method} ${path} failed with HTTP ${res.status}`, {
-        status: res.status,
-        body: text.slice(0, 500),
-      })
+      throw new AISenseAPIError(`${method} ${path} failed with HTTP ${res.status}`, errorDetails(res, text.slice(0, 500), parsed))
     }
 
     return parsed
@@ -241,33 +251,24 @@ export class AISenseAPI {
     const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer)
 
     if (DEBUG_ECHO.test(text)) {
-      throw new AISenseAPIError(`POST ${path} is not a known endpoint.`, {
-        status: res.status,
-        body: text.slice(0, 200),
-      })
+      throw new AISenseAPIError(`POST ${path} is not a known endpoint.`, errorDetails(res, text.slice(0, 200)))
     }
 
     // Errors still come back as JSON even though success is raw bytes.
+    let parsed
     if (text.trimStart().startsWith('{')) {
-      let parsed
       try {
         parsed = JSON.parse(text)
       } catch {
         parsed = null
       }
       if (parsed && typeof parsed === 'object' && 'error' in parsed) {
-        throw new AISenseAPIError(`POST ${path} failed: ${parsed.error}`, {
-          status: res.status,
-          body: text.slice(0, 500),
-        })
+        throw new AISenseAPIError(`POST ${path} failed: ${parsed.error}`, errorDetails(res, text.slice(0, 500), parsed))
       }
     }
 
     if (!res.ok) {
-      throw new AISenseAPIError(`POST ${path} failed with HTTP ${res.status}`, {
-        status: res.status,
-        body: text.slice(0, 500),
-      })
+      throw new AISenseAPIError(`POST ${path} failed with HTTP ${res.status}`, errorDetails(res, text.slice(0, 500), parsed))
     }
 
     try {

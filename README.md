@@ -938,6 +938,14 @@ every endpoint in API.md, which `tools/check-sdk-coverage.py` checks along with
 `openai-tools.json`. The image methods upload the file as multipart/form-data,
 and the failure simulator returns what the API sent instead of raising.
 
+On an API error, both clients expose `status`, `body`, `retry_after` and `reason`
+on `AISenseAPIError`. When AI SENSE sends `Retry-After` as a whole number of
+seconds, `retry_after` gives that number, including zero. A missing or
+unsupported value gives `None` in Python and `null` in JavaScript. `reason`
+contains a code only when the response explicitly supplies a nonblank string in
+the top-level `reason` field. Decide usually leaves this field empty. The caller
+chooses whether to schedule another request.
+
 **LLM function calling (OpenAI, Gemini, Mistral, ...)**
 ```python
 import json

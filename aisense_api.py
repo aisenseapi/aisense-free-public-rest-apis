@@ -28,7 +28,9 @@ base32_decode, hex_decode and base64url_decode). Those methods return str when
 the payload is valid UTF-8, and bytes otherwise.
 
 Failures arrive as {"error": "message"} with a real HTTP status, and this client
-raises AISenseAPIError carrying both.
+raises AISenseAPIError carrying both. Its retry_after is a nonnegative integer
+when Retry-After gives a supported delay in seconds. Its reason is the server's
+public JSON reason, when supplied. Either field can be None.
 
 Older deployments answered differently, and this client still handles two of
 those shapes so that the same code works against either:
@@ -47,6 +49,7 @@ import re
 import urllib.error
 import urllib.request
 import uuid
+from email.message import Message
 from typing import Any, Optional, Union
 
 BASE_URL = "https://aisenseapi.com/services/v1"
@@ -62,10 +65,36 @@ _DEBUG_ECHO_MARKER = '"]["'
 class AISenseAPIError(RuntimeError):
     """Raised when the API reports an error or returns an unusable response."""
 
-    def __init__(self, message: str, *, status: Optional[int] = None, body: Optional[str] = None):
+    def __init__(self, message: str, *, status: Optional[int] = None, body: Optional[str] = None,
+                 retry_after: Optional[int] = None, reason: Optional[str] = None):
         super().__init__(message)
         self.status = status
         self.body = body
+        self.retry_after = retry_after
+        self.reason = reason
+
+
+def _retry_after_seconds(value: Optional[str]) -> Optional[int]:
+    if value is None:
+        return None
+    delay = value.strip(" \t")
+    if not re.fullmatch(r"[0-9]+", delay):
+        return None
+    digits = delay.lstrip("0") or "0"
+    # Use the same safe integer range as the JavaScript client.
+    if len(digits) > 16:
+        return None
+    seconds = int(digits)
+    return seconds if seconds <= 2**53 - 1 else None
+
+
+def _response_error(message: str, status: int, headers: Message, body: str, parsed: Any = None) -> AISenseAPIError:
+    reason = parsed.get("reason") if isinstance(parsed, dict) else None
+    return AISenseAPIError(
+        message, status=status, body=body,
+        retry_after=_retry_after_seconds(headers.get("Retry-After")),
+        reason=reason if isinstance(reason, str) and reason.strip() else None,
+    )
 
 
 class AISenseAPI:
@@ -100,11 +129,11 @@ class AISenseAPI:
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                return resp.status, resp.headers.get("Content-Type", ""), resp.read()
+                return resp.status, resp.headers, resp.read()
         except urllib.error.HTTPError as err:
             # The API returns a JSON error body with the failing status, so
             # read it rather than letting urllib swallow the reason.
-            return err.code, err.headers.get("Content-Type", ""), err.read()
+            return err.code, err.headers, err.read()
 
     def _request(
         self,
@@ -115,16 +144,15 @@ class AISenseAPI:
         content_type: str = "application/json",
         extra_headers: Optional[dict] = None,
     ) -> dict:
-        status, _content_type, raw = self._read(path, method, payload, content_type, token=token, extra_headers=extra_headers)
+        status, headers, raw = self._read(path, method, payload, content_type, token=token, extra_headers=extra_headers)
         text = raw.decode("utf-8", "replace")
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
-            raise AISenseAPIError(
+            raise _response_error(
                 f"{method} {path} is not a known endpoint. The API answered with the "
                 f"debug echo an older deployment sent instead of a 404. Check the "
                 f"path against API.md.",
-                status=status,
-                body=text[:200],
+                status, headers, text[:200],
             )
 
         body, self.last_server_notice = _strip_server_notice(text)
@@ -132,40 +160,40 @@ class AISenseAPI:
         try:
             parsed = json.loads(body)
         except json.JSONDecodeError as err:
-            raise AISenseAPIError(
+            raise _response_error(
                 f"{method} {path} returned a body that is not JSON: {body[:200]!r}",
-                status=status,
-                body=text[:500],
+                status, headers, text[:500],
             ) from err
 
         if isinstance(parsed, dict) and "error" in parsed:
-            raise AISenseAPIError(
-                f"{method} {path} failed: {parsed['error']}", status=status, body=text[:500]
+            raise _response_error(
+                f"{method} {path} failed: {parsed['error']}", status, headers, text[:500], parsed
             )
         if status >= 400:
-            raise AISenseAPIError(f"{method} {path} failed with HTTP {status}", status=status, body=text[:500])
+            raise _response_error(f"{method} {path} failed with HTTP {status}", status, headers, text[:500], parsed)
 
         return parsed
 
     def _request_binary(self, path: str, payload: Any) -> Union[str, bytes]:
         """For endpoints that answer with application/octet-stream, not JSON."""
-        status, _content_type, raw = self._read(path, "POST", payload)
+        status, headers, raw = self._read(path, "POST", payload)
         text = raw.decode("utf-8", "replace")
 
         if text.startswith(_DEBUG_ECHO_PREFIX) and _DEBUG_ECHO_MARKER in text:
-            raise AISenseAPIError(f"POST {path} is not a known endpoint.", status=status, body=text[:200])
+            raise _response_error(f"POST {path} is not a known endpoint.", status, headers, text[:200])
 
         # Errors still come back as JSON even though success is raw bytes.
+        parsed = None
         if text.lstrip().startswith("{"):
             try:
                 parsed = json.loads(text)
             except json.JSONDecodeError:
-                parsed = None
+                pass
             if isinstance(parsed, dict) and "error" in parsed:
-                raise AISenseAPIError(f"POST {path} failed: {parsed['error']}", status=status, body=text[:500])
+                raise _response_error(f"POST {path} failed: {parsed['error']}", status, headers, text[:500], parsed)
 
         if status >= 400:
-            raise AISenseAPIError(f"POST {path} failed with HTTP {status}", status=status, body=text[:500])
+            raise _response_error(f"POST {path} failed with HTTP {status}", status, headers, text[:500], parsed)
 
         try:
             return raw.decode("utf-8")

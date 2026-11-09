@@ -7,8 +7,8 @@ semantic search, validation and the time, passphrase, slug, hash and email helpe
 aisense_api.py and, when Node.js 18 or later is on the path, aisense-api.js,
 against a server on 127.0.0.1. Each request is compared with what API.md
 documents: method, path, content type, JSON body or multipart fields and file,
-and the bearer token. The stub answers every call with {"ok": true}, and
-/mock_response/503/1500 with a 503 like the real one, to check simulate_failure.
+and the bearer token. Error fixtures also exercise both SDKs' HTTP error fields
+and the raw response returned by simulate_failure.
 """
 
 import json
@@ -19,6 +19,7 @@ import sys
 import tempfile
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import NamedTuple, Optional
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -107,8 +108,36 @@ EXPECTED += [
 ]
 FAILURE = {"status": 503, "retry_after": "2", "mock_response": "503/1500"}
 
+
+class ErrorCase(NamedTuple):
+    path: str
+    status: int
+    header: Optional[str]
+    body: str
+    seconds: Optional[int]
+    reason: Optional[str] = None
+
+
+UNAVAILABLE = '{"error":"temporarily unavailable"}'
+ERRORS = {
+    "paced": ErrorCase("/decide", 503, "2", UNAVAILABLE, 2),
+    "no-header": ErrorCase("/decide", 503, None, UNAVAILABLE, None),
+    "quota": ErrorCase("/decide", 429, "007", '{"error":"quota","reason":"daily_limit"}', 7, "daily_limit"),
+    "zero": ErrorCase("/base64_decode", 503, "0", '{"error":"busy","reason":"try_later"}', 0, "try_later"),
+    "bad-header": ErrorCase("/decide", 503, "1.5", '{"error":"busy","more":{"reason":"internal"}}', None),
+    "http-date": ErrorCase("/decide", 503, "Fri, 31 Dec 1999 23:59:59 GMT", '{"error":"busy","reason":" "}', None),
+    "overflow": ErrorCase("/base64_decode", 503, "9007199254740992", "upstream busy", None),
+    "reason-only": ErrorCase("/base64_decode", 429, "1", '{"reason":"daily_limit"}', 1, "daily_limit"),
+    "non-ascii": ErrorCase("/decide", 503, "²", UNAVAILABLE, None),
+}
+for name, case in ERRORS.items():
+    payload = {"data": "YQ=="} if case.path == "/base64_decode" else {
+        "state": {"amount": 30}, "questions": DECIDE_QUESTIONS, "model": "nimble",
+    }
+    EXPECTED.append(("POST", f"/errors/{name}{case.path}", "json", payload, None, None))
+
 JS_CALLS = r"""
-import { AISenseAPI } from '__SDK__'
+import { AISenseAPI, AISenseAPIError } from '__SDK__'
 const { File } = globalThis.File ? globalThis : await import('node:buffer')
 const api = new AISenseAPI(process.argv[2])
 const image = Uint8Array.from(Buffer.from(process.argv[3], 'hex'))
@@ -182,7 +211,18 @@ await api.aiqCall('e'.repeat(32), 'run-token-1', 'get_order', 't2', { order_id: 
 await api.aiqReceipt('e'.repeat(32), 'run-token-1')
 await api.aiqVerify('AIQ1.x.y')
 const failure = await api.simulateFailure(503, 1500)
-console.log(JSON.stringify({ status: failure.status, retry_after: failure.retryAfter, mock_response: failure.mockResponse, body: failure.body }))
+const errors = {}
+for (const [name, path] of Object.entries(JSON.parse(process.argv[5]))) {
+  const client = new AISenseAPI(process.argv[2] + '/errors/' + name)
+  try {
+    if (path === '/base64_decode') await client.base64Decode('YQ==')
+    else await client.decide({ amount: 30 }, questions, 'nimble')
+  } catch (err) {
+    if (!(err instanceof AISenseAPIError)) throw err
+    errors[name] = { status: err.status, body: err.body, message: err.message, retry_after: err.retry_after, reason: err.reason }
+  }
+}
+console.log(JSON.stringify({ status: failure.status, retry_after: failure.retryAfter, mock_response: failure.mockResponse, body: failure.body, errors }))
 """
 
 
@@ -212,6 +252,11 @@ class Stub(BaseHTTPRequestHandler):
         if self.path.startswith("/services/v1/mock_response/"):
             status, payload = 503, b'{"error":"Service Unavailable","mock_response":{"status":503,"delay_ms":1500}}'
             extra = {"Retry-After": "2", "X-Mock-Response": "503/1500"}
+        elif self.path.startswith("/services/v1/errors/"):
+            case = ERRORS[self.path.split("/")[4]]
+            status, payload = case.status, case.body.encode()
+            if case.header is not None:
+                extra["Retry-After"] = case.header
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         for key, value in extra.items():
@@ -275,6 +320,14 @@ def compare(client: str, records: list, failure: dict) -> list:
             problems.append(f"{where}: unexpected body {record['body'][:80]!r}")
     if {k: failure.get(k) for k in FAILURE} != FAILURE or "Service Unavailable" not in str(failure.get("body")):
         problems.append(f"{client} simulate_failure returned {failure!r}")
+    for name, case in ERRORS.items():
+        parsed = json.loads(case.body) if case.body.startswith("{") else {}
+        message = f"failed: {parsed['error']}" if "error" in parsed else f"failed with HTTP {case.status}"
+        expected = {"status": case.status, "body": case.body, "message": f"POST {case.path} {message}",
+                    "retry_after": case.seconds, "reason": case.reason}
+        actual = failure["errors"].get(name)
+        if actual != expected or (case.seconds is not None and type(actual["retry_after"]) is not int):
+            problems.append(f"{client} {name}: expected {expected!r}, got {actual!r}")
     return problems
 
 
@@ -350,7 +403,19 @@ def run_python(base: str, folder: pathlib.Path) -> dict:
     api.aiq_call("e" * 32, "run-token-1", "get_order", "t2", {"order_id": "A-1"})
     api.aiq_receipt("e" * 32, "run-token-1")
     api.aiq_verify("AIQ1.x.y")
-    return api.simulate_failure(503, 1500)
+    failure = api.simulate_failure(503, 1500)
+    errors = {}
+    for name, case in ERRORS.items():
+        client = aisense_api.AISenseAPI(base_url=f"{base}/errors/{name}")
+        try:
+            if case.path == "/base64_decode":
+                client.base64_decode("YQ==")
+            else:
+                client.decide({"amount": 30}, DECIDE_QUESTIONS, "nimble")
+        except aisense_api.AISenseAPIError as err:
+            errors[name] = {"status": err.status, "body": err.body, "message": str(err),
+                            "retry_after": err.retry_after, "reason": err.reason}
+    return {**failure, "errors": errors}
 
 
 def run_node(base: str, folder: pathlib.Path):
@@ -359,7 +424,8 @@ def run_node(base: str, folder: pathlib.Path):
         return None
     script = folder / "calls.mjs"
     script.write_text(JS_CALLS.replace("__SDK__", (ROOT / "aisense-api.js").as_uri()), encoding="utf-8")
-    done = subprocess.run([node, str(script), base, IMAGE.hex(), json.dumps(DECIDE_QUESTIONS)],
+    test_paths = {name: case.path for name, case in ERRORS.items()}
+    done = subprocess.run([node, str(script), base, IMAGE.hex(), json.dumps(DECIDE_QUESTIONS), json.dumps(test_paths)],
                           capture_output=True, text=True, encoding="utf-8", timeout=60)
     if done.returncode != 0:
         raise RuntimeError("node failed: " + done.stderr.strip()[-500:])
