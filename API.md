@@ -898,9 +898,9 @@ most 1800 seconds; a longer or denser song is cut there and `truncated` is
 true. The WAV is therefore at most 7,938,044 bytes, 180 seconds and its
 header, whatever it was made from. A module plays at most 720 seconds of
 channels, so 180 seconds of four channels or 90 of eight, and stops where the
-song would start over. One sound is made at a time: a call meanwhile is
-**503** with `Retry-After: 2`, and a sound that takes too long to make is
-**503** with `Retry-After: 10`.
+song would start over. When the service is busy, a call is **503** with
+`Retry-After: 2`, and a sound that takes too long to make is **503** with
+`Retry-After: 10`.
 
 `Accept: audio/wav`, or no Accept header, answers the WAV; `Accept:
 application/json` answers the fields below. Notes that cannot be read, or more
@@ -1012,7 +1012,7 @@ outside its steps or a sound longer than eight minutes is **400**; an Accept tha
 ```json
 // GET /spell/Gate%20B%2042  with Accept: application/json
 {
-  "audio_base64": "UklGRk5kAgBXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YSpkAgA...",
+  "audio_base64": "UklGRkj+BABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YST+BAA...",
   "mime_type": "audio/wav",
   "voice": "kristin",
   "characters": 7,
@@ -1020,7 +1020,7 @@ outside its steps or a sound longer than eight minutes is **400**; an Accept tha
   "space": "pause",
   "speed": 1,
   "skipped": [],
-  "duration_seconds": 7.0,
+  "duration_seconds": 7.42,
   "sample_rate": 22050,
   "voices": [ "kristin", "cori" ]
 }
