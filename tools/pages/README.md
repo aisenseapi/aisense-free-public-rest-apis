@@ -16,6 +16,7 @@ the change. The Try boxes of the endpoint pages are written by
 | `make_codec_pages.py` | the eight pages for `hex_encode`, `hex_decode`, `base64url_encode`, `base64url_decode`, `url_encode`, `url_decode`, `html_encode` and `html_decode`; the examples were worked out with the service's own `libs/func_codec.php` |
 | `make_markdown_pages.py` | the two pages for `html_to_markdown` and `markdown_to_html`; the examples were worked out with the service's own `libs/func_markdown.php` |
 | `make_morse_pages.py` | the two pages for `morse_encode` and `morse_decode`; the examples and the code table were worked out with the service's own `libs/func_morse.php` |
+| `make_blink_pages.py` | the two pages for `blink_encode` and `blink_decode`; every example answer was worked out with the service's own `libs/func_blink.php` |
 | `make_try_boxes.py` | the Try box of the endpoint pages in its `TRY` list: a section after the quick start, its line under On this page, and the links to `assets/aisense-try.css` and `assets/aisense-try.js`, which wires the box. It runs after the others, since some of these pages are theirs. Change `TRY_VERSION` when either asset changes |
 
 Run all eight with Python 3 and nothing but the standard library:

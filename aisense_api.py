@@ -470,6 +470,22 @@ class AISenseAPI:
         sequences that are not a character listed in ``unknown``."""
         return self._post("/morse_decode", {"data": code})
 
+    def blink_encode(self, text: str, unit_ms: Optional[int] = None) -> dict:
+        """Response keys: ``coding``, ``morse``, ``bits``, ``timing``, ``unit_ms``,
+        ``duration_ms`` and ``skipped``. Up to 128 bytes of text as an on and off
+        signal in Morse timing; ``unit_ms`` from 20 to 5000, 100 by default."""
+        body: dict = {"data": text}
+        if unit_ms is not None:
+            body["unit_ms"] = unit_ms
+        return self._post("/blink_encode", body)
+
+    def blink_decode(self, signal: dict) -> dict:
+        """Response keys: ``coding``, ``text``, ``morse``, ``unknown``, ``unit_ms``,
+        ``quality`` and ``inverted``. ``signal`` holds one of ``bits``, ``durations``
+        or ``levels`` (with ``rate``, or as [milliseconds, level] pairs), and may add
+        ``unit_ms`` and ``invert``."""
+        return self._post("/blink_decode", signal)
+
     def html_to_markdown(self, data: str) -> dict:
         """Response keys: ``markdown`` and ``title``. HTML to CommonMark,
         without scripts, styles or forms."""

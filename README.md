@@ -32,7 +32,7 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.25.0` and offers 85 tools: the workflow tools
+The server reports version `1.25.0` and offers 87 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.25.0` as active and latest,
@@ -753,6 +753,17 @@ curl https://aisenseapi.com/services/v1/morse_encode/SOS
 # -> { "morse_encoded_data": "... --- ...", "skipped": [] }
 ```
 
+**Blink.** `blink_encode` turns up to 128 bytes of text into an on and off
+signal in Morse timing, as bits and run lengths in milliseconds, for a screen, a
+lamp or shades to play. `blink_decode` reads it back from bits, the on and off
+lengths, or the levels a camera or a light sensor recorded, and finds the unit
+and which level is on.
+
+```sh
+curl https://aisenseapi.com/services/v1/blink_decode/101010001110111011100010101
+# -> { "coding": "morse", "text": "SOS", "morse": "... --- ...", "unknown": [], "unit_ms": 100, "quality": 1, "inverted": false }
+```
+
 **HTML and Markdown.** `html_to_markdown` turns a page or any HTML into
 CommonMark and answers `markdown` and the page `title`, without scripts,
 styles or forms. `markdown_to_html` answers `html` that is safe to put in a
@@ -1043,6 +1054,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Transform | `/html_decode` | POST | `html_decoded_data` |
 | Transform | `/morse_encode/{text}` | GET, POST | `morse_encoded_data`, `skipped` |
 | Transform | `/morse_decode/{code}` | GET, POST | `morse_decoded_data`, `unknown` |
+| Transform | `/blink_encode/{text}` | GET, POST | `bits`, `timing`, `unit_ms` |
+| Transform | `/blink_decode/{bits}` | GET, POST | `text`, `unit_ms`, `quality` |
 | Transform | `/html_to_markdown` | POST | `markdown`, `title` |
 | Transform | `/markdown_to_html` | POST | `html` |
 | Transform | `/slugify` | POST | `slug` |

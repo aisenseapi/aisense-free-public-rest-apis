@@ -13,10 +13,10 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.25.0` and offers 85 tools. The official MCP
+The server reports version `1.25.0` and offers 87 tools. The official MCP
 Registry lists `com.aisenseapi/free-public-tools` version `1.25.0` as active
 and latest, published 10 November 2026 at 14:49 UTC. The agent guide in this
-repository is resource version 1.8.18.
+repository is resource version 1.8.19.
 
 No account, API key or OAuth token is required. The limit is 5000 requests per
 IP per day. This limit is shared with the public REST API and A2A.
@@ -225,6 +225,8 @@ and the body it received.
 | `encode_audio` | Turns 1 to 128 bytes into a WAV audio block, audible or experimental high-frequency tones |
 | `spell_audio` | Spells text as a spoken WAV, one recorded clip per letter and digit, in one of two voices |
 | `decode_audio` | Recovers checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds |
+| `encode_blink` | Turns up to 128 bytes of text into an on and off signal in Morse timing, as bits and run lengths in milliseconds |
+| `decode_blink` | Reads Morse back from bits, on and off lengths, or the levels a camera or a light sensor recorded |
 | `create_midi` | Makes a Standard MIDI File from notes written as text, such as C4:4,E4:8,G4:8 |
 | `read_midi` | Reads a MIDI file: tempos, programs, and every note with its start and length in seconds |
 | `render_audio` | Renders notes, a MIDI file or a MOD module as a WAV of at most 180 seconds, or as a Storage link when the WAV is over 4 MiB |
@@ -236,7 +238,7 @@ and the body it received.
 | `next_cron_times` | Computes the next times a cron expression fires, in a time zone |
 | `list_timezones` | Lists timezones, optionally those at one UTC offset |
 | `lookup_network` | Reads your address or User-Agent, locates an IPv4 address or resolves a domain |
-| `validate_email` | Checks the syntax and mail records of an email address |
+| `validate_email` | Checks the syntax and mail records of an email address, with mail_route saying whether the domain takes mail |
 | `validate_value` | Checks an IBAN, a card, a Norwegian organisation or account number, or a phone number |
 | `slugify_text` | Turns text into a URL slug |
 | `jwt_token` | Signs or verifies an HS256 JSON Web Token |

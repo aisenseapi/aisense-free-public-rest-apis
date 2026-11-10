@@ -209,6 +209,10 @@ TRY = {
     # Morse as text, 10 November 2026: 64 KiB of text to encode, 512 KiB of code to decode.
     'free-public-api-morse-encode-api-endpoint.html': text('morse_encode', 'Encode', 'Encoding', 'Text', 'SOS, help!', limit=64 * 1024),
     'free-public-api-morse-decode-api-endpoint.html': text('morse_decode', 'Decode', 'Decoding', 'Morse code', '... --- ... / .... . .-.. .--.', limit=512 * 1024),
+    'free-public-api-blink-encode-api-endpoint.html': text('blink_encode', 'Encode', 'Encoding', 'Text', 'SOS', limit=128,
+        intro='Turn up to 128 bytes of text into a blink here, at 100 ms a unit. Your browser sends it in a JSON body, as the quick start does. ' + LEAVE_OUT),
+    'free-public-api-blink-decode-api-endpoint.html': dict(text('blink_decode', 'Decode', 'Decoding', 'Bits, 1 on and 0 off', '101010001110111011100010101',
+        limit=200000, intro='Read bits back here, one character a unit, 1 for on and 0 for off. Your browser sends them as {"bits": "..."} in a JSON body. ' + LEAVE_OUT), key='bits'),
     # The hashes take JSON data, text/plain or a multipart file named file; the box sends text as JSON and a file
     # as multipart, up to 1 MiB, which is also BLAKE3's own limit.
     'free-public-api-md5-hash-api-endpoint.html': hasher('md5_hash'),

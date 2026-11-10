@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.18
+Resource version 1.8.19
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -27,6 +27,7 @@ This public server needs no account, API key or authentication header. Its tools
 | Encode, hash, a random value, a time format, HTML to Markdown and back, a barcode | Utility tools | Computed on request, nothing stored |
 | The next times a cron expression fires | next_cron_times | Times only. schedule_webhook is what calls a URL on a schedule |
 | Send a short message as datatones, or recover it from a WAV recording | encode_audio / decode_audio | 128 bytes maximum. Unencrypted, hardware-dependent acoustic transfer |
+| Blink a short text with a screen, a lamp or shades, or read it back from a camera or a light sensor | encode_blink / decode_blink | 128 bytes in Morse timing. Bits, on and off lengths or levels in. Nothing stored |
 | Spell a code or a name out loud as a WAV | spell_audio | Letters, digits and spaces only. 64 characters through MCP, 256 through REST |
 | Make or read a MIDI file, or hear notes, a MIDI file or a MOD module | create_midi / read_midi / render_audio | Notes as text such as C4:4,E4:8. At most 180 seconds of sound, a WAV of at most 7,938,044 bytes. Over 4 MiB it comes as a Storage link for 24 hours |
 | Check an email address, an IBAN, a card or a JWT | Validation tools | Nothing stored, email checks DNS only |
@@ -38,7 +39,7 @@ This public server needs no account, API key or authentication header. Its tools
 
 ## Tool catalog
 
-Catalog size: 85 MCP tools.
+Catalog size: 87 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -77,6 +78,8 @@ Catalog size: 85 MCP tools.
 - `encode_audio` - Encode up to 128 bytes as audible or experimental high-frequency datatones in a WAV audio block.
 - `spell_audio` - Spell text as a spoken WAV, one recorded clip per letter and digit, in one of two voices.
 - `decode_audio` - Recover a checksum-verified message from a PCM16 WAV recording.
+- `encode_blink` - Turn up to 128 bytes of text into an on and off signal in Morse timing, as bits and timing.
+- `decode_blink` - Read Morse back from bits, on and off lengths, or the levels a camera or a light sensor recorded.
 - `create_midi` - Make a MIDI file from notes written as text, such as C4:4,E4:8,G4:8.
 - `read_midi` - Read a MIDI file: tempos, programs, and every note with its start and length in seconds.
 - `render_audio` - Render notes, a MIDI file or a MOD module as a WAV of at most 180 seconds, or as a Storage link when the WAV is over 4 MiB.
@@ -88,7 +91,7 @@ Catalog size: 85 MCP tools.
 - `next_cron_times` - Compute the next times a cron expression fires, in a time zone.
 - `list_timezones` - List timezones, optionally those at one UTC offset.
 - `lookup_network` - Read your address or User-Agent, locate an IPv4 address, or resolve a domain.
-- `validate_email` - Check the syntax and mail records of an email address.
+- `validate_email` - Check the syntax and mail records of an email address, with mail_route saying whether the domain takes mail.
 - `validate_value` - Check an IBAN, a card, a Norwegian organisation or account number, or a phone number.
 - `slugify_text` - Turn text into a URL slug.
 - `jwt_token` - Sign or verify an HS256 JSON Web Token.

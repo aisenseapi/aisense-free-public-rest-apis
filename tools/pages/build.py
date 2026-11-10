@@ -27,6 +27,7 @@ RUNS = [
     ['make_codec_pages.py', WEB],
     ['make_markdown_pages.py', WEB],
     ['make_morse_pages.py', WEB],
+    ['make_blink_pages.py', WEB],
     # After the generators, since some of the pages with a Try box are theirs.
     ['make_try_boxes.py', WEB],
 ]

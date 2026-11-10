@@ -575,6 +575,46 @@ GET /morse_decode/***%20---%20*** -> { "morse_decoded_data": "SOS", "unknown": [
 
 ---
 
+### `GET /blink_encode/{text}`, `POST /blink_encode`
+Text as an on and off signal in Morse timing, for a screen, a lamp, a smart
+bulb, shades or a buzzer: a dot is one unit on and a dash three, the gap inside
+a letter one unit off, between letters three and between words seven. The text
+becomes Morse code first, as `morse_encode` writes it. `bits` has one character
+per unit, `1` on and `0` off; `timing` lists the run lengths in milliseconds,
+the first one on; `duration_ms` is the whole signal. At most 128 bytes of UTF-8.
+In the path the text may be followed by the coding and the unit,
+`/blink_encode/SOS/morse/200`; in a POST, `{"data": "...", "unit_ms": 100}` or
+the raw text. `unit_ms` is a whole number from 20 to 5000, 100 by default,
+which a camera at 30 frames per second reads in a steady picture.
+
+```json
+GET /blink_encode/SOS -> { "coding": "morse", "morse": "... --- ...", "bits": "101010001110111011100010101", "timing": [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100], "unit_ms": 100, "duration_ms": 2700, "skipped": [] }
+```
+
+---
+
+### `GET /blink_decode/{bits}`, `POST /blink_decode`
+An on and off signal back to text. POST JSON with one of `bits`, `durations`
+(the on and off lengths in milliseconds in turn, the first one on) or `levels`
+(one reading per sample, such as the brightness of a square in each camera
+frame, with `rate` samples per second, or `[milliseconds, level]` pairs), at
+most 200,000 values. The bits can also go in the path, with an optional unit:
+`/blink_decode/{bits}/{unit_ms}`. Levels are split halfway between their two
+clusters with a margin, after a median of three against one-frame glitches;
+the level at both ends is off unless `invert` says otherwise, runs under a third
+of the unit are flicker, and the unit is the one that fits the runs best to 1 or
+3 units on and 1, 3 or 7 off. Send `unit_ms` to fix it; a message of one letter
+sent at another unit than 100 ms needs it. The answer holds `text`, `morse`,
+`unknown`, `unit_ms`, `quality` (the share of runs within a quarter unit of 1,
+3 or 7 units) and `inverted`.
+
+```json
+GET /blink_decode/101010001110111011100010101 -> { "coding": "morse", "text": "SOS", "morse": "... --- ...", "unknown": [], "unit_ms": 100, "quality": 1, "inverted": false }
+{ "levels": [20, 20, 20, 200, 200, 200, 20, 20, 20, 20, 20, 20, 20, 20, 20, 200, 200, 200, 200, 200, 200, 200, 200, 200, 20, 20, 20], "rate": 30 } -> { "coding": "morse", "text": "ET", "morse": ". -", "unknown": [], "unit_ms": 100, "quality": 1, "inverted": false }
+```
+
+---
+
 ### `POST /html_to_markdown`
 A web page or any HTML to CommonMark with GitHub tables. Scripts, styles, the
 head, forms, SVG and media are left out, and text that would read as Markdown
@@ -3872,6 +3912,7 @@ operations use JSON with the fields documented in their own sections.
 | `/url_encode`, `/url_decode` | `url_encoded_data`, `url_decoded_data` |
 | `/html_encode`, `/html_decode` | `html_encoded_data`, `html_decoded_data` |
 | `/morse_encode`, `/morse_decode` | `morse_encoded_data` and `skipped`, `morse_decoded_data` and `unknown` |
+| `/blink_encode`, `/blink_decode` | `coding`, `morse`, `bits`, `timing`, `unit_ms`, `duration_ms` and `skipped`; `coding`, `text`, `morse`, `unknown`, `unit_ms`, `quality` and `inverted` |
 | `/jwt_encode` | `jwt` |
 | `/jwt_decode` | `decoded_payload` |
 | `/qrcode_encode` | `qrcode_image`, `image_type` |
