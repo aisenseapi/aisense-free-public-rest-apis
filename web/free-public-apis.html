@@ -484,7 +484,7 @@ Response: { "morse_encoded_data": "... --- ...", "skipped": [] }</code></pre>
 <article class="endpoint">
 <h3><a href="/free-public-api-morse-decode-api-endpoint">Morse Decode REST API Endpoint</a></h3>
 <p class="sig"><span class="method get">GET</span> <span class="path">/morse_decode/{code}</span> <span class="method post">POST</span> <span class="path">/morse_decode</span></p>
-<p>Dots and dashes back to text in upper case, look-alikes included; words split at a slash, a | or two spaces. Sequences it cannot read are listed in <span class="key">unknown</span>. Response key: <span class="key">morse_decoded_data</span>.</p>
+<p>Dots and dashes back to text in upper case, look-alikes included, with * for a dot in the path; words split at a slash, a | or two spaces. Sequences it cannot read are listed in <span class="key">unknown</span>. Response key: <span class="key">morse_decoded_data</span>.</p>
 <pre><code>Request:  { "data": "... --- ... / .... .." }
 Response: { "morse_decoded_data": "SOS HI", "unknown": [] }</code></pre>
 </article>

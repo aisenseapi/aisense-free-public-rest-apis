@@ -180,7 +180,8 @@ PAGES = [
             'the gap inside a letter one, the gap between letters three and the gap between words seven.</p></section>',
             '<section id="input"><h2>Input and answer</h2><ul>'
             '<li><code>GET /morse_encode/{text}</code> takes the text as one path segment, percent-encoded: a space as <code>%20</code>, '
-            'a slash as <code>%2F</code>, å as <code>%C3%A5</code>.</li>'
+            'a slash as <code>%2F</code>, å as <code>%C3%A5</code>. The server turns away a path with two dots in a row, so text such as '
+            '<code>Wait...</code> goes in a POST.</li>'
             '<li><code>POST /morse_encode</code> takes <code>{"data": "..."}</code> with <code>Content-Type: application/json</code>, or the '
             'text as the raw request body with any other type. At most 64 KiB, in UTF-8.</li>'
             '<li>A run of spaces, tabs or line breaks is one word gap, written <code> / </code>. Spaces at the ends are left out.</li>'
@@ -212,19 +213,21 @@ PAGES = [
         'badges': ['No API key', 'International Morse', 'GET or POST', 'Lists what it cannot read'],
         'toc': [('quick-start', 'Quick start'), ('rules', 'Rules'), ('errors', 'Errors'), ('use-cases', 'Use cases')],
         'sections': [
-            '<section id="quick-start"><h2>Call the free Morse code decode API endpoint</h2><p>Put the code in the path, a space as '
-            '<code>%20</code>:</p>' + curl_get('morse_decode/...%20---%20...') + answer({'morse_decoded_data': 'SOS', 'unknown': []})
+            '<section id="quick-start"><h2>Call the free Morse code decode API endpoint</h2><p>Put the code in the path with <code>*</code> '
+            'for each dot and <code>%20</code> for a space, since a path cannot hold two dots in a row:</p>' + curl_get('morse_decode/***%20---%20***')
+            + answer({'morse_decoded_data': 'SOS', 'unknown': []})
             + '<p>Or post it:</p>' + curl_post('morse_decode', '.... . .-.. .-.. --- / .-- --- .-. .-.. -..')
             + answer({'morse_decoded_data': 'HELLO WORLD', 'unknown': []})
             + '<p>The other way is the <a href="/free-public-api-morse-encode-api-endpoint">Morse encode API endpoint</a>.</p></section>',
             '<section id="rules"><h2>Rules</h2><ul>'
             '<li>One space between letters. Between words a slash, a <code>|</code>, a line break or two or more spaces. In a URL a '
             '<code>|</code> needs no escape, while a slash is written <code>%2F</code>.</li>'
-            '<li>Dots and dashes may be typed as <code>.</code> and <code>-</code> or as their look-alikes: the middle dot and the bullet '
-            'for a dot, and the en dash, the em dash, the minus sign and the underscore for a dash.</li>'
+            '<li>Dots and dashes may be typed as <code>.</code> and <code>-</code> or as their look-alikes: the middle dot, the bullet and '
+            '<code>*</code> for a dot, and the en dash, the em dash, the minus sign and the underscore for a dash.</li>'
             '<li>The text comes back in upper case, since Morse has no case. A code that two letters share comes back as Æ, Ø or Å.</li>'
             '<li><code>unknown</code> lists each sequence that is not a character once, at most 32 of them, and the text goes on without it.</li>'
-            '<li><code>GET /morse_decode/{code}</code> takes the code as one path segment. <code>POST /morse_decode</code> takes '
+            '<li><code>GET /morse_decode/{code}</code> takes the code as one path segment. The server turns away a path with two dots in a '
+            'row, so write each dot there as <code>*</code>. <code>POST /morse_decode</code> takes '
             '<code>{"data": "..."}</code> with <code>Content-Type: application/json</code>, or the code as the raw body. At most 512 KiB.</li></ul>'
             + curl_post('morse_decode', '.- ........ -...') + answer({'morse_decoded_data': 'AB', 'unknown': ['........']}) + '</section>',
             '<section id="errors"><h2>Errors</h2>' + DECODE_ERRORS + FIX + '</section>',

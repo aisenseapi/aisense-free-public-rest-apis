@@ -547,7 +547,8 @@ Text to International Morse code: one space between letters and ` / ` between
 words. A to Z, 0 to 9, the marks `. , ? ' ! / ( ) & : ; = + - _ " $ @` and the
 letters Æ Ø Å Ä Ö Ü É Ñ Ç À, whatever their case; Ä and Æ share a code, as do Ö
 and Ø, and À and Å. The text is one percent-encoded path segment, or
-`{"data": "..."}` or the raw body in a POST, at most 64 KiB of UTF-8. A run of
+`{"data": "..."}` or the raw body in a POST, at most 64 KiB of UTF-8. A path
+cannot hold two dots in a row, so text such as `Wait...` goes in a POST. A run of
 whitespace is one word gap. `skipped` lists each character without a code once,
 at most 32.
 
@@ -561,13 +562,14 @@ GET /morse_encode/SOS -> { "morse_encoded_data": "... --- ...", "skipped": [] }
 ### `GET /morse_decode/{code}`, `POST /morse_decode`
 Morse code back to text in upper case. One space between letters; `/`, `|`, a
 line break or two or more spaces between words. Dots and dashes may also be the
-middle dot or the bullet, and the en dash, the em dash, the minus sign or the
+middle dot, the bullet or `*`, and the en dash, the em dash, the minus sign or the
 underscore. A code two letters share comes back as Æ, Ø or Å. `unknown` lists
 each sequence that is not a character once, at most 32, and the text goes on
-without it. At most 512 KiB; in the path a `/` is `%2F`, or use `|`.
+without it. At most 512 KiB. A path cannot hold two dots in a row, so write each
+dot there as `*`; a `/` there is `%2F`, or use `|`.
 
 ```json
-GET /morse_decode/...%20---%20... -> { "morse_decoded_data": "SOS", "unknown": [] }
+GET /morse_decode/***%20---%20*** -> { "morse_decoded_data": "SOS", "unknown": [] }
 { "data": ".- ........ -..." } -> { "morse_decoded_data": "AB", "unknown": ["........"] }
 ```
 
