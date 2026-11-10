@@ -221,7 +221,7 @@ and the body it received.
 | `read_dns_name` | Reads what a name points at and when it expires |
 | `update_dns_name` | Moves a name to another address without moving its expiry |
 | `delete_dns_name` | Removes a name before it expires |
-| `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding or HTML entities, or decodes it back to text or base64 bytes |
+| `encode_data` | Encodes text as Base64, base64url, Base32, Base58, hex, URL percent-encoding, HTML entities or Morse code, or decodes it back to text or base64 bytes |
 | `encode_audio` | Turns 1 to 128 bytes into a WAV audio block, audible or experimental high-frequency tones |
 | `spell_audio` | Spells text as a spoken WAV, one recorded clip per letter and digit, in one of two voices |
 | `decode_audio` | Recovers checksum-verified data from a PCM16 WAV in ordinary Storage, up to 4 MiB and 40 seconds |

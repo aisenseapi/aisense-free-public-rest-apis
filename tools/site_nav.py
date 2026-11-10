@@ -113,6 +113,8 @@ API_GROUPS = [
         ('/free-public-api-url-decode-api-endpoint', 'URL decode'),
         ('/free-public-api-html-encode-api-endpoint', 'HTML encode'),
         ('/free-public-api-html-decode-api-endpoint', 'HTML decode'),
+        ('/free-public-api-morse-encode-api-endpoint', 'Morse encode'),
+        ('/free-public-api-morse-decode-api-endpoint', 'Morse decode'),
     ]),
     ('audio', 'Audio', '/free-public-apis#audio', [
         ('/free-public-api-audio-encode-api-endpoint', 'Audio encode'),

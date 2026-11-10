@@ -542,6 +542,37 @@ Every named HTML5 entity and every numeric one back to its character.
 
 ---
 
+### `GET /morse_encode/{text}`, `POST /morse_encode`
+Text to International Morse code: one space between letters and ` / ` between
+words. A to Z, 0 to 9, the marks `. , ? ' ! / ( ) & : ; = + - _ " $ @` and the
+letters Æ Ø Å Ä Ö Ü É Ñ Ç À, whatever their case; Ä and Æ share a code, as do Ö
+and Ø, and À and Å. The text is one percent-encoded path segment, or
+`{"data": "..."}` or the raw body in a POST, at most 64 KiB of UTF-8. A run of
+whitespace is one word gap. `skipped` lists each character without a code once,
+at most 32.
+
+```json
+GET /morse_encode/SOS -> { "morse_encoded_data": "... --- ...", "skipped": [] }
+{ "data": "Call 112 #now" } -> { "morse_encoded_data": "-.-. .- .-.. .-.. / .---- .---- ..--- / -. --- .--", "skipped": ["#"] }
+```
+
+---
+
+### `GET /morse_decode/{code}`, `POST /morse_decode`
+Morse code back to text in upper case. One space between letters; `/`, `|`, a
+line break or two or more spaces between words. Dots and dashes may also be the
+middle dot or the bullet, and the en dash, the em dash, the minus sign or the
+underscore. A code two letters share comes back as Æ, Ø or Å. `unknown` lists
+each sequence that is not a character once, at most 32, and the text goes on
+without it. At most 512 KiB; in the path a `/` is `%2F`, or use `|`.
+
+```json
+GET /morse_decode/...%20---%20... -> { "morse_decoded_data": "SOS", "unknown": [] }
+{ "data": ".- ........ -..." } -> { "morse_decoded_data": "AB", "unknown": ["........"] }
+```
+
+---
+
 ### `POST /html_to_markdown`
 A web page or any HTML to CommonMark with GitHub tables. Scripts, styles, the
 head, forms, SVG and media are left out, and text that would read as Markdown
@@ -3827,6 +3858,7 @@ operations use JSON with the fields documented in their own sections.
 | `/base64_decode`, `/base58_decode`, `/base32_decode`, `/hex_decode`, `/base64url_decode` | raw bytes, or `type` + `decoded_data` with `Accept: application/json` |
 | `/url_encode`, `/url_decode` | `url_encoded_data`, `url_decoded_data` |
 | `/html_encode`, `/html_decode` | `html_encoded_data`, `html_decoded_data` |
+| `/morse_encode`, `/morse_decode` | `morse_encoded_data` and `skipped`, `morse_decoded_data` and `unknown` |
 | `/jwt_encode` | `jwt` |
 | `/jwt_decode` | `decoded_payload` |
 | `/qrcode_encode` | `qrcode_image`, `image_type` |

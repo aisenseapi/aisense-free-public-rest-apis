@@ -171,6 +171,8 @@ All POST. Accept JSON, plain text (`Content-Type: text/plain`), or file upload.
 | `POST /url_decode` | `{"data": "a%20b+c"}` | `{"url_decoded_data": "a b+c"}`: a `+` stays a `+` |
 | `POST /html_encode` | `{"data": "<b>&</b>"}` | `{"html_encoded_data": "&lt;b&gt;&amp;&lt;/b&gt;"}` |
 | `POST /html_decode` | `{"data": "&lt;b&gt; &eacute;"}` | `{"html_decoded_data": "<b> é"}` |
+| `GET /morse_encode/SOS` | | `{"morse_encoded_data": "... --- ...", "skipped": []}`: ` / ` between words; characters without a code in `skipped` |
+| `POST /morse_decode` | `{"data": "... --- ... / .... .."}` | `{"morse_decoded_data": "SOS HI", "unknown": []}`: words at `/`, `|` or two spaces |
 | `POST /html_to_markdown` | `{"data": "<h1>Hi</h1><p>A <b>bold</b> word</p>"}` | `{"markdown": "# Hi\n\nA **bold** word", "title": null}`: no scripts, styles or forms |
 | `POST /markdown_to_html` | `{"data": "**Bold** <b>raw</b>"}` | `{"html": "<p><strong>Bold</strong> &lt;b&gt;raw&lt;/b&gt;</p>"}`: raw HTML shown as text |
 
@@ -825,6 +827,7 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/base64url_decode` | POST | raw bytes, or `type` + `decoded_data` |
 | `/url_encode`, `/url_decode` | POST | `url_encoded_data`, `url_decoded_data` |
 | `/html_encode`, `/html_decode` | POST | `html_encoded_data`, `html_decoded_data` |
+| `/morse_encode/{text}`, `/morse_decode/{code}` | GET, POST | `morse_encoded_data` and `skipped`, `morse_decoded_data` and `unknown` |
 | `/html_to_markdown`, `/markdown_to_html` | POST | `markdown` and `title`, `html` |
 | `/slugify` | POST | `slug` |
 | `/jwt_encode` | POST | `jwt` |

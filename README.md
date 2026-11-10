@@ -742,6 +742,17 @@ curl -X POST https://aisenseapi.com/services/v1/html_encode \
 `html_decoded_data`, since their result is text. `url_decode` leaves a `+` as a
 `+`.
 
+**Morse code.** `morse_encode` turns text into International Morse code, one
+space between letters and ` / ` between words, and `morse_decode` turns dots and
+dashes back into text in upper case. Both take the text or code as a path
+segment or in a POST, and list what they could not handle in `skipped` and
+`unknown`.
+
+```sh
+curl https://aisenseapi.com/services/v1/morse_encode/SOS
+# -> { "morse_encoded_data": "... --- ...", "skipped": [] }
+```
+
 **HTML and Markdown.** `html_to_markdown` turns a page or any HTML into
 CommonMark and answers `markdown` and the page `title`, without scripts,
 styles or forms. `markdown_to_html` answers `html` that is safe to put in a
@@ -1030,6 +1041,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Transform | `/url_decode` | POST | `url_decoded_data` |
 | Transform | `/html_encode` | POST | `html_encoded_data` |
 | Transform | `/html_decode` | POST | `html_decoded_data` |
+| Transform | `/morse_encode/{text}` | GET, POST | `morse_encoded_data`, `skipped` |
+| Transform | `/morse_decode/{code}` | GET, POST | `morse_decoded_data`, `unknown` |
 | Transform | `/html_to_markdown` | POST | `markdown`, `title` |
 | Transform | `/markdown_to_html` | POST | `html` |
 | Transform | `/slugify` | POST | `slug` |

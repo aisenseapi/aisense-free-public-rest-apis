@@ -548,6 +548,16 @@ export class AISenseAPI {
     return this.#post('/html_decode', { data })
   }
 
+  /** Response keys: `morse_encoded_data` and `skipped`. Text to International Morse code, ` / ` between words. */
+  morseEncode(text) {
+    return this.#post('/morse_encode', { data: text })
+  }
+
+  /** Response keys: `morse_decoded_data` and `unknown`. Morse code back to text in upper case. */
+  morseDecode(code) {
+    return this.#post('/morse_decode', { data: code })
+  }
+
   /** Response keys: `markdown` and `title`. HTML to CommonMark, without scripts, styles or forms. */
   htmlToMarkdown(data) {
     return this.#post('/html_to_markdown', { data })

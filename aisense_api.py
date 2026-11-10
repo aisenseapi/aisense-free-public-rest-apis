@@ -458,6 +458,18 @@ class AISenseAPI:
         every numeric one back to its character."""
         return self._post("/html_decode", {"data": data})
 
+    def morse_encode(self, text: str) -> dict:
+        """Response keys: ``morse_encoded_data`` and ``skipped``. Text to
+        International Morse code, one space between letters and `` / `` between
+        words; characters without a code are listed in ``skipped``."""
+        return self._post("/morse_encode", {"data": text})
+
+    def morse_decode(self, code: str) -> dict:
+        """Response keys: ``morse_decoded_data`` and ``unknown``. Morse code back
+        to text in upper case; words split at ``/``, ``|`` or two spaces, and
+        sequences that are not a character listed in ``unknown``."""
+        return self._post("/morse_decode", {"data": code})
+
     def html_to_markdown(self, data: str) -> dict:
         """Response keys: ``markdown`` and ``title``. HTML to CommonMark,
         without scripts, styles or forms."""

@@ -480,6 +480,44 @@
   {
     "type": "function",
     "function": {
+      "name": "morse_encode",
+      "description": "Turn text into International Morse code: one space between letters and / between words, A to Z, 0 to 9, the usual marks and letters such as Æ, Ø and Å. Returns {\"morse_encoded_data\": \"... --- ...\", \"skipped\": []}, with the characters without a code in skipped. At most 64 KiB. POST /morse_encode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text to encode."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "morse_decode",
+      "description": "Turn Morse code back into text in upper case. One space between letters; /, | or two spaces between words. Returns {\"morse_decoded_data\": \"SOS\", \"unknown\": []}, with the sequences that are not a character in unknown. POST /morse_decode",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Morse code, such as ... --- ..."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "html_to_markdown",
       "description": "Turn a web page or any HTML into Markdown, CommonMark with GitHub tables, leaving out scripts, styles, forms and media. Returns {\"markdown\", \"title\"}, title being the page title or null. At most 1 MiB and 40000 tags. POST /html_to_markdown",
       "parameters": {

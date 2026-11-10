@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.17
+Resource version 1.8.18
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -73,7 +73,7 @@ Catalog size: 85 MCP tools.
 - `read_dns_name` - Read what a name points at and when it expires.
 - `update_dns_name` - Move a name to another address without moving its expiry.
 - `delete_dns_name` - Remove a name before it expires.
-- `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding or as HTML entities, or decode it.
+- `encode_data` - Encode text as Base64, Base64url, Base32, Base58 or hex, as URL percent-encoding, as HTML entities or as Morse code, or decode it.
 - `encode_audio` - Encode up to 128 bytes as audible or experimental high-frequency datatones in a WAV audio block.
 - `spell_audio` - Spell text as a spoken WAV, one recorded clip per letter and digit, in one of two voices.
 - `decode_audio` - Recover a checksum-verified message from a PCM16 WAV recording.

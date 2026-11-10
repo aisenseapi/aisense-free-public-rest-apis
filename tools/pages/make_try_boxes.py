@@ -206,6 +206,9 @@ TRY = {
     'free-public-api-url-decode-api-endpoint.html': text('url_decode', 'Decode', 'Decoding', 'Encoded text', 'a%20b%2Fc+%C3%A9'),
     'free-public-api-html-encode-api-endpoint.html': text('html_encode', 'Encode', 'Encoding', 'Text', '<b>"Tom" & Jerry</b>'),
     'free-public-api-html-decode-api-endpoint.html': text('html_decode', 'Decode', 'Decoding', 'HTML', '&lt;b&gt; &amp; &eacute; &#233;'),
+    # Morse as text, 10 November 2026: 64 KiB of text to encode, 512 KiB of code to decode.
+    'free-public-api-morse-encode-api-endpoint.html': text('morse_encode', 'Encode', 'Encoding', 'Text', 'SOS, help!', limit=64 * 1024),
+    'free-public-api-morse-decode-api-endpoint.html': text('morse_decode', 'Decode', 'Decoding', 'Morse code', '... --- ... / .... . .-.. .--.', limit=512 * 1024),
     # The hashes take JSON data, text/plain or a multipart file named file; the box sends text as JSON and a file
     # as multipart, up to 1 MiB, which is also BLAKE3's own limit.
     'free-public-api-md5-hash-api-endpoint.html': hasher('md5_hash'),
