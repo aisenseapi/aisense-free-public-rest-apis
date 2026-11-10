@@ -2055,16 +2055,26 @@ country centroid when the city is unknown.
 ---
 
 ### `POST /email_validate`
-Syntax check, then DNS. `has_mx` means the domain publishes MX records;
-`has_address_record` means it resolves at all, which RFC 5321 allows as a
-delivery fallback - so a missing MX alone does not prove an address dead.
-Neither proves a mailbox exists; only an SMTP conversation could, and this
-endpoint deliberately never opens one.
+Send an address in a JSON `data` string or as plain text. After checking its
+syntax, the endpoint asks the host's DNS resolver about the domain. Use
+`mail_route` to decide whether to accept an address in a form.
 
-An address that fails validation is a **result** with `valid_syntax: false`,
-not an error. 400 is reserved for sending no input at all. DNS resolution uses
-the host resolver only - nothing is sent to any third party. Internationalized
-domains are not converted to punycode and report `valid_syntax: false`.
+| `mail_route` | Meaning |
+| --- | --- |
+| `mx` | The domain publishes a mail exchanger. |
+| `implicit_mx` | The domain has no MX record and has an A or AAAA record for delivery. |
+| `no_mail` | The domain explicitly declines email via null MX, or DNS confirms it has no mail route. |
+| `unknown` | The lookup was inconclusive. Retry later. |
+| `invalid_syntax` | The address failed the syntax check. Correct it before retrying. |
+
+`has_mx` reports whether MX records were found, including null MX. The
+existing `has_address_record` flag is true on an MX answer or a successful
+A/AAAA fallback. To establish control of a mailbox, send the recipient a
+confirmation link or code.
+
+Each validation outcome returns HTTP 200. Missing input or a non-string
+`data` value returns HTTP 400. For internationalized domains, convert the
+domain to ASCII (Punycode) before submitting it.
 
 ```json
 // Request
@@ -2077,7 +2087,8 @@ domains are not converted to punycode and report `valid_syntax: false`.
   "domain": "gmail.com",
   "has_mx": true,
   "mx_hosts": ["gmail-smtp-in.l.google.com", "alt1.gmail-smtp-in.l.google.com"],
-  "has_address_record": true
+  "has_address_record": true,
+  "mail_route": "mx"
 }
 ```
 
@@ -3895,7 +3906,7 @@ operations use JSON with the fields documented in their own sections.
 | `/user_agent` | `user_agent` |
 | `/ip_reverse_lookup` | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup` | `domain`, `ip` |
-| `/email_validate` | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
+| `/email_validate` | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record`, `mail_route` |
 | `/hash_verify` | `match`, `algorithm`, `computed` |
 | `/password_verify` | `match`, `algorithm`, `params` |
 | `/slugify` | `slug` |

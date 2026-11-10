@@ -1336,10 +1336,11 @@ class AISenseAPI:
         """
         return self._post(f"/semantic_search/{collection_id}/notes/{note_id}/delete", {}, token=write_token)
     def email_validate(self, data: str) -> dict:
-        """Check an email address: syntax, then DNS. Response keys: ``email``,
-        ``valid_syntax``, ``domain``, ``has_mx``, ``mx_hosts`` and
-        ``has_address_record``. A failing address is a result with
-        ``valid_syntax`` False. The mailbox itself is never contacted."""
+        """Check email syntax and the domain's DNS records. Returns ``email``,
+        ``valid_syntax``, ``domain``, ``has_mx``, ``mx_hosts``,
+        ``has_address_record`` and ``mail_route``. The route is ``mx``,
+        ``implicit_mx``, ``no_mail``, ``unknown`` or ``invalid_syntax``.
+        Retry later on ``unknown``."""
         return self._post("/email_validate", {"data": data})
 
     def validate(self, type: str, data: str) -> dict:

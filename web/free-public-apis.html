@@ -881,11 +881,11 @@ Response: { "match": true, "algorithm": "sha256", "computed": "185f8db3..." }</c
 <article class="endpoint">
 <h3>Email Validate REST API Endpoint</h3>
 <p class="sig"><span class="method post">POST</span> <span class="path">/email_validate</span></p>
-<p>Syntax check, then DNS through the host resolver - nothing goes to a third party. <code>has_mx</code> means the domain publishes MX records; <code>has_address_record</code> covers the RFC 5321 fallback, so a missing MX alone does not prove an address dead. A failing address is a result with <code>valid_syntax: false</code>, and the endpoint never opens an SMTP conversation.</p>
+<p>Check the syntax and the domain's DNS records. Read <code>mail_route</code> to distinguish a mail exchanger (<code>mx</code>), an A or AAAA fallback (<code>implicit_mx</code>), a domain without a mail route (<code>no_mail</code>), an inconclusive lookup (<code>unknown</code>) and a malformed address (<code>invalid_syntax</code>). Retry later on <code>unknown</code>.</p>
 <pre><code>Request:  { "data": "test@gmail.com" }
 
 Response: { "email": "test@gmail.com", "valid_syntax": true, "domain": "gmail.com",
-  "has_mx": true, "mx_hosts": ["gmail-smtp-in.l.google.com", "..."], "has_address_record": true }</code></pre>
+  "has_mx": true, "mx_hosts": ["gmail-smtp-in.l.google.com", "..."], "has_address_record": true, "mail_route": "mx" }</code></pre>
 </article>
 
 <article class="endpoint">
@@ -1305,7 +1305,7 @@ response = client.chat.completions.create(
 <tr><td>Web</td><td><code>/user_agent</code></td><td>GET</td><td><code>user_agent</code></td></tr>
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>
 <tr><td>Web</td><td><code>/domain_ip_lookup/{domain}</code></td><td>GET</td><td><code>domain</code>, <code>ip</code></td></tr>
-<tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
+<tr><td>Web</td><td><code>/email_validate</code></td><td>POST</td><td><code>valid_syntax</code>, <code>mail_route</code>, <code>has_mx</code>, <code>mx_hosts</code></td></tr>
 <tr><td>Web</td><td><code>/html2pdf</code></td><td>POST</td><td>Storage fields</td></tr>
 <tr><td>Web</td><td><code>/webhook_schedule</code></td><td>POST / GET / DELETE</td><td>one-shot or recurring state, wait support, delivery counts</td></tr>
 <tr><td>Web</td><td><code>/agent_wake</code></td><td>POST / GET / DELETE</td><td><code>taskId</code>, <code>status</code>, <code>result</code></td></tr>

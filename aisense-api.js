@@ -1349,10 +1349,10 @@ export class AISenseAPI {
   }
 
   /**
-   * Check an email address: syntax, then DNS. Response keys: `email`,
-   * `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record`. A
-   * failing address is a result with `valid_syntax` false. The mailbox itself
-   * is never contacted.
+   * Check email syntax and the domain's DNS records. Returns `email`,
+   * `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record`
+   * and `mail_route`. The route is `mx`, `implicit_mx`, `no_mail`, `unknown`
+   * or `invalid_syntax`. Retry later on `unknown`.
    */
   emailValidate(data) {
     return this.#post('/email_validate', { data })

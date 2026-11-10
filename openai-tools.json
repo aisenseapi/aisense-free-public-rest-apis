@@ -1594,7 +1594,7 @@
     "type": "function",
     "function": {
       "name": "email_validate",
-      "description": "Validate an email address: syntax, then DNS. Returns {\"email\", \"valid_syntax\", \"domain\", \"has_mx\", \"mx_hosts\", \"has_address_record\"}. A failing address is a RESULT with valid_syntax false, not an error. has_address_record covers the RFC 5321 A-record fallback, so absent MX alone does not prove the address dead. Does not verify the mailbox exists. POST /email_validate",
+      "description": "Check email syntax and the domain's DNS records. Returns email, valid_syntax, domain, has_mx, mx_hosts, has_address_record and mail_route. Accept mx or implicit_mx as a domain with a mail route. Ask for a correction on no_mail or invalid_syntax. Retry later on unknown. Confirming control of the inbox requires a separate email confirmation. POST /email_validate",
       "parameters": {
         "type": "object",
         "properties": {

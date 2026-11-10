@@ -858,7 +858,7 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/user_agent` | GET | `user_agent` |
 | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |
 | `/domain_ip_lookup/{domain}` | GET | `domain`, `ip` |
-| `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record` |
+| `/email_validate` | POST | `email`, `valid_syntax`, `domain`, `has_mx`, `mx_hosts`, `has_address_record`, `mail_route` (`mx`, `implicit_mx`, `no_mail`, `unknown`, `invalid_syntax`). Retry later on `unknown`. |
 | `/storage` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | `/storage/max_downloads/{n}` | POST | the same, plus `downloads_max`, `downloads_left`. Gone with `410` after `n` downloads |
 | `/storage/{id}` | GET | the stored body, verbatim |
