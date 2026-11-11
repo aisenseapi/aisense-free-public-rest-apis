@@ -21,6 +21,8 @@ WEB = sys.argv[1]
 API = 'https://aisenseapi.com/services/v1'
 TEMPLATE = io.open(WEB + '/free-public-api-dns-name-api-endpoint.html', encoding='utf-8').read()
 B = chr(92)
+# Change this whenever assets/aisense-blink.css, aisense-blink.js or the receiver QR code change.
+LAB_VERSION = '20261111a'
 
 SOS_BITS = '101010001110111011100010101'
 SOS_TIMING = [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100]
@@ -122,6 +124,10 @@ def page(spec):
             OrderedDict([('@type', 'ListItem'), ('position', 2), ('name', 'Free public REST APIs'), ('item', 'https://aisense.no/free-public-apis')]),
             OrderedDict([('@type', 'ListItem'), ('position', 3), ('name', spec['crumb']), ('item', 'https://aisense.no/' + slug)])])])])])
     top = swap(top, '<script type="application/ld+json">\n', '\n</script>', json.dumps(ld, indent=2, ensure_ascii=False))
+    # The lab has a stylesheet and a script of its own, as the audio pages do.
+    assert top.count('</head>') == 1 and bottom.count('</body>') == 1
+    top = top.replace('</head>', '<link rel="stylesheet" href="/assets/aisense-blink.css?v=' + LAB_VERSION + '">' + chr(10) + '</head>')
+    bottom = bottom.replace('</body>', '<script src="/assets/aisense-blink.js?v=' + LAB_VERSION + '" defer></script>' + chr(10) + '</body>')
 
     sections = spec['sections'] + [privacy(spec['short']), '<section id="related"><h2>Related APIs</h2>' + related(spec['related']) + '</section>']
     toc = spec['toc'] + [('privacy', 'Privacy'), ('related', 'Related')]
@@ -171,13 +177,34 @@ PAGES = [
         'description': 'The free blink encode API endpoint turns up to 128 bytes of text into an on and off signal in Morse timing, as bits and run lengths in milliseconds, for a screen, a lamp, a smart bulb or shades. No API key.',
         'lede': 'The free blink encode API endpoint turns a short text into an on and off signal in Morse timing. The answer holds the signal twice: as bits, one character per unit, and as the lengths of the on and off runs in milliseconds, ready for a screen, a lamp, a smart bulb, window shades or a buzzer to play.',
         'badges': ['No API key', 'Morse timing', 'GET or POST', 'Up to 128 bytes'],
-        'toc': [('quick-start', 'Quick start'), ('timing', 'The timing'), ('input', 'Input and answer'), ('errors', 'Errors'), ('use-cases', 'Use cases')],
+        'toc': [('quick-start', 'Quick start'), ('try', 'Try it'), ('timing', 'The timing'), ('input', 'Input and answer'), ('errors', 'Errors'), ('use-cases', 'Use cases')],
         'sections': [
             '<section id="quick-start"><h2>Call the free blink encode API endpoint</h2><p>Put the text in the path:</p>'
             + curl_get('blink_encode/SOS') + answer(ENCODE_SOS)
             + '<p>Or post it with a unit of your own, here 200 ms for a lamp seen across a room:</p>'
             + curl_post('blink_encode', OrderedDict([('data', 'HELLO'), ('unit_ms', 200)])) + answer(ENCODE_HELLO)
             + '<p>The way back is the <a href="/free-public-api-blink-decode-api-endpoint">blink decode API endpoint</a>.</p></section>',
+            '<section id="try" class="blink-lab" data-blink-tool="send"><div class="blink-lab-head"><p class="blink-kicker">Try it / Sender</p>'
+    '<h2>Blink a message on this screen</h2><p>Type a message, and the square below blinks it in Morse timing for a phone camera to read.</p></div>'
+    '<div class="blink-lab-body"><ol class="blink-steps"><li>Open the <a href="/free-public-api-blink-decode-api-endpoint#try">receiver</a> on a phone '
+    'and choose Start camera.</li><li>Type a message here and choose Blink.</li><li>Hold the phone so the square fills the marked frame until the text comes.</li></ol>'
+    '<div class="blink-pair"><img src="/assets/aisense-blink-receiver-qr.png?v=' + LAB_VERSION + '" width="132" height="132" '
+    'alt="QR code that opens the blink receiver page"><p>Scan the code to open the receiver on your phone, or go to '
+    '<a href="/free-public-api-blink-decode-api-endpoint#try">aisense.no/free-public-api-blink-decode-api-endpoint</a>.</p></div>'
+    '<noscript><p>Enable JavaScript to blink here, or call the API as the quick start shows.</p></noscript>'
+    '<label for="blink-text">Message</label><textarea id="blink-text" rows="2" spellcheck="false">HELLO</textarea>'
+    '<p id="blink-count" class="blink-count">5 / 128 bytes</p>'
+    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="200" selected>200 ms, a phone held in the hand</option>'
+    '<option value="300">300 ms, a camera further off</option><option value="500">500 ms, slow enough to follow by eye</option></select>'
+    '<p class="blink-warning">The square flashes white and black, at most 2.5 times a second. Do not use it if flashing light affects you.</p>'
+    '<div class="blink-actions"><button id="blink-start" type="button" class="button button-primary">Blink</button>'
+    '<button id="blink-stop" type="button" class="button button-secondary" disabled>Stop</button>'
+    '<button id="blink-full" type="button" class="button button-secondary">Full screen</button></div>'
+    '<div class="blink-stage"><div class="blink-lamp" data-on="false" aria-hidden="true"></div><p class="blink-note" aria-live="polite">Ready.</p></div>'
+    '<p class="blink-status" aria-live="polite" hidden></p>'
+    '<div class="blink-output" hidden><h3>The signal</h3><p class="blink-code"></p><pre><code class="blink-json"></code></pre></div>'
+    '<p class="blink-help">The text goes to the API, which answers the timing. The blinking runs in your browser, and the screen stays awake '
+    'while it blinks where the browser allows it.</p></div></section>',
             '<section id="timing"><h2>The timing</h2><p>Morse timing counts in units. The text becomes International Morse code '
             'first, as the <a href="/free-public-api-morse-encode-api-endpoint">Morse encode API endpoint</a> writes it, with its code table.</p>'
             + table(['Part', 'Length'], [['A dot', '1 unit on'], ['A dash', '3 units on'], ['The gap inside a letter', '1 unit off'],
@@ -219,13 +246,30 @@ PAGES = [
         'description': 'The free blink decode API endpoint reads text back from an on and off signal: bits, run lengths, or the brightness a camera or a light sensor recorded. It finds the unit and which level is on. No API key.',
         'lede': 'The free blink decode API endpoint reads Morse back from an on and off signal. Send the bits, the lengths of the on and off runs, or the levels a camera or a light sensor recorded, and it finds the threshold, the unit and which level means on.',
         'badges': ['No API key', 'Bits, runs or levels', 'Finds the unit', 'Up to 200,000 samples'],
-        'toc': [('quick-start', 'Quick start'), ('signals', 'Signals it reads'), ('reading', 'How it reads'), ('errors', 'Errors'), ('use-cases', 'Use cases')],
+        'toc': [('quick-start', 'Quick start'), ('try', 'Try it'), ('signals', 'Signals it reads'), ('reading', 'How it reads'), ('errors', 'Errors'), ('use-cases', 'Use cases')],
         'sections': [
             '<section id="quick-start"><h2>Call the free blink decode API endpoint</h2><p>Put the bits in the path:</p>'
             + curl_get('blink_decode/' + SOS_BITS) + answer(read('SOS', '... --- ...'))
             + '<p>Or post the brightness of a square in each camera frame, with the frames per second:</p>'
             + curl_post('blink_decode', OrderedDict([('levels', ET_LEVELS), ('rate', 30)])) + answer(read('ET', '. -'))
             + '<p>The way there is the <a href="/free-public-api-blink-encode-api-endpoint">blink encode API endpoint</a>.</p></section>',
+            '<section id="try" class="blink-lab" data-blink-tool="receive"><div class="blink-lab-head"><p class="blink-kicker">Try it / Receiver</p>'
+    '<h2>Read a blink with the camera</h2><p>Film the blinking square, and the brightness in the marked frame becomes text.</p></div>'
+    '<div class="blink-lab-body"><ol class="blink-steps"><li>Open the <a href="/free-public-api-blink-encode-api-endpoint#try">sender</a> on a laptop or '
+    'another screen.</li><li>Choose Start camera here and fit the square in the marked frame.</li><li>Choose Blink there. The text comes when the square stays dark.</li></ol>'
+    '<noscript><p>Enable JavaScript for the camera, or send levels to the API as the examples below show.</p></noscript>'
+    '<div class="blink-view" data-live="false"><video playsinline muted aria-label="The camera picture"></video><div class="blink-target" aria-hidden="true"></div></div>'
+    '<label class="blink-auto-option"><input id="blink-auto" type="checkbox" checked>Read automatically when the blinking stops</label>'
+    '<div class="blink-actions"><button id="blink-camera" type="button" class="button button-primary">Start camera</button>'
+    '<button id="blink-read" type="button" class="button button-secondary" disabled>Stop and read</button>'
+    '<button id="blink-cancel" type="button" class="button button-secondary" disabled>Cancel</button></div>'
+    '<div class="blink-meter-row"><label for="blink-level">Brightness</label><meter id="blink-level" min="0" max="255" value="0">0</meter>'
+    '<span class="blink-dot" data-on="false" aria-hidden="true"></span><span class="blink-timer">0.0 s</span></div>'
+    '<p class="blink-help">The camera starts only when you choose Start camera, and the picture stays in your browser. Only the brightness of the '
+    'marked frame, one number a frame with its time, goes to AI SENSE when the blinking stops or when you choose Stop and read. Cancel sends nothing.</p>'
+    '<p class="blink-status" aria-live="polite" hidden></p>'
+    '<div class="blink-output" hidden><h3>The message</h3><p class="blink-result-text"></p><p class="blink-result-meta"></p>'
+    '<details><summary>The answer</summary><pre><code class="blink-json"></code></pre></details></div></div></section>',
             '<section id="signals"><h2>Signals it reads</h2><p>Send one of these in a JSON body, at most 200,000 values:</p><ul>'
             '<li><code>bits</code>, a string of <code>0</code> and <code>1</code>, one character per unit, as the encode endpoint answers it. '
             'In the path it is <code>/blink_decode/{bits}</code>, or <code>/blink_decode/{bits}/{unit_ms}</code> to name the length of a character '
