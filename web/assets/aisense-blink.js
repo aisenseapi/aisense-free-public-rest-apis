@@ -8,6 +8,7 @@
   const MAX_RECORD_MS = 180000; // the receiver reads after three minutes at the latest
   const QUIET_MS = 2500;        // and when nothing has switched for this long, or ten units if that is longer
   const SIDE = 32;              // the marked frame is scaled to this many pixels a side to measure it
+  const SMALL_BELOW = 170;      // faster units flash more than three times a second: only in the small square, never full screen
 
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -58,6 +59,7 @@
     const light = on => { lamp.dataset.on = on ? 'true' : 'false'; };
     const idle = () => {
       lab.dataset.playing = 'false';
+      unit.disabled = false;
       start.disabled = false;
       stop.disabled = true;
       note.textContent = 'Ready.';
@@ -95,13 +97,25 @@
       return run === id;
     }
 
+    // A unit under 170 ms flashes more than three times a second, so the square shrinks to 140 px, under a quarter of the
+    // 341 by 256 px field in which WCAG counts a general flash, and full screen is off.
+    const size = () => {
+      const small = Number(unit.value) < SMALL_BELOW;
+      stage.dataset.small = small ? 'true' : 'false';
+      full.disabled = small;
+      if (small && document.fullscreenElement === stage) document.exitFullscreen().catch(() => {});
+    };
     text.addEventListener('input', counter);
+    unit.addEventListener('change', size);
     counter();
+    size();
     start.addEventListener('click', async () => {
       const value = text.value.trim();
       if (value === '') { say(status, 'Type a message first.', true); return; }
       if (bytes() > MAX_BYTES) { say(status, 'Use at most 128 bytes.', true); return; }
       const id = ++run;
+      size();
+      unit.disabled = true;
       start.disabled = true;
       stop.disabled = false;
       say(status, 'Asking the API for the timing.');
@@ -234,7 +248,7 @@
           }
           on = now_on;
           dot.dataset.on = hi - lo >= 25 && on ? 'true' : 'false';
-          timer.textContent = (t / 1000).toFixed(1) + ' s';
+          timer.textContent = (t / 1000).toFixed(1) + ' s' + ( t >= 1000 ? ', ' + Math.round( samples.length / ( t / 1000 ) ) + ' frames a second' : '' );
           const quiet = Math.max(QUIET_MS, 10 * (Number.isFinite(shortest) ? shortest : 0));
           if (t >= MAX_RECORD_MS || (auto.checked && switches >= 4 && t - lastSwitch >= quiet)) { read(); return; }
         }
@@ -253,7 +267,7 @@
       say(status, 'Starting the camera.');
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } }
+          audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 60 } }
         });
         video.srcObject = stream;
         await video.play();

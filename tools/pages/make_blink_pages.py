@@ -21,10 +21,12 @@ WEB = sys.argv[1]
 API = 'https://aisenseapi.com/services/v1'
 TEMPLATE = io.open(WEB + '/free-public-api-dns-name-api-endpoint.html', encoding='utf-8').read()
 B = chr(92)
-# The sender's units start at 170 ms: its fastest pattern, dots one unit apart, flashes once in two units, and WCAG 2.3.1
-# allows at most three flashes a second, so 167 ms is the floor (Admin, 11 November 2026: "da blir det 170ms").
+# Full screen starts at 170 ms: the sender's fastest pattern, dots one unit apart, flashes once in two units, and WCAG 2.3.1
+# allows at most three flashes a second, so 167 ms is the floor (Admin, 11 November 2026: "da blir det 170ms"). The 80 ms
+# unit blinks only in a 140 px square, under a quarter of the 341 by 256 px field in which WCAG counts a general flash
+# (Admin, the same day: "den lille ruten er ingen fare", "så 80ms da?"). At 30 frames a second, 70 ms read 6 of 9 trials.
 # Change this whenever assets/aisense-blink.css, aisense-blink.js or the receiver QR code change.
-LAB_VERSION = '20261111a'
+LAB_VERSION = '20261111b'
 
 SOS_BITS = '101010001110111011100010101'
 SOS_TIMING = [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100]
@@ -196,10 +198,12 @@ PAGES = [
     '<noscript><p>Enable JavaScript to blink here, or call the API as the quick start shows.</p></noscript>'
     '<label for="blink-text">Message</label><textarea id="blink-text" rows="2" spellcheck="false">HELLO</textarea>'
     '<p id="blink-count" class="blink-count">5 / 128 bytes</p>'
-    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="170">170 ms, the fastest this page blinks</option>'
+    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="80">80 ms, in a small square: hold the phone still</option>'
+    '<option value="170">170 ms, the fastest in full screen</option>'
     '<option value="200" selected>200 ms, a phone held in the hand</option>'
     '<option value="300">300 ms, a camera further off</option><option value="500">500 ms, slow enough to follow by eye</option></select>'
-    '<p class="blink-warning">The square flashes white and black, at most 3 times a second. Do not use it if flashing light affects you.</p>'
+    '<p class="blink-warning">The square flashes white and black, at most 3 times a second from 170 ms. At 80 ms it flashes up to 6 times a second, so it '
+    'blinks in a small square and full screen is off. Do not use it if flashing light affects you.</p>'
     '<div class="blink-actions"><button id="blink-start" type="button" class="button button-primary">Blink</button>'
     '<button id="blink-stop" type="button" class="button button-secondary" disabled>Stop</button>'
     '<button id="blink-full" type="button" class="button button-secondary">Full screen</button></div>'
