@@ -584,8 +584,10 @@ per unit, `1` on and `0` off; `timing` lists the run lengths in milliseconds,
 the first one on; `duration_ms` is the whole signal. At most 128 bytes of UTF-8.
 In the path the text may be followed by the coding and the unit,
 `/blink_encode/SOS/morse/200`; in a POST, `{"data": "...", "unit_ms": 100}` or
-the raw text. `unit_ms` is a whole number from 20 to 5000, 100 by default,
-which a camera at 30 frames per second reads in a steady picture.
+the raw text. `unit_ms` is a whole number from 5 to 5000, 100 by default,
+which a camera at 30 frames per second reads in a steady picture; 5 suits an
+LED that a light sensor reads at 1 kHz or more. A decode needs at least three
+samples a unit.
 
 ```json
 GET /blink_encode/SOS -> { "coding": "morse", "morse": "... --- ...", "bits": "101010001110111011100010101", "timing": [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100], "unit_ms": 100, "duration_ms": 2700, "skipped": [] }

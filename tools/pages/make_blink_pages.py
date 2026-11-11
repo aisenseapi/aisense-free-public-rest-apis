@@ -151,7 +151,7 @@ ENCODE_ERRORS = errors([
     ['400', 'The data is not UTF-8 text.', 'Bytes that are not UTF-8'],
     ['400', 'Nothing in the text has a Morse code.', 'Only characters without a code; <code>skipped</code> lists them'],
     ['400', 'coding is morse.', 'Another coding was asked for'],
-    ['400', 'unit_ms is a whole number of milliseconds from 20 to 5000.', 'A unit outside 20 to 5000, or one with a fraction'],
+    ['400', 'unit_ms is a whole number of milliseconds from 5 to 5000.', 'A unit outside 5 to 5000, or one with a fraction'],
 ])
 DECODE_ERRORS = errors([
     ['400', 'Send one of bits, durations or levels.', 'None of the three, two of them, or a body that is not JSON'],
@@ -211,13 +211,13 @@ PAGES = [
                                          ['The gap between letters', '3 units off'], ['The gap between words', '7 units off']])
             + '<p>Pick the unit for what will see the signal. It needs at least three samples a unit.</p>'
             + table(['Reader', 'Unit'], [['A phone or webcam at 30 frames per second', '100 ms, the default; 150 ms or more when the picture flickers or moves'],
-                                         ['A camera at 60 frames per second', '50 ms'], ['A light sensor or a photodiode', '20 ms'],
+                                         ['A camera at 60 frames per second', '50 ms'], ['An LED switched by a small computer, read by a light sensor at 1 kHz or more', '5 ms and up'],
                                          ['A person, or window shades seen from afar', '1000 to 5000 ms']]) + '</section>',
             '<section id="input"><h2>Input and answer</h2><ul>'
             '<li><code>GET /blink_encode/{text}</code> takes the text as one path segment, percent-encoded: a space as <code>%20</code>, '
             'a slash as <code>%2F</code>. Two more segments may follow, the coding and the unit: <code>/blink_encode/SOS/morse/200</code>.</li>'
             '<li><code>POST /blink_encode</code> takes <code>{"data": "...", "unit_ms": 100}</code> with <code>Content-Type: application/json</code>, '
-            'or the text as the raw request body with any other type. At most 128 bytes, in UTF-8. <code>unit_ms</code> is a whole number from 20 to 5000.</li>'
+            'or the text as the raw request body with any other type. At most 128 bytes, in UTF-8. <code>unit_ms</code> is a whole number from 5 to 5000.</li>'
             '<li><code>morse</code> is the code. <code>bits</code> has one character per unit, <code>1</code> for on and <code>0</code> for off. '
             '<code>timing</code> lists the lengths of the runs in milliseconds, the first one on. <code>duration_ms</code> is the whole signal.</li>'
             '<li><code>skipped</code> lists each character without a code once, as the Morse encode endpoint does.</li></ul>'

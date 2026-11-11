@@ -529,9 +529,9 @@
           },
           "unit_ms": {
             "type": "integer",
-            "minimum": 20,
+            "minimum": 5,
             "maximum": 5000,
-            "description": "The length of one unit in milliseconds, 100 by default, which a camera at 30 frames per second reads."
+            "description": "The length of one unit in milliseconds, 100 by default, which a camera at 30 frames per second reads. 5 suits an LED that a light sensor reads at 1 kHz or more."
           }
         },
         "required": [

@@ -173,7 +173,7 @@ All POST. Accept JSON, plain text (`Content-Type: text/plain`), or file upload.
 | `POST /html_decode` | `{"data": "&lt;b&gt; &eacute;"}` | `{"html_decoded_data": "<b> é"}` |
 | `GET /morse_encode/SOS` | | `{"morse_encoded_data": "... --- ...", "skipped": []}`: ` / ` between words; characters without a code in `skipped` |
 | `POST /morse_decode` | `{"data": "... --- ... / .... .."}` | `{"morse_decoded_data": "SOS HI", "unknown": []}`: words at `/`, `|` or two spaces |
-| `GET /blink_encode/SOS` | | `bits` (1 on, 0 off, one per unit), `timing` (run lengths in ms, the first on), `unit_ms` 100 unless the path or POST says 20 to 5000 |
+| `GET /blink_encode/SOS` | | `bits` (1 on, 0 off, one per unit), `timing` (run lengths in ms, the first on), `unit_ms` 100 unless the path or POST says 5 to 5000 |
 | `POST /blink_decode` | `{"durations": [100, 100, 100, 100, 100, 300]}` or `{"levels": [...], "rate": 30}` or `{"bits": "10101"}` | `text`, `morse`, `unit_ms` found, `quality`, `inverted`; one letter at a unit other than 100 ms needs `unit_ms` |
 | `POST /html_to_markdown` | `{"data": "<h1>Hi</h1><p>A <b>bold</b> word</p>"}` | `{"markdown": "# Hi\n\nA **bold** word", "title": null}`: no scripts, styles or forms |
 | `POST /markdown_to_html` | `{"data": "**Bold** <b>raw</b>"}` | `{"html": "<p><strong>Bold</strong> &lt;b&gt;raw&lt;/b&gt;</p>"}`: raw HTML shown as text |

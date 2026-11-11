@@ -473,7 +473,7 @@ class AISenseAPI:
     def blink_encode(self, text: str, unit_ms: Optional[int] = None) -> dict:
         """Response keys: ``coding``, ``morse``, ``bits``, ``timing``, ``unit_ms``,
         ``duration_ms`` and ``skipped``. Up to 128 bytes of text as an on and off
-        signal in Morse timing; ``unit_ms`` from 20 to 5000, 100 by default."""
+        signal in Morse timing; ``unit_ms`` from 5 to 5000, 100 by default."""
         body: dict = {"data": text}
         if unit_ms is not None:
             body["unit_ms"] = unit_ms

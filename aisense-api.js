@@ -558,7 +558,7 @@ export class AISenseAPI {
     return this.#post('/morse_decode', { data: code })
   }
 
-  /** Response keys: `coding`, `morse`, `bits`, `timing`, `unit_ms`, `duration_ms` and `skipped`. Text as an on and off signal in Morse timing; unitMs 20 to 5000, 100 by default. */
+  /** Response keys: `coding`, `morse`, `bits`, `timing`, `unit_ms`, `duration_ms` and `skipped`. Text as an on and off signal in Morse timing; unitMs 5 to 5000, 100 by default. */
   blinkEncode(text, unitMs) {
     return this.#post('/blink_encode', unitMs === undefined ? { data: text } : { data: text, unit_ms: unitMs })
   }
