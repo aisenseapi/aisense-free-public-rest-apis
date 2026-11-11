@@ -21,6 +21,8 @@ WEB = sys.argv[1]
 API = 'https://aisenseapi.com/services/v1'
 TEMPLATE = io.open(WEB + '/free-public-api-dns-name-api-endpoint.html', encoding='utf-8').read()
 B = chr(92)
+# The sender's units start at 170 ms: its fastest pattern, dots one unit apart, flashes once in two units, and WCAG 2.3.1
+# allows at most three flashes a second, so 167 ms is the floor (Admin, 11 November 2026: "da blir det 170ms").
 # Change this whenever assets/aisense-blink.css, aisense-blink.js or the receiver QR code change.
 LAB_VERSION = '20261111a'
 
@@ -194,9 +196,10 @@ PAGES = [
     '<noscript><p>Enable JavaScript to blink here, or call the API as the quick start shows.</p></noscript>'
     '<label for="blink-text">Message</label><textarea id="blink-text" rows="2" spellcheck="false">HELLO</textarea>'
     '<p id="blink-count" class="blink-count">5 / 128 bytes</p>'
-    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="200" selected>200 ms, a phone held in the hand</option>'
+    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="170">170 ms, the fastest this page blinks</option>'
+    '<option value="200" selected>200 ms, a phone held in the hand</option>'
     '<option value="300">300 ms, a camera further off</option><option value="500">500 ms, slow enough to follow by eye</option></select>'
-    '<p class="blink-warning">The square flashes white and black, at most 2.5 times a second. Do not use it if flashing light affects you.</p>'
+    '<p class="blink-warning">The square flashes white and black, at most 3 times a second. Do not use it if flashing light affects you.</p>'
     '<div class="blink-actions"><button id="blink-start" type="button" class="button button-primary">Blink</button>'
     '<button id="blink-stop" type="button" class="button button-secondary" disabled>Stop</button>'
     '<button id="blink-full" type="button" class="button button-secondary">Full screen</button></div>'
