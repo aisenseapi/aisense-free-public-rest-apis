@@ -24,7 +24,8 @@ B = chr(92)
 # Full screen starts at 170 ms: the sender's fastest pattern, dots one unit apart, flashes once in two units, and WCAG 2.3.1
 # allows at most three flashes a second, so 167 ms is the floor (Admin, 11 November 2026: "da blir det 170ms"). The 80 ms
 # unit blinks only in a 140 px square, under a quarter of the 341 by 256 px field in which WCAG counts a general flash
-# (Admin, the same day: "den lille ruten er ingen fare", "så 80ms da?"). At 30 frames a second, 70 ms read 6 of 9 trials.
+# (Admin, the same day: "den lille ruten er ingen fare", "så 80ms da?"). At 30 frames a second, 70 ms read 6 of 9 trials and 60 ms
+# none; at 60 frames a second (59.94 too) 60 ms read 9 of 9, so 60 ms is offered for such a camera (Admin: "ja okda ta 60ms").
 # Change this whenever assets/aisense-blink.css, aisense-blink.js or the receiver QR code change.
 LAB_VERSION = '20261111b'
 
@@ -198,12 +199,13 @@ PAGES = [
     '<noscript><p>Enable JavaScript to blink here, or call the API as the quick start shows.</p></noscript>'
     '<label for="blink-text">Message</label><textarea id="blink-text" rows="2" spellcheck="false">HELLO</textarea>'
     '<p id="blink-count" class="blink-count">5 / 128 bytes</p>'
-    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="80">80 ms, in a small square: hold the phone still</option>'
+    '<label for="blink-unit">Unit</label><select id="blink-unit"><option value="60">60 ms, in a small square: a camera at 60 frames a second</option>'
+    '<option value="80">80 ms, in a small square: hold the phone still</option>'
     '<option value="170">170 ms, the fastest in full screen</option>'
     '<option value="200" selected>200 ms, a phone held in the hand</option>'
     '<option value="300">300 ms, a camera further off</option><option value="500">500 ms, slow enough to follow by eye</option></select>'
-    '<p class="blink-warning">The square flashes white and black, at most 3 times a second from 170 ms. At 80 ms it flashes up to 6 times a second, so it '
-    'blinks in a small square and full screen is off. Do not use it if flashing light affects you.</p>'
+    '<p class="blink-warning">The square flashes white and black, at most 3 times a second from 170 ms. At 80 ms it flashes up to 6 times a second '
+    'and at 60 ms up to 8, so those units blink in a small square and full screen is off. Do not use it if flashing light affects you.</p>'
     '<div class="blink-actions"><button id="blink-start" type="button" class="button button-primary">Blink</button>'
     '<button id="blink-stop" type="button" class="button button-secondary" disabled>Stop</button>'
     '<button id="blink-full" type="button" class="button button-secondary">Full screen</button></div>'
@@ -272,6 +274,8 @@ PAGES = [
     '<button id="blink-cancel" type="button" class="button button-secondary" disabled>Cancel</button></div>'
     '<div class="blink-meter-row"><label for="blink-level">Brightness</label><meter id="blink-level" min="0" max="255" value="0">0</meter>'
     '<span class="blink-dot" data-on="false" aria-hidden="true"></span><span class="blink-timer">0.0 s</span></div>'
+    '<p class="blink-help">While it films, the timer also shows how many frames a second this camera gives. The 60 ms unit on the sender needs '
+    'about 60; the slower units read at 30.</p>'
     '<p class="blink-help">The camera starts only when you choose Start camera, and the picture stays in your browser. Only the brightness of the '
     'marked frame, one number a frame with its time, goes to AI SENSE when the blinking stops or when you choose Stop and read. Cancel sends nothing.</p>'
     '<p class="blink-status" aria-live="polite" hidden></p>'
