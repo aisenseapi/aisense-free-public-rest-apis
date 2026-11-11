@@ -27,6 +27,7 @@
 .blink-note { color: #cbd5e1; margin: 0; font-size: .9rem; text-align: center; }
 .blink-stage:fullscreen { width: 100vw; height: 100vh; border-radius: 0; place-content: center; }
 .blink-stage:fullscreen .blink-lamp { width: 72vmin; }
+.blink-stage[data-small="true"] .blink-lamp { width: 140px; }
 .blink-view { position: relative; width: 100%; max-width: 520px; aspect-ratio: 4 / 3; background: #000; border-radius: 12px; overflow: hidden; margin: 0 0 1rem; }
 .blink-view video { width: 100%; height: 100%; object-fit: contain; display: block; }
 .blink-target { position: absolute; inset: 0; margin: auto; height: 25%; aspect-ratio: 1; border: 2px solid var(--blink-cyan); border-radius: 4px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
