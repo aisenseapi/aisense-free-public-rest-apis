@@ -44,7 +44,7 @@ CSS_VERSION = '20261106pro'
 # The endpoint menu, one block per category: the category heading links to its
 # guide or its section of the catalog, the items to the endpoint pages.
 API_GROUPS = [
-    ('agents', 'Agents and webhooks', '/free-public-apis#web', [
+    ('agents', 'Agents and webhooks', '/free-tools-for-agents-working-together', [
         ('/free-public-api-agent-wake-api-endpoint', 'Agent Wake'),
         ('/free-public-api-agent-queue-api-endpoint', 'Agent Queue'),
         ('/free-public-api-agent-handoff-api-endpoint', 'Agent Handoff'),
