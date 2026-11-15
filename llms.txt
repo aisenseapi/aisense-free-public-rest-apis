@@ -82,6 +82,7 @@ Agent2Agent revision 1.0 is a third protocol beside REST and MCP, spoken as JSON
 
 - Base URL: https://aisenseapi.com/services/v1
 - API guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/API.md
+- Tools for agents that work together, with a handoff between two agents to try: https://aisense.no/free-tools-for-agents-working-together
 - Agent Wake guide: https://aisense.no/free-public-api-agent-wake-api-endpoint
 - Heartbeat guide: https://aisense.no/free-public-api-heartbeat-api-endpoint
 - Lease guide: https://aisense.no/free-public-api-lease-api-endpoint
