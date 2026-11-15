@@ -56,10 +56,12 @@ from facts and weighted rules. The full list with arguments is in
   store secrets, credentials or personal data.
 - **Outbound calls.** Webhook schedules and notify URLs make the server send a
   request to a URL the agent supplies.
-- **Annotated tools.** Each tool carries MCP annotations: 37 are read-only, 32
-  write and 8 are destructive (they acknowledge, release, cancel, delete, reveal
-  or burn). A client that asks before write-capable calls can use them, for
-  example Hermes Agent with `trust: untrusted` on the server entry.
+- **Annotated tools.** Each tool carries MCP annotations: 44 are read-only, 32
+  write and 11 are destructive (they acknowledge, release, cancel, delete, reveal,
+  burn, move a DNS name to another address, or read an object stored with a
+  download limit, which spends one download). A client that asks before
+  write-capable calls can use them, for example Hermes Agent with
+  `trust: untrusted` on the server entry.
 - **The tool list comes from the server at run time**, so a pinned commit of
   this package does not fix it.
 

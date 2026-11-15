@@ -259,7 +259,7 @@ and the body it received.
 | `cancel_webhook_schedule` | Cancels a scheduled webhook that has not finished |
 | `service_health` | Checks that the service answers |
 | `store_file` | Stores a file given as base64 for 24 hours, or for a set number of fetches with `max_downloads`, and answers its link |
-| `read_stored_file` | Reads a stored object, image or file back |
+| `read_stored_file` | Reads a stored object, image or file back; a read of an object stored with `max_downloads` spends one download |
 | `create_semantic_search` | Creates a 24-hour collection of notes searched by meaning, with read and write tokens |
 | `add_semantic_search_notes` | Adds 1 to 32 notes with the write token |
 | `query_semantic_search` | Searches the notes by meaning and answers ranked suggestions with scores |

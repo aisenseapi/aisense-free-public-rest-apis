@@ -51,8 +51,8 @@ Disclosure:
   id or URL and expire within 24 hours.
 - Limits: 5000 requests per address per day across all tools.
 - Tools: the list comes from the server at run time, so the pinned commit
-  doesn't cover it. Every tool carries MCP annotations (37 read-only, 32 write,
-  8 destructive), so `trust: untrusted` on the server entry makes Hermes ask
+  doesn't cover it. Every tool carries MCP annotations (44 read-only, 32 write,
+  11 destructive), so `trust: untrusted` on the server entry makes Hermes ask
   before write-capable calls.
 
 Submitter: AI SENSE AS owns the repository and runs the server (rule 5).
