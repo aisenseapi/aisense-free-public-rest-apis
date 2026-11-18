@@ -25,6 +25,13 @@ export const ENVELOPE = "nacl.box.v1";
 // The board's own default lifetime for a post, mirrored here so an ordinary
 // post gets the same lifetime whether the field is sent or left out.
 export const BOARD_TTL = 1800;
+// What a post leaves its inbox: time for the work the board advises and the
+// round trip. The board refuses a post that would outlive the inbox when it
+// arrives, and the lifetime is in the body the work covers, so it is set
+// before the work is done. With nothing left over, a post asked for as long
+// as an inbox lives was refused whenever the work took a second (a check of
+// 12 November 2026). The same in aamio-python and aamio-php.
+export const BOARD_POST_MARGIN = 30;
 
 // ------------------------------------------------------------------ encoding
 
@@ -198,6 +205,300 @@ export function hashPrefix(key, length = 8) {
   return keyHash(key).slice(0, length);
 }
 
+// -------------------------------------------------------------- domain keys
+//
+// Which public aamio keys a website says are its own. A site can publish them
+// at https://<domain>/.well-known/aamio-keys.json as
+// {"aamio_keys": 1, "keys": [{"key": "<43 characters>", "name": "support"}]}.
+// This is the format and nothing else: a strict parser, the match, a generator
+// for the file, and the syntax of a domain. It opens no connection and reads no
+// address book. A browser cannot see which address a name resolves to, and a
+// library has no list of websites its user agreed to, so reading a list is for
+// the caller, who also says which key is compared: the result says subject_source
+// supplied_key, and aamio-python and aamio-php have the whole check.
+//
+// Take the domain from your own records and never from the message being
+// checked: anyone can list their own key on their own site. A listed key says
+// that this exact site listed this key when it was read. It is not an identity,
+// an authority to act or proof that a message is true.
+//
+// JSON.parse keeps the last of two members of the same name without a word, so
+// it cannot hold the format's rule about duplicates, and the reader here is its
+// own. test/domain_keys_vectors.json holds what every client answers.
+
+export const DOMAIN_KEYS_VERSION = 1;
+export const DOMAIN_KEYS_PATH = "/.well-known/aamio-keys.json";
+export const DOMAIN_KEYS_MAX_BYTES = 16384;
+export const DOMAIN_KEYS_MAX_KEYS = 64;
+const DOMAIN_MAX_DEPTH = 16;
+const DOMAIN_MAX_INTEGER = 9007199254740991n;
+
+/** A list that is not version 1. reason says why, without echoing the content. */
+export class InvalidDomainKeys extends Error {
+  constructor(reason) {
+    super("invalid domain key list: " + reason);
+    this.name = "InvalidDomainKeys";
+    this.reason = reason;
+  }
+}
+
+/** A public key as aamio writes it: 32 bytes, 43 characters, one spelling only. */
+export function canonicalKey(value) {
+  if (typeof value !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(value)) return false;
+  // A last character carrying bits past the 32 bytes decodes to the same bytes
+  // as another string; only the one an encoder writes is the key.
+  return b64url(unb64url(value)) === value;
+}
+
+/** A name a list can carry: 1 to 64 characters of a-z, 0-9, dot, underscore and dash. */
+export function validDomainKeyName(value) {
+  return typeof value === "string" && /^[a-z0-9._-]{1,64}$/.test(value);
+}
+
+/**
+ * The exact host a list is read from, in lowercase, or null. Plain ASCII names of
+ * two labels or more. No port, path, IP literal, trailing dot, underscore or
+ * space is trimmed into shape. Internationalised names, xn-- labels, wait until
+ * every client converts them the same way. www.example.org and example.org are
+ * different places, and no parent domain lends its list to a child.
+ */
+export function normaliseDomain(value) {
+  // ASCII first: toLowerCase makes a k of the Kelvin sign.
+  if (typeof value !== "string" || !/^[\x00-\x7f]*$/.test(value)) return null;
+  const domain = value.toLowerCase();
+  const labels = domain.split(".");
+  if (domain.length < 1 || domain.length > 253 || labels.length < 2) return null;
+  for (const label of labels) {
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label) || label.startsWith("xn--")) return null;
+  }
+  // A last label of digits or hex is an old spelling of an IPv4 address.
+  return /^(?:[0-9]+|0x[0-9a-f]+)$/.test(labels[labels.length - 1]) ? null : domain;
+}
+
+/** Where the list of this exact domain is, over HTTPS on the default port, or null. */
+export function domainKeysUrl(domain) {
+  const host = normaliseDomain(domain);
+  return host === null ? null : "https://" + host + DOMAIN_KEYS_PATH;
+}
+
+class DomainReader {
+  // JSON with the format's limits. Objects become a Map, so __proto__ is a member
+  // like any other, lists an Array, integers a BigInt and other numbers a number.
+  // A string holds UTF-16, so a lone surrogate stays what it is and a pair is the
+  // character it spells.
+  constructor(text) {
+    this.text = text;
+    this.at = 0;
+  }
+
+  skip() {
+    while (this.at < this.text.length && " \t\r\n".includes(this.text[this.at])) this.at++;
+  }
+
+  bad(reason = "invalid_json") {
+    return new InvalidDomainKeys(reason);
+  }
+
+  value(level) {
+    this.skip();
+    const c = this.text[this.at];
+    if (c === "{") return this.members(level);
+    if (c === "[") return this.rows(level);
+    if (c === '"') return this.string();
+    for (const [word, meaning] of [["true", true], ["false", false], ["null", null]]) {
+      if (this.text.startsWith(word, this.at)) {
+        this.at += word.length;
+        return meaning;
+      }
+    }
+    return this.number();
+  }
+
+  members(level) {
+    if (level > DOMAIN_MAX_DEPTH) throw this.bad("depth_limit");
+    this.at++;
+    const found = new Map();
+    this.skip();
+    if (this.text[this.at] === "}") {
+      this.at++;
+      return found;
+    }
+    for (;;) {
+      this.skip();
+      if (this.text[this.at] !== '"') throw this.bad();
+      const name = this.string();
+      if (found.has(name)) throw this.bad("duplicate_member");
+      this.skip();
+      if (this.text[this.at] !== ":") throw this.bad();
+      this.at++;
+      found.set(name, this.value(level + 1));
+      this.skip();
+      const next = this.text[this.at++];
+      if (next === "}") return found;
+      if (next !== ",") throw this.bad();
+    }
+  }
+
+  rows(level) {
+    if (level > DOMAIN_MAX_DEPTH) throw this.bad("depth_limit");
+    this.at++;
+    const found = [];
+    this.skip();
+    if (this.text[this.at] === "]") {
+      this.at++;
+      return found;
+    }
+    for (;;) {
+      found.push(this.value(level + 1));
+      this.skip();
+      const next = this.text[this.at++];
+      if (next === "]") return found;
+      if (next !== ",") throw this.bad();
+    }
+  }
+
+  string() {
+    const simple = { '"': '"', "\\": "\\", "/": "/", b: "\b", f: "\f", n: "\n", r: "\r", t: "\t" };
+    this.at++;
+    let out = "";
+    for (;;) {
+      if (this.at >= this.text.length) throw this.bad();
+      const c = this.text[this.at++];
+      if (c === '"') return out;
+      if (c < " ") throw this.bad();
+      if (c !== "\\") {
+        out += c;
+        continue;
+      }
+      const escape = this.text[this.at++];
+      if (escape === "u") {
+        const digits = this.text.slice(this.at, this.at + 4);
+        if (!/^[0-9a-fA-F]{4}$/.test(digits)) throw this.bad();
+        this.at += 4;
+        out += String.fromCharCode(parseInt(digits, 16));
+      } else if (Object.hasOwn(simple, escape ?? "")) {
+        out += simple[escape];
+      } else {
+        throw this.bad();
+      }
+    }
+  }
+
+  number() {
+    const rest = this.text.slice(this.at);
+    const found = /^-?(?:0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?/.exec(rest);
+    if (found === null) throw this.bad();
+    this.at += found[0].length;
+    if (found[1] !== undefined || found[2] !== undefined) {
+      if (!Number.isFinite(Number(found[0]))) throw this.bad("non_finite_number");
+      return Number(found[0]);
+    }
+    const value = BigInt(found[0]);
+    if (value > DOMAIN_MAX_INTEGER || value < -DOMAIN_MAX_INTEGER) throw this.bad("integer_range");
+    return value;
+  }
+}
+
+/**
+ * The entries of a version 1 list, as { key } or { key, name }, from the exact
+ * bytes. A duplicate key, a duplicate member name in any object or one bad entry
+ * makes the whole document invalid: a list is never valid with the bad part left
+ * out. Throws InvalidDomainKeys.
+ */
+export function parseDomainKeys(raw) {
+  if (!(raw instanceof Uint8Array)) throw new InvalidDomainKeys("not_bytes");
+  if (raw.length > DOMAIN_KEYS_MAX_BYTES) throw new InvalidDomainKeys("body_limit");
+  let text;
+  try {
+    text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(raw);
+  } catch {
+    throw new InvalidDomainKeys("not_utf8");
+  }
+  if (text.startsWith("\ufeff")) throw new InvalidDomainKeys("byte_order_mark");
+  const reader = new DomainReader(text);
+  const value = reader.value(1);
+  reader.skip();
+  if (reader.at !== text.length) throw new InvalidDomainKeys("invalid_json");
+  if (!(value instanceof Map)) throw new InvalidDomainKeys("object_required");
+  // A BigInt and nothing looser: 1.0, 1e0 and true are not the integer 1.
+  if (value.get("aamio_keys") !== BigInt(DOMAIN_KEYS_VERSION)) throw new InvalidDomainKeys("unsupported_version");
+  const rows = value.get("keys");
+  if (!Array.isArray(rows) || rows.length > DOMAIN_KEYS_MAX_KEYS) throw new InvalidDomainKeys("invalid_keys");
+  const seen = new Set();
+  const entries = [];
+  for (const row of rows) {
+    if (!(row instanceof Map) || !canonicalKey(row.get("key"))) throw new InvalidDomainKeys("invalid_key");
+    const key = row.get("key");
+    if (seen.has(key)) throw new InvalidDomainKeys("duplicate_key");
+    seen.add(key);
+    const entry = { key };
+    // has, since a name of null is a bad name and not a missing one.
+    if (row.has("name")) {
+      if (!validDomainKeyName(row.get("name"))) throw new InvalidDomainKeys("invalid_name");
+      entry.name = row.get("name");
+    }
+    entries.push(entry);
+  }
+  return entries;
+}
+
+/**
+ * Whether this exact document lists key, and under name when one is given.
+ *
+ * status is listed, not_listed or invalid. not_listed is no evidence of fraud: a
+ * key rotated out, the wrong name or the wrong domain look the same. The document
+ * hash is of the exact bytes compared, for comparison and fault finding; the
+ * domain did not sign it. The key is the caller's to choose and to answer for,
+ * which the result says as subject_source.
+ */
+export function matchDomainKey(raw, key, name = null) {
+  const subject_source = "supplied_key";
+  if (!canonicalKey(key)) return { status: "invalid", reason: "invalid_subject_key", subject_source };
+  if (name !== null && !validDomainKeyName(name)) return { status: "invalid", reason: "invalid_requested_name", subject_source };
+  let entries;
+  try {
+    entries = parseDomainKeys(raw);
+  } catch (error) {
+    if (!(error instanceof InvalidDomainKeys)) throw error;
+    return { status: "invalid", reason: "invalid_document", detail: error.reason, subject_source };
+  }
+  const document_sha256 = sha256hex(raw);
+  for (const entry of entries) {
+    if (entry.key === key && (name === null || entry.name === name)) {
+      return { status: "listed", reason: "key_listed", matched_name: entry.name ?? null, document_sha256, subject_source };
+    }
+  }
+  return { status: "not_listed", reason: "key_or_name_not_listed", document_sha256, subject_source };
+}
+
+/**
+ * The file for a site to publish, as bytes. They are fixed, so every generator
+ * gives the same file for the same list: two spaces of indentation, aamio_keys
+ * before keys, key before name, ASCII only, and a line break at the end. An empty
+ * list is allowed, since that is how a site says it lists no key, so callers ask
+ * for it on purpose. A list this would refuse to read is refused here as well.
+ */
+export function makeDomainKeys(entries) {
+  const rows = [];
+  const seen = new Set();
+  for (const entry of entries) {
+    if (!canonicalKey(entry?.key)) throw new InvalidDomainKeys("invalid_key");
+    if (seen.has(entry.key)) throw new InvalidDomainKeys("duplicate_key");
+    seen.add(entry.key);
+    let row = '    {\n      "key": "' + entry.key + '"';
+    if (entry.name !== undefined && entry.name !== null) {
+      if (!validDomainKeyName(entry.name)) throw new InvalidDomainKeys("invalid_name");
+      row += ',\n      "name": "' + entry.name + '"';
+    }
+    rows.push(row + "\n    }");
+  }
+  if (rows.length > DOMAIN_KEYS_MAX_KEYS) throw new InvalidDomainKeys("invalid_keys");
+  const list = rows.length === 0 ? "[]" : "[\n" + rows.join(",\n") + "\n  ]";
+  const raw = utf8('{\n  "aamio_keys": ' + DOMAIN_KEYS_VERSION + ',\n  "keys": ' + list + "\n}\n");
+  parseDomainKeys(raw);
+  return raw;
+}
+
 export const threadSigningInput = (w, bodyText) => "aamio-v1\n" + w + "\n" + sha256hex(bodyText);
 export const presenceSigningInput = (key, bodyText) => "aamio-presence-v1\n" + key + "\n" + sha256hex(bodyText);
 export const presenceDeleteSigningInput = (key, bodyText) => "aamio-presence-delete-v1\n" + key + "\n" + sha256hex(bodyText);
@@ -222,13 +523,59 @@ const GATE_KNOWN = { require: ["per_key", "pow", "write_until"], advise: ["pow"]
 
 /** The inbox asks for something this client cannot or will not do, so nothing was sent. */
 export class GateStop extends Error {
-  constructor(reason, fix) {
+  /**
+   * reason is what the stop meant for a message that had not left: nothing was
+   * sent. why is only about the gate, and is what a stop after a post the inbox
+   * refused with 428 is told from, since that message went once. fix is what
+   * to do instead.
+   */
+  constructor(reason, fix, why = reason) {
     super(reason);
     this.name = "GateStop";
     this.reason = reason;
     this.fix = fix;
+    this.why = why;
   }
 }
+
+/**
+ * What a stop after a 428 says: the message went once and was refused, and why
+ * it was not sent again. Built from the stop's why and fix, never from its
+ * reason, which was written for a message that had not left (as aamio-php's
+ * Client::refusedOnce and aamio-python's refused_once).
+ */
+export function refusedOnce(stop) {
+  const why = String(stop.why ?? stop.reason ?? stop.message).replace(/[. ]+$/, "");
+  return `The message went once and the inbox refused it with 428, and it was not sent again. ${why.charAt(0).toUpperCase()}${why.slice(1)}. ${stop.fix}`;
+}
+
+/**
+ * Work that takes longer than a call may last is not started: the rule
+ * aamio-php's Gate::plan has, for a model on MCP whose host cuts a tool call
+ * after a minute or so. Every send did its work inside the call, however long
+ * it took, and the event loop with it: 26 bits is about four minutes here (a
+ * security review of 13 November 2026). budget is how long, in seconds, or
+ * null where the work may take what it needs. An estimate, not a promise: the
+ * work is a lottery, and one in a hundred takes about 4.6 times as long.
+ */
+export function withinBudget(plan, budget, fix = BUDGET_FIX) {
+  if (budget === null || budget === undefined || !plan || !plan.bits || !(plan.expectedSeconds > budget)) return;
+  const why = `This inbox requires proof of work of ${plan.bits} bits, which takes about ${describeSeconds(plan.expectedSeconds)} on this machine, longer than a tool call is given here, so the work was not started`;
+  const stop = new GateStop(`${why} and nothing was sent.`, fix, why);
+  // Said, so that a retry can tell its own advice from the gate's (a review of 14 November 2026).
+  stop.budget = true;
+  throw stop;
+}
+
+/**
+ * What to do after a stop at the budget, where it came. A stop before the first post sent nothing, and one after
+ * a 428 left a refusal: neither is in the outbox to be sent again, so the advice is to do the same where the work
+ * has the time it needs. It told everyone that aamio outbox retry sends the stored bytes, which it does not do for
+ * either (a review of 14 November 2026). A retry of a message whose earlier attempt is still open says otherwise,
+ * with its id; and the library, which has no outbox, says its own.
+ */
+export const BUDGET_FIX = "Do it again from the command line, where the work has the time it needs: the command line is not held to the time of a tool call.";
+export const LIBRARY_BUDGET_FIX = "Send it with a larger workBudget, or with none, where the work may take the time it needs.";
 
 /** What work is computed over. key is the X-Key as sent, or empty for an unsigned message. */
 export const powInput = (w, key, bodySha256, nonce) => "aamio-pow-v1\n" + w + "\n" + (key || "") + "\n" + bodySha256 + "\n" + nonce;
@@ -371,6 +718,7 @@ export function gatePlan(gate, w, base = DEFAULT_BASE, secondsLeft = null) {
       throw new GateStop(
         `This inbox's gate has a part called ${bucket} that this client does not know, so it cannot tell whether a write would be refused, and sent nothing.`,
         `Update the aamio client, which may know it. ${where} shows the whole gate.`,
+        `this inbox's gate has a part called ${bucket} that this client does not know, so it cannot tell whether a write would be refused`,
       );
     }
     if (!conditions || typeof conditions !== "object") continue;
@@ -380,6 +728,7 @@ export function gatePlan(gate, w, base = DEFAULT_BASE, secondsLeft = null) {
         throw new GateStop(
           `This inbox requires ${name}, a condition this client does not know how to meet, so nothing was sent.`,
           `Update the aamio client, which may know it, or reach the owner another way. ${where} shows the whole gate.`,
+          `this inbox requires ${name}, a condition this client does not know how to meet`,
         );
       }
       notes.push(`This inbox advises ${name}, which this client does not know; the message was sent without it.`);
@@ -395,6 +744,7 @@ export function gatePlan(gate, w, base = DEFAULT_BASE, secondsLeft = null) {
       throw new GateStop(
         `This inbox requires proof of work of ${bits} bits, and this client computes at most ${POW_REQUIRE_MAX_BITS}, the most aamio lets any inbox require. Nothing was sent.`,
         "The inbox asks for more than the service allows, so no client will meet it. Reach the owner another way.",
+        `this inbox requires proof of work of ${bits} bits, and this client computes at most ${POW_REQUIRE_MAX_BITS}, the most aamio lets any inbox require`,
       );
     }
     const expected = bits >= ESTIMATE_FROM_BITS ? expectedSeconds(bits) : 0;
@@ -402,6 +752,7 @@ export function gatePlan(gate, w, base = DEFAULT_BASE, secondsLeft = null) {
       throw new GateStop(
         `This inbox requires proof of work of ${bits} bits, which takes about ${describeSeconds(expected)} on this machine, and it takes writes for ${describeSeconds(secondsLeft)} more. The work would not be done before it closes, so it was not started and nothing was sent.`,
         "Ask the owner for a longer inbox or less work, or send from a machine with more compute: aamio-wasm handed to setWorkSolver is about eighteen times faster than this loop.",
+        `this inbox requires proof of work of ${bits} bits, which takes about ${describeSeconds(expected)} on this machine, and it takes writes for ${describeSeconds(secondsLeft)} more. The work would not be done before it closes, so it was not started`,
       );
     }
     return { bits: bits > 0 ? bits : null, required: true, notes, expectedSeconds: expected };
@@ -612,7 +963,7 @@ class Board {
    */
   async inbox(seconds = 900) {
     const held = this.client.boardInbox;
-    if (held && held.expireAt - Math.floor(Date.now() / 1000) > seconds) return held;
+    if (held && held.expireAt - Math.floor(Date.now() / 1000) > seconds + BOARD_POST_MARGIN) return held;
     const thread = await this.client.open({ ttl: Math.min(3600, Math.max(seconds + 60, 900)), allow: ["*"] });
     this.client.boardInbox = thread;
     return thread;
@@ -633,7 +984,7 @@ class Board {
     // an address on the board is always an address that still works. At the top
     // of the range the inbox cannot be opened for longer than the post asked
     // for, so the post gives way, not the promise.
-    const life = Math.min(ttl, thread.expireAt - Math.floor(Date.now() / 1000));
+    const life = Math.min(ttl, thread.expireAt - Math.floor(Date.now() / 1000) - BOARD_POST_MARGIN);
     const fields = { kind, title, text, w: thread.w, ttl: life };
     if (tags.length) fields.tags = tags;
     if (lang) fields.lang = lang;
@@ -897,6 +1248,9 @@ export class Aamio {
     const body = gate ? JSON.stringify({ gate }) : undefined;
     const data = await this.request("PUT", "/" + w, { headers, body });
     const thread = { id, w, expireAt: data.expire_at, allow };
+    // The service names each thread by an instance of its own, and listen()
+    // knows the thread by it.
+    if (typeof data.instance === "string") thread.instance = data.instance;
     if (JSON.stringify(data.allow) !== JSON.stringify(allow)) thread.allowAnswered = data.allow ?? null;
     if (data.gate) thread.gate = data.gate;
     return thread;
@@ -926,6 +1280,7 @@ export class Aamio {
     const key = headers["X-Key"] || "";
     const advice = await this.planFor(w);
     let notes = advice.notes;
+    withinBudget(advice, this.workBudget, LIBRARY_BUDGET_FIX);
     if (advice.bits) headers["X-Work"] = this.work(w, key, text, advice.bits);
 
     let result;
@@ -942,9 +1297,20 @@ export class Aamio {
       if (!gate) throw error;
       this.gates.set(w, gate);
       if (Number.isInteger(error.body.seconds_left)) this.gateLeft.set(w, [error.body.seconds_left, Date.now()]);
-      const asked = gatePlan(gate, w, this.base, this.secondsLeft(w));
+      let asked;
+      try {
+        asked = gatePlan(gate, w, this.base, this.secondsLeft(w));
+        withinBudget(asked, this.workBudget, LIBRARY_BUDGET_FIX);
+        if (asked.bits && asked.bits !== advice.bits) headers["X-Work"] = this.work(w, key, text, asked.bits);
+      } catch (stop) {
+        if (!(stop instanceof GateStop)) throw stop;
+        // It went once and the inbox refused it with 428: that refusal is the
+        // answer, with why it was not sent again.
+        if (error.body && typeof error.body === "object") error.body = { ...error.body, fix: refusedOnce(stop) };
+        error.stop = stop.why;
+        throw error;
+      }
       if (!asked.bits || asked.bits === advice.bits) throw error;
-      headers["X-Work"] = this.work(w, key, text, asked.bits);
       notes = [...notes, ...asked.notes.filter((note) => !notes.includes(note))];
       result = await this.request("POST", "/" + w, { body: text, headers });
     }
@@ -1016,6 +1382,7 @@ export class Aamio {
       throw new GateStop(
         `The proof of work of ${bits} bits was not done before the inbox stops taking writes, so the work was stopped and nothing was sent.`,
         "The estimate before it started said it would fit, and this time it took longer, which happens: the work is a lottery. Ask the owner for a longer inbox, or send from a machine with more compute.",
+        `the proof of work of ${bits} bits was not done before the inbox stops taking writes, so the work was stopped`,
       );
     }
     return nonce;
@@ -1104,7 +1471,9 @@ export class Aamio {
       else if (!message.from || !message.verified) out.error = "encrypted message without a verified sender";
       else {
         try {
-          out.plain = textDecoder.decode(this.keys.open(message.from, message.body));
+          // The mark is kept, so a sealed text with a byte order mark in front
+          // is text here as in the runtimes, and not read as JSON.
+          out.plain = new TextDecoder("utf-8", { ignoreBOM: true }).decode(this.keys.open(message.from, message.body));
         } catch {
           out.error = "envelope does not open with these keys";
         }
@@ -1130,37 +1499,82 @@ export class Aamio {
    * Yield messages as they arrive, long polling with wait seconds per call,
    * until signal aborts or the thread answers 410 (then AamioError is thrown).
    */
-  async *listen(thread, { after = 0, wait = 25, signal, onKeptOut, onGone, onReset } = {}) {
-    let seq = after;
-    while (!(signal && signal.aborted)) {
-      const data = await this.read(thread, { after: seq, wait });
-      // What the thread's own allowlist kept out is not yielded, and it is said.
-      if (data.keptOut?.length) {
-        if (typeof onKeptOut === "function") onKeptOut(data.keptOut);
-        else {
-          (thread.keptOut ??= []).push(...data.keptOut);
-          console.warn("aamio: messages kept out", data.keptOut);
+  listen(thread, { after = 0, wait = 25, signal, onKeptOut, onGone, onReset } = {}) {
+    // The instance this listener last saw the thread by, its own. Two listeners
+    // on one thread object shared the field on it: the first to see a new
+    // thread wrote it, and the second went on past its first message (a review
+    // of 10 November 2026). The field on the thread is kept as well, for a
+    // caller that stores the thread. It is taken when listen() is called, not
+    // when the first message is asked for: a generator starts at its first
+    // next(), and a listener made before the thread changed, asked first after
+    // another listener had written the new instance on the thread, took that
+    // one as its own and went on past the new thread's first message (a review
+    // of 11 November 2026).
+    let known = typeof thread.instance === "string" ? thread.instance : null;
+    const client = this;
+    return (async function* () {
+      let seq = after;
+      while (!(signal && signal.aborted)) {
+        const data = await client.read(thread, { after: seq, wait });
+        // A thread is known by the instance the service names it by. One opened
+        // again at this address, by its owner or by a write after a restart,
+        // that already holds as many messages as the cursor is not reset by the
+        // service, and listen went on from the old cursor past its first messages
+        // without a word (a review of 10 November 2026). So it is read from the
+        // start, and that is said once, as a reset. A cursor that came without
+        // the instance, as with a thread stored by an earlier version, cannot be
+        // checked at all, and is read again from the start once in the same way:
+        // what came before it may come again (the same review).
+        if (data.exists === true && typeof data.instance === "string") {
+          if (data.instance !== known && !data.reset && seq > 0) {
+            const what = known !== null
+              ? `the thread at this address is a new one, instance ${data.instance} where this listener knew instance ${known}, so it is read again from the start`
+              : `this listener's cursor, ${seq}, came without the thread's instance, so it cannot be told whether the thread here is the one it was kept on. It is read again from the start this once, and messages before the cursor may come again.`;
+            const reset = { after: seq, newest: Number.isInteger(data.count) ? data.count : 0, what };
+            known = data.instance;
+            thread.instance = data.instance;
+            if (Number.isInteger(data.expire_at)) thread.expireAt = data.expire_at;
+            thread.reset = reset;
+            client.forgetGate(thread.w);
+            if (typeof onReset === "function") onReset(reset);
+            else console.warn("aamio: the thread cursor was reset", reset);
+            seq = 0;
+            continue;
+          }
+          // The thread that is there, with its own expiry: after the service read
+          // it from the start it may expire at another time than the one opened.
+          if (known !== data.instance && Number.isInteger(data.expire_at)) thread.expireAt = data.expire_at;
+          known = data.instance;
+          thread.instance = data.instance;
         }
+        // What the thread's own allowlist kept out is not yielded, and it is said.
+        if (data.keptOut?.length) {
+          if (typeof onKeptOut === "function") onKeptOut(data.keptOut);
+          else {
+            (thread.keptOut ??= []).push(...data.keptOut);
+            console.warn("aamio: messages kept out", data.keptOut);
+          }
+        }
+        if (data.exists === false) {
+          if (typeof onGone === "function") onGone(data);
+          else if (!thread.gone) console.warn("aamio: the thread is gone", data.note);
+          thread.gone = true;
+        } else if (data.exists === true) thread.gone = false;
+        if (data.reset) {
+          thread.reset = data.reset;
+          client.forgetGate(thread.w);
+          if (typeof onReset === "function") onReset(data.reset);
+          else console.warn("aamio: the thread cursor was reset", data.reset);
+        }
+        for (const message of data.messages) yield message;
+        // The service's next, not the highest seq seen. When a restart takes a
+        // thread and a write opens a new one at the same address, the service
+        // reads from the start and says reset, and next is lower than before.
+        // Keeping the highest seq asked past the new thread on every call and
+        // handed the same messages over each time.
+        if (Number.isInteger(data.next)) seq = data.next;
       }
-      if (data.exists === false) {
-        if (typeof onGone === "function") onGone(data);
-        else if (!thread.gone) console.warn("aamio: the thread is gone", data.note);
-        thread.gone = true;
-      } else if (data.exists === true) thread.gone = false;
-      if (data.reset) {
-        thread.reset = data.reset;
-        this.forgetGate(thread.w);
-        if (typeof onReset === "function") onReset(data.reset);
-        else console.warn("aamio: the thread cursor was reset", data.reset);
-      }
-      for (const message of data.messages) yield message;
-      // The service's next, not the highest seq seen. When a restart takes a
-      // thread and a write opens a new one at the same address, the service
-      // reads from the start and says reset, and next is lower than before.
-      // Keeping the highest seq asked past the new thread on every call and
-      // handed the same messages over each time.
-      if (Number.isInteger(data.next)) seq = data.next;
-    }
+    })();
   }
 
   /** The receipt of a thread you own, with its root recomputed locally. */
@@ -1203,14 +1617,32 @@ export class Aamio {
       headers: { "Content-Type": "application/json", Accept: "application/json", "MCP-Protocol-Version": "2025-11-25" },
       body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "verifyum_anchor_commitment", arguments: { commitment, idempotency_key: idem } } }),
     });
-    const rpc = await response.json();
+    // The status first. A 503 with a proof_id in its body is no anchoring, and a
+    // 503 in plain text is still a 503: the body used to be read as JSON before
+    // the status was looked at (a review of 10 November 2026).
+    // The status came before the body, and it is the answer's even when the body
+    // breaks off: a 503 cut short was reported as 0 (a review of 10 November 2026).
+    let text;
+    try {
+      text = await response.text();
+    } catch (error) {
+      throw new AamioError(response.status, String(error?.message ?? error), `anchor failed: Verifyum answered ${response.status} and the answer broke off`);
+    }
+    let rpc = null;
+    try {
+      rpc = JSON.parse(text);
+    } catch {
+      rpc = null;
+    }
+    if (!response.ok) throw new AamioError(response.status, rpc ?? text, `anchor failed: Verifyum answered ${response.status}`);
     let result = {};
     try {
       result = JSON.parse(rpc?.result?.content?.[0]?.text ?? "{}");
     } catch {
       result = {};
     }
-    if (rpc?.result?.isError || !result.proof_id) throw new AamioError(response.status, rpc, "anchor failed");
+    // A proof_id of blanks names no proof (a review of 10 November 2026).
+    if (rpc === null || typeof rpc !== "object" || rpc.result?.isError || typeof result?.proof_id !== "string" || result.proof_id.trim() === "") throw new AamioError(response.status, rpc ?? text, "anchor failed");
     return { proofId: result.proof_id, proofUrl: result.proof_url, status: result.status, commitment };
   }
 
