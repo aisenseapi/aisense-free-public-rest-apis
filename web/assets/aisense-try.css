@@ -46,3 +46,5 @@
 .try-api .try-captcha.is-loading .try-captcha-again { opacity: .6; cursor: wait; }
 .try-api .try-captcha-wait { position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 4px solid var(--blue); border-right-color: transparent; border-radius: 50%; animation: try-captcha-spin .8s linear infinite; }
 @keyframes try-captcha-spin { to { transform: rotate(360deg); } }
+/* The first wait, before there is a picture: an empty frame of its size. */
+.try-api .try-captcha-empty { aspect-ratio: 3 / 2; border: 1px solid var(--border); border-radius: 6px; background: var(--tint); }
