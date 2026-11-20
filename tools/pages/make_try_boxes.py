@@ -25,7 +25,7 @@ NL = chr(10)
 MIB = 1048576
 
 # Change this whenever aisense-try.css or aisense-try.js changes: they are served with no Cache-Control.
-TRY_VERSION = '20261109a'
+TRY_VERSION = '20261120b'
 CSS_START = '<link rel="stylesheet" href="/assets/aisense-try.css?v='
 CSS_TAG = CSS_START + TRY_VERSION + '">'
 JS_START = '<script src="/assets/aisense-try.js?v='
@@ -261,6 +261,9 @@ TRY = {
     # mock_response, which has a box of its own.
     'free-public-api-uuid-api-endpoint.html': getter('uuid', button='Make a UUID', busy='Making'),
     'free-public-api-ulid-api-endpoint.html': getter('ulid', button='Make a ULID', busy='Making'),
+    # Makes a challenge, shows its picture while the page solves the proof of work, and checks the clicks and the nonce once: two calls.
+    'free-public-api-captcha-api-endpoint.html': dict(getter('captcha', button='Make a challenge', busy='Making a challenge',
+        intro='Try it here. Your browser fetches a challenge and solves its proof of work while you click the three symbols the question names. Then it checks both once.'), captcha='click'),
     'free-public-api-guid-api-endpoint.html': getter('guid', button='Make a GUID', busy='Making'),
     'free-public-api-password-api-endpoint.html': getter('password', '20', 'Length', button='Make a password', busy='Making'),
     'free-public-api-passphrase-api-endpoint.html': getter('passphrase', '4', 'Groups', button='Make a passphrase', busy='Making'),
@@ -296,7 +299,7 @@ def section(spec):
     data = [('data-try-endpoint', spec['endpoint']), ('data-try-limit', '%d' % spec['limit']), ('data-try-busy', spec['busy'])]
     for name, key in (('data-try-key', 'key'), ('data-try-file', 'file'), ('data-try-field', 'field'),
                       ('data-try-image', 'image'), ('data-try-audio', 'audio'), ('data-try-download', 'download'),
-                      ('data-try-sample', 'sample_file'), ('data-try-method', 'method')):
+                      ('data-try-sample', 'sample_file'), ('data-try-method', 'method'), ('data-try-captcha', 'captcha')):
         if spec.get(key):
             data.append((name, spec[key]))
     parts = ['<section id="try"><h2>Try it</h2><p>%s</p>' % esc(spec['intro']),

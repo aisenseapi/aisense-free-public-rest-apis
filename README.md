@@ -32,7 +32,7 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.26.1` and offers 87 tools: the workflow tools
+The server reports version `1.28.0` and offers 89 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.26.1` as active and latest,
@@ -1105,6 +1105,8 @@ All paths are relative to `https://aisenseapi.com/services/v1/`. Storage fields 
 | Hash | `/password_verify` | POST | `match`, `algorithm`, `params` |
 | Web | `/ping` | GET | `ping` |
 | Web | `/health` | GET | `status`, `microtimestamp` |
+| Web | `/captcha` | GET | `id`, `expires_at`, `expires_in`, `proof_of_work`, `verify`, `click` |
+| Web | `/captcha_verify/{id}/{nonce}[/{clicks}]` | GET | `valid`, `checked`, `reason` |
 | Web | `/client_ip` | GET | `ip` |
 | Web | `/html2pdf` | POST | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | Web | `/user_agent` | GET | `user_agent` |

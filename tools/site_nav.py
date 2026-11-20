@@ -157,6 +157,7 @@ API_GROUPS = [
     ('web', 'Web and network', '/free-public-apis#web', [
         ('/free-public-api-ping-api-endpoint', 'Ping'),
         ('/free-public-api-health-api-endpoint', 'Health'),
+        ('/free-public-api-captcha-api-endpoint', 'Captcha'),
         ('/free-public-api-client-ip-api-endpoint', 'Client IP'),
         ('/free-public-api-user-agent-api-endpoint', 'User agent'),
         ('/free-public-api-ip-reverse-lookup-api-endpoint', 'IP reverse lookup'),

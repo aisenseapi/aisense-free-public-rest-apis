@@ -33,3 +33,11 @@
 .try-drop.is-bad small { color: var(--bad); }
 .try-audio { margin-top: 0.75rem; }
 .try-audio audio { width: 100%; display: block; }
+
+/* The captcha box: the question, the picture to click with numbered marks, and Start over. */
+.try-api .try-captcha { margin: 0 0 12px; }
+.try-api .try-captcha-question { margin: 0 0 8px; font-weight: 600; color: var(--ink); }
+.try-api .try-captcha-picture { position: relative; max-width: 360px; }
+.try-api .try-captcha-picture img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #f7f7f7; cursor: crosshair; touch-action: manipulation; }
+.try-api .try-captcha-dot { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--blue); color: #fff; font: 700 14px/26px system-ui, sans-serif; text-align: center; pointer-events: none; box-shadow: 0 0 0 2px #fff; }
+.try-api .try-captcha-again { margin: 8px 0 0; }

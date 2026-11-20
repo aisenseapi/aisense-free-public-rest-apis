@@ -806,6 +806,26 @@ export class AISenseAPI {
     return this.#get('/health')
   }
 
+  /**
+   * Create a captcha challenge for a form: a proof of work (find a nonce so that SHA-256 of `salt` followed
+   * by the nonce in decimal starts with `bits` zero bits) and a click task (a PNG with six shapes, digits and
+   * letters, three of them to click in order). Response keys: `id`, `expires_at`, `expires_in`,
+   * `proof_of_work`, `verify` and `click`.
+   */
+  getCaptcha() {
+    return this.#get('/captcha')
+  }
+
+  /**
+   * Check a captcha nonce, and with `clicks` the click task too, once, from the server that received the
+   * form. `clicks` is the three points clicked, in the order asked, in picture pixels: `x-y` joined by `_`.
+   * Without it only the proof of work is checked. Response keys: `valid`, `checked`, and `reason` when it
+   * is not valid (`wrong_nonce`, `wrong_clicks`, `expired`, `used` or `unknown`).
+   */
+  verifyCaptcha(id, nonce, clicks) {
+    return this.#get(clicks !== undefined ? `/captcha_verify/${id}/${nonce}/${clicks}` : `/captcha_verify/${id}/${nonce}`)
+  }
+
   /** Your public IP address. Response key: `ip`. */
   getClientIP() {
     return this.#get('/client_ip')

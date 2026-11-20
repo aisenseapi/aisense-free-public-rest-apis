@@ -1230,6 +1230,50 @@
   {
     "type": "function",
     "function": {
+      "name": "get_captcha",
+      "description": "Create a captcha challenge for a form: a proof of work (find a whole number nonce from 0 to 9007199254740991 so that SHA-256 of the salt followed by the nonce in decimal starts with bits zero bits, 18 today, 262,144 tries on average) and a click task (a PNG of six shapes, digits and letters, and a question that names three of them to click in order). Returns {\"id\", \"expires_at\", \"expires_in\": 1800, \"proof_of_work\": {\"algorithm\": \"SHA-256\", \"salt\", \"bits\", \"task\"}, \"verify\", \"click\": {\"question\", \"targets\", \"image\", \"width\": 360, \"height\": 240, \"clicks\", \"verify\"}}. Check the nonce and the clicks once with captcha_verify from the server that receives the form, within 30 minutes. GET /captcha",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "captcha_verify",
+      "description": "Check a captcha nonce, and with clicks the click task too, against a challenge from get_captcha, once: the call uses the challenge up, right or wrong. Returns {\"valid\": true, \"checked\": [\"proof_of_work\", \"click\"]}, or valid false with reason wrong_nonce, wrong_clicks, expired, used or unknown. Without clicks only the proof of work is checked. A malformed id, nonce or clicks is HTTP 400 and uses nothing up. GET /captcha_verify/{id}/{nonce}[/{clicks}]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id get_captcha answered.",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+          },
+          "nonce": {
+            "type": "string",
+            "description": "The nonce found, in decimal without leading zeros, at most 9007199254740991.",
+            "pattern": "^(0|[1-9][0-9]{0,15})$"
+          },
+          "clicks": {
+            "type": "string",
+            "description": "Optional: the three points clicked in the picture, in the order asked, as x-y in picture pixels joined by _.",
+            "pattern": "^[0-9]{1,3}-[0-9]{1,3}_[0-9]{1,3}-[0-9]{1,3}_[0-9]{1,3}-[0-9]{1,3}$"
+          }
+        },
+        "required": [
+          "id",
+          "nonce"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
       "name": "get_client_ip",
       "description": "Public IP address of the caller. Returns {\"ip\": \"203.0.113.42\"}. GET /client_ip",
       "parameters": {

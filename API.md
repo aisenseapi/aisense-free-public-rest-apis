@@ -2007,6 +2007,58 @@ The second key is `microtimestamp`, not `timestamp`.
 
 ---
 
+### `GET /captcha`
+A captcha challenge for a form, with two tasks checked together. The proof of
+work: find a whole number `nonce` from 0 to 9007199254740991 so that SHA-256 of
+`salt` followed by the nonce in decimal starts with `bits` zero bits: 18 today,
+262,144 tries on average, about a second in a desktop browser. The click task: a
+PNG of 360 by 240 pixels with six shapes, digits and letters among colored lines,
+fragments and clutter, overlapping a little and blurred, and a question that
+names three of them to click in order. The challenge keeps no address and can be
+checked once within 30 minutes. Read `bits` from the answer, since it can change.
+
+```json
+{ "id": "3f2b8c1e-7a4d-4e9b-9c3a-5d6e7f8a9b0c", "expires_at": "2026-11-20T15:42:07Z", "expires_in": 1800,
+  "proof_of_work": { "algorithm": "SHA-256", "salt": "9f86d081884c7d659a2feaa0c55ad015", "bits": 18,
+    "task": "Find a whole number nonce from 0 to 9007199254740991 so that SHA-256 of the salt followed by the nonce in decimal starts with 18 zero bits." },
+  "verify": "https://aisenseapi.com/services/v1/captcha_verify/3f2b8c1e-7a4d-4e9b-9c3a-5d6e7f8a9b0c/{nonce}",
+  "click": { "question": "Click in this order: 6, P, square", "targets": ["6", "P", "square"],
+    "image": "data:image/png;base64,iVBORw0KGgo...", "width": 360, "height": 240,
+    "clicks": "The three points clicked, in the order asked, in picture pixels: x-y joined by _, for example 120-45_200-130_30-90.",
+    "verify": "https://aisenseapi.com/services/v1/captcha_verify/3f2b8c1e-7a4d-4e9b-9c3a-5d6e7f8a9b0c/{nonce}/{clicks}" } }
+```
+
+Show `click.image` under `click.question` and record each click in picture
+pixels. A picture shown at another size scales its clicks back to 360 by 240.
+
+---
+
+### `GET /captcha_verify/{id}/{nonce}[/{clicks}]`
+Checks the nonce, and with `{clicks}` the click task too, against a challenge
+from `/captcha` once, right or wrong, so the call cannot be used to test guesses.
+Call it from the server that receives the form, since a check made in the
+browser proves nothing. `{clicks}` is the three points clicked, `x-y` joined by
+`_`, in the order the question asks. Without `{clicks}` only the proof of work is
+checked, so accept a form only on `valid` true with `click` in `checked`. Every
+well-formed path answers 200. The nonce is written in decimal without leading
+zeros; another spelling, a nonce over 9007199254740991, clicks that are not
+three points inside the picture or an id that is not a version 4 UUID answers
+400 and uses nothing up.
+
+```json
+{ "valid": true, "checked": ["proof_of_work", "click"] }
+```
+
+```json
+{ "valid": false, "reason": "wrong_clicks", "checked": ["proof_of_work", "click"] }
+```
+
+`reason` is `wrong_nonce`, `wrong_clicks`, `expired`, `used` or `unknown`. A test
+vector for a solver of your own: with the salt `9f86d081884c7d659a2feaa0c55ad015`
+and 18 bits, the smallest nonce is `57473`.
+
+---
+
 ### `POST /html2pdf`
 Renders HTML into a PDF and stores it for 24 hours. The response carries a
 link, not the file: the PDF is fetched in a second request.
@@ -3944,6 +3996,8 @@ operations use JSON with the fields documented in their own sections.
 | `/scrypt_hash` | `scrypt_hash` |
 | `/ping` | `ping` |
 | `/health` | `status`, `microtimestamp` |
+| `/captcha` | `id`, `expires_at`, `expires_in`, `proof_of_work`, `verify`, `click` |
+| `/captcha_verify/{id}/{nonce}[/{clicks}]` | `valid`, `checked`, `reason` |
 | `/client_ip` | `ip` |
 | `/html2pdf` | `storage_id`, `storage_url`, `sha256_hash`, `bytes`, `expire_timestamp` |
 | `/user_agent` | `user_agent` |

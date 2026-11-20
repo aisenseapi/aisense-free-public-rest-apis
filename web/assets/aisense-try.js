@@ -15,6 +15,7 @@
  *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
  *   data-try-method    GET for the endpoints whose quick start is a GET; POST otherwise
+ *   data-try-captcha   the captcha box: make a challenge, show its picture to click, solve the proof of work in the page and check both once
  *
  * A GET box sends no body: an input .try-args, when there is one, holds the arguments that follow the
  * endpoint in the path, separated by /, and each one is percent-encoded on its own.
@@ -99,6 +100,7 @@
     var sampleFile = card.getAttribute('data-try-sample');
     var countChars = card.hasAttribute('data-try-chars');
     var method = (card.getAttribute('data-try-method') || 'POST').toUpperCase();
+    var captcha = card.hasAttribute('data-try-captcha');
     var find = function (selector) { return card.querySelector(selector); };
     var input = find('.try-input');
     var args = find('.try-args');
@@ -270,7 +272,173 @@
       });
     }
 
+    // The proof of work a form page runs: the first nonce whose SHA-256 after the salt starts with bits zero bits.
+    async function solve(salt, bits) {
+      var enc = new TextEncoder();
+      for (var nonce = 0; nonce <= Number.MAX_SAFE_INTEGER; nonce++) {
+        var d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(salt + nonce)));
+        var zero = 0;
+        for (var i = 0; i < d.length; i++) {
+          if (d[i] === 0) { zero += 8; continue; }
+          zero += Math.clz32(d[i]) - 24;
+          break;
+        }
+        if (zero >= bits) { return nonce; }
+      }
+      return null;
+    }
+
+    // The picture of a captcha challenge, its question and Start over. A click becomes a point in picture pixels,
+    // measured inside the border, with a numbered mark where it landed.
+    function picturePanel(task, clicks, changed, locked) {
+      var panel = document.createElement('div');
+      panel.className = 'try-captcha';
+      var question = document.createElement('p');
+      question.className = 'try-captcha-question';
+      question.textContent = task.question;
+      var frame = document.createElement('div');
+      frame.className = 'try-captcha-picture';
+      var img = document.createElement('img');
+      img.src = task.image;
+      img.width = task.width;
+      img.height = task.height;
+      img.alt = 'Six symbols to click in the order above';
+      frame.appendChild(img);
+      var again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'button try-captcha-again';
+      again.textContent = 'Start over';
+      function marks() {
+        Array.prototype.forEach.call(frame.querySelectorAll('.try-captcha-dot'), function (dot) { frame.removeChild(dot); });
+        clicks.forEach(function (point, i) {
+          var dot = document.createElement('span');
+          dot.className = 'try-captcha-dot';
+          dot.textContent = String(i + 1);
+          dot.style.left = (point[0] / task.width * 100) + '%';
+          dot.style.top = (point[1] / task.height * 100) + '%';
+          frame.appendChild(dot);
+        });
+      }
+      img.addEventListener('click', function (event) {
+        if (clicks.length >= 3 || locked()) { return; }
+        var box = img.getBoundingClientRect();
+        var x = Math.round((event.clientX - box.left - img.clientLeft) / img.clientWidth * task.width);
+        var y = Math.round((event.clientY - box.top - img.clientTop) / img.clientHeight * task.height);
+        clicks.push([Math.min(task.width - 1, Math.max(0, x)), Math.min(task.height - 1, Math.max(0, y))]);
+        marks();
+        changed();
+      });
+      again.addEventListener('click', function () {
+        if (locked()) { return; }
+        clicks.length = 0;
+        marks();
+        changed();
+      });
+      panel.appendChild(question);
+      panel.appendChild(frame);
+      panel.appendChild(again);
+      return panel;
+    }
+
+    // The captcha box: make a challenge, show its picture while the page solves the proof of work, take three
+    // clicks, then check both once and show every step. A new challenge replaces one still waiting for clicks.
+    var captchaRun = 0;
+    var captchaBox = null;
+    function sendCaptcha() {
+      var nl = String.fromCharCode(10);
+      var lines = [];
+      var made = null;
+      var nonce = null;
+      var took = 0;
+      var started = 0;
+      var clicks = [];
+      var checking = false;
+      var mine = ++captchaRun;
+      var current = function () { return mine === captchaRun; };
+      run.disabled = true;
+      clear();
+      if (captchaBox) { captchaBox.parentNode.removeChild(captchaBox); captchaBox = null; }
+      show(busy);
+
+      function check() {
+        checking = true;
+        var written = clicks.map(function (point) { return point[0] + '-' + point[1]; }).join('_');
+        var path = 'captcha_verify/' + made.id + '/' + nonce + '/' + written;
+        show('Checking');
+        fetch(API + path, { method: 'GET' }).then(function (response) {
+          return response.text().then(function (text) {
+            if (!current()) { return; }
+            lines.push('', 'GET /services/v1/' + path + ' - HTTP ' + response.status, text);
+            out.textContent = lines.join(nl);
+            result.hidden = false;
+            var json = null;
+            try { json = JSON.parse(text); } catch (e) { json = null; }
+            if (!response.ok) {
+              show('The check answered HTTP ' + response.status, 'bad');
+            } else if (json && json.valid === true) {
+              show('Checked once: the clicks and the proof of work are right', 'ok');
+            } else if (json && json.reason === 'wrong_clicks') {
+              show('Those were not the symbols asked for, in that order. Make a new challenge to try again', 'bad');
+            } else {
+              show('Checked once: ' + (json && json.reason ? json.reason : 'not valid'), 'bad');
+            }
+          });
+        }).catch(function (error) {
+          if (current()) { show('The request failed: ' + error.message, 'bad'); }
+        });
+      }
+
+      function step() {
+        if (!current() || checking) { return; }
+        if (nonce === null) {
+          show(clicks.length === 3 ? 'Finishing the proof of work' : 'Click the symbols in the order asked. The proof of work runs meanwhile');
+          return;
+        }
+        if (clicks.length < 3) {
+          show('The proof of work took ' + took + ' ms. Click the symbols in the order asked');
+          return;
+        }
+        check();
+      }
+
+      fetch(API + 'captcha', { method: 'GET' }).then(function (response) {
+        if (!response.ok) { throw new Error('GET /services/v1/captcha answered HTTP ' + response.status); }
+        return response.json();
+      }).then(function (json) {
+        if (!current()) { return null; }
+        if (!json.click) { throw new Error('the challenge has no picture'); }
+        made = json;
+        var shown = JSON.parse(JSON.stringify(json));
+        shown.click.image = json.click.image.slice(0, 40) + '... (' + json.click.image.length + ' characters)';
+        lines.push('GET /services/v1/captcha - HTTP 200', JSON.stringify(shown, null, 2));
+        captchaBox = picturePanel(json.click, clicks, step, function () { return checking; });
+        card.insertBefore(captchaBox, status);
+        run.disabled = false;
+        step();
+        started = performance.now();
+        return solve(json.proof_of_work.salt, json.proof_of_work.bits);
+      }).then(function (found) {
+        if (!current() || made === null) { return; }
+        if (found === null) {
+          show('The proof of work could not finish', 'bad');
+          return;
+        }
+        nonce = found;
+        took = Math.round(performance.now() - started);
+        lines.push('', 'Solved in this browser in ' + took + ' ms: nonce ' + nonce);
+        step();
+      }).catch(function (error) {
+        if (current()) { show('The request failed: ' + error.message, 'bad'); }
+      }).then(function () {
+        if (current()) { run.disabled = false; }
+      });
+    }
+
     function send() {
+      if (captcha) {
+        sendCaptcha();
+        return;
+      }
       if (method === 'GET') {
         sendGet();
         return;

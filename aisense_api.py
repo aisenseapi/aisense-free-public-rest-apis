@@ -706,6 +706,25 @@ class AISenseAPI:
         """Health check. Response keys: ``status`` and ``microtimestamp``."""
         return self._get("/health")
 
+    def get_captcha(self) -> dict:
+        """Create a captcha challenge for a form: a proof of work (find a nonce so
+        that SHA-256 of ``salt`` followed by the nonce in decimal starts with
+        ``bits`` zero bits) and a click task (a PNG with six shapes, digits and
+        letters, three of them to click in order). Response keys: ``id``,
+        ``expires_at``, ``expires_in``, ``proof_of_work``, ``verify`` and ``click``."""
+        return self._get("/captcha")
+
+    def verify_captcha(self, id: str, nonce, clicks: Optional[str] = None) -> dict:
+        """Check a captcha nonce, and with ``clicks`` the click task too, once, from
+        the server that received the form. ``clicks`` is the three points clicked,
+        in the order asked, in picture pixels: ``x-y`` joined by ``_``. Without it
+        only the proof of work is checked. Response keys: ``valid``, ``checked``, and
+        ``reason`` when it is not valid (``wrong_nonce``, ``wrong_clicks``,
+        ``expired``, ``used`` or ``unknown``)."""
+        if clicks is not None:
+            return self._get(f"/captcha_verify/{id}/{nonce}/{clicks}")
+        return self._get(f"/captcha_verify/{id}/{nonce}")
+
     def get_client_ip(self) -> dict:
         """Your public IP address. Response key: ``ip``."""
         return self._get("/client_ip")

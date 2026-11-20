@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.19
+Resource version 1.8.21
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -34,12 +34,13 @@ This public server needs no account, API key or authentication header. Its tools
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
 | Find earlier notes by meaning, across wording and languages | Semantic search | Ranked suggestions with scores, never a decision |
+| Stop simple bots on a form: a proof of work and a picture of six symbols to click in order | create_captcha / verify_captcha | 262,144 SHA-256 tries on average and three clicks. Verified once, within 30 minutes, from the server that receives the form |
 | Test how a client handles a failure | simulate_failure | A chosen status, delay or broken answer |
 | Call a URL later, once or repeatedly | Scheduled webhook | Public URLs only, within 24 hours |
 
 ## Tool catalog
 
-Catalog size: 87 MCP tools.
+Catalog size: 89 MCP tools.
 
 <!-- mcp-tool-catalog:start -->
 - `get_current_time` - Read the current time in a timezone or UTC offset.
@@ -86,6 +87,8 @@ Catalog size: 87 MCP tools.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, color, GUID, ULID, password or passphrase.
+- `create_captcha` - Make a captcha for a form: a proof of work, and a picture of six shapes, digits and letters with three to click in order.
+- `verify_captcha` - Check a challenge's nonce, and the three clicks, once, from the server that receives the form.
 - `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
 - `convert_timestamp` - Convert a Unix time or a date text into other forms.
 - `next_cron_times` - Compute the next times a cron expression fires, in a time zone.
