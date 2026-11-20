@@ -40,7 +40,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 
 ## Limits
 
-- Free allowance: 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day.
+- Free allowance: 5000 requests per IP address per day, REST and MCP counted together, and 80 MB of stored data per IP address per day. Some endpoints have limits of their own per address: 500 captcha challenges, 20 new queues and 20 new search collections a day, 10 new DNS names an hour and 200 password hashes a day. A Pro plan grows these and the 80 MB with its tier, by its daily allowance over the free 5000 and at most twenty times: twice on tier 1, ten times on tier 2 and twenty times on tiers 3 and 4.
 - Optional Pro plans: https://aisense.no/custom-apis. Shared customer quotas of 10,000, 50,000, 100,000 or 1,000,000 requests per day, selected by source IP without an API key, or by a token in the X-AISENSE-Key header for servers without a fixed address. Endpoint-specific limits and temporary data expiry stay the same.
 - Both reset at 22:00 UTC from late March to late October and at 23:00 UTC the rest of the year (midnight in Norway, time zone Europe/Oslo). A 429 answer carries Retry-After with the seconds until then.
 - Stored results and files expire after 24 hours.
@@ -48,7 +48,7 @@ AI SENSE AS is an independent technology provider in Oslo, Norway. It publishes 
 ## MCP
 
 - Remote server: https://aisenseapi.com/mcp
-- MCP server version 1.28.0, with 89 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.28.0, published 20 November 2026 at 20:21 UTC
+- MCP server version 1.29.0, with 89 tools. Official MCP Registry: com.aisenseapi/free-public-tools version 1.28.0, published 20 November 2026 at 20:21 UTC
 - Server metadata: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/server.json
 - Protocol guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/MCP.md
 - Canonical agent guide: https://raw.githubusercontent.com/aisenseapi/aisense-free-public-rest-apis/refs/heads/main/AGENT-GUIDE.md

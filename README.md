@@ -32,7 +32,7 @@ retry decisions. [examples/comfyui](examples/comfyui/README.md) runs image jobs 
 ComfyUI from several machines on Agent Queue, Storage and Webhook capture,
 with a fake renderer so the flow runs without ComfyUI.
 
-The server reports version `1.28.0` and offers 89 tools: the workflow tools
+The server reports version `1.29.0` and offers 89 tools: the workflow tools
 and the REST utility endpoints below as tools, apart from AIQ, `ip_datetime`
 and `ping`, which stay on REST. The official MCP Registry lists
 `com.aisenseapi/free-public-tools` version `1.28.0` as active and latest,
@@ -626,7 +626,7 @@ curl https://aisenseapi.com/services/v1/storage/550e8400-e29b-41d4-a716-44665544
 
 Expires after 24 hours. Executable files (Windows, Linux and Mac programs,
 judged on their first bytes) are refused with `415`. Each IP may store 80 MB
-per day; past that a POST answers `429`. Storage can display detected plain text, supported images, audio, video and PDF inline. SVG, HTML and unrecognized binary files are served as downloads.
+per day, more on a Pro plan; past that a POST answers `429`. Storage can display detected plain text, supported images, audio, video and PDF inline. SVG, HTML and unrecognized binary files are served as downloads.
 
 ---
 

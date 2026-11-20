@@ -1021,7 +1021,7 @@ None of them returns its result in the answer. Each stores the result in
 [Storage](#storage---24h-ttl) for 24 hours and answers with the Storage fields
 plus `content_type`, `filename` and `operation`. Read the result with a GET on
 `storage_url`. Anyone with that link can read it, and stored results count
-against the Storage budget of 80 MB per IP address per day.
+against the Storage budget of 80 MB per IP address per day, more on a Pro plan.
 
 All five take `POST` with `Content-Type: application/json` and a JSON object
 of at most 256 KB, with lists and objects nested at most 63 deep. Unknown
@@ -1959,7 +1959,7 @@ generate vectors.
 
 **Cost and budgets.** A password hash is slow by design, hundreds of times the
 work of a SHA-256, so the routes have budgets beside the 5000 calls per day
-every address has: **200 password operations per IP address per day** (hashing
+every address has: **200 password operations per IP address per day**, more on a Pro plan (hashing
 and verifying together) answered with **429** past that, and **20 000 per day
 for everyone** answered with **503**, both with `Retry-After` until midnight
 Oslo time. When a call cannot be served right now the answer is **503** with a
@@ -2016,6 +2016,8 @@ PNG of 360 by 240 pixels with six shapes, digits and letters among colored lines
 fragments and clutter, overlapping a little and blurred, and a question that
 names three of them to click in order. The challenge keeps no address and can be
 checked once within 30 minutes. Read `bits` from the answer, since it can change.
+Each address may make 500 challenges a day, a Pro plan more by its tier; past that
+the answer is 429 with `Retry-After` until the daily reset.
 
 ```json
 { "id": "3f2b8c1e-7a4d-4e9b-9c3a-5d6e7f8a9b0c", "expires_at": "2026-11-20T15:42:07Z", "expires_in": 1800,
@@ -3061,7 +3063,8 @@ the same winning receipt can be repeated within their lifetime. See the
 - At most 100 distinct jobs over the entire queue lifetime. Completed and
   failed jobs still count. Idempotent enqueue retries do not add a job.
 - At most five claim attempts per job and 16 KiB of encoded JSON per payload.
-- At most 20 new queues per client IP per 24 hours, within the shared request limit.
+- At most 20 new queues per client IP per 24 hours, within the shared request limit,
+  and more on a Pro plan.
 
 Share the write token with producers, the worker token with workers, and the
 read token with observers. Workers necessarily receive job payloads when
@@ -3138,7 +3141,7 @@ curl -X POST -H "Authorization: Bearer <DNS_TOKEN>" \n  "https://aisenseapi.com/
 curl -X POST -H "Authorization: Bearer <DNS_TOKEN>" \n  "https://aisenseapi.com/services/v1/dns/<SLUG>/delete"
 ```
 
-Limits are 10 names per client address per hour, one change per name per 10
+Limits are 10 names per client address per hour, more on a Pro plan, one change per name per 10
 seconds, and 100 active names while the service is a pilot. The four MCP
 equivalents are `create_dns_name`, `read_dns_name`, `update_dns_name` and
 `delete_dns_name`.
@@ -3645,7 +3648,7 @@ after creation, and nothing extends it.
 - At most 500 notes over the collection lifetime, deleted notes included.
 - 1 to 32 notes per call, 2000 characters per note, 500 per search and 64 KiB
   per request body.
-- At most 20 new collections per client IP per 24 hours.
+- At most 20 new collections per client IP per 24 hours, more on a Pro plan.
 - Adding notes and searching share a usage limit of 60 per minute and 1000 per
   UTC day per client IP, within the shared request limit.
 
@@ -4048,6 +4051,12 @@ The shared counter resets at 22:00 UTC from late March to late October and at 23
 calendar-day budget, not a rolling per-request 24-hour window. A `429`
 carries `Retry-After` with the seconds until the reset, and its `fix` says the
 same. The Storage budget of 80 MB per IP address resets at the same time.
+Some endpoints have limits of their own beside the shared count: 500 captcha
+challenges, 20 new queues, 20 new search collections and 200 password hashes
+per IP address a day, and 10 new DNS names per address an hour. A Pro plan
+grows each of them and the 80 MB with its tier, by its daily allowance over the
+free 5000 and at most twenty times: twice on tier 1, ten times on tier 2 and
+twenty times on tiers 3 and 4. Balance lookups keep 20 a minute per address.
 Queue creation has a separate fixed 24-hour quota window.
 
 

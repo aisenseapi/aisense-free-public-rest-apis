@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.21
+Resource version 1.8.22
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -394,7 +394,7 @@ REST uses `Authorization: Bearer` with the read or write token. MCP uses the nam
 
 ## REST endpoints as tools
 
-The tools from `encode_data` to `delete_semantic_search_note` run the same code as the REST endpoints, so they give the same answers, limits and error texts. An error keeps the REST status in `status_code`. REST and MCP share one budget of 5000 requests per client address per day.
+The tools from `encode_data` to `delete_semantic_search_note` run the same code as the REST endpoints, so they give the same answers, limits and error texts. An error keeps the REST status in `status_code`. REST and MCP share one budget of 5000 requests per client address per day. Some tools have limits of their own per address, such as 20 new queues a day, 10 new DNS names an hour and 200 password hashes a day. A Pro plan grows them with its tier, at most twenty times.
 
 Files go in as base64, up to about 190 KB through MCP, or as a `storage_id`. Store a larger file with REST POST https://aisenseapi.com/services/v1/storage first, or pass the `storage_id` an earlier tool returned, which lets image calls be chained. Tools that make a file store it for 24 hours and answer with its `storage_id` and `storage_url`, and `read_stored_file` returns it. Anyone holding a storage link can read the object, so never store secrets or personal data.
 
