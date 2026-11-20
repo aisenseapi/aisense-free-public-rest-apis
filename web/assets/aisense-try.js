@@ -273,24 +273,40 @@
     }
 
     // The proof of work a form page runs: the first nonce whose SHA-256 after the salt starts with bits zero bits.
-    async function solve(salt, bits) {
+    // Awaiting a digest gives the page no turn, so about every 10 ms the solver hands it one through a
+    // MessageChannel, which keeps clicks smooth at the same hash rate. stop() ends it when its challenge is abandoned.
+    async function solve(salt, bits, stop) {
       var enc = new TextEncoder();
-      for (var nonce = 0; nonce <= Number.MAX_SAFE_INTEGER; nonce++) {
-        var d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(salt + nonce)));
-        var zero = 0;
-        for (var i = 0; i < d.length; i++) {
-          if (d[i] === 0) { zero += 8; continue; }
-          zero += Math.clz32(d[i]) - 24;
-          break;
+      var channel = new MessageChannel();
+      var waiting = null;
+      channel.port1.onmessage = function () { if (waiting) { var next = waiting; waiting = null; next(); } };
+      var last = performance.now();
+      try {
+        for (var nonce = 0; nonce <= Number.MAX_SAFE_INTEGER; nonce++) {
+          var d = new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(salt + nonce)));
+          var zero = 0;
+          for (var i = 0; i < d.length; i++) {
+            if (d[i] === 0) { zero += 8; continue; }
+            zero += Math.clz32(d[i]) - 24;
+            break;
+          }
+          if (zero >= bits) { return nonce; }
+          if ((nonce & 255) === 255 && performance.now() - last >= 10) {
+            await new Promise(function (resolve) { waiting = resolve; channel.port2.postMessage(0); });
+            last = performance.now();
+            if (stop && stop()) { return null; }
+          }
         }
-        if (zero >= bits) { return nonce; }
+        return null;
+      } finally {
+        channel.port1.close();
+        channel.port2.close();
       }
-      return null;
     }
 
     // The picture of a captcha challenge, its question and Start over. A click becomes a point in picture pixels,
     // measured inside the border, with a numbered mark where it landed.
-    function picturePanel(task, clicks, changed, locked) {
+    function picturePanel(task, clicks, changed, locked, renew) {
       var panel = document.createElement('div');
       panel.className = 'try-captcha';
       var question = document.createElement('p');
@@ -320,7 +336,7 @@
         });
       }
       img.addEventListener('click', function (event) {
-        if (clicks.length >= 3 || locked()) { return; }
+        if (clicks.length >= 3 || locked() || panel.classList.contains('is-loading')) { return; }
         var box = img.getBoundingClientRect();
         var x = Math.round((event.clientX - box.left - img.clientLeft) / img.clientWidth * task.width);
         var y = Math.round((event.clientY - box.top - img.clientTop) / img.clientHeight * task.height);
@@ -329,10 +345,8 @@
         changed();
       });
       again.addEventListener('click', function () {
-        if (locked()) { return; }
-        clicks.length = 0;
-        marks();
-        changed();
+        if (panel.classList.contains('is-loading')) { return; }
+        renew();
       });
       panel.appendChild(question);
       panel.appendChild(frame);
@@ -344,7 +358,7 @@
     // clicks, then check both once and show every step. A new challenge replaces one still waiting for clicks.
     var captchaRun = 0;
     var captchaBox = null;
-    function sendCaptcha() {
+    function sendCaptcha(renewing) {
       var nl = String.fromCharCode(10);
       var lines = [];
       var made = null;
@@ -357,8 +371,16 @@
       var current = function () { return mine === captchaRun; };
       run.disabled = true;
       clear();
-      if (captchaBox) { captchaBox.parentNode.removeChild(captchaBox); captchaBox = null; }
-      show(busy);
+      if (renewing && captchaBox) {
+        captchaBox.classList.add('is-loading');
+        var wait = document.createElement('span');
+        wait.className = 'try-captcha-wait';
+        captchaBox.querySelector('.try-captcha-picture').appendChild(wait);
+        show('Getting a new picture');
+      } else {
+        if (captchaBox) { captchaBox.parentNode.removeChild(captchaBox); captchaBox = null; }
+        show(busy);
+      }
 
       function check() {
         checking = true;
@@ -401,22 +423,27 @@
         check();
       }
 
-      fetch(API + 'captcha', { method: 'GET' }).then(function (response) {
-        if (!response.ok) { throw new Error('GET /services/v1/captcha answered HTTP ' + response.status); }
-        return response.json();
-      }).then(function (json) {
+      Promise.all([
+        fetch(API + 'captcha', { method: 'GET' }).then(function (response) {
+          if (!response.ok) { throw new Error('GET /services/v1/captcha answered HTTP ' + response.status); }
+          return response.json();
+        }),
+        new Promise(function (resolve) { setTimeout(resolve, renewing ? 1500 : 0); })
+      ]).then(function (results) {
+        var json = results[0];
         if (!current()) { return null; }
         if (!json.click) { throw new Error('the challenge has no picture'); }
         made = json;
         var shown = JSON.parse(JSON.stringify(json));
         shown.click.image = json.click.image.slice(0, 40) + '... (' + json.click.image.length + ' characters)';
         lines.push('GET /services/v1/captcha - HTTP 200', JSON.stringify(shown, null, 2));
-        captchaBox = picturePanel(json.click, clicks, step, function () { return checking; });
-        card.insertBefore(captchaBox, status);
+        var panel = picturePanel(json.click, clicks, step, function () { return checking; }, function () { sendCaptcha(true); });
+        if (captchaBox) { captchaBox.parentNode.replaceChild(panel, captchaBox); } else { card.insertBefore(panel, status); }
+        captchaBox = panel;
         run.disabled = false;
         step();
         started = performance.now();
-        return solve(json.proof_of_work.salt, json.proof_of_work.bits);
+        return solve(json.proof_of_work.salt, json.proof_of_work.bits, function () { return !current(); });
       }).then(function (found) {
         if (!current() || made === null) { return; }
         if (found === null) {
@@ -428,7 +455,13 @@
         lines.push('', 'Solved in this browser in ' + took + ' ms: nonce ' + nonce);
         step();
       }).catch(function (error) {
-        if (current()) { show('The request failed: ' + error.message, 'bad'); }
+        if (!current()) { return; }
+        show('The request failed: ' + error.message, 'bad');
+        if (captchaBox) {
+          captchaBox.classList.remove('is-loading');
+          var spinner = captchaBox.querySelector('.try-captcha-wait');
+          if (spinner) { spinner.parentNode.removeChild(spinner); }
+        }
       }).then(function () {
         if (current()) { run.disabled = false; }
       });
