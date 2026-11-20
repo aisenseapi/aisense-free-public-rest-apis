@@ -371,16 +371,21 @@
       var current = function () { return mine === captchaRun; };
       run.disabled = true;
       clear();
-      if (renewing && captchaBox) {
-        captchaBox.classList.add('is-loading');
-        var wait = document.createElement('span');
-        wait.className = 'try-captcha-wait';
-        captchaBox.querySelector('.try-captcha-picture').appendChild(wait);
-        show('Getting a new picture');
-      } else {
-        if (captchaBox) { captchaBox.parentNode.removeChild(captchaBox); captchaBox = null; }
-        show(busy);
+      // Both buttons wait the same way: the picture there is greys under a spinner, and the first time an empty
+      // frame of the same size holds it, for at least a second and a half.
+      if (!captchaBox) {
+        captchaBox = document.createElement('div');
+        captchaBox.className = 'try-captcha';
+        var empty = document.createElement('div');
+        empty.className = 'try-captcha-picture try-captcha-empty';
+        captchaBox.appendChild(empty);
+        card.insertBefore(captchaBox, status);
       }
+      captchaBox.classList.add('is-loading');
+      var wait = document.createElement('span');
+      wait.className = 'try-captcha-wait';
+      captchaBox.querySelector('.try-captcha-picture').appendChild(wait);
+      show(renewing ? 'Getting a new picture' : busy);
 
       function check() {
         checking = true;
@@ -428,7 +433,7 @@
           if (!response.ok) { throw new Error('GET /services/v1/captcha answered HTTP ' + response.status); }
           return response.json();
         }),
-        new Promise(function (resolve) { setTimeout(resolve, renewing ? 1500 : 0); })
+        new Promise(function (resolve) { setTimeout(resolve, 1500); })
       ]).then(function (results) {
         var json = results[0];
         if (!current()) { return null; }
@@ -457,7 +462,10 @@
       }).catch(function (error) {
         if (!current()) { return; }
         show('The request failed: ' + error.message, 'bad');
-        if (captchaBox) {
+        if (captchaBox && !captchaBox.querySelector('img')) {
+          captchaBox.parentNode.removeChild(captchaBox);
+          captchaBox = null;
+        } else if (captchaBox) {
           captchaBox.classList.remove('is-loading');
           var spinner = captchaBox.querySelector('.try-captcha-wait');
           if (spinner) { spinner.parentNode.removeChild(spinner); }
