@@ -320,6 +320,24 @@
       }
     }
 
+    // How many points a challenge asks for, once it has everything the picture and the solver need at the level asked
+    // for: a challenge from before the levels has no level and no count and is normal with three. Anything else is
+    // thrown, so a half answer never replaces the picture. 24 bits keeps a visitor's browser from a runaway task.
+    function captchaCount(challenge, level) {
+      var counts = { normal: 3, hard: 4, harder: 5 };
+      var click = challenge && challenge.click;
+      var work = challenge && challenge.proof_of_work;
+      var answered = challenge && challenge.level !== undefined ? challenge.level : 'normal';
+      var count = click && click.count === undefined && level === 'normal' ? 3 : click && click.count;
+      if (!click || !work || answered !== level || count !== counts[level] || typeof challenge.id !== 'string' || !challenge.id
+          || typeof click.question !== 'string' || !click.question || typeof click.image !== 'string'
+          || click.image.indexOf('data:image/png;base64,') !== 0 || click.image.length <= 22 || !(click.width > 0) || !(click.height > 0)
+          || typeof work.salt !== 'string' || !work.salt || !(work.bits >= 1 && work.bits <= 24)) {
+        throw new Error('the challenge came back incomplete');
+      }
+      return count;
+    }
+
     // The picture of a captcha challenge, its question and Start over. A click becomes a point in picture pixels,
     // measured inside the border, with a numbered mark where it landed, up to as many as the question asks for.
     function picturePanel(task, clicks, changed, locked, renew) {
@@ -469,15 +487,15 @@
         clearTimeout(timer);
         var json = results[0];
         if (!current()) { return null; }
-        if (!json.click) { throw new Error('the challenge has no picture'); }
-        made = json;
-        needed = json.click.count || 3;
+        needed = captchaCount(json, level);
         var shown = JSON.parse(JSON.stringify(json));
         shown.click.image = json.click.image.slice(0, 40) + '... (' + json.click.image.length + ' characters)';
         lines.push('GET /services/v1/' + making + ' - HTTP 200', JSON.stringify(shown, null, 2));
         var panel = picturePanel(json.click, clicks, step, function () { return checking; }, function () { sendCaptcha(true); });
         if (captchaBox) { captchaBox.parentNode.replaceChild(panel, captchaBox); } else { card.insertBefore(panel, status); }
         captchaBox = panel;
+        // The run owns a picture only from here: until then a failure takes away the one still shown.
+        made = json;
         run.disabled = false;
         if (captchaLevel) { captchaLevel.disabled = false; }
         step();
