@@ -396,6 +396,8 @@
       var level = captchaLevel ? captchaLevel.value : 'normal';
       var making = level === 'normal' ? 'captcha' : 'captcha/' + level;
       run.disabled = true;
+      // The level stays as chosen while a picture loads, so the menu always names the level of the picture shown.
+      if (captchaLevel) { captchaLevel.disabled = true; }
       clear();
       // Both buttons wait the same way: the picture there is greys under a spinner, and the first time an empty
       // frame of the same size holds it, for at least a second and a half. harder's picture is square.
@@ -454,13 +456,17 @@
         check();
       }
 
+      // A fetch that hangs is given up after 15 s, so the spinner does not turn for ever.
+      var controller = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = controller ? setTimeout(function () { controller.abort(); }, 15000) : 0;
       Promise.all([
-        fetch(API + making, { method: 'GET' }).then(function (response) {
+        fetch(API + making, { method: 'GET', signal: controller ? controller.signal : undefined }).then(function (response) {
           if (!response.ok) { throw new Error('GET /services/v1/' + making + ' answered HTTP ' + response.status); }
           return response.json();
         }),
         new Promise(function (resolve) { setTimeout(resolve, 1500); })
       ]).then(function (results) {
+        clearTimeout(timer);
         var json = results[0];
         if (!current()) { return null; }
         if (!json.click) { throw new Error('the challenge has no picture'); }
@@ -473,6 +479,7 @@
         if (captchaBox) { captchaBox.parentNode.replaceChild(panel, captchaBox); } else { card.insertBefore(panel, status); }
         captchaBox = panel;
         run.disabled = false;
+        if (captchaLevel) { captchaLevel.disabled = false; }
         step();
         started = performance.now();
         return solve(json.proof_of_work.salt, json.proof_of_work.bits, function () { return !current(); });
@@ -487,8 +494,9 @@
         lines.push('', 'Solved in this browser in ' + took + ' ms: nonce ' + nonce);
         step();
       }).catch(function (error) {
+        clearTimeout(timer);
         if (!current()) { return; }
-        show('The request failed: ' + error.message, 'bad');
+        show(error && error.name === 'AbortError' ? 'The request took longer than 15 s. Try again' : 'The request failed: ' + error.message, 'bad');
         if (captchaBox && !captchaBox.querySelector('img')) {
           captchaBox.parentNode.removeChild(captchaBox);
           captchaBox = null;
@@ -498,7 +506,10 @@
           if (spinner) { spinner.parentNode.removeChild(spinner); }
         }
       }).then(function () {
-        if (current()) { run.disabled = false; }
+        if (current()) {
+          run.disabled = false;
+          if (captchaLevel) { captchaLevel.disabled = false; }
+        }
       });
     }
 
