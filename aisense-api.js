@@ -53,7 +53,7 @@ const BASE_URL = 'https://aisenseapi.com/services/v1'
 const DEBUG_ECHO = /^\[".*?",\d+\]\["/
 
 /** The captcha levels, from the easiest. */
-const CAPTCHA_LEVELS = ['normal', 'hard', 'harder']
+const CAPTCHA_LEVELS = ['normal', 'hard', 'harder', 'hardest']
 
 export class AISenseAPIError extends Error {
   constructor(message, { status, body, retry_after = null, reason = null } = {}) {
@@ -813,13 +813,14 @@ export class AISenseAPI {
    * Create a captcha challenge for a form: a proof of work (find a nonce so that SHA-256 of `salt` followed
    * by the nonce in decimal starts with `bits` zero bits) and a click task (a PNG of shapes, digits and
    * letters to click in an order). `level` is `normal` (the default: 18 bits, three symbols named), `hard`
-   * (19 bits, four by a rule) or `harder` (20 bits, five of nine by a rule). Response keys: `id`, `level`,
-   * `expires_at`, `expires_in`, `proof_of_work`, `verify` and `click`, whose `count` says how many points
-   * to click.
+   * (19 bits, four by a rule), `harder` (20 bits, five of nine by a rule) or `hardest` (as harder, on a
+   * picture that comes turned by steps of `click.turn_step` degrees and is turned upright before clicking).
+   * Response keys: `id`, `level`, `expires_at`, `expires_in`, `proof_of_work`, `verify` and `click`, whose
+   * `count` says how many points to click.
    */
   getCaptcha(level) {
     if (level === undefined) return this.#get('/captcha')
-    if (!CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard or harder')
+    if (!CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard, harder or hardest')
     return this.#get(`/captcha/${level}`)
   }
 
@@ -832,7 +833,7 @@ export class AISenseAPI {
    * challenge, so an easier one comes back with `valid` false and `reason` `wrong_level`, used up all the same.
    */
   async verifyCaptcha(id, nonce, clicks, level) {
-    if (level !== undefined && !CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard or harder')
+    if (level !== undefined && !CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard, harder or hardest')
     const answer = await this.#get(clicks !== undefined ? `/captcha_verify/${id}/${nonce}/${clicks}` : `/captcha_verify/${id}/${nonce}`)
     if (level !== undefined && answer && answer.valid === true) {
       const got = CAPTCHA_LEVELS.indexOf(answer.level || 'normal')

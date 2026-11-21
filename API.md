@@ -2013,17 +2013,18 @@ work: find a whole number `nonce` from 0 to 9007199254740991 so that SHA-256 of
 `salt` followed by the nonce in decimal starts with `bits` zero bits. The click
 task: a PNG with shapes, digits and letters among colored lines, fragments and
 clutter, overlapping a little and blurred, and a question that says which to
-click and in what order. `{level}` is `normal` (the same as no level), `hard` or
-`harder`:
+click and in what order. `{level}` is `normal` (the same as no level), `hard`,
+`harder` or `hardest`:
 
 | Level | `bits` | Picture | What to click |
 |---|---|---|---|
 | `normal` | 18, 262,144 tries on average, about a second in a desktop browser | Six symbols, 360 by 240 | Three the question names, in its order |
 | `hard` | 19, twice the work | Six symbols, 360 by 240 | Four by a rule: the digits and the letters, each in an order the question gives |
 | `harder` | 20, four times the work | Nine symbols, 360 by 360 | Five by a rule that also picks: the three digits in an order, and the two letters that come first, or last, in the alphabet |
+| `hardest` | 20, the same as `harder` | Nine symbols, 360 by 360, turned by one to four steps of 72 degrees | As at `harder`, on the picture turned upright first |
 
-At `hard` and `harder` the question gives the rule and names the digits and
-letters in the picture, in the order they were drawn: "Click the digits from
+At `hard`, `harder` and `hardest` the question gives the rule and names the
+digits and letters in the picture, in the order they were drawn: "Click the digits from
 smallest to largest, then the letters from Z to A. The digits are 7 and 3, the
 letters K and E." The answer has no `click.targets`, which would give the rule
 away; `click.count` says how many points to click at every level. Another
@@ -2048,6 +2049,17 @@ picture pixels. A picture shown at another size scales its clicks back to
 `click.width` by `click.height`. A question at `hard` reads, for example, "Click
 the digits from smallest to largest, then the letters from Z to A".
 
+At `hardest` the picture comes turned clockwise by one to four steps of
+`click.turn_step` degrees, 72, and never upright, and the question starts "Turn
+the picture upright first." Show the picture round, so its corners do not show
+as it turns, and let the person turn it in steps of `click.turn_step` degrees,
+with buttons or the arrow keys, before clicking. Measure each click from the
+middle of the picture as it is shown: those are the points of the upright
+picture that `{clicks}` takes, so a turn clears the clicks, and a picture clicked
+while still turned gives `wrong_clicks`. The answer never says how far the
+picture is turned. The digits and letters at `hardest` leave out 6, 9, M, W and
+N, which can be taken for others when turned, and the shapes lie at any angle.
+
 ---
 
 ### `GET /captcha_verify/{id}/{nonce}[/{clicks}]`
@@ -2055,7 +2067,8 @@ Checks the nonce, and with `{clicks}` the click task too, against a challenge
 from `/captcha` once, right or wrong, so the call cannot be used to test guesses.
 Call it from the server that receives the form, since a check made in the
 browser proves nothing. `{clicks}` is the points clicked, three to five as the
-question asks, `x-y` joined by `_`, in its order. Without `{clicks}` only the proof
+question asks, `x-y` joined by `_`, in its order, at `hardest` on the picture
+turned upright. Without `{clicks}` only the proof
 of work is checked, so accept a form only on `valid` true with `click` in
 `checked` and the `level` the form asks for: the browser chose which challenge to
 fetch, so a bot could fetch a normal one where you want harder. `level` is null

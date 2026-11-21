@@ -1,6 +1,6 @@
 # AI SENSE Agent Guide
 
-Resource version 1.8.23
+Resource version 1.8.24
 
 MCP endpoint: https://aisenseapi.com/mcp
 
@@ -34,7 +34,7 @@ This public server needs no account, API key or authentication header. Its tools
 | Convert an image, render a PDF, reshape JSON or CSV | Conversion tools | Result stored for 24 hours behind a link |
 | Decide from rules or a model | decide | Rules default. Model mode processes the submitted text and has its own usage limits |
 | Find earlier notes by meaning, across wording and languages | Semantic search | Ranked suggestions with scores, never a decision |
-| Stop simple bots on a form: a proof of work and a picture of symbols to click in order, at three levels | create_captcha / verify_captcha | normal is 262,144 SHA-256 tries on average and three named symbols, hard twice the work and four symbols by a rule, harder four times the work and five of nine symbols by a rule. Verified once, within 30 minutes, from the server that receives the form, which compares the level |
+| Stop simple bots on a form: a proof of work and a picture of symbols to click in order, at four levels | create_captcha / verify_captcha | normal is 262,144 SHA-256 tries on average and three named symbols, hard twice the work and four symbols by a rule, harder four times the work and five of nine symbols by a rule, hardest the same on a picture that comes turned and is turned upright first. Verified once, within 30 minutes, from the server that receives the form, which compares the level |
 | Test how a client handles a failure | simulate_failure | A chosen status, delay or broken answer |
 | Call a URL later, once or repeatedly | Scheduled webhook | Public URLs only, within 24 hours |
 
@@ -87,7 +87,7 @@ Catalog size: 89 MCP tools.
 - `hash_data` - Hash text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or hash a test password with argon2id, bcrypt or scrypt, 200 times a day.
 - `verify_hash` - Check text against a hash. Name the algorithm, or let the length pick one of the first five. For argon2id, bcrypt and scrypt the hash is the salted string and the cost is read from it.
 - `generate_random` - Make a random number, color, GUID, ULID, password or passphrase.
-- `create_captcha` - Make a captcha for a form at level normal, hard or harder: a proof of work, and a picture of shapes, digits and letters to click in an order the question names or a rule gives.
+- `create_captcha` - Make a captcha for a form at level normal, hard, harder or hardest: a proof of work, and a picture of shapes, digits and letters to click in an order the question names or a rule gives. At hardest the picture comes turned, and the person turns it upright first.
 - `verify_captcha` - Check a challenge's nonce, and its three to five clicks, once, from the server that receives the form. The answer says the level, to compare with the one the form asks for.
 - `time_formats` - Read the time as Unix, microseconds, ISO 8601 and Swatch beats.
 - `convert_timestamp` - Convert a Unix time or a date text into other forms.

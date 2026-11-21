@@ -233,7 +233,7 @@ and the body it received.
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
 | `generate_random` | Makes a random number, color, GUID, ULID, password or passphrase |
-| `create_captcha` | Makes a captcha for a form at level normal, hard or harder: a proof of work, and a picture of shapes, digits and letters to click in an order the question names or a rule gives |
+| `create_captcha` | Makes a captcha for a form at level normal, hard, harder or hardest: a proof of work, and a picture of shapes, digits and letters to click in an order the question names or a rule gives; at hardest the picture comes turned |
 | `verify_captcha` | Checks a challenge's nonce, and its three to five clicks, once, from the server that receives the form, and answers the level to compare |
 | `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
 | `convert_timestamp` | Converts a Unix time or a date text into other forms |

@@ -124,14 +124,14 @@
     var noteText = note ? note.textContent : '';
     var chosen = null;
     var url = null;
-    // The captcha box asks for a level beside its button: normal, hard or harder.
+    // The captcha box asks for a level beside its button: normal, hard, harder or hardest.
     var captchaLevel = null;
     if (captcha && run) {
       var levelLabel = document.createElement('label');
       levelLabel.className = 'try-captcha-level';
       levelLabel.appendChild(document.createTextNode('Level '));
       captchaLevel = document.createElement('select');
-      ['normal', 'hard', 'harder'].forEach(function (name) {
+      ['normal', 'hard', 'harder', 'hardest'].forEach(function (name) {
         var option = document.createElement('option');
         option.value = name;
         option.textContent = name;
@@ -322,9 +322,10 @@
 
     // How many points a challenge asks for, once it has everything the picture and the solver need at the level asked
     // for: a challenge from before the levels has no level and no count and is normal with three. Anything else is
-    // thrown, so a half answer never replaces the picture. 24 bits keeps a visitor's browser from a runaway task.
+    // thrown, so a half answer never replaces the picture. 24 bits keeps a visitor's browser from a runaway task. At
+    // hardest the picture comes turned, and turn_step must divide a full turn.
     function captchaCount(challenge, level) {
-      var counts = { normal: 3, hard: 4, harder: 5 };
+      var counts = { normal: 3, hard: 4, harder: 5, hardest: 5 };
       var click = challenge && challenge.click;
       var work = challenge && challenge.proof_of_work;
       var answered = challenge && challenge.level !== undefined ? challenge.level : 'normal';
@@ -332,28 +333,33 @@
       if (!click || !work || answered !== level || count !== counts[level] || typeof challenge.id !== 'string' || !challenge.id
           || typeof click.question !== 'string' || !click.question || typeof click.image !== 'string'
           || click.image.indexOf('data:image/png;base64,') !== 0 || click.image.length <= 22 || !(click.width > 0) || !(click.height > 0)
-          || typeof work.salt !== 'string' || !work.salt || !(work.bits >= 1 && work.bits <= 24)) {
+          || typeof work.salt !== 'string' || !work.salt || !(work.bits >= 1 && work.bits <= 24)
+          || (level === 'hardest' && !(click.turn_step > 0 && click.turn_step < 360 && 360 % click.turn_step === 0))) {
         throw new Error('the challenge came back incomplete');
       }
       return count;
     }
 
     // The picture of a captcha challenge, its question and Start over. A click becomes a point in picture pixels,
-    // measured inside the border, with a numbered mark where it landed, up to as many as the question asks for.
+    // measured from the middle of the picture, with a numbered mark where it landed, up to as many as the question
+    // asks for. At hardest the picture comes turned: it is shown round, the turn buttons and the arrow keys turn it by
+    // turn_step degrees, and a turn clears the clicks, since the points are those of the picture as it stands.
     function picturePanel(task, clicks, changed, locked, renew) {
       var needed = task.count || 3;
+      var turnStep = task.turn_step > 0 ? task.turn_step : 0;
+      var turned = 0;
       var panel = document.createElement('div');
       panel.className = 'try-captcha';
       var question = document.createElement('p');
       question.className = 'try-captcha-question';
       question.textContent = task.question;
       var frame = document.createElement('div');
-      frame.className = 'try-captcha-picture';
+      frame.className = 'try-captcha-picture' + (turnStep ? ' is-round' : '');
       var img = document.createElement('img');
       img.src = task.image;
       img.width = task.width;
       img.height = task.height;
-      img.alt = 'Symbols to click in the order above';
+      img.alt = turnStep ? 'Symbols to turn upright, then click in the order above' : 'Symbols to click in the order above';
       frame.appendChild(img);
       var again = document.createElement('button');
       again.type = 'button';
@@ -370,11 +376,21 @@
           frame.appendChild(dot);
         });
       }
+      function turn(by) {
+        if (!turnStep || locked() || panel.classList.contains('is-loading')) { return; }
+        turned = (turned + by * turnStep + 360) % 360;
+        img.style.transform = 'rotate(' + turned + 'deg)';
+        clicks.length = 0;
+        marks();
+        changed();
+      }
       img.addEventListener('click', function (event) {
         if (clicks.length >= needed || locked() || panel.classList.contains('is-loading')) { return; }
+        // From the middle of the picture, which stays where it is when the picture turns; the box of a turned
+        // picture is larger than the picture.
         var box = img.getBoundingClientRect();
-        var x = Math.round((event.clientX - box.left - img.clientLeft) / img.clientWidth * task.width);
-        var y = Math.round((event.clientY - box.top - img.clientTop) / img.clientHeight * task.height);
+        var x = Math.round((event.clientX - box.left - box.width / 2) / img.clientWidth * task.width + task.width / 2);
+        var y = Math.round((event.clientY - box.top - box.height / 2) / img.clientHeight * task.height + task.height / 2);
         clicks.push([Math.min(task.width - 1, Math.max(0, x)), Math.min(task.height - 1, Math.max(0, y))]);
         marks();
         changed();
@@ -385,6 +401,30 @@
       });
       panel.appendChild(question);
       panel.appendChild(frame);
+      if (turnStep) {
+        var turns = document.createElement('div');
+        turns.className = 'try-captcha-turns';
+        // The arrows are drawn from their code points, 8634 to the left and 8635 to the right, so this file stays ASCII.
+        [[-1, 8634, 'Turn the picture left'], [1, 8635, 'Turn the picture right']].forEach(function (b) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button try-captcha-turn';
+          button.textContent = String.fromCharCode(b[1]);
+          button.setAttribute('aria-label', b[2]);
+          button.title = b[2];
+          button.addEventListener('click', function () { turn(b[0]); });
+          turns.appendChild(button);
+        });
+        frame.tabIndex = 0;
+        frame.setAttribute('aria-label', 'The picture: turn it with the left and right arrow keys');
+        frame.addEventListener('keydown', function (event) {
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            turn(event.key === 'ArrowLeft' ? -1 : 1);
+          }
+        });
+        panel.appendChild(turns);
+      }
       panel.appendChild(again);
       return panel;
     }
@@ -408,6 +448,7 @@
       var started = 0;
       var clicks = [];
       var needed = 3;
+      var turning = false;
       var checking = false;
       var mine = ++captchaRun;
       var current = function () { return mine === captchaRun; };
@@ -418,12 +459,13 @@
       if (captchaLevel) { captchaLevel.disabled = true; }
       clear();
       // Both buttons wait the same way: the picture there is greys under a spinner, and the first time an empty
-      // frame of the same size holds it, for at least a second and a half. harder's picture is square.
+      // frame of the same size holds it, for at least a second and a half. harder's picture is square, hardest's round.
       if (!captchaBox) {
         captchaBox = document.createElement('div');
         captchaBox.className = 'try-captcha';
         var empty = document.createElement('div');
-        empty.className = 'try-captcha-picture try-captcha-empty' + (level === 'harder' ? ' is-square' : '');
+        empty.className = 'try-captcha-picture try-captcha-empty' + (level === 'harder' || level === 'hardest' ? ' is-square' : '')
+          + (level === 'hardest' ? ' is-round' : '');
         captchaBox.appendChild(empty);
         card.insertBefore(captchaBox, status);
       }
@@ -451,7 +493,8 @@
             } else if (json && json.valid === true) {
               show('Checked once: the clicks and the proof of work are right', 'ok');
             } else if (json && json.reason === 'wrong_clicks') {
-              show('Those were not the symbols asked for, in that order. Make a new challenge to try again', 'bad');
+              show('Those were not the symbols asked for, in that order' + (turning ? ', on the picture turned upright' : '')
+                + '. Make a new challenge to try again', 'bad');
             } else {
               show('Checked once: ' + (json && json.reason ? json.reason : 'not valid'), 'bad');
             }
@@ -463,12 +506,13 @@
 
       function step() {
         if (!current() || checking) { return; }
+        var ask = turning ? 'Turn the picture upright with the arrows, then click the symbols in the order asked' : 'Click the symbols in the order asked';
         if (nonce === null) {
-          show(clicks.length === needed ? 'Finishing the proof of work' : 'Click the symbols in the order asked. The proof of work runs meanwhile');
+          show(clicks.length === needed ? 'Finishing the proof of work' : ask + '. The proof of work runs meanwhile');
           return;
         }
         if (clicks.length < needed) {
-          show('The proof of work took ' + took + ' ms. Click the symbols in the order asked');
+          show('The proof of work took ' + took + ' ms. ' + ask);
           return;
         }
         check();
@@ -488,6 +532,7 @@
         var json = results[0];
         if (!current()) { return null; }
         needed = captchaCount(json, level);
+        turning = json.click.turn_step > 0;
         var shown = JSON.parse(JSON.stringify(json));
         shown.click.image = json.click.image.slice(0, 40) + '... (' + json.click.image.length + ' characters)';
         lines.push('GET /services/v1/' + making + ' - HTTP 200', JSON.stringify(shown, null, 2));
