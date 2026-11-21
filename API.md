@@ -2022,8 +2022,11 @@ click and in what order. `{level}` is `normal` (the same as no level), `hard` or
 | `hard` | 19, twice the work | Six symbols, 360 by 240 | Four by a rule: the digits and the letters, each in an order the question gives |
 | `harder` | 20, four times the work | Nine symbols, 360 by 360 | Five by a rule that also picks: the three digits in an order, and the two letters that come first, or last, in the alphabet |
 
-At `hard` and `harder` the answer has no `click.targets`, which would give the
-rule away; `click.count` says how many points to click at every level. Another
+At `hard` and `harder` the question gives the rule and names the digits and
+letters in the picture, in the order they were drawn: "Click the digits from
+smallest to largest, then the letters from Z to A. The digits are 7 and 3, the
+letters K and E." The answer has no `click.targets`, which would give the rule
+away; `click.count` says how many points to click at every level. Another
 level answers 400. The challenge keeps no address and can be checked once within
 30 minutes. Read `bits` from the answer, since it can change.
 Each address may make 500 challenges a day, a Pro plan more by its tier; past that
