@@ -52,6 +52,9 @@ const BASE_URL = 'https://aisenseapi.com/services/v1'
 // Detecting that turns a confusing JSON parse error into a clear message.
 const DEBUG_ECHO = /^\[".*?",\d+\]\["/
 
+/** The captcha levels, from the easiest. */
+const CAPTCHA_LEVELS = ['normal', 'hard', 'harder']
+
 export class AISenseAPIError extends Error {
   constructor(message, { status, body, retry_after = null, reason = null } = {}) {
     super(message)
@@ -808,22 +811,34 @@ export class AISenseAPI {
 
   /**
    * Create a captcha challenge for a form: a proof of work (find a nonce so that SHA-256 of `salt` followed
-   * by the nonce in decimal starts with `bits` zero bits) and a click task (a PNG with six shapes, digits and
-   * letters, three of them to click in order). Response keys: `id`, `expires_at`, `expires_in`,
-   * `proof_of_work`, `verify` and `click`.
+   * by the nonce in decimal starts with `bits` zero bits) and a click task (a PNG of shapes, digits and
+   * letters to click in an order). `level` is `normal` (the default: 18 bits, three symbols named), `hard`
+   * (19 bits, four by a rule) or `harder` (20 bits, five of nine by a rule). Response keys: `id`, `level`,
+   * `expires_at`, `expires_in`, `proof_of_work`, `verify` and `click`, whose `count` says how many points
+   * to click.
    */
-  getCaptcha() {
-    return this.#get('/captcha')
+  getCaptcha(level) {
+    if (level === undefined) return this.#get('/captcha')
+    if (!CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard or harder')
+    return this.#get(`/captcha/${level}`)
   }
 
   /**
    * Check a captcha nonce, and with `clicks` the click task too, once, from the server that received the
-   * form. `clicks` is the three points clicked, in the order asked, in picture pixels: `x-y` joined by `_`.
-   * Without it only the proof of work is checked. Response keys: `valid`, `checked`, and `reason` when it
-   * is not valid (`wrong_nonce`, `wrong_clicks`, `expired`, `used` or `unknown`).
+   * form. `clicks` is the points clicked, three to five as the question asks, in its order, in picture
+   * pixels: `x-y` joined by `_`. Without it only the proof of work is checked. Response keys: `valid`,
+   * `checked`, `reason` when it is not valid (`wrong_nonce`, `wrong_clicks`, `expired`, `used` or
+   * `unknown`) and `level`. Give `level` to require at least that level: the browser fetched the
+   * challenge, so an easier one comes back with `valid` false and `reason` `wrong_level`, used up all the same.
    */
-  verifyCaptcha(id, nonce, clicks) {
-    return this.#get(clicks !== undefined ? `/captcha_verify/${id}/${nonce}/${clicks}` : `/captcha_verify/${id}/${nonce}`)
+  async verifyCaptcha(id, nonce, clicks, level) {
+    if (level !== undefined && !CAPTCHA_LEVELS.includes(level)) throw new Error('level must be normal, hard or harder')
+    const answer = await this.#get(clicks !== undefined ? `/captcha_verify/${id}/${nonce}/${clicks}` : `/captcha_verify/${id}/${nonce}`)
+    if (level !== undefined && answer && answer.valid === true) {
+      const got = CAPTCHA_LEVELS.indexOf(answer.level || 'normal')
+      if (got < CAPTCHA_LEVELS.indexOf(level)) return { ...answer, valid: false, reason: 'wrong_level' }
+    }
+    return answer
   }
 
   /** Your public IP address. Response key: `ip`. */

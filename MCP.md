@@ -13,7 +13,7 @@ retry decisions.
 
 **Server URL:** `https://aisenseapi.com/mcp`
 
-The server reports version `1.29.0` and offers 89 tools. The official MCP
+The server reports version `1.30.0` and offers 89 tools. The official MCP
 Registry lists `com.aisenseapi/free-public-tools` version `1.29.0` as active
 and latest, published 21 November 2026 at 09:55 UTC. The agent guide in this
 repository is resource version 1.8.20.
@@ -233,8 +233,8 @@ and the body it received.
 | `hash_data` | Hashes text with MD5, SHA-1, SHA-256, SHA-512, CRC32, Whirlpool, SHA3-256, SHA3-512, BLAKE2b-256 or BLAKE3, or a test password with argon2id, bcrypt or scrypt |
 | `verify_hash` | Checks text against a hash, by a named algorithm or one read from the hash length; for argon2id, bcrypt and scrypt the cost is read from the string |
 | `generate_random` | Makes a random number, color, GUID, ULID, password or passphrase |
-| `create_captcha` | Makes a captcha for a form: a proof of work, and a picture of six shapes, digits and letters with three to click in order |
-| `verify_captcha` | Checks a challenge's nonce, and the three clicks, once, from the server that receives the form |
+| `create_captcha` | Makes a captcha for a form at level normal, hard or harder: a proof of work, and a picture of shapes, digits and letters to click in an order the question names or a rule gives |
+| `verify_captcha` | Checks a challenge's nonce, and its three to five clicks, once, from the server that receives the form, and answers the level to compare |
 | `time_formats` | Reads the time as Unix, microseconds, ISO 8601 and Swatch beats |
 | `convert_timestamp` | Converts a Unix time or a date text into other forms |
 | `next_cron_times` | Computes the next times a cron expression fires, in a time zone |

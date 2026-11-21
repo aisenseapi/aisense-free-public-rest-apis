@@ -1231,11 +1231,22 @@
     "type": "function",
     "function": {
       "name": "get_captcha",
-      "description": "Create a captcha challenge for a form: a proof of work (find a whole number nonce from 0 to 9007199254740991 so that SHA-256 of the salt followed by the nonce in decimal starts with bits zero bits, 18 today, 262,144 tries on average) and a click task (a PNG of six shapes, digits and letters, and a question that names three of them to click in order). Returns {\"id\", \"expires_at\", \"expires_in\": 1800, \"proof_of_work\": {\"algorithm\": \"SHA-256\", \"salt\", \"bits\", \"task\"}, \"verify\", \"click\": {\"question\", \"targets\", \"image\", \"width\": 360, \"height\": 240, \"clicks\", \"verify\"}}. Check the nonce and the clicks once with captcha_verify from the server that receives the form, within 30 minutes. GET /captcha",
+      "description": "Create a captcha challenge for a form: a proof of work (find a whole number nonce from 0 to 9007199254740991 so that SHA-256 of the salt followed by the nonce in decimal starts with bits zero bits) and a click task in a PNG of shapes, digits and letters. level normal, the default, is 18 bits (262,144 tries on average) and three symbols the question names; hard is 19 bits and four symbols by a rule; harder is 20 bits and five of nine symbols by a rule that also picks. Returns {\"id\", \"level\", \"expires_at\", \"expires_in\": 1800, \"proof_of_work\": {\"algorithm\": \"SHA-256\", \"salt\", \"bits\", \"task\"}, \"verify\", \"click\": {\"question\", \"targets\" (normal only), \"count\", \"image\", \"width\": 360, \"height\": 240 or 360, \"clicks\", \"verify\"}}. Check the nonce and the clicks once with captcha_verify from the server that receives the form, within 30 minutes. GET /captcha[/{level}]",
       "parameters": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "hard",
+              "harder"
+            ],
+            "description": "Optional: normal (the default), hard or harder."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
       }
     }
   },
@@ -1243,7 +1254,7 @@
     "type": "function",
     "function": {
       "name": "captcha_verify",
-      "description": "Check a captcha nonce, and with clicks the click task too, against a challenge from get_captcha, once: the call uses the challenge up, right or wrong. Returns {\"valid\": true, \"checked\": [\"proof_of_work\", \"click\"]}, or valid false with reason wrong_nonce, wrong_clicks, expired, used or unknown. Without clicks only the proof of work is checked. A malformed id, nonce or clicks is HTTP 400 and uses nothing up. GET /captcha_verify/{id}/{nonce}[/{clicks}]",
+      "description": "Check a captcha nonce, and with clicks the click task too, against a challenge from get_captcha, once: the call uses the challenge up, right or wrong. Returns {\"valid\": true, \"checked\": [\"proof_of_work\", \"click\"], \"level\": \"normal\"}, or valid false with reason wrong_nonce, wrong_clicks, expired, used or unknown. level is the level of the challenge, null when used or unknown: compare it with the level the form asks for, since the browser fetched the challenge. Without clicks only the proof of work is checked. A malformed id, nonce or clicks is HTTP 400 and uses nothing up. GET /captcha_verify/{id}/{nonce}[/{clicks}]",
       "parameters": {
         "type": "object",
         "properties": {
@@ -1259,8 +1270,8 @@
           },
           "clicks": {
             "type": "string",
-            "description": "Optional: the three points clicked in the picture, in the order asked, as x-y in picture pixels joined by _.",
-            "pattern": "^[0-9]{1,3}-[0-9]{1,3}_[0-9]{1,3}-[0-9]{1,3}_[0-9]{1,3}-[0-9]{1,3}$"
+            "description": "Optional: the points clicked in the picture, three to five as the question asks, in its order, as x-y in picture pixels joined by _.",
+            "pattern": "^[0-9]{1,3}-[0-9]{1,3}(_[0-9]{1,3}-[0-9]{1,3}){2,4}$"
           }
         },
         "required": [

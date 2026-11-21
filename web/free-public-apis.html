@@ -861,8 +861,8 @@ Response: { "match": true, "algorithm": "sha256", "computed": "185f8db3..." }</c
 
 <article class="endpoint">
 <h3><a href="/free-public-api-captcha-api-endpoint">Captcha REST API Endpoint</a></h3>
-<p class="sig"><span class="method">GET</span> <span class="path">/captcha</span> <span class="method">GET</span> <span class="path">/captcha_verify/{id}/{nonce}[/{clicks}]</span></p>
-<p>A captcha challenge for a form: a picture of six shapes, digits and letters with three to click in order, and a proof of work (find a whole number nonce so that SHA-256 of <span class="key">salt</span> followed by the nonce starts with <span class="key">bits</span> zero bits). Check both once, within 30 minutes, from the server that receives the form. Response keys: <span class="key">id</span>, <span class="key">expires_at</span>, <span class="key">expires_in</span>, <span class="key">proof_of_work</span>, <span class="key">verify</span>, <span class="key">click</span>; the check answers <span class="key">valid</span>, <span class="key">checked</span> and <span class="key">reason</span>.</p>
+<p class="sig"><span class="method">GET</span> <span class="path">/captcha[/{level}]</span> <span class="method">GET</span> <span class="path">/captcha_verify/{id}/{nonce}[/{clicks}]</span></p>
+<p>A captcha challenge for a form at level normal, hard or harder: a picture of shapes, digits and letters to click in an order the question names or a rule gives, and a proof of work (find a whole number nonce so that SHA-256 of <span class="key">salt</span> followed by the nonce starts with <span class="key">bits</span> zero bits). Check both once, within 30 minutes, from the server that receives the form. Response keys: <span class="key">id</span>, <span class="key">level</span>, <span class="key">expires_at</span>, <span class="key">expires_in</span>, <span class="key">proof_of_work</span>, <span class="key">verify</span>, <span class="key">click</span>; the check answers <span class="key">valid</span>, <span class="key">checked</span>, <span class="key">reason</span> and <span class="key">level</span>.</p>
 <pre><code>{ "id": "3f2b8c1e-7a4d-4e9b-9c3a-5d6e7f8a9b0c", "expires_in": 1800, "proof_of_work": { "algorithm": "SHA-256", "salt": "9f86d081884c7d659a2feaa0c55ad015", "bits": 18 }, "click": { "question": "Click in this order: 6, P, square", "width": 360, "height": 240 } }</code></pre>
 </article>
 
@@ -1326,8 +1326,8 @@ response = client.chat.completions.create(
 <tr><td>Hash</td><td><code>/hash_verify</code></td><td>POST</td><td><code>match</code>, <code>algorithm</code>, <code>computed</code></td></tr>
 <tr><td>Web</td><td><code>/ping</code></td><td>GET</td><td><code>ping</code></td></tr>
 <tr><td>Web</td><td><code>/health</code></td><td>GET</td><td><code>status</code>, <code>microtimestamp</code></td></tr>
-<tr><td>Web</td><td><code>/captcha</code></td><td>GET</td><td><code>id</code>, <code>expires_at</code>, <code>expires_in</code>, <code>proof_of_work</code>, <code>verify</code>, <code>click</code></td></tr>
-<tr><td>Web</td><td><code>/captcha_verify/{id}/{nonce}[/{clicks}]</code></td><td>GET</td><td><code>valid</code>, <code>checked</code>, <code>reason</code></td></tr>
+<tr><td>Web</td><td><code>/captcha[/{level}]</code></td><td>GET</td><td><code>id</code>, <code>level</code>, <code>expires_at</code>, <code>expires_in</code>, <code>proof_of_work</code>, <code>verify</code>, <code>click</code></td></tr>
+<tr><td>Web</td><td><code>/captcha_verify/{id}/{nonce}[/{clicks}]</code></td><td>GET</td><td><code>valid</code>, <code>checked</code>, <code>reason</code>, <code>level</code></td></tr>
 <tr><td>Web</td><td><code>/client_ip</code></td><td>GET</td><td><code>ip</code></td></tr>
 <tr><td>Web</td><td><code>/user_agent</code></td><td>GET</td><td><code>user_agent</code></td></tr>
 <tr><td>Web</td><td><code>/ip_reverse_lookup/{ip}</code></td><td>GET</td><td><code>country</code>, <code>city</code>, <code>location</code>, <code>timezone</code></td></tr>

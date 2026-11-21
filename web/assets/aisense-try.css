@@ -48,3 +48,6 @@
 @keyframes try-captcha-spin { to { transform: rotate(360deg); } }
 /* The first wait, before there is a picture: an empty frame of its size. */
 .try-api .try-captcha-empty { aspect-ratio: 3 / 2; border: 1px solid var(--border); border-radius: 6px; background: var(--tint); }
+.try-api .try-captcha-empty.is-square { aspect-ratio: 1 / 1; }
+.try-api .try-captcha-level { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 0 12px; font-weight: 600; color: var(--ink); }
+.try-api .try-captcha-level select { width: auto; min-height: 0; padding: 8px 10px; }

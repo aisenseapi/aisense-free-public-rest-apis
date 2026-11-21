@@ -15,7 +15,7 @@
  *   data-try-sample    a file the run button sends when the box has no text field
  *   data-try-chars     present when the status line should count the characters of the answer
  *   data-try-method    GET for the endpoints whose quick start is a GET; POST otherwise
- *   data-try-captcha   the captcha box: make a challenge, show its picture to click, solve the proof of work in the page and check both once
+ *   data-try-captcha   the captcha box: make a challenge at the level chosen, show its picture to click, solve the proof of work in the page and check both once
  *
  * A GET box sends no body: an input .try-args, when there is one, holds the arguments that follow the
  * endpoint in the path, separated by /, and each one is percent-encoded on its own.
@@ -124,6 +124,22 @@
     var noteText = note ? note.textContent : '';
     var chosen = null;
     var url = null;
+    // The captcha box asks for a level beside its button: normal, hard or harder.
+    var captchaLevel = null;
+    if (captcha && run) {
+      var levelLabel = document.createElement('label');
+      levelLabel.className = 'try-captcha-level';
+      levelLabel.appendChild(document.createTextNode('Level '));
+      captchaLevel = document.createElement('select');
+      ['normal', 'hard', 'harder'].forEach(function (name) {
+        var option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        captchaLevel.appendChild(option);
+      });
+      levelLabel.appendChild(captchaLevel);
+      run.parentNode.appendChild(levelLabel);
+    }
 
     function show(text, state) {
       status.textContent = text;
@@ -305,8 +321,9 @@
     }
 
     // The picture of a captcha challenge, its question and Start over. A click becomes a point in picture pixels,
-    // measured inside the border, with a numbered mark where it landed.
+    // measured inside the border, with a numbered mark where it landed, up to as many as the question asks for.
     function picturePanel(task, clicks, changed, locked, renew) {
+      var needed = task.count || 3;
       var panel = document.createElement('div');
       panel.className = 'try-captcha';
       var question = document.createElement('p');
@@ -318,7 +335,7 @@
       img.src = task.image;
       img.width = task.width;
       img.height = task.height;
-      img.alt = 'Six symbols to click in the order above';
+      img.alt = 'Symbols to click in the order above';
       frame.appendChild(img);
       var again = document.createElement('button');
       again.type = 'button';
@@ -336,7 +353,7 @@
         });
       }
       img.addEventListener('click', function (event) {
-        if (clicks.length >= 3 || locked() || panel.classList.contains('is-loading')) { return; }
+        if (clicks.length >= needed || locked() || panel.classList.contains('is-loading')) { return; }
         var box = img.getBoundingClientRect();
         var x = Math.round((event.clientX - box.left - img.clientLeft) / img.clientWidth * task.width);
         var y = Math.round((event.clientY - box.top - img.clientTop) / img.clientHeight * task.height);
@@ -354,10 +371,16 @@
       return panel;
     }
 
-    // The captcha box: make a challenge, show its picture while the page solves the proof of work, take three
-    // clicks, then check both once and show every step. A new challenge replaces one still waiting for clicks.
+    // The captcha box: make a challenge at the level chosen, show its picture while the page solves the proof of
+    // work, take the clicks the question asks for, then check both once and show every step. A new challenge
+    // replaces one still waiting for clicks, and so does a new level while a picture is shown.
     var captchaRun = 0;
     var captchaBox = null;
+    if (captchaLevel) {
+      captchaLevel.addEventListener('change', function () {
+        if (captchaBox && captchaBox.querySelector('img')) { sendCaptcha(true); }
+      });
+    }
     function sendCaptcha(renewing) {
       var nl = String.fromCharCode(10);
       var lines = [];
@@ -366,18 +389,21 @@
       var took = 0;
       var started = 0;
       var clicks = [];
+      var needed = 3;
       var checking = false;
       var mine = ++captchaRun;
       var current = function () { return mine === captchaRun; };
+      var level = captchaLevel ? captchaLevel.value : 'normal';
+      var making = level === 'normal' ? 'captcha' : 'captcha/' + level;
       run.disabled = true;
       clear();
       // Both buttons wait the same way: the picture there is greys under a spinner, and the first time an empty
-      // frame of the same size holds it, for at least a second and a half.
+      // frame of the same size holds it, for at least a second and a half. harder's picture is square.
       if (!captchaBox) {
         captchaBox = document.createElement('div');
         captchaBox.className = 'try-captcha';
         var empty = document.createElement('div');
-        empty.className = 'try-captcha-picture try-captcha-empty';
+        empty.className = 'try-captcha-picture try-captcha-empty' + (level === 'harder' ? ' is-square' : '');
         captchaBox.appendChild(empty);
         card.insertBefore(captchaBox, status);
       }
@@ -418,10 +444,10 @@
       function step() {
         if (!current() || checking) { return; }
         if (nonce === null) {
-          show(clicks.length === 3 ? 'Finishing the proof of work' : 'Click the symbols in the order asked. The proof of work runs meanwhile');
+          show(clicks.length === needed ? 'Finishing the proof of work' : 'Click the symbols in the order asked. The proof of work runs meanwhile');
           return;
         }
-        if (clicks.length < 3) {
+        if (clicks.length < needed) {
           show('The proof of work took ' + took + ' ms. Click the symbols in the order asked');
           return;
         }
@@ -429,8 +455,8 @@
       }
 
       Promise.all([
-        fetch(API + 'captcha', { method: 'GET' }).then(function (response) {
-          if (!response.ok) { throw new Error('GET /services/v1/captcha answered HTTP ' + response.status); }
+        fetch(API + making, { method: 'GET' }).then(function (response) {
+          if (!response.ok) { throw new Error('GET /services/v1/' + making + ' answered HTTP ' + response.status); }
           return response.json();
         }),
         new Promise(function (resolve) { setTimeout(resolve, 1500); })
@@ -439,9 +465,10 @@
         if (!current()) { return null; }
         if (!json.click) { throw new Error('the challenge has no picture'); }
         made = json;
+        needed = json.click.count || 3;
         var shown = JSON.parse(JSON.stringify(json));
         shown.click.image = json.click.image.slice(0, 40) + '... (' + json.click.image.length + ' characters)';
-        lines.push('GET /services/v1/captcha - HTTP 200', JSON.stringify(shown, null, 2));
+        lines.push('GET /services/v1/' + making + ' - HTTP 200', JSON.stringify(shown, null, 2));
         var panel = picturePanel(json.click, clicks, step, function () { return checking; }, function () { sendCaptcha(true); });
         if (captchaBox) { captchaBox.parentNode.replaceChild(panel, captchaBox); } else { card.insertBefore(panel, status); }
         captchaBox = panel;

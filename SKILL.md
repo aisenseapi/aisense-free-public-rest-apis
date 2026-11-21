@@ -857,8 +857,8 @@ refuses or fails, the answer is 503 with `Retry-After: 10` and a `fix`.
 | `/password_verify` | POST | `match`, `algorithm`, `params` |
 | `/ping` | GET | `ping` |
 | `/health` | GET | `status`, `microtimestamp` |
-| `/captcha` | GET | `id`, `expires_at`, `expires_in`, `proof_of_work`, `verify`, `click` |
-| `/captcha_verify/{id}/{nonce}[/{clicks}]` | GET | `valid`, `checked`, `reason` |
+| `/captcha[/{level}]` | GET | `id`, `level`, `expires_at`, `expires_in`, `proof_of_work`, `verify`, `click` |
+| `/captcha_verify/{id}/{nonce}[/{clicks}]` | GET | `valid`, `checked`, `reason`, `level` |
 | `/client_ip` | GET | `ip` |
 | `/user_agent` | GET | `user_agent` |
 | `/ip_reverse_lookup/{ip}` | GET | `ip`, `country`, `city`, `location`, `place`, `timezone` |

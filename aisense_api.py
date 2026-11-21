@@ -706,24 +706,44 @@ class AISenseAPI:
         """Health check. Response keys: ``status`` and ``microtimestamp``."""
         return self._get("/health")
 
-    def get_captcha(self) -> dict:
+    CAPTCHA_LEVELS = ("normal", "hard", "harder")
+
+    def get_captcha(self, level: Optional[str] = None) -> dict:
         """Create a captcha challenge for a form: a proof of work (find a nonce so
         that SHA-256 of ``salt`` followed by the nonce in decimal starts with
-        ``bits`` zero bits) and a click task (a PNG with six shapes, digits and
-        letters, three of them to click in order). Response keys: ``id``,
-        ``expires_at``, ``expires_in``, ``proof_of_work``, ``verify`` and ``click``."""
-        return self._get("/captcha")
+        ``bits`` zero bits) and a click task (a PNG of shapes, digits and letters to
+        click in an order). ``level`` is ``normal`` (the default: 18 bits, three
+        symbols named), ``hard`` (19 bits, four by a rule) or ``harder`` (20 bits,
+        five of nine by a rule). Response keys: ``id``, ``level``, ``expires_at``,
+        ``expires_in``, ``proof_of_work``, ``verify`` and ``click``, whose ``count``
+        says how many points to click."""
+        if level is None:
+            return self._get("/captcha")
+        if level not in self.CAPTCHA_LEVELS:
+            raise ValueError("level must be normal, hard or harder")
+        return self._get(f"/captcha/{level}")
 
-    def verify_captcha(self, id: str, nonce, clicks: Optional[str] = None) -> dict:
+    def verify_captcha(self, id: str, nonce, clicks: Optional[str] = None, level: Optional[str] = None) -> dict:
         """Check a captcha nonce, and with ``clicks`` the click task too, once, from
-        the server that received the form. ``clicks`` is the three points clicked,
-        in the order asked, in picture pixels: ``x-y`` joined by ``_``. Without it
-        only the proof of work is checked. Response keys: ``valid``, ``checked``, and
-        ``reason`` when it is not valid (``wrong_nonce``, ``wrong_clicks``,
-        ``expired``, ``used`` or ``unknown``)."""
+        the server that received the form. ``clicks`` is the points clicked, three
+        to five as the question asks, in its order, in picture pixels: ``x-y``
+        joined by ``_``. Without it only the proof of work is checked. Response
+        keys: ``valid``, ``checked``, ``reason`` when it is not valid
+        (``wrong_nonce``, ``wrong_clicks``, ``expired``, ``used`` or ``unknown``) and
+        ``level``. Give ``level`` to require at least that level: the browser
+        fetched the challenge, so an easier one comes back with ``valid`` false and
+        ``reason`` ``wrong_level``, used up all the same."""
+        if level is not None and level not in self.CAPTCHA_LEVELS:
+            raise ValueError("level must be normal, hard or harder")
         if clicks is not None:
-            return self._get(f"/captcha_verify/{id}/{nonce}/{clicks}")
-        return self._get(f"/captcha_verify/{id}/{nonce}")
+            answer = self._get(f"/captcha_verify/{id}/{nonce}/{clicks}")
+        else:
+            answer = self._get(f"/captcha_verify/{id}/{nonce}")
+        if level is not None and answer.get("valid") is True:
+            got = answer.get("level") or "normal"
+            if got not in self.CAPTCHA_LEVELS or self.CAPTCHA_LEVELS.index(got) < self.CAPTCHA_LEVELS.index(level):
+                answer = dict(answer, valid=False, reason="wrong_level")
+        return answer
 
     def get_client_ip(self) -> dict:
         """Your public IP address. Response key: ``ip``."""
