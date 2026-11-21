@@ -323,7 +323,8 @@
     // How many points a challenge asks for, once it has everything the picture and the solver need at the level asked
     // for: a challenge from before the levels has no level and no count and is normal with three. Anything else is
     // thrown, so a half answer never replaces the picture. 24 bits keeps a visitor's browser from a runaway task. At
-    // hardest the picture comes turned, and turn_step must divide a full turn.
+    // hardest the picture comes turned, and turn_step must divide a full turn. The sizes, the bits and the step are
+    // whole numbers, as the API sends them: 18.5 or "360" is not taken.
     function captchaCount(challenge, level) {
       var counts = { normal: 3, hard: 4, harder: 5, hardest: 5 };
       var click = challenge && challenge.click;
@@ -332,9 +333,10 @@
       var count = click && click.count === undefined && level === 'normal' ? 3 : click && click.count;
       if (!click || !work || answered !== level || count !== counts[level] || typeof challenge.id !== 'string' || !challenge.id
           || typeof click.question !== 'string' || !click.question || typeof click.image !== 'string'
-          || click.image.indexOf('data:image/png;base64,') !== 0 || click.image.length <= 22 || !(click.width > 0) || !(click.height > 0)
-          || typeof work.salt !== 'string' || !work.salt || !(work.bits >= 1 && work.bits <= 24)
-          || (level === 'hardest' && !(click.turn_step > 0 && click.turn_step < 360 && 360 % click.turn_step === 0))) {
+          || click.image.indexOf('data:image/png;base64,') !== 0 || click.image.length <= 22
+          || !Number.isInteger(click.width) || click.width <= 0 || !Number.isInteger(click.height) || click.height <= 0
+          || typeof work.salt !== 'string' || !work.salt || !Number.isInteger(work.bits) || work.bits < 1 || work.bits > 24
+          || (level === 'hardest' && !(Number.isInteger(click.turn_step) && click.turn_step > 0 && click.turn_step < 360 && 360 % click.turn_step === 0))) {
         throw new Error('the challenge came back incomplete');
       }
       return count;
@@ -480,27 +482,46 @@
         var written = clicks.map(function (point) { return point[0] + '-' + point[1]; }).join('_');
         var path = 'captcha_verify/' + made.id + '/' + nonce + '/' + written;
         show('Checking');
-        fetch(API + path, { method: 'GET' }).then(function (response) {
-          return response.text().then(function (text) {
-            if (!current()) { return; }
-            lines.push('', 'GET /services/v1/' + path + ' - HTTP ' + response.status, text);
-            out.textContent = lines.join(nl);
-            result.hidden = false;
-            var json = null;
-            try { json = JSON.parse(text); } catch (e) { json = null; }
-            if (!response.ok) {
-              show('The check answered HTTP ' + response.status, 'bad');
-            } else if (json && json.valid === true) {
-              show('Checked once: the clicks and the proof of work are right', 'ok');
-            } else if (json && json.reason === 'wrong_clicks') {
-              show('Those were not the symbols asked for, in that order' + (turning ? ', on the picture turned upright' : '')
-                + '. Make a new challenge to try again', 'bad');
-            } else {
-              show('Checked once: ' + (json && json.reason ? json.reason : 'not valid'), 'bad');
-            }
-          });
+        // The check gets 15 s for its whole reply, the body included, as making the challenge does. One that never
+        // answers may have used the challenge all the same, so the box asks for a new one and never sends it again.
+        var checkAbort = typeof AbortController === 'function' ? new AbortController() : null;
+        var checkTimer = 0;
+        var deadline = new Promise(function (resolve, reject) {
+          checkTimer = setTimeout(function () {
+            var late = new Error('no reply within 15 s');
+            late.name = 'TimeoutError';
+            reject(late);
+            if (checkAbort) { checkAbort.abort(); }
+          }, 15000);
+        });
+        var reply = fetch(API + path, { method: 'GET', signal: checkAbort ? checkAbort.signal : undefined }).then(function (response) {
+          return response.text().then(function (text) { return { response: response, text: text }; });
+        });
+        Promise.race([reply, deadline]).then(function (got) {
+          clearTimeout(checkTimer);
+          if (!current()) { return; }
+          var response = got.response;
+          var text = got.text;
+          lines.push('', 'GET /services/v1/' + path + ' - HTTP ' + response.status, text);
+          out.textContent = lines.join(nl);
+          result.hidden = false;
+          var json = null;
+          try { json = JSON.parse(text); } catch (e) { json = null; }
+          if (!response.ok) {
+            show('The check answered HTTP ' + response.status, 'bad');
+          } else if (json && json.valid === true) {
+            show('Checked once: the clicks and the proof of work are right', 'ok');
+          } else if (json && json.reason === 'wrong_clicks') {
+            show('Those were not the symbols asked for, in that order' + (turning ? ', on the picture turned upright' : '')
+              + '. Make a new challenge to try again', 'bad');
+          } else {
+            show('Checked once: ' + (json && json.reason ? json.reason : 'not valid'), 'bad');
+          }
         }).catch(function (error) {
-          if (current()) { show('The request failed: ' + error.message, 'bad'); }
+          clearTimeout(checkTimer);
+          if (!current()) { return; }
+          show((error && error.name === 'TimeoutError' ? 'The check did not answer within 15 s' : 'The check could not be read')
+            + '. It may have been used all the same. Make a new challenge to go on', 'bad');
         });
       }
 
