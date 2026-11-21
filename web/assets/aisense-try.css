@@ -49,12 +49,12 @@
 /* The first wait, before there is a picture: an empty frame of its size. */
 .try-api .try-captcha-empty { aspect-ratio: 3 / 2; border: 1px solid var(--border); border-radius: 6px; background: var(--tint); }
 .try-api .try-captcha-empty.is-square { aspect-ratio: 1 / 1; }
-/* hardest: the picture comes turned, so it is shown round, and the buttons under it or the arrow keys turn it. */
+/* hardest: the picture comes turned, so it is shown round, and the buttons under it or the arrow keys turn it.
+   It turns at once, with no animation: a click during one would land where a symbol was on its way, and the
+   step from 288 degrees to 0 would spin back almost a full turn. */
 .try-api .try-captcha-picture.is-round img, .try-api .try-captcha-empty.is-round { border-radius: 50%; }
-.try-api .try-captcha-picture.is-round img { transition: transform .2s ease; }
 .try-api .try-captcha-picture.is-round:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 50%; }
 .try-api .try-captcha-turns { display: flex; gap: 8px; margin: 8px 0 0; }
 .try-api .try-captcha-turn { min-width: 48px; font-size: 20px; line-height: 1; }
-@media (prefers-reduced-motion: reduce) { .try-api .try-captcha-picture.is-round img { transition: none; } }
 .try-api .try-captcha-level { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 0 12px; font-weight: 600; color: var(--ink); }
 .try-api .try-captcha-level select { width: auto; min-height: 0; padding: 8px 10px; }
