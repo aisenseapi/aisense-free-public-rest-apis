@@ -496,8 +496,11 @@
       }).catch(function (error) {
         clearTimeout(timer);
         if (!current()) { return; }
-        show(error && error.name === 'AbortError' ? 'The request took longer than 15 s. Try again' : 'The request failed: ' + error.message, 'bad');
-        if (captchaBox && !captchaBox.querySelector('img')) {
+        show((error && error.name === 'AbortError' ? 'The request took longer than 15 s' : 'The request failed: ' + error.message)
+          + '. Make a challenge to try again', 'bad');
+        // A run whose picture never came leaves none: the one still shown belongs to a run that is over, so its clicks
+        // could not be checked, and the menu may already name another level.
+        if (captchaBox && made === null) {
           captchaBox.parentNode.removeChild(captchaBox);
           captchaBox = null;
         } else if (captchaBox) {
