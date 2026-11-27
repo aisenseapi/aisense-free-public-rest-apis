@@ -549,9 +549,11 @@ $("recv-copy").addEventListener("click", async () => {
 
 // ------------------------------------------------------ 3. another device: send --
 
-$("send-to").addEventListener("input", () => {
-  if ($("send-out").classList.contains("is-bad")) setText($("send-out"), "");
-});
+for (const id of ["send-to", "send-text"]) {
+  $(id).addEventListener("input", () => {
+    if ($("send-out").classList.contains("is-bad")) setText($("send-out"), "");
+  });
+}
 
 $("send-go").addEventListener("click", exclusive(async () => {
   const out = $("send-out");
@@ -561,11 +563,18 @@ $("send-go").addEventListener("click", exclusive(async () => {
     $("send-to").focus();
     return;
   }
+  // The field starts empty with a hint, so an empty one is a message not yet written, never a default text.
+  const text = $("send-text").value;
+  if (!text.trim()) {
+    setText(out, "Write the message to send.", "is-bad");
+    $("send-text").focus();
+    return;
+  }
   const client = mine ? mine.client : new Aamio({ keys: Keys.generate() });
   const useWasm = $("send-wasm").checked && Boolean(wasmSolver);
   const gate = await client.gate(to);
   const bits = gate?.require?.pow?.bits ?? gate?.advise?.pow?.bits ?? 0;
-  const body = { text: $("send-text").value || "hello" };
+  const body = { text };
   if (mine) body.reply_to = mine.inbox.w;
   setText(out, bits ? `The inbox asks for ${bits} bits of work. Working in ${useWasm ? "WebAssembly" : "JavaScript"}...` : "Sending...");
   await paint();
